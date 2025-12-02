@@ -17,40 +17,58 @@
     align-items: center;
     justify-content: center;
 
-    /* animated gradient background */
-    background: radial-gradient(circle at 30% 30%, #0d1224, #050816 70%);
-    background-size: 200% 200%;
-    animation: bgShift 18s ease-in-out infinite;
+    /* layered “wave” background */
+    background:
+      radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.25), transparent 55%),
+      radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.22), transparent 55%),
+      linear-gradient(120deg, #020617, #050816, #020617);
+    background-size: 130% 130%, 130% 130%, 220% 220%;
+    background-position: 0% 0%, 100% 100%, 50% 0%;
+    animation: waveShift 26s ease-in-out infinite alternate;
 
-    /* needed for the 3D tilt on the card */
+    /* needed for 3D tilt */
     perspective: 1000px;
   }
 
-  @keyframes bgShift {
-    0%   { background-position: 30% 30%; }
-    50%  { background-position: 70% 70%; }
-    100% { background-position: 30% 30%; }
+  @keyframes waveShift {
+    0% {
+      background-position: 0% 0%, 100% 100%, 50% 0%;
+    }
+    50% {
+      background-position: 20% 30%, 80% 70%, 40% 60%;
+    }
+    100% {
+      background-position: 0% 60%, 100% 0%, 60% 40%;
+    }
   }
 
   .card {
     width: min(700px, 90vw);
-    background: rgba(12, 12, 22, 0.95);
+    background: rgba(15, 23, 42, 0.70); /* glassy slate */
     border-radius: 18px;
     padding: 24px 24px 18px;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px); /* Safari */
-
-    /* glass tilt */
+    box-shadow: 0 22px 55px rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    backdrop-filter: blur(26px) saturate(140%);
+    -webkit-backdrop-filter: blur(26px) saturate(140%);
     position: relative;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
+
+    /* smooth tilt transitions */
+    transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
     transform-style: preserve-3d;
   }
 
-  .card:hover {
-    transform: translateY(-4px) rotateX(3deg) rotateY(-3deg);
-    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.7);
+  /* glossy highlight layer on the glass */
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background:
+      radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.24), transparent 55%);
+    opacity: 0.5;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
   }
 
   h1 {
@@ -279,39 +297,92 @@
   </main>
 
   <script>
-    // Auto-update year
-    document.getElementById('year').textContent = new Date().getFullYear();
+  // Auto-update year
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Collapsible citations behavior
-    (function () {
-      var button = document.querySelector('.toggle-citations');
-      var panel = document.getElementById('citations-panel');
-      if (!button || !panel) return;
+  // Collapsible citations behavior
+  (function () {
+    var button = document.querySelector('.toggle-citations');
+    var panel = document.getElementById('citations-panel');
+    if (!button || !panel) return;
 
-      var labelSpan = button.querySelector('.toggle-citations-label');
-      var iconSpan = button.querySelector('.toggle-citations-icon');
+    var labelSpan = button.querySelector('.toggle-citations-label');
+    var iconSpan = button.querySelector('.toggle-citations-icon');
 
-      function setState(expanded) {
-        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        if (expanded) {
-          panel.removeAttribute('hidden');
-          if (labelSpan) labelSpan.textContent = 'Hide citations';
-          if (iconSpan) iconSpan.textContent = '▲';
-        } else {
-          panel.setAttribute('hidden', '');
-          if (labelSpan) labelSpan.textContent = 'Show citations';
-          if (iconSpan) iconSpan.textContent = '▼';
-        }
+    function setState(expanded) {
+      button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      if (expanded) {
+        panel.removeAttribute('hidden');
+        if (labelSpan) labelSpan.textContent = 'Hide citations';
+        if (iconSpan) iconSpan.textContent = '▲';
+      } else {
+        panel.setAttribute('hidden', '');
+        if (labelSpan) labelSpan.textContent = 'Show citations';
+        if (iconSpan) iconSpan.textContent = '▼';
       }
+    }
 
-      button.addEventListener('click', function () {
-        var isExpanded = button.getAttribute('aria-expanded') === 'true';
-        setState(!isExpanded);
-      });
+    button.addEventListener('click', function () {
+      var isExpanded = button.getAttribute('aria-expanded') === 'true';
+      setState(!isExpanded);
+    });
 
-      // start collapsed
-      setState(false);
-    })();
-  </script>
+    // start collapsed
+    setState(false);
+  })();
+
+  // Interactive tilt based on pointer position
+  (function () {
+    var card = document.querySelector('.card');
+    if (!card) return;
+
+    // Respect reduced-motion preference
+    var prefersReduced =
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    var maxRotate = 7; // degrees
+    var reqId = null;
+    var lastX = 0, lastY = 0;
+
+    function updateTransform() {
+      // lastX/Y are in [0,1]
+      var rotateY = (lastX - 0.5) * 2 * maxRotate;   // left/right
+      var rotateX = (0.5 - lastY) * 2 * maxRotate;   // up/down
+
+      card.style.transform =
+        'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) ' +
+        'rotateY(' + rotateY.toFixed(2) + 'deg)';
+
+      reqId = null;
+    }
+
+    function handleMove(e) {
+      var rect = card.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width;
+      var y = (e.clientY - rect.top) / rect.height;
+
+      // clamp between 0 and 1
+      x = Math.max(0, Math.min(1, x));
+      y = Math.max(0, Math.min(1, y));
+
+      lastX = x;
+      lastY = y;
+
+      if (reqId === null) {
+        reqId = requestAnimationFrame(updateTransform);
+      }
+    }
+
+    function reset() {
+      card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+    }
+
+    card.addEventListener('mousemove', handleMove);
+    card.addEventListener('mouseenter', reset);
+    card.addEventListener('mouseleave', reset);
+  })();
+</script>
 </body>
 </html>
