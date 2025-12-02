@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nick Christoforakis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050816;
+    }
+
+    .card {
+      width: min(700px, 90vw);
+      background: rgba(12, 12, 22, 0.95);
+      border-radius: 18px;
+      padding: 24px 24px 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.9rem;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      opacity: 0.7;
+      font-size: 0.95rem;
+    }
+
+    .section-title {
+      margin: 18px 0 8px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.75;
+    }
+
+    .poster-meta {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.75rem;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+
+    .citations {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .citations li + li {
+      margin-top: 10px;
+    }
+
+    a {
+      color: #7cc6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.8rem;
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .inline-links a + a {
+      margin-left: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 16px 14px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <header>
+      <h1>Nick Christoforakis</h1>
+      <p class="subtitle">Poster: “Your Poster Title Goes Here”</p>
+    </header>
+
+    <section>
+      <p class="poster-meta">
+        Presented at <strong>[Conference / Course / Event]</strong> • [Date] • [Location or Institution]
+      </p>
+
+      <div class="chips">
+        <span class="chip">Student Project</span>
+        <span class="chip">Research Poster</span>
+        <span class="chip">Citations &amp; Resources</span>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Citations</h2>
+      <ol class="citations">
+        <li>
+          Lastname, A. &amp; Lastname, B. (Year).
+          <em>Paper Title</em>.
+          Journal Name.
+          <a href="https://doi.org/..." target="_blank" rel="noopener noreferrer">DOI / Link</a>
+        </li>
+        <li>
+          Another, C. (Year).
+          <em>Another Source Title</em>.
+          <a href="https://example.com" target="_blank" rel="noopener noreferrer">View online</a>
+        </li>
+        <!-- Add more citations here -->
+      </ol>
+    </section>
+
+    <section>
+      <h2 class="section-title">Project Files</h2>
+      <p class="poster-meta">
+        • <a href="LINK_TO_POSTER_PDF" target="_blank" rel="noopener noreferrer">View Poster (PDF)</a><br />
+        • <a href="LINK_TO_SLIDES_OR_EXTRA_MATERIAL" target="_blank" rel="noopener noreferrer">Additional Materials</a>
+      </p>
+    </section>
+
+    <footer class="footer">
+      <span>&copy; <span id="year"></span> Nick Christoforakis</span>
+      <span class="inline-links">
+        <a href="mailto:youremail@example.com">Email</a>
+        <a href="https://www.linkedin.com/in/yourhandle" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://github.com/yourhandle" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </span>
+    </footer>
+  </main>
+
+  <script>
+    // Auto-update year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
