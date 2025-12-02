@@ -107,6 +107,36 @@
       margin-left: 12px;
     }
 
+    /* Collapsible citations */
+    .toggle-citations {
+      margin-top: 6px;
+      margin-bottom: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-citations:focus-visible {
+      outline: 2px solid #7cc6ff;
+      outline-offset: 2px;
+    }
+
+    .toggle-citations-icon {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    #citations-panel[hidden] {
+      display: none;
+    }
+
     @media (max-width: 480px) {
       .card {
         padding: 18px 16px 14px;
@@ -121,7 +151,7 @@
   <main class="card">
     <header>
       <h1>Nick Christoforakis</h1>
-      <p class="subtitle">Does living in a high-trust society make us happier? A cross-sectional analysis using World Values Survey Wave 7 data"</p>
+      <p class="subtitle">Does living in a high-trust society make us happier? A cross-sectional analysis using World Values Survey Wave 7 data</p>
     </header>
 
     <section>
@@ -138,20 +168,33 @@
 
     <section>
       <h2 class="section-title">Citations</h2>
-      <ol class="citations">
-        <li>
-          Lastname, A. &amp; Lastname, B. (Year).
-          <em>Paper Title</em>.
-          Journal Name.
-          <a href="https://doi.org/..." target="_blank" rel="noopener noreferrer">DOI / Link</a>
-        </li>
-        <li>
-          Another, C. (Year).
-          <em>Another Source Title</em>.
-          <a href="https://example.com" target="_blank" rel="noopener noreferrer">View online</a>
-        </li>
-        <!-- Add more citations here -->
-      </ol>
+
+      <button
+        class="toggle-citations"
+        type="button"
+        aria-expanded="false"
+        aria-controls="citations-panel"
+      >
+        <span class="toggle-citations-icon">▼</span>
+        <span class="toggle-citations-label">Show citations</span>
+      </button>
+
+      <div id="citations-panel" hidden>
+        <ol class="citations">
+          <li>
+            Lastname, A. &amp; Lastname, B. (Year).
+            <em>Paper Title</em>.
+            Journal Name.
+            <a href="https://doi.org/..." target="_blank" rel="noopener noreferrer">DOI / Link</a>
+          </li>
+          <li>
+            Another, C. (Year).
+            <em>Another Source Title</em>.
+            <a href="https://example.com" target="_blank" rel="noopener noreferrer">View online</a>
+          </li>
+          <!-- Add more citations here -->
+        </ol>
+      </div>
     </section>
 
     <section>
@@ -166,7 +209,7 @@
       <span>&copy; <span id="year"></span> Nick Christoforakis</span>
       <span class="inline-links">
         <a href="mailto:nick@christoforakis.com">Email</a>
-        <a href="www.linkedin.com/in/nicholas-christoforakis-79a38038b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/nicholas-christoforakis-79a38038b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         <a href="https://www.instagram.com/nickchristoforakis/" target="_blank" rel="noopener noreferrer">Instagram</a>
       </span>
     </footer>
@@ -175,6 +218,37 @@
   <script>
     // Auto-update year
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Collapsible citations behavior
+    (function () {
+      var button = document.querySelector('.toggle-citations');
+      var panel = document.getElementById('citations-panel');
+      if (!button || !panel) return;
+
+      var labelSpan = button.querySelector('.toggle-citations-label');
+      var iconSpan = button.querySelector('.toggle-citations-icon');
+
+      function setState(expanded) {
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        if (expanded) {
+          panel.removeAttribute('hidden');
+          if (labelSpan) labelSpan.textContent = 'Hide citations';
+          if (iconSpan) iconSpan.textContent = '▲';
+        } else {
+          panel.setAttribute('hidden', '');
+          if (labelSpan) labelSpan.textContent = 'Show citations';
+          if (iconSpan) iconSpan.textContent = '▼';
+        }
+      }
+
+      button.addEventListener('click', function () {
+        var isExpanded = button.getAttribute('aria-expanded') === 'true';
+        setState(!isExpanded);
+      });
+
+      // start collapsed
+      setState(false);
+    })();
   </script>
 </body>
 </html>
