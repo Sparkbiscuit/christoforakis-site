@@ -5,244 +5,295 @@
   <title>Nick Christoforakis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-  :root {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color-scheme: light dark;
-  }
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
 
     body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-  /* wave-like but subtle Apple-style colors */
-  background:
-    radial-gradient(circle at 20% 20%, rgba(94, 129, 244, 0.25), transparent 65%),
-    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.22), transparent 65%),
-    radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.18), transparent 70%),
-    linear-gradient(120deg, #050816, #0b0f2b, #050816);
-  background-size: 180% 180%, 180% 180%, 200% 200%, 200% 200%;
-  background-position:
-    20% 20%,
-    80% 30%,
-    40% 80%,
-    50% 50%;
-  background-blend-mode: screen;
-  animation: waveShift 22s ease-in-out infinite alternate;
+      /* wave-like background with the earlier color vibe */
+      background:
+        radial-gradient(circle at 20% 20%, rgba(94, 129, 244, 0.25), transparent 65%),
+        radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.22), transparent 65%),
+        radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.18), transparent 70%),
+        linear-gradient(120deg, #050816, #0b0f2b, #050816);
+      background-size: 180% 180%, 180% 180%, 200% 200%, 200% 200%;
+      background-position:
+        20% 20%,
+        80% 30%,
+        40% 80%,
+        50% 50%;
+      background-blend-mode: screen;
+      animation: waveShift 22s ease-in-out infinite alternate;
 
-  /* needed for 3D tilt */
-  perspective: 1000px;
-}
-
-@keyframes waveShift {
-  0% {
-    background-position:
-      20% 20%,
-      80% 30%,
-      40% 80%,
-      50% 50%;
-  }
-  50% {
-    background-position:
-      10% 40%,
-      70% 10%,
-      30% 90%,
-      60% 60%;
-  }
-  100% {
-    background-position:
-      30% 60%,
-      90% 40%,
-      60% 70%,
-      40% 80%;
-  }
-}
-
-  .card {
-  width: min(700px, 90vw);
-  padding: 24px 24px 18px;
-  border-radius: 22px;
-
-  /* LIQUID GLASS appearance */
-  background: rgba(255, 255, 255, 0.08); /* thinner, more translucent */
-  backdrop-filter: blur(32px) saturate(160%);
-  -webkit-backdrop-filter: blur(32px) saturate(160%);
-
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow:
-    0 25px 60px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 0 rgba(255, 255, 255, 0.2);
-
-  position: relative;
-  overflow: hidden;
-
-  /* tilt physics */
-  transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
-  transform-style: preserve-3d;
-}
-
-/* glossy highlight sweep */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: -60%;
-  background:
-    radial-gradient(
-      circle at 30% 30%,
-      rgba(255, 255, 255, 0.45),
-      transparent 55%
-    );
-  opacity: 0.35;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  filter: blur(40px);
-}
-
-/* subtle inner glow to make edges feel rounded/3D */
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle at 50% 0%,
-    rgba(255, 255, 255, 0.20),
-    transparent 60%
-  );
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  opacity: 0.18;
-}
-
-  h1 {
-    margin: 0 0 4px;
-    font-size: 1.9rem;
-    letter-spacing: 0.03em;
-  }
-
-  .subtitle {
-    margin: 0 0 18px;
-    opacity: 0.7;
-    font-size: 0.95rem;
-  }
-
-  .section-title {
-    margin: 18px 0 8px;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    opacity: 0.75;
-  }
-
-  .poster-meta {
-    font-size: 0.9rem;
-    opacity: 0.85;
-    margin-bottom: 12px;
-  }
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .chip {
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    font-size: 0.75rem;
-    opacity: 0.9;
-    white-space: nowrap;
-  }
-
-  .citations {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.9rem;
-  }
-
-  .citations li + li {
-    margin-top: 10px;
-  }
-
-  a {
-    color: #7cc6ff;
-    text-decoration: none;
-  }
-
-  a:hover {
-    text-decoration: underline;
-  }
-
-  .footer {
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    font-size: 0.8rem;
-    opacity: 0.7;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .inline-links a + a {
-    margin-left: 12px;
-  }
-
-  /* Collapsible citations */
-  .toggle-citations {
-    margin-top: 6px;
-    margin-bottom: 10px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: transparent;
-    color: inherit;
-    font-size: 0.8rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .toggle-citations:focus-visible {
-    outline: 2px solid #7cc6ff;
-    outline-offset: 2px;
-  }
-
-  .toggle-citations-icon {
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  #citations-panel[hidden] {
-    display: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    body {
-      animation: none;
+      /* needed for 3D tilt */
+      perspective: 1000px;
     }
+
+    @keyframes waveShift {
+      0% {
+        background-position:
+          20% 20%,
+          80% 30%,
+          40% 80%,
+          50% 50%;
+      }
+      50% {
+        background-position:
+          10% 40%,
+          70% 10%,
+          30% 90%,
+          60% 60%;
+      }
+      100% {
+        background-position:
+          30% 60%,
+          90% 40%,
+          60% 70%,
+          40% 80%;
+      }
+    }
+
     .card {
-      transition: none;
-      transform: none !important;
-    }
-  }
+      width: min(700px, 90vw);
+      background: rgba(15, 23, 42, 0.70); /* dark glass */
+      border-radius: 18px;
+      padding: 24px 24px 18px;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      backdrop-filter: blur(26px) saturate(140%);
+      -webkit-backdrop-filter: blur(26px) saturate(140%);
+      position: relative;
+      overflow: hidden;
 
-  @media (max-width: 480px) {
-    .card {
-      padding: 18px 16px 14px;
+      /* smooth tilt transitions */
+      transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
+      transform-style: preserve-3d;
     }
+
+    /* glossy highlight layer on the glass */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.24), transparent 55%);
+      opacity: 0.5;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+
     h1 {
-      font-size: 1.5rem;
+      margin: 0 0 4px;
+      font-size: 1.9rem;
+      letter-spacing: 0.03em;
     }
-  }
-</style>
+
+    .subtitle {
+      margin: 0 0 18px;
+      opacity: 0.7;
+      font-size: 0.95rem;
+    }
+
+    .section-title {
+      margin: 18px 0 8px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.75;
+    }
+
+    .poster-meta {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.75rem;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+
+    .citations {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .citations li + li {
+      margin-top: 10px;
+    }
+
+    a {
+      color: #7cc6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.8rem;
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .inline-links a + a {
+      margin-left: 12px;
+    }
+
+    /* Collapsible citations */
+    .toggle-citations {
+      margin-top: 6px;
+      margin-bottom: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-citations:focus-visible {
+      outline: 2px solid #7cc6ff;
+      outline-offset: 2px;
+    }
+
+    .toggle-citations-icon {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    #citations-panel[hidden] {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body {
+        animation: none;
+      }
+      .card {
+        transition: none;
+        transform: none !important;
+      }
+    }
+
+    /* Mobile layout + readability tweaks */
+    @media (max-width: 768px) {
+      body {
+        /* no more vertical centering – start near top */
+        display: block;
+        padding:
+          calc(env(safe-area-inset-top, 0px) + 16px)
+          16px
+          calc(env(safe-area-inset-bottom, 0px) + 20px);
+      }
+
+      .card {
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+
+        /* more solid for contrast on phones */
+        background: rgba(10, 18, 35, 0.92);
+        backdrop-filter: blur(22px) saturate(150%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%);
+
+        padding: 20px 18px 16px;
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
+      }
+
+      h1 {
+        font-size: 1.45rem;
+      }
+
+      .subtitle {
+        font-size: 0.98rem;
+        line-height: 1.4;
+        margin-bottom: 14px;
+      }
+
+      .poster-meta {
+        font-size: 0.92rem;
+        line-height: 1.5;
+      }
+
+      .chips {
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+
+      .chip {
+        font-size: 0.8rem;
+        padding: 4px 12px;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        margin-top: 16px;
+      }
+
+      .citations {
+        font-size: 0.9rem;
+      }
+
+      .toggle-citations {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+
+      .footer {
+        margin-top: 14px;
+        padding-top: 8px;
+        font-size: 0.78rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    /* ultra-small phones */
+    @media (max-width: 400px) {
+      .card {
+        padding: 18px 14px 14px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="card">
@@ -259,7 +310,7 @@
       <div class="chips">
         <span class="chip">Student Project</span>
         <span class="chip">Research Poster</span>
-        <span class="chip">Happiness Economics</span>
+        <span class="chip">Citations &amp; Resources</span>
       </div>
     </section>
 
@@ -278,56 +329,59 @@
 
       <div id="citations-panel" hidden>
         <ol class="citations">
-  <li>
-    Bjørnskov, Christian. 2003.
-    “The Happy Few: Cross-Country Evidence on Social Capital and Life Satisfaction.”
-    <em>Kyklos</em> 56 (1).
-    <a href="https://doi.org/10.1111/1467-6435.00207" target="_blank" rel="noopener noreferrer">
-      https://doi.org/10.1111/1467-6435.00207
-    </a>
-  </li>
+          <li>
+            Bjørnskov, Christian. 2003.
+            “The Happy Few: Cross-Country Evidence on Social Capital and Life Satisfaction.”
+            <em>Kyklos</em> 56 (1).
+            <a href="https://doi.org/10.1111/1467-6435.00207" target="_blank" rel="noopener noreferrer">
+              https://doi.org/10.1111/1467-6435.00207
+            </a>
+          </li>
 
-  <li>
-    Helliwell, John F., and Robert D. Putnam. 2004.
-    “The Social Context of Well-Being.”
-    <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em> 359 (1449).
-    <a href="https://doi.org/10.1098/rstb.2004.1522" target="_blank" rel="noopener noreferrer">
-      https://doi.org/10.1098/rstb.2004.1522
-    </a>
-  </li>
+          <li>
+            Helliwell, John F., and Robert D. Putnam. 2004.
+            “The Social Context of Well-Being.”
+            <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em> 359 (1449).
+            <a href="https://doi.org/10.1098/rstb.2004.1522" target="_blank" rel="noopener noreferrer">
+              https://doi.org/10.1098/rstb.2004.1522
+            </a>
+          </li>
 
-  <li>
-    Helliwell, John F., Haifang Huang, and Shun Wang. 2019.
-    “Social Environments for World Happiness.”
-    In <em>World Happiness Report 2019</em>,
-    edited by John F. Helliwell, Richard Layard, and Jeffrey Sachs.
-    New York: Sustainable Development Solutions Network.
-    <a href="https://worldhappiness.report/ed/2019/" target="_blank" rel="noopener noreferrer">
-      https://worldhappiness.report/ed/2019/
-    </a>
-  </li>
+          <li>
+            Helliwell, John F., Haifang Huang, and Shun Wang. 2019.
+            “Social Environments for World Happiness.”
+            In <em>World Happiness Report 2019</em>,
+            edited by John F. Helliwell, Richard Layard, and Jeffrey Sachs.
+            New York: Sustainable Development Solutions Network.
+            <a href="https://worldhappiness.report/ed/2019/" target="_blank" rel="noopener noreferrer">
+              https://worldhappiness.report/ed/2019/
+            </a>
+          </li>
 
-  <li>
-    World Values Survey Association. 2022.
-    <em>World Values Survey Wave 7 (2017–2022)</em>.
-    Madrid, Spain &amp; Vienna, Austria: WVSA Secretariat.
-    Dataset Version: v6.0 (July 2022).
-    <a href="https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp" target="_blank" rel="noopener noreferrer">
-      https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
-    </a>
-  </li>
-</ol>
+          <li>
+            World Values Survey Association. 2022.
+            <em>World Values Survey Wave 7 (2017–2022)</em>.
+            Madrid, Spain &amp; Vienna, Austria: WVSA Secretariat.
+            Dataset Version: v6.0 (July 2022).
+            <a href="https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp" target="_blank" rel="noopener noreferrer">
+              https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
+            </a>
+          </li>
+        </ol>
       </div>
     </section>
 
     <section>
       <h2 class="section-title">Project Files</h2>
       <p class="poster-meta">
-       • <a href="christoforakisresearchposter.pdf"
-     target="_blank" rel="noopener noreferrer">
-    View Poster (PDF)
-  </a><br />
-        • <a href="LINK_TO_SLIDES_OR_EXTRA_MATERIAL" target="_blank" rel="noopener noreferrer">Additional Materials</a>
+        • <a href="christoforakisresearchposter.pdf"
+             target="_blank" rel="noopener noreferrer">
+            View Poster (PDF)
+          </a><br />
+        • <a href="LINK_TO_SLIDES_OR_EXTRA_MATERIAL"
+             target="_blank" rel="noopener noreferrer">
+            Additional Materials
+          </a>
       </p>
     </section>
 
@@ -342,126 +396,125 @@
   </main>
 
   <script>
-  // Auto-update year
-  document.getElementById('year').textContent = new Date().getFullYear();
+    // Auto-update year
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Collapsible citations behavior
-  (function () {
-    var button = document.querySelector('.toggle-citations');
-    var panel = document.getElementById('citations-panel');
-    if (!button || !panel) return;
+    // Collapsible citations behavior
+    (function () {
+      var button = document.querySelector('.toggle-citations');
+      var panel = document.getElementById('citations-panel');
+      if (!button || !panel) return;
 
-    var labelSpan = button.querySelector('.toggle-citations-label');
-    var iconSpan = button.querySelector('.toggle-citations-icon');
+      var labelSpan = button.querySelector('.toggle-citations-label');
+      var iconSpan = button.querySelector('.toggle-citations-icon');
 
-    function setState(expanded) {
-      button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      if (expanded) {
-        panel.removeAttribute('hidden');
-        if (labelSpan) labelSpan.textContent = 'Hide citations';
-        if (iconSpan) iconSpan.textContent = '▲';
-      } else {
-        panel.setAttribute('hidden', '');
-        if (labelSpan) labelSpan.textContent = 'Show citations';
-        if (iconSpan) iconSpan.textContent = '▼';
+      function setState(expanded) {
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        if (expanded) {
+          panel.removeAttribute('hidden');
+          if (labelSpan) labelSpan.textContent = 'Hide citations';
+          if (iconSpan) iconSpan.textContent = '▲';
+        } else {
+          panel.setAttribute('hidden', '');
+          if (labelSpan) labelSpan.textContent = 'Show citations';
+          if (iconSpan) iconSpan.textContent = '▼';
+        }
       }
-    }
 
-    button.addEventListener('click', function () {
-      var isExpanded = button.getAttribute('aria-expanded') === 'true';
-      setState(!isExpanded);
-    });
-
-    // start collapsed
-    setState(false);
-  })();
-
-  // Interactive tilt (desktop) + press effect (mobile)
-  (function () {
-    var card = document.querySelector('.card');
-    if (!card) return;
-
-    var prefersReduced =
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    var isTouch =
-      'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
-
-    var maxRotate = 7; // degrees
-    var reqId = null;
-    var lastX = 0, lastY = 0;
-
-    function updateTransform() {
-      var rotateY = (lastX - 0.5) * 2 * maxRotate;   // left/right
-      var rotateX = (0.5 - lastY) * 2 * maxRotate;   // up/down
-
-      card.style.transform =
-        'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) ' +
-        'rotateY(' + rotateY.toFixed(2) + 'deg)';
-
-      reqId = null;
-    }
-
-    function handleMove(e) {
-      var rect = card.getBoundingClientRect();
-      var x = (e.clientX - rect.left) / rect.width;
-      var y = (e.clientY - rect.top) / rect.height;
-
-      x = Math.max(0, Math.min(1, x));
-      y = Math.max(0, Math.min(1, y));
-
-      lastX = x;
-      lastY = y;
-
-      if (reqId === null) {
-        reqId = requestAnimationFrame(updateTransform);
-      }
-    }
-
-    function reset() {
-      card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
-      card.style.boxShadow = '';
-    }
-
-    // Desktop: cursor tilt
-    if (!isTouch) {
-      card.addEventListener('mousemove', handleMove);
-      card.addEventListener('mouseenter', function () {
-        // start slightly lifted
-        lastX = 0.5;
-        lastY = 0.5;
-        updateTransform();
+      button.addEventListener('click', function () {
+        var isExpanded = button.getAttribute('aria-expanded') === 'true';
+        setState(!isExpanded);
       });
-      card.addEventListener('mouseleave', reset);
-    }
 
-    // Mobile: press / tap effect
-    if (isTouch) {
-      function touchDown() {
-        card.style.transform = 'translateY(-6px) scale(1.02)';
-        card.style.boxShadow = '0 30px 70px rgba(15, 23, 42, 0.95)';
+      // start collapsed
+      setState(false);
+    })();
+
+    // Interactive tilt (desktop) + press effect (mobile)
+    (function () {
+      var card = document.querySelector('.card');
+      if (!card) return;
+
+      var prefersReduced =
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) return;
+
+      var isTouch =
+        'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+
+      var maxRotate = 7; // degrees
+      var reqId = null;
+      var lastX = 0, lastY = 0;
+
+      function updateTransform() {
+        var rotateY = (lastX - 0.5) * 2 * maxRotate;   // left/right
+        var rotateX = (0.5 - lastY) * 2 * maxRotate;   // up/down
+
+        card.style.transform =
+          'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) ' +
+          'rotateY(' + rotateY.toFixed(2) + 'deg)';
+
+        reqId = null;
       }
 
-      function touchUp() {
-        card.style.transform = 'translateY(0) scale(1)';
+      function handleMove(e) {
+        var rect = card.getBoundingClientRect();
+        var x = (e.clientX - rect.left) / rect.width;
+        var y = (e.clientY - rect.top) / rect.height;
+
+        x = Math.max(0, Math.min(1, x));
+        y = Math.max(0, Math.min(1, y));
+
+        lastX = x;
+        lastY = y;
+
+        if (reqId === null) {
+          reqId = requestAnimationFrame(updateTransform);
+        }
+      }
+
+      function reset() {
+        card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
         card.style.boxShadow = '';
       }
 
-      card.addEventListener('touchstart', function (e) {
-        touchDown();
-      }, { passive: true });
+      // Desktop: cursor tilt
+      if (!isTouch) {
+        card.addEventListener('mousemove', handleMove);
+        card.addEventListener('mouseenter', function () {
+          lastX = 0.5;
+          lastY = 0.5;
+          updateTransform();
+        });
+        card.addEventListener('mouseleave', reset);
+      }
 
-      card.addEventListener('touchend', function (e) {
-        touchUp();
-      });
+      // Mobile: press / tap effect
+      if (isTouch) {
+        function touchDown() {
+          card.style.transform = 'translateY(-6px) scale(1.02)';
+          card.style.boxShadow = '0 30px 70px rgba(15, 23, 42, 0.95)';
+        }
 
-      card.addEventListener('touchcancel', function (e) {
-        touchUp();
-      });
-    }
-  })();
-</script>
+        function touchUp() {
+          card.style.transform = 'translateY(0) scale(1)';
+          card.style.boxShadow = '';
+        }
+
+        card.addEventListener('touchstart', function () {
+          touchDown();
+        }, { passive: true });
+
+        card.addEventListener('touchend', function () {
+          touchUp();
+        });
+
+        card.addEventListener('touchcancel', function () {
+          touchUp();
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
