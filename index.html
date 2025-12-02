@@ -10,21 +10,27 @@
     color-scheme: light dark;
   }
 
-  body {
+    body {
     margin: 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    /* layered “wave” background */
+    /* stronger, wavier background */
     background:
-      radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.25), transparent 55%),
-      radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.22), transparent 55%),
-      linear-gradient(120deg, #020617, #050816, #020617);
-    background-size: 130% 130%, 130% 130%, 220% 220%;
-    background-position: 0% 0%, 100% 100%, 50% 0%;
-    animation: waveShift 26s ease-in-out infinite alternate;
+      radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.60), transparent 60%),
+      radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.45), transparent 60%),
+      radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.50), transparent 60%),
+      linear-gradient(120deg, #020617, #020617, #050816, #020617);
+    background-size: 200% 200%, 220% 220%, 220% 220%, 260% 260%;
+    background-position:
+      0% 0%,
+      100% 10%,
+      0% 100%,
+      50% 0%;
+    background-blend-mode: screen;
+    animation: waveShift 18s ease-in-out infinite alternate;
 
     /* needed for 3D tilt */
     perspective: 1000px;
@@ -32,13 +38,25 @@
 
   @keyframes waveShift {
     0% {
-      background-position: 0% 0%, 100% 100%, 50% 0%;
+      background-position:
+        0% 0%,
+        100% 10%,
+        0% 100%,
+        50% 0%;
     }
     50% {
-      background-position: 20% 30%, 80% 70%, 40% 60%;
+      background-position:
+        20% 30%,
+        80% 0%,
+        10% 80%,
+        60% 60%;
     }
     100% {
-      background-position: 0% 60%, 100% 0%, 60% 40%;
+      background-position:
+        0% 60%,
+        100% 40%,
+        40% 100%,
+        40% 100%;
     }
   }
 
@@ -331,23 +349,24 @@
     setState(false);
   })();
 
-  // Interactive tilt based on pointer position
+  // Interactive tilt (desktop) + press effect (mobile)
   (function () {
     var card = document.querySelector('.card');
     if (!card) return;
 
-    // Respect reduced-motion preference
     var prefersReduced =
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
+
+    var isTouch =
+      'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
 
     var maxRotate = 7; // degrees
     var reqId = null;
     var lastX = 0, lastY = 0;
 
     function updateTransform() {
-      // lastX/Y are in [0,1]
       var rotateY = (lastX - 0.5) * 2 * maxRotate;   // left/right
       var rotateX = (0.5 - lastY) * 2 * maxRotate;   // up/down
 
@@ -363,7 +382,6 @@
       var x = (e.clientX - rect.left) / rect.width;
       var y = (e.clientY - rect.top) / rect.height;
 
-      // clamp between 0 and 1
       x = Math.max(0, Math.min(1, x));
       y = Math.max(0, Math.min(1, y));
 
@@ -377,11 +395,45 @@
 
     function reset() {
       card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+      card.style.boxShadow = '';
     }
 
-    card.addEventListener('mousemove', handleMove);
-    card.addEventListener('mouseenter', reset);
-    card.addEventListener('mouseleave', reset);
+    // Desktop: cursor tilt
+    if (!isTouch) {
+      card.addEventListener('mousemove', handleMove);
+      card.addEventListener('mouseenter', function () {
+        // start slightly lifted
+        lastX = 0.5;
+        lastY = 0.5;
+        updateTransform();
+      });
+      card.addEventListener('mouseleave', reset);
+    }
+
+    // Mobile: press / tap effect
+    if (isTouch) {
+      function touchDown() {
+        card.style.transform = 'translateY(-6px) scale(1.02)';
+        card.style.boxShadow = '0 30px 70px rgba(15, 23, 42, 0.95)';
+      }
+
+      function touchUp() {
+        card.style.transform = 'translateY(0) scale(1)';
+        card.style.boxShadow = '';
+      }
+
+      card.addEventListener('touchstart', function (e) {
+        touchDown();
+      }, { passive: true });
+
+      card.addEventListener('touchend', function (e) {
+        touchUp();
+      });
+
+      card.addEventListener('touchcancel', function (e) {
+        touchUp();
+      });
+    }
   })();
 </script>
 </body>
