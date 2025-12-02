@@ -11,54 +11,54 @@
   }
 
     body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    /* stronger, wavier background */
-    background:
-      radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.60), transparent 60%),
-      radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.45), transparent 60%),
-      radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.50), transparent 60%),
-      linear-gradient(120deg, #020617, #020617, #050816, #020617);
-    background-size: 200% 200%, 220% 220%, 220% 220%, 260% 260%;
+  /* wave-like but subtle Apple-style colors */
+  background:
+    radial-gradient(circle at 20% 20%, rgba(94, 129, 244, 0.25), transparent 65%),
+    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.22), transparent 65%),
+    radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.18), transparent 70%),
+    linear-gradient(120deg, #050816, #0b0f2b, #050816);
+  background-size: 180% 180%, 180% 180%, 200% 200%, 200% 200%;
+  background-position:
+    20% 20%,
+    80% 30%,
+    40% 80%,
+    50% 50%;
+  background-blend-mode: screen;
+  animation: waveShift 22s ease-in-out infinite alternate;
+
+  /* needed for 3D tilt */
+  perspective: 1000px;
+}
+
+@keyframes waveShift {
+  0% {
     background-position:
-      0% 0%,
-      100% 10%,
-      0% 100%,
-      50% 0%;
-    background-blend-mode: screen;
-    animation: waveShift 18s ease-in-out infinite alternate;
-
-    /* needed for 3D tilt */
-    perspective: 1000px;
+      20% 20%,
+      80% 30%,
+      40% 80%,
+      50% 50%;
   }
-
-  @keyframes waveShift {
-    0% {
-      background-position:
-        0% 0%,
-        100% 10%,
-        0% 100%,
-        50% 0%;
-    }
-    50% {
-      background-position:
-        20% 30%,
-        80% 0%,
-        10% 80%,
-        60% 60%;
-    }
-    100% {
-      background-position:
-        0% 60%,
-        100% 40%,
-        40% 100%,
-        40% 100%;
-    }
+  50% {
+    background-position:
+      10% 40%,
+      70% 10%,
+      30% 90%,
+      60% 60%;
   }
+  100% {
+    background-position:
+      30% 60%,
+      90% 40%,
+      60% 70%,
+      40% 80%;
+  }
+}
 
   .card {
     width: min(700px, 90vw);
