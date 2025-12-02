@@ -61,33 +61,60 @@
 }
 
   .card {
-    width: min(700px, 90vw);
-    background: rgba(15, 23, 42, 0.70); /* glassy slate */
-    border-radius: 18px;
-    padding: 24px 24px 18px;
-    box-shadow: 0 22px 55px rgba(15, 23, 42, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.45);
-    backdrop-filter: blur(26px) saturate(140%);
-    -webkit-backdrop-filter: blur(26px) saturate(140%);
-    position: relative;
-    overflow: hidden;
+  width: min(700px, 90vw);
+  padding: 24px 24px 18px;
+  border-radius: 22px;
 
-    /* smooth tilt transitions */
-    transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
-    transform-style: preserve-3d;
-  }
+  /* LIQUID GLASS appearance */
+  background: rgba(255, 255, 255, 0.08); /* thinner, more translucent */
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
 
-  /* glossy highlight layer on the glass */
-  .card::before {
-    content: "";
-    position: absolute;
-    inset: -40%;
-    background:
-      radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.24), transparent 55%);
-    opacity: 0.5;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-  }
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 0 rgba(255, 255, 255, 0.2);
+
+  position: relative;
+  overflow: hidden;
+
+  /* tilt physics */
+  transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
+  transform-style: preserve-3d;
+}
+
+/* glossy highlight sweep */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.45),
+      transparent 55%
+    );
+  opacity: 0.35;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+/* subtle inner glow to make edges feel rounded/3D */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(255, 255, 255, 0.20),
+    transparent 60%
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  opacity: 0.18;
+}
 
   h1 {
     margin: 0 0 4px;
