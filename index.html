@@ -233,5 +233,15 @@
       </span>
     </footer>
   </main>
+ 
+  <script>
+  (function () {
+    var yearEl = document.getElementById('year');
+    if (!yearEl) return;
+
+    yearEl.textContent = new Date().getFullYear();
+  })();
+</script>
+  
 </body>
 </html>
