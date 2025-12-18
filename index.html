@@ -2,45 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Nick Christoforakis</title>
+  <title>Lukas is home</title>
 
-  <!-- Viewport & theme -->
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#050816" />
-  <meta
-    name="description"
-    content="Does living in a high-trust society make us happier? Research poster and resources by Nick Christoforakis."
-  />
+  <meta name="description" content="On his 120th day in Boston Children’s Hospital, Lukas has finally come home." />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-  <!-- Open Graph (link preview) -->
-  <meta property="og:title" content="Nick Christoforakis — Trust & Happiness Research" />
-  <meta
-    property="og:description"
-    content="Does living in a high-trust society make us happier? Findings from cross-national data and happiness economics."
-  />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://christoforakis.com/" />
-  <meta property="og:image" content="https://christoforakis.com/og-image.png" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Nick Christoforakis — Trust & Happiness Research" />
-  <meta
-    name="twitter:description"
-    content="Does living in a high-trust society make us happier? Findings from cross-national data and happiness economics."
-  />
-  <meta name="twitter:image" content="https://christoforakis.com/og-image.png" />
-  
+  <!-- Force dark rendering -->
+  <meta name="color-scheme" content="dark" />
   <style>
-    :root {
+    :root{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      /* force dark-only */
       color-scheme: dark;
     }
 
@@ -50,31 +22,30 @@
     }
 
     body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;   /* center on desktop */
-  box-sizing: border-box;
-  padding:
-    calc(env(safe-area-inset-top, 0px) + 16px)
-    16px
-    calc(env(safe-area-inset-bottom, 0px) + 20px);
-      
+      margin: 0;
+      min-height: 100vh;
+      box-sizing: border-box;
+
+      /* Desktop centered, mobile overrides to top */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 18px)
+        16px
+        calc(env(safe-area-inset-bottom, 0px) + 22px);
+
       color: #e5edff;
 
-      /* wave-like background */
+      /* Wavy, premium background (same vibe as before) */
       background:
         radial-gradient(circle at 20% 20%, rgba(94, 129, 244, 0.25), transparent 65%),
         radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.22), transparent 65%),
         radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.18), transparent 70%),
         linear-gradient(120deg, #050816, #0b0f2b, #050816);
       background-size: 180% 180%, 180% 180%, 200% 200%, 200% 200%;
-      background-position:
-        20% 20%,
-        80% 30%,
-        40% 80%,
-        50% 50%;
+      background-position: 20% 20%, 80% 30%, 40% 80%, 50% 50%;
       background-blend-mode: screen;
       animation: waveShift 22s ease-in-out infinite alternate;
 
@@ -83,126 +54,91 @@
 
     @keyframes waveShift {
       0% {
-        background-position:
-          20% 20%,
-          80% 30%,
-          40% 80%,
-          50% 50%;
+        background-position: 20% 20%, 80% 30%, 40% 80%, 50% 50%;
       }
       50% {
-        background-position:
-          10% 40%,
-          70% 10%,
-          30% 90%,
-          60% 60%;
+        background-position: 10% 40%, 70% 10%, 30% 90%, 60% 60%;
       }
       100% {
-        background-position:
-          30% 60%,
-          90% 40%,
-          60% 70%,
-          40% 80%;
+        background-position: 30% 60%, 90% 40%, 60% 70%, 40% 80%;
       }
     }
 
     .card {
       width: 100%;
-      max-width: 700px;
+      max-width: 760px;
       margin: 0 auto;
 
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.82);
       border-radius: 22px;
-      padding: 24px 24px 18px;
-      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 26px 26px 18px;
+
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.90);
+
       backdrop-filter: blur(26px) saturate(140%);
       -webkit-backdrop-filter: blur(26px) saturate(140%);
+
       position: relative;
       overflow: hidden;
-
-      transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
       transform-style: preserve-3d;
+      transition: transform 0.18s ease-out, box-shadow 0.25s ease-out;
     }
 
+    /* subtle glass sheen */
     .card::before {
       content: "";
       position: absolute;
-      inset: -40%;
+      inset: -45%;
       background:
-        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.24), transparent 55%);
-      opacity: 0.5;
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.22), transparent 55%);
+      opacity: 0.55;
       mix-blend-mode: soft-light;
       pointer-events: none;
     }
 
-    h1 {
-      margin: 0 0 4px;
-      font-size: 1.9rem;
-      letter-spacing: 0.03em;
+    header h1 {
+      margin: 0 0 10px;
+      font-size: 1.85rem;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
     }
 
-    .subtitle {
+    .meta {
       margin: 0 0 18px;
-      opacity: 0.7;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+      opacity: 0.78;
     }
 
-    .section-title {
-      margin: 18px 0 8px;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.75;
+    .story {
+      font-size: 1.03rem;
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+      opacity: 0.95;
     }
 
-    .poster-meta {
-      font-size: 0.9rem;
-      opacity: 0.85;
-      margin-bottom: 12px;
+    .story p {
+      margin: 0 0 14px;
     }
 
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .chip {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      font-size: 0.75rem;
-      opacity: 0.9;
-      white-space: nowrap;
-    }
-
-    .citations {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: 0.9rem;
-    }
-
-    .citations li + li {
-      margin-top: 10px;
+    .story p:last-child {
+      margin-bottom: 0;
     }
 
     a {
       color: #7cc6ff;
       text-decoration: none;
     }
-
-    a:hover {
-      text-decoration: underline;
-    }
+    a:hover { text-decoration: underline; }
 
     .footer {
-      margin-top: 16px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 0.8rem;
-      opacity: 0.7;
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+      font-size: 0.85rem;
+      opacity: 0.75;
+
       display: flex;
       justify-content: space-between;
       gap: 12px;
@@ -213,102 +149,45 @@
       margin-left: 12px;
     }
 
-    .toggle-citations {
-      margin-top: 6px;
-      margin-bottom: 10px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: transparent;
-      color: inherit;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .toggle-citations:focus-visible {
-      outline: 2px solid #7cc6ff;
-      outline-offset: 2px;
-    }
-
-    .toggle-citations-icon {
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-
-    #citations-panel[hidden] {
-      display: none;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      body {
-        animation: none;
-      }
-      .card {
-        transition: none;
-        transform: none !important;
+    /* Desktop-only tilt (keeps it classy; no mobile prompts) */
+    @media (hover: hover) and (pointer: fine) {
+      .card:hover {
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.70);
       }
     }
 
-    /* Mobile typography / spacing tweaks only */
+    /* Mobile: top-aligned, bigger readability, calmer motion */
     @media (max-width: 768px) {
-  body {
-    align-items: flex-start;  /* top on mobile */
-  }
+      body {
+        align-items: flex-start;
+      }
 
-  h1 {
-    font-size: 1.45rem;
-  }
+      .card {
+        padding: 20px 18px 16px;
+        border-radius: 20px;
+      }
 
-      .subtitle {
-        font-size: 0.98rem;
-        line-height: 1.4;
+      header h1 {
+        font-size: 1.45rem;
+      }
+
+      .meta {
+        font-size: 0.9rem;
         margin-bottom: 14px;
       }
 
-      .poster-meta {
-        font-size: 0.92rem;
-        line-height: 1.5;
-      }
-
-      .chips {
-        gap: 6px;
-        margin-bottom: 14px;
-      }
-
-      .chip {
-        font-size: 0.8rem;
-        padding: 4px 12px;
-      }
-
-      .section-title {
-        font-size: 0.9rem;
-        margin-top: 16px;
-      }
-
-      .citations {
-        font-size: 0.9rem;
-      }
-
-      .toggle-citations {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+      .story {
+        font-size: 1.02rem;
+        line-height: 1.72;
       }
 
       .footer {
-        margin-top: 14px;
-        padding-top: 8px;
-        font-size: 0.78rem;
+        margin-top: 16px;
+        padding-top: 10px;
+        font-size: 0.82rem;
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
-      }
-
-      /* slower tap animation on mobile */
-      .card {
-        transition: transform 0.35s ease-out, box-shadow 0.35s ease-out;
       }
     }
 
@@ -317,149 +196,59 @@
         padding: 18px 14px 14px;
         border-radius: 18px;
       }
+      header h1 { font-size: 1.35rem; }
+      .story { font-size: 1.00rem; }
+    }
 
-      h1 {
-        font-size: 1.35rem;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      body { animation: none; }
+      .card { transition: none; transform: none !important; }
     }
   </style>
 </head>
+
 <body>
   <main class="card">
     <header>
-      <h1>Nick Christoforakis</h1>
-      <p class="subtitle">Does living in a high-trust society make us happier?</p>
+      <h1>Lukas is home.</h1>
+      <p class="meta">120 days at Boston Children’s Hospital • Now back home</p>
     </header>
 
-    <section>
-      <p class="poster-meta">
-        Presented at the <strong>First Year Symposium</strong> • December 8, 2025 • Middlebury College
-      </p>
+    <section class="story">
+      <p>On his 120th day in Boston Children's Hospital, Lukas has finally come home. Alive, and on his own two feet.</p>
+      <p>There were times when we thought this may never happen. Hopeless times, when it seemed like we might never leave. Desperate times, when a double lung transplant seemed all too certain and his lifespan seemed to shrink in front of us.</p>
 
-      <div class="chips">
-        <span class="chip">Student Project</span>
-        <span class="chip">Research Poster</span>
-        <span class="chip">Happiness Economics</span>
-      </div>
-    </section>
+      <p>But against seemingly all odds, we are home. There are so many things that came together to bring us back here: Lukas' care team, amazing modern medicines, the support of the entire community. And crucially, hope.</p>
 
-    <section>
-      <h2 class="section-title">Citations</h2>
+      <p>The experience of hope is difficult to convey in a message like this. It's something we had to learn across the last four months. Sometimes, it's easy to have hope. Like when you're told he's responding well to medicines (against everyone's predictions) and he might get to keep his own lungs, or when nurses start mentioning discharge day. Often, it was nearly impossible to have hope. Months in the Cardiac ICU with an uncertain future, awoken each night by running feet and other kids' alarms. Wondering if someday, the code blue will be for Lukas.</p>
+      <p>Hope is born in those dark times. It's light in the abyss of despair. And the really curious thing is that the most powerful hope only comes when you've lost it all.</p>
 
-      <button
-        class="toggle-citations"
-        type="button"
-        aria-expanded="false"
-        aria-controls="citations-panel"
-      >
-        <span class="toggle-citations-icon">▼</span>
-        <span class="toggle-citations-label">Show citations</span>
-      </button>
+      <p>If there's two things we learned from this experience it's how to hope and how to be grateful. On gratitude: we don't know how to express it enough, but we know how to feel it. Gratitude for the world-class care he received. Gratitude that we brought him in to the hospital when we did. Gratitude that so many people across the community came together to support us. Gratitude that somehow, medication worked for him. Most of all, gratitude for life. For the ability to leave BCH with a heartbeat, on his feet.</p>
 
-      <div id="citations-panel" hidden>
-        <ol class="citations">
-          <li>
-            Bjørnskov, Christian. 2003.
-            “The Happy Few: Cross-Country Evidence on Social Capital and Life Satisfaction.”
-            <em>Kyklos</em> 56 (1).
-            <a href="https://doi.org/10.1111/1467-6435.00207" target="_blank" rel="noopener noreferrer">
-              https://doi.org/10.1111/1467-6435.00207
-            </a>
-          </li>
+      <p>We know many of you might want to know what happened. We did too, and it took a while to get the full picture. In the end, the likely story is this: Lukas has two conditions, one causing the other. The first, more insidious one, is probably Pulmonary Veno-Occlusive Disease (PVOD). This is when the small vessels in the lungs constrict and harden, making gas exchange difficult and blocking blood flow. This is the disease that the doctors thought would necessitate a transplant. The second condition, his initial diagnosis, is Pulmonary Hypertension (PH), which is a descriptive name for when something restricts blood flow in the pulmonary artery (the vessel that carries deoxygenated blood from the right side of the heart to the lungs) and causes an overpressure. In his case, that restriction was likely caused by PVOD. If untreated, he likely would have died of right-side heart failure within a year. Lukas is a unique case, but in similar cases, oftentimes the vasodilator therapies given for PH worsen the PVOD and/or result in intensely bad fluid buildup in the lungs. This is why a lung transplant was the likely option.</p>
 
-          <li>
-            Helliwell, John F., and Robert D. Putnam. 2004.
-            “The Social Context of Well-Being.”
-            <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em> 359 (1449).
-            <a href="https://doi.org/10.1098/rstb.2004.1522" target="_blank" rel="noopener noreferrer">
-              https://doi.org/10.1098/rstb.2004.1522
-            </a>
-          </li>
+      <p>Miraculously, though, as his care team gently experimented with vasodilators, they found that Lukas somehow responded well. The medicine (epoprostenol) had its own challenges: it was light-sensitive, and it had a three minute half-life in the body, after which the blood vessels would rapidly collapse back to their original width. So, for several months, Lukas was on a constant infusion. Finally, once he was stable and healthy enough, the care team transitioned him onto his current medicine, a similar yet much more stable drug called Remodulin, which comes in a little portable pump similar to what you'd see insulin in for a diabetic patient.</p>
 
-          <li>
-            Helliwell, John F., Haifang Huang, and Shun Wang. 2019.
-            “Social Environments for World Happiness.”
-            In <em>World Happiness Report 2019</em>,
-            edited by John F. Helliwell, Richard Layard, and Jeffrey Sachs.
-            New York: Sustainable Development Solutions Network.
-            <a href="https://worldhappiness.report/ed/2019/" target="_blank" rel="noopener noreferrer">
-              https://worldhappiness.report/ed/2019/
-            </a>
-          </li>
+      <p>For the near future, Lukas will also continue to receive oxygen, as it helps ease the strain on his heart as he strengthens more. You might see him around with a little canister in a backpack.</p>
 
-          <li>
-            World Values Survey Association. 2022.
-            <em>World Values Survey Wave 7 (2017–2022)</em>.
-            Madrid, Spain &amp; Vienna, Austria: WVSA Secretariat.
-            Dataset Version: v6.0 (July 2022).
-            <a href="https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp" target="_blank" rel="noopener noreferrer">
-              https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
-            </a>
-          </li>
-        </ol>
-      </div>
-    </section>
+      <p>There's a long road ahead medicine-wise, and all kinds of exciting new prospects in development. Right now, we are grateful for the incredibly advanced medicines and care that Lukas received and will continue to receive. Whatever's next, we're ready.</p>
 
-    <section>
-      <h2 class="section-title">Project Files</h2>
-      <p class="poster-meta">
-        • <a href="christoforakisresearchposter.pdf"
-             target="_blank" rel="noopener noreferrer">
-            View Poster (PDF)
-          </a><br />
-        • <a href="LINK_TO_SLIDES_OR_EXTRA_MATERIAL"
-             target="_blank" rel="noopener noreferrer">
-            Additional Materials
-          </a>
-      </p>
+      <p>Thank you all, for your support, love, prayers, and each one of the miraculous interactions we've had. Even though Lukas is not completely out of the woods yet, he's home now and he's so much healthier than we could have ever expected. We can't wait to see you.</p>
     </section>
 
     <footer class="footer">
       <span>&copy; <span id="year"></span> Nick Christoforakis</span>
       <span class="inline-links">
         <a href="mailto:nick@christoforakis.com">Email</a>
-        <a href="https://www.linkedin.com/in/nicholas-christoforakis-79a38038b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://www.instagram.com/nickchristoforakis/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a href="https://gofund.me/71cd02124" target="_blank" rel="noopener noreferrer">GoFundMe</a>
       </span>
     </footer>
   </main>
 
   <script>
-    // Auto-update year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Collapsible citations behavior
-    (function () {
-      var button = document.querySelector('.toggle-citations');
-      var panel = document.getElementById('citations-panel');
-      if (!button || !panel) return;
-
-      var labelSpan = button.querySelector('.toggle-citations-label');
-      var iconSpan = button.querySelector('.toggle-citations-icon');
-
-      function setState(expanded) {
-        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        if (expanded) {
-          panel.removeAttribute('hidden');
-          if (labelSpan) labelSpan.textContent = 'Hide citations';
-          if (iconSpan) iconSpan.textContent = '▲';
-        } else {
-          panel.setAttribute('hidden', '');
-          if (labelSpan) labelSpan.textContent = 'Show citations';
-          if (iconSpan) iconSpan.textContent = '▼';
-        }
-      }
-
-      button.addEventListener('click', function () {
-        var isExpanded = button.getAttribute('aria-expanded') === 'true';
-        setState(!isExpanded);
-      });
-
-      // start collapsed
-      setState(false);
-    })();
-
-    // Interactive tilt (desktop) + press effect (mobile)
+    // Desktop-only tilt (no mobile permission prompts, no clunk)
     (function () {
       var card = document.querySelector('.card');
       if (!card) return;
@@ -469,80 +258,41 @@
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) return;
 
-      var isTouch =
-        'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+      // Only enable on devices that actually have a mouse
+      var finePointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+      var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      if (!finePointer || !canHover) return;
 
-      var maxRotate = 7; // degrees
+      var maxRotate = 7;
       var reqId = null;
-      var lastX = 0, lastY = 0;
+      var lastX = 0.5, lastY = 0.5;
 
-      function updateTransform() {
-        var rotateY = (lastX - 0.5) * 2 * maxRotate;   // left/right
-        var rotateX = (0.5 - lastY) * 2 * maxRotate;   // up/down
+      function update() {
+        var rotateY = (lastX - 0.5) * 2 * maxRotate;
+        var rotateX = (0.5 - lastY) * 2 * maxRotate;
 
         card.style.transform =
-          'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) ' +
-          'rotateY(' + rotateY.toFixed(2) + 'deg)';
-
+          'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
         reqId = null;
       }
 
-      function handleMove(e) {
+      function onMove(e) {
         var rect = card.getBoundingClientRect();
         var x = (e.clientX - rect.left) / rect.width;
         var y = (e.clientY - rect.top) / rect.height;
 
-        x = Math.max(0, Math.min(1, x));
-        y = Math.max(0, Math.min(1, y));
+        lastX = Math.max(0, Math.min(1, x));
+        lastY = Math.max(0, Math.min(1, y));
 
-        lastX = x;
-        lastY = y;
-
-        if (reqId === null) {
-          reqId = requestAnimationFrame(updateTransform);
-        }
+        if (reqId === null) reqId = requestAnimationFrame(update);
       }
 
       function reset() {
         card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
-        card.style.boxShadow = '';
       }
 
-      // Desktop: cursor tilt
-      if (!isTouch) {
-        card.addEventListener('mousemove', handleMove);
-        card.addEventListener('mouseenter', function () {
-          lastX = 0.5;
-          lastY = 0.5;
-          updateTransform();
-        });
-        card.addEventListener('mouseleave', reset);
-      }
-
-      // Mobile: press / tap effect
-      if (isTouch) {
-        function touchDown() {
-          card.style.transform = 'translateY(-6px) scale(1.02)';
-          card.style.boxShadow = '0 30px 70px rgba(15, 23, 42, 0.95)';
-        }
-
-        function touchUp() {
-          card.style.transform = 'translateY(0) scale(1)';
-          card.style.boxShadow = '';
-        }
-
-        card.addEventListener('touchstart', function () {
-          touchDown();
-        }, { passive: true });
-
-        card.addEventListener('touchend', function () {
-          touchUp();
-        });
-
-        card.addEventListener('touchcancel', function () {
-          touchUp();
-        });
-      }
+      card.addEventListener('mousemove', onMove);
+      card.addEventListener('mouseleave', reset);
     })();
   </script>
 </body>
