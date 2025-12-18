@@ -236,56 +236,5 @@
       </span>
     </footer>
   </main>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Desktop-only tilt (no mobile permission prompts, no clunk)
-    (function () {
-      var card = document.querySelector('.card');
-      if (!card) return;
-
-      var prefersReduced =
-        window.matchMedia &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced) return;
-
-      // Only enable on devices that actually have a mouse
-      var finePointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
-      var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-      if (!finePointer || !canHover) return;
-
-      var maxRotate = 7;
-      var reqId = null;
-      var lastX = 0.5, lastY = 0.5;
-
-      function update() {
-        var rotateY = (lastX - 0.5) * 2 * maxRotate;
-        var rotateX = (0.5 - lastY) * 2 * maxRotate;
-
-        card.style.transform =
-          'translateY(-4px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
-        reqId = null;
-      }
-
-      function onMove(e) {
-        var rect = card.getBoundingClientRect();
-        var x = (e.clientX - rect.left) / rect.width;
-        var y = (e.clientY - rect.top) / rect.height;
-
-        lastX = Math.max(0, Math.min(1, x));
-        lastY = Math.max(0, Math.min(1, y));
-
-        if (reqId === null) reqId = requestAnimationFrame(update);
-      }
-
-      function reset() {
-        card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
-      }
-
-      card.addEventListener('mousemove', onMove);
-      card.addEventListener('mouseleave', reset);
-    })();
-  </script>
 </body>
 </html>
