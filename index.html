@@ -2,16 +2,488 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Redirecting…</title>
+  <title>Updates — Lukas</title>
 
-  <!-- Instant redirect -->
-  <meta
-    http-equiv="refresh"
-    content="0; url=https://gofund.me/d7da8c2b6"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050816" />
+  <meta name="description" content="Updates and notes. Mirroring GoFundMe posts and progress at home." />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Force dark rendering -->
+  <meta name="color-scheme" content="dark" />
+
+  <!-- Open Graph (optional, keep if you want previews) -->
+  <meta property="og:title" content="Updates — Lukas" />
+  <meta property="og:description" content="Updates and notes. Mirroring GoFundMe posts and progress at home." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://christoforakis.com/" />
+  <meta property="og:image" content="https://christoforakis.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://christoforakis.com/og-image.png" />
+
+  <style>
+    :root{
+      /* Outfit palette: forest sweater, warm gold chain, khaki pants */
+      --bg0:#050816;
+      --bg1:#0b1229;
+      --ink:#e8eefc;
+      --muted:#aeb8d6;
+
+      --forest:#0f2a22;        /* deep evergreen */
+      --forest2:#143428;       /* slightly brighter green */
+      --khaki:#bda57a;         /* warm khaki highlight */
+      --gold:#d6b36a;          /* chain gold accent */
+      --gold2:#f0d59b;
+
+      --card: rgba(15, 23, 42, 0.78);
+      --cardBorder: rgba(216, 227, 255, 0.18);
+      --shadow: 0 24px 70px rgba(0,0,0,0.55);
+
+      --radius: 22px;
+
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      color: var(--ink);
+      background: var(--bg0);
+      overflow-x: hidden;
+
+      /* Elegant “fabric / waves” background */
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(20,52,40,0.38), transparent 60%),
+        radial-gradient(1000px 700px at 80% 15%, rgba(214,179,106,0.18), transparent 62%),
+        radial-gradient(1000px 900px at 55% 85%, rgba(189,165,122,0.16), transparent 64%),
+        radial-gradient(900px 700px at 10% 85%, rgba(30,58,138,0.18), transparent 62%),
+        linear-gradient(135deg, #050816, #0b1229 55%, #050816);
+      background-size: 140% 140%;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift{
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      body{ animation:none; }
+    }
+
+    /* Layout */
+    .wrap{
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 28px)
+        18px
+        calc(env(safe-area-inset-bottom, 0px) + 34px);
+    }
+
+    header{
+      position: relative;
+      padding: 18px 18px 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(20,52,40,0.26), rgba(15,23,42,0.72));
+      border: 1px solid rgba(216,227,255,0.14);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      overflow:hidden;
+    }
+
+    /* subtle “gold thread” highlight */
+    header::before{
+      content:"";
+      position:absolute;
+      inset:-60%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(240,213,155,0.22), transparent 58%),
+        radial-gradient(circle at 70% 40%, rgba(214,179,106,0.14), transparent 60%);
+      pointer-events:none;
+      mix-blend-mode: soft-light;
+      opacity: .75;
+    }
+
+    .toprow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size: 1.55rem;
+      letter-spacing: .01em;
+      line-height:1.15;
+    }
+
+    .brand p{
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 58ch;
+      line-height: 1.55;
+      font-size: .98rem;
+    }
+
+    .cta{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+      min-width: 190px;
+    }
+
+    .gfm{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(214,179,106,0.18), rgba(214,179,106,0.08));
+      border: 1px solid rgba(240,213,155,0.30);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      white-space: nowrap;
+    }
+
+    .gfm:hover{
+      transform: translateY(-1px);
+      border-color: rgba(240,213,155,0.45);
+      background: linear-gradient(180deg, rgba(214,179,106,0.22), rgba(214,179,106,0.10));
+    }
+
+    .gfm .dot{
+      width:10px; height:10px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, var(--gold2), var(--gold));
+      box-shadow: 0 0 0 3px rgba(214,179,106,0.18);
+      flex:none;
+    }
+
+    .tiny{
+      font-size:.85rem;
+      color: rgba(232,238,252,0.70);
+      text-align:right;
+      line-height:1.3;
+    }
+
+    /* Controls */
+    .controls{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .search{
+      flex: 1 1 240px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(11,18,41,0.55);
+      border: 1px solid rgba(216,227,255,0.14);
+    }
+
+    .search input{
+      width:100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--ink);
+      font-size: .95rem;
+    }
+    .search input::placeholder{
+      color: rgba(174,184,214,0.75);
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(216,227,255,0.14);
+      background: rgba(11,18,41,0.45);
+      color: rgba(232,238,252,0.92);
+      font-size: .92rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .pill:hover{
+      border-color: rgba(216,227,255,0.22);
+    }
+
+    main{
+      margin-top: 18px;
+      display:grid;
+      gap: 14px;
+    }
+
+    article{
+      position: relative;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--cardBorder);
+      box-shadow: 0 18px 45px rgba(0,0,0,0.45);
+      backdrop-filter: blur(20px) saturate(135%);
+      -webkit-backdrop-filter: blur(20px) saturate(135%);
+      overflow:hidden;
+    }
+
+    /* “fabric sheen” */
+    article::before{
+      content:"";
+      position:absolute;
+      inset:-45%;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(20,52,40,0.22), transparent 60%),
+        radial-gradient(circle at 80% 30%, rgba(214,179,106,0.12), transparent 62%);
+      pointer-events:none;
+      opacity:.75;
+      mix-blend-mode: soft-light;
+    }
+
+    .post{
+      position: relative;
+      z-index: 1;
+      padding: 18px 18px 16px;
+    }
+
+    .posthead{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .posthead h2{
+      margin:0;
+      font-size: 1.18rem;
+      letter-spacing: .01em;
+      line-height: 1.25;
+    }
+
+    time{
+      font-size: .9rem;
+      color: rgba(174,184,214,0.88);
+      white-space: nowrap;
+    }
+
+    .body{
+      color: rgba(232,238,252,0.92);
+      line-height: 1.75;
+      font-size: 1.02rem;
+      letter-spacing: .005em;
+    }
+    .body p{ margin: 0 0 12px; }
+    .body p:last-child{ margin-bottom: 0; }
+
+    .tagrow{
+      margin-top: 12px;
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag{
+      font-size: .82rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(216,227,255,0.14);
+      background: rgba(11,18,41,0.35);
+      color: rgba(232,238,252,0.78);
+    }
+
+    footer{
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(216,227,255,0.12);
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: rgba(174,184,214,0.82);
+      font-size: .88rem;
+    }
+
+    .links a{
+      color: rgba(232,238,252,0.88);
+      text-decoration: none;
+      margin-left: 12px;
+    }
+    .links a:hover{ text-decoration: underline; }
+
+    /* Mobile polish */
+    @media (max-width: 720px){
+      .wrap{ padding-left: 14px; padding-right: 14px; }
+      header{ padding: 16px 14px 14px; }
+      .toprow{ flex-direction: column; align-items: flex-start; }
+      .cta{ align-items: flex-start; min-width: 0; }
+      .tiny{ text-align:left; }
+      .post{ padding: 16px 14px 14px; }
+      .body{ font-size: 1.02rem; }
+    }
+  </style>
 </head>
+
 <body>
+  <div class="wrap">
+    <header>
+      <div class="toprow">
+        <div class="brand">
+          <h1>Updates</h1>
+          <p>
+            A simple feed of posts and notes — mostly mirroring GoFundMe updates.
+          </p>
+        </div>
+
+        <div class="cta">
+          <a class="gfm" href="https://gofund.me/d7da8c2b6" target="_blank" rel="noopener noreferrer">
+            <span class="dot" aria-hidden="true"></span>
+            <span>GoFundMe</span>
+          </a>
+          <div class="tiny">Thank you for any support.<br/>It genuinely helps.</div>
+        </div>
+      </div>
+
+    </header>
+
+    <main id="feed" aria-live="polite"></main>
+
+    <footer>
+      <div>&copy; <span id="year"></span> Nick Christoforakis</div>
+      <div class="links">
+        <a href="mailto:nick@christoforakis.com">Email</a>
+        <a href="https://www.linkedin.com/in/nicholas-christoforakis-79a38038b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://www.instagram.com/nickchristoforakis/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Current year
+    (function () {
+      var el = document.getElementById('year');
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+
+    /**
+     * EDIT POSTS HERE.
+     * - date: ISO string "YYYY-MM-DD" (or "YYYY-MM-DDTHH:mm" if you want)
+     * - title: short
+     * - body: array of paragraphs (strings)
+     * - tags: optional array
+     */
+    var posts = [
+      {
+        date: "2026-02-19",
+        title: "Lukas is home",
+        body: [
+          "On his 120th day in Boston Children's Hospital, Lukas has finally come home. Alive, and on his own two feet.",
+          "There were times when we thought this may never happen...",
+          "Thank you all, for your support, love, prayers, and each one of the miraculous interactions we've had."
+        ],
+        tags: ["home", "gratitude"]
+      },
+      // Add more posts like this:
+      // {
+      //   date: "2026-02-10",
+      //   title: "A small update",
+      //   body: ["Paragraph one…", "Paragraph two…"],
+      //   tags: ["update"]
+      // },
+    ];
+
+    // --- Rendering / search / sort ---
+    var feed = document.getElementById('feed');
+
+    function formatDate(iso){
+      // Keep it readable and “bloggy”
+      var d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+
+      var opts = { year: "numeric", month: "short", day: "numeric" };
+      return d.toLocaleDateString(undefined, opts);
+    }
+
+    function normalize(s){
+      return (s || "").toLowerCase().trim();
+    }
+
+    function sortPosts(arr){
+  return arr.slice().sort(function(a,b){
+    return new Date(b.date) - new Date(a.date); // always newest first
+  });
+}
+
+    function render(){
+      if (!feed) return;
+      var filtered = sortPosts(posts);
+
+      if (filtered.length === 0){
+        feed.innerHTML =
+          '<article><div class="post">' +
+          '<div class="posthead"><h2>No matches</h2><time></time></div>' +
+          '<div class="body"><p>Try a different search term.</p></div>' +
+          '</div></article>';
+        return;
+      }
+
+      feed.innerHTML = filtered.map(function(p){
+        var paragraphs = (p.body || []).map(function(txt){
+          return "<p>" + escapeHtml(txt) + "</p>";
+        }).join("");
+
+        var tags = (p.tags && p.tags.length)
+          ? '<div class="tagrow">' + p.tags.map(function(t){
+              return '<span class="tag">' + escapeHtml(t) + '</span>';
+            }).join("") + '</div>'
+          : "";
+
+        return (
+          '<article>' +
+            '<div class="post">' +
+              '<div class="posthead">' +
+                '<h2>' + escapeHtml(p.title) + '</h2>' +
+                '<time datetime="' + escapeAttr(p.date) + '">' + escapeHtml(formatDate(p.date)) + '</time>' +
+              '</div>' +
+              '<div class="body">' + paragraphs + '</div>' +
+              tags +
+            '</div>' +
+          '</article>'
+        );
+      }).join("");
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, function(m){
+        return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[m];
+      });
+    }
+
+    function escapeAttr(str){
+      return String(str).replace(/"/g, "&quot;");
+    }
+
+    render();
+  </script>
 </body>
 </html>
