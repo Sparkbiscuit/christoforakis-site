@@ -280,7 +280,32 @@
       letter-spacing: .01em;
       line-height: 1.25;
     }
+    
+.badge-new{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-left: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: .78rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(240,213,155,0.95);
+  border: 1px solid rgba(240,213,155,0.30);
+  background: linear-gradient(180deg, rgba(214,179,106,0.20), rgba(214,179,106,0.10));
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
 
+.badge-new::before{
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, var(--gold2), var(--gold));
+  box-shadow: 0 0 0 3px rgba(214,179,106,0.18);
+}
+    
     time{
       font-size: .9rem;
       color: rgba(174,184,214,0.88);
@@ -380,6 +405,7 @@
   {
     date: "2026-02-19",
     title: "Back in the CICU",
+    isNew: true,
     body: [
       "If you enjoy fairytale endings, this is not going to be a pleasant update.",
       "Unfortunately, the medicines that were so miraculously working have stopped being so miraculous. Lukas has been readmitted to the CICU, and it's frankly more dire than ever. His disease has progressed rapidly, and we don't know why.",
@@ -503,7 +529,9 @@
           '<article>' +
             '<div class="post">' +
               '<div class="posthead">' +
-                '<h2>' + escapeHtml(p.title) + '</h2>' +
+               '<h2>' + escapeHtml(p.title) +
+  (p.isNew ? ' <span class="badge-new">New</span>' : '') +
+'</h2>' +
                 '<time datetime="' + escapeAttr(p.date) + '">' + escapeHtml(formatDate(p.date)) + '</time>' +
               '</div>' +
               '<div class="body">' + paragraphs + '</div>' +
