@@ -5,13 +5,12 @@
   <title>Updates on Lukas</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#050816" />
+  <meta name="theme-color" content="#faf8f4" />
   <meta name="description" content="Updates and notes. Mirroring GoFundMe posts and progress at home." />
 
-  <!-- Force dark rendering -->
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="light dark" />
 
-  <!-- Open Graph (optional, keep if you want previews) -->
+  <!-- Open Graph -->
   <meta property="og:title" content="Updates on Lukas" />
   <meta property="og:description" content="Updates and notes. Mirroring GoFundMe posts and progress at home." />
   <meta property="og:type" content="website" />
@@ -20,366 +19,543 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://christoforakis.com/og-image.png" />
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
   <style>
-    :root{
-      /* Outfit palette: forest sweater, warm gold chain, khaki pants */
-      --bg0:#050816;
-      --bg1:#0b1229;
-      --ink:#e8eefc;
-      --muted:#aeb8d6;
-
-      --forest:#0f2a22;        /* deep evergreen */
-      --forest2:#143428;       /* slightly brighter green */
-      --khaki:#bda57a;         /* warm khaki highlight */
-      --gold:#d6b36a;          /* chain gold accent */
-      --gold2:#f0d59b;
-
-      --card: rgba(15, 23, 42, 0.78);
-      --cardBorder: rgba(216, 227, 255, 0.18);
-      --shadow: 0 24px 70px rgba(0,0,0,0.55);
-
-      --radius: 22px;
-
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color-scheme: dark;
+    /* =============================================
+       DESIGN TOKENS
+       ============================================= */
+    :root {
+      --bg: #faf8f4;
+      --bg-elevated: #ffffff;
+      --bg-subtle: #f3f0ea;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #8a8a8a;
+      --accent: #b8860b;
+      --accent-hover: #9a7209;
+      --accent-soft: rgba(184, 134, 11, 0.10);
+      --accent-medium: rgba(184, 134, 11, 0.18);
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --overlay: rgba(250, 248, 244, 0.92);
+      --gfm-bg: linear-gradient(135deg, #b8860b, #d4a017);
+      --gfm-text: #fff;
+      --badge-bg: rgba(184, 134, 11, 0.12);
+      --badge-text: #8a6508;
+      --badge-border: rgba(184, 134, 11, 0.25);
+      --pin-bg: rgba(59, 130, 246, 0.08);
+      --pin-text: #2563eb;
+      --pin-border: rgba(59, 130, 246, 0.22);
+      --scrollbar-thumb: rgba(0,0,0,0.15);
     }
 
-    * { box-sizing: border-box; }
+    [data-theme="dark"] {
+      --bg: #0f0f0f;
+      --bg-elevated: #1a1a1a;
+      --bg-subtle: #252525;
+      --text: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --text-muted: #6a6a6a;
+      --accent: #d4a017;
+      --accent-hover: #e6b422;
+      --accent-soft: rgba(212, 160, 23, 0.12);
+      --accent-medium: rgba(212, 160, 23, 0.20);
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.15);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.2);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --overlay: rgba(15, 15, 15, 0.92);
+      --gfm-bg: linear-gradient(135deg, #d4a017, #e6b422);
+      --gfm-text: #1a1a1a;
+      --badge-bg: rgba(212, 160, 23, 0.15);
+      --badge-text: #e6b422;
+      --badge-border: rgba(212, 160, 23, 0.30);
+      --pin-bg: rgba(96, 165, 250, 0.10);
+      --pin-text: #60a5fa;
+      --pin-border: rgba(96, 165, 250, 0.28);
+      --scrollbar-thumb: rgba(255,255,255,0.15);
+    }
 
-    html, body { height: 100%; }
+    /* =============================================
+       RESET
+       ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body{
-      margin:0;
-      color: var(--ink);
-      background: var(--bg0);
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; height: 100%; }
+
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      min-height: 100%;
       overflow-x: hidden;
-
-      /* Elegant “fabric / waves” background */
-      background:
-        radial-gradient(1200px 800px at 15% 10%, rgba(20,52,40,0.38), transparent 60%),
-        radial-gradient(1000px 700px at 80% 15%, rgba(214,179,106,0.18), transparent 62%),
-        radial-gradient(1000px 900px at 55% 85%, rgba(189,165,122,0.16), transparent 64%),
-        radial-gradient(900px 700px at 10% 85%, rgba(30,58,138,0.18), transparent 62%),
-        linear-gradient(135deg, #050816, #0b1229 55%, #050816);
-      background-size: 140% 140%;
-      animation: drift 18s ease-in-out infinite alternate;
+      transition: background 0.35s ease, color 0.35s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    @keyframes drift{
-      0%   { background-position: 0% 0%; }
-      100% { background-position: 100% 100%; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+    /* =============================================
+       PROGRESS BAR
+       ============================================= */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--accent); z-index: 1000;
+      width: 0%; transition: width 0.1s linear;
+      border-radius: 0 2px 2px 0;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      body{ animation:none; }
-    }
-
-    /* Layout */
-    .wrap{
-      width: min(980px, 100%);
+    /* =============================================
+       LAYOUT
+       ============================================= */
+    .site-wrap {
+      width: min(760px, 100%);
       margin: 0 auto;
-      padding:
-        calc(env(safe-area-inset-top, 0px) + 28px)
-        18px
-        calc(env(safe-area-inset-bottom, 0px) + 34px);
+      padding: calc(env(safe-area-inset-top, 0px) + 0px) 24px calc(env(safe-area-inset-bottom, 0px) + 48px);
     }
 
-    header{
-      position: relative;
-      padding: 18px 18px 16px;
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(20,52,40,0.26), rgba(15,23,42,0.72));
-      border: 1px solid rgba(216,227,255,0.14);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(22px) saturate(140%);
-      -webkit-backdrop-filter: blur(22px) saturate(140%);
-      overflow:hidden;
+    /* =============================================
+       HEADER
+       ============================================= */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      padding: 20px 0 16px;
+      background: var(--overlay);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      transition: padding 0.3s ease, background 0.35s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .site-header.scrolled {
+      padding: 12px 0 10px;
+      border-bottom-color: var(--border);
     }
 
-    /* subtle “gold thread” highlight */
-    header::before{
-      content:"";
-      position:absolute;
-      inset:-60%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(240,213,155,0.22), transparent 58%),
-        radial-gradient(circle at 70% 40%, rgba(214,179,106,0.14), transparent 60%);
-      pointer-events:none;
-      mix-blend-mode: soft-light;
-      opacity: .75;
+    .header-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
     }
 
-    .toprow{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 14px;
-      position: relative;
+    .brand { flex: 1; min-width: 0; }
+
+    .brand h1 {
+      font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      font-size: 1.75rem; font-weight: 400;
+      letter-spacing: -0.01em; line-height: 1.15;
+      color: var(--text); transition: font-size 0.3s ease;
+    }
+    .site-header.scrolled .brand h1 { font-size: 1.35rem; }
+
+    .brand .tagline {
+      margin-top: 4px; color: var(--text-secondary);
+      font-size: 0.9rem; line-height: 1.45;
+      transition: opacity 0.3s ease, max-height 0.3s ease;
+      max-height: 3em; overflow: hidden;
+    }
+    .site-header.scrolled .brand .tagline {
+      opacity: 0; max-height: 0; margin-top: 0;
+    }
+
+    .header-actions {
+      display: flex; align-items: center;
+      gap: 10px; flex-shrink: 0;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg-elevated);
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s ease;
+      color: var(--text-secondary); flex-shrink: 0;
+    }
+    .theme-toggle:hover {
+      border-color: var(--border-strong); box-shadow: var(--shadow-sm);
+      color: var(--text);
+    }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .icon-moon,
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    /* GoFundMe CTA */
+    .gfm-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--gfm-text);
+      padding: 10px 20px; border-radius: 999px;
+      background: var(--gfm-bg); font-weight: 600;
+      font-size: 0.88rem; letter-spacing: 0.01em;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap; border: none;
+    }
+    .gfm-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .gfm-btn:active { transform: translateY(0); }
+    .gfm-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .support-note {
+      text-align: center; color: var(--text-muted);
+      font-size: 0.85rem; padding: 12px 0 8px;
+      transition: opacity 0.3s ease, max-height 0.3s ease;
+      max-height: 3em; overflow: hidden;
+    }
+    .site-header.scrolled .support-note {
+      opacity: 0; max-height: 0; padding: 0;
+    }
+
+    /* =============================================
+       SEARCH
+       ============================================= */
+    .search-section { padding: 16px 0 8px; }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      background: var(--bg-subtle); border: 1px solid var(--border);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .search-bar:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .search-bar svg {
+      width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0;
+    }
+    .search-bar input {
+      width: 100%; background: transparent; border: none;
+      outline: none; color: var(--text); font-size: 0.92rem;
+      font-family: inherit;
+    }
+    .search-bar input::placeholder { color: var(--text-muted); }
+
+    .search-clear {
+      display: none; width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: var(--border); color: var(--text-secondary);
+      cursor: pointer; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 14px; line-height: 1;
+      transition: background 0.15s ease;
+    }
+    .search-clear.visible { display: flex; }
+    .search-clear:hover { background: var(--border-strong); }
+
+    .search-info {
+      padding: 8px 0 0; font-size: 0.85rem;
+      color: var(--text-muted); display: none;
+    }
+    .search-info.visible { display: block; }
+
+    /* =============================================
+       FEED & TIMELINE
+       ============================================= */
+    .feed { margin-top: 8px; }
+
+    .post-item {
+      position: relative; padding-left: 32px;
+      margin-bottom: 24px;
+    }
+    .post-item:last-child { margin-bottom: 0; }
+
+    /* Timeline line */
+    .post-item::before {
+      content: ""; position: absolute; left: 7px;
+      top: 28px; bottom: -24px; width: 2px;
+      background: var(--border);
+    }
+    .post-item:last-child::before { display: none; }
+
+    /* Timeline dot */
+    .post-item::after {
+      content: ""; position: absolute; left: 2px; top: 22px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--border);
+      transition: border-color 0.3s ease, background 0.3s ease;
       z-index: 1;
     }
-
-    .brand h1{
-      margin:0;
-      font-size: 1.55rem;
-      letter-spacing: .01em;
-      line-height:1.15;
+    .post-item.is-new::after {
+      border-color: var(--accent); background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .post-item.is-pinned::after {
+      border-color: var(--pin-text); background: var(--pin-text);
+      box-shadow: 0 0 0 4px var(--pin-bg);
     }
 
-    .brand p{
-      margin: 8px 0 0;
-      color: var(--muted);
-      max-width: 58ch;
-      line-height: 1.55;
-      font-size: .98rem;
+    /* Scroll reveal */
+    .post-item {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .post-item.visible { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .post-item { opacity: 1; transform: none; transition: none; }
     }
 
-    .cta{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:flex-end;
-      min-width: 190px;
+    /* Card */
+    .post-card {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease, background 0.35s ease;
+    }
+    .post-card:hover {
+      box-shadow: var(--shadow-md); border-color: var(--border-strong);
     }
 
-    .gfm{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      text-decoration:none;
-      color: var(--ink);
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, rgba(214,179,106,0.18), rgba(214,179,106,0.08));
-      border: 1px solid rgba(240,213,155,0.30);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      transition: transform .15s ease, border-color .15s ease, background .15s ease;
-      white-space: nowrap;
+    .post-inner { padding: 24px; }
+
+    /* Post meta */
+    .post-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .post-meta-left {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
 
-    .gfm:hover{
-      transform: translateY(-1px);
-      border-color: rgba(240,213,155,0.45);
-      background: linear-gradient(180deg, rgba(214,179,106,0.22), rgba(214,179,106,0.10));
+    .post-date {
+      font-size: 0.82rem; color: var(--text-muted);
+      font-weight: 500; letter-spacing: 0.02em;
+      text-transform: uppercase; white-space: nowrap;
     }
 
-    .gfm .dot{
-      width:10px; height:10px;
-      border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, var(--gold2), var(--gold));
-      box-shadow: 0 0 0 3px rgba(214,179,106,0.18);
-      flex:none;
+    .badge-new {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--badge-text); background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+    }
+    .badge-new::before {
+      content: ""; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .badge-new::before { animation: none; }
     }
 
-    .tiny{
-      font-size:.85rem;
-      color: rgba(232,238,252,0.70);
-      text-align:right;
-      line-height:1.3;
+    .badge-pinned {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--pin-text); background: var(--pin-bg);
+      border: 1px solid var(--pin-border);
+    }
+    .badge-pinned svg { width: 11px; height: 11px; }
+
+    .reading-time {
+      font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;
     }
 
-    /* Controls */
-    .controls{
-      margin-top: 14px;
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
+    .post-title {
+      font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      font-size: 1.45rem; font-weight: 400; line-height: 1.3;
+      letter-spacing: -0.005em; color: var(--text); margin-bottom: 16px;
     }
 
-    .search{
-      flex: 1 1 240px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(11,18,41,0.55);
-      border: 1px solid rgba(216,227,255,0.14);
+    .post-body {
+      color: var(--text-secondary); font-size: 0.95rem;
+      line-height: 1.78; letter-spacing: 0.003em;
+    }
+    .post-body p { margin: 0 0 14px; }
+    .post-body p:last-child { margin-bottom: 0; }
+
+    /* Expand / Collapse */
+    .post-body.collapsed {
+      max-height: 260px; overflow: hidden; position: relative;
+    }
+    .post-body.collapsed::after {
+      content: ""; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--bg-elevated));
+      pointer-events: none;
     }
 
-    .search input{
-      width:100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--ink);
-      font-size: .95rem;
+    .read-more-btn {
+      display: none; margin-top: 12px; padding: 8px 18px;
+      border: 1px solid var(--border-strong); border-radius: 999px;
+      background: var(--bg-elevated); color: var(--text-secondary);
+      font-size: 0.85rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s ease; font-family: inherit;
     }
-    .search input::placeholder{
-      color: rgba(174,184,214,0.75);
+    .read-more-btn:hover {
+      border-color: var(--accent); color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .read-more-btn.visible { display: inline-flex; }
+
+    /* Share footer */
+    .post-footer {
+      display: flex; align-items: center;
+      justify-content: flex-end; gap: 6px;
+      padding: 12px 24px; border-top: 1px solid var(--border);
+    }
+    .share-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; font-family: inherit; transition: all 0.2s ease;
+    }
+    .share-btn:hover {
+      border-color: var(--border-strong); color: var(--text-secondary);
+      background: var(--bg-subtle);
+    }
+    .share-btn.copied {
+      border-color: var(--accent); color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .share-btn svg { width: 14px; height: 14px; }
+
+    /* No results */
+    .no-results {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+    }
+    .no-results h2 {
+      font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+      font-size: 1.4rem; font-weight: 400; margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .no-results p { font-size: 0.9rem; }
+
+    /* =============================================
+       BACK TO TOP
+       ============================================= */
+    .back-to-top {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--border-strong); background: var(--bg-elevated);
+      color: var(--text-secondary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-md);
+      opacity: 0; pointer-events: none; transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+      z-index: 50;
+    }
+    .back-to-top.visible {
+      opacity: 1; pointer-events: auto; transform: translateY(0);
+    }
+    .back-to-top:hover {
+      background: var(--accent-soft); border-color: var(--accent);
+      color: var(--accent);
+    }
+    .back-to-top svg { width: 20px; height: 20px; }
+
+    /* =============================================
+       FOOTER
+       ============================================= */
+    .site-footer {
+      margin-top: 48px; padding: 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 16px; flex-wrap: wrap;
+      font-size: 0.84rem; color: var(--text-muted);
+    }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      color: var(--text-secondary); text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* =============================================
+       MOBILE
+       ============================================= */
+    @media (max-width: 640px) {
+      .site-wrap { padding-left: 16px; padding-right: 16px; }
+      .header-row { flex-wrap: wrap; }
+      .brand h1 { font-size: 1.5rem; }
+      .site-header.scrolled .brand h1 { font-size: 1.25rem; }
+      .gfm-btn { padding: 9px 16px; font-size: 0.84rem; }
+      .post-item { padding-left: 24px; }
+      .post-item::before { left: 5px; }
+      .post-item::after { left: 0; }
+      .post-inner { padding: 18px; }
+      .post-footer { padding: 10px 18px; }
+      .post-title { font-size: 1.28rem; }
+      .post-body { font-size: 0.93rem; }
+      .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; }
+      .site-footer {
+        flex-direction: column; align-items: center;
+        text-align: center; gap: 10px;
+      }
+      .support-note { font-size: 0.82rem; }
     }
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(216,227,255,0.14);
-      background: rgba(11,18,41,0.45);
-      color: rgba(232,238,252,0.92);
-      font-size: .92rem;
-      cursor: pointer;
-      user-select: none;
-    }
-    .pill:hover{
-      border-color: rgba(216,227,255,0.22);
-    }
-
-    main{
-      margin-top: 18px;
-      display:grid;
-      gap: 14px;
-    }
-
-    article{
-      position: relative;
-      border-radius: var(--radius);
-      background: var(--card);
-      border: 1px solid var(--cardBorder);
-      box-shadow: 0 18px 45px rgba(0,0,0,0.45);
-      backdrop-filter: blur(20px) saturate(135%);
-      -webkit-backdrop-filter: blur(20px) saturate(135%);
-      overflow:hidden;
-    }
-
-    /* “fabric sheen” */
-    article::before{
-      content:"";
-      position:absolute;
-      inset:-45%;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(20,52,40,0.22), transparent 60%),
-        radial-gradient(circle at 80% 30%, rgba(214,179,106,0.12), transparent 62%);
-      pointer-events:none;
-      opacity:.75;
-      mix-blend-mode: soft-light;
-    }
-
-    .post{
-      position: relative;
-      z-index: 1;
-      padding: 18px 18px 16px;
-    }
-
-    .posthead{
-      display:flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .posthead h2{
-      margin:0;
-      font-size: 1.18rem;
-      letter-spacing: .01em;
-      line-height: 1.25;
-    }
-    
-.badge-new{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-left: 10px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: .78rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: rgba(240,213,155,0.95);
-  border: 1px solid rgba(240,213,155,0.30);
-  background: linear-gradient(180deg, rgba(214,179,106,0.20), rgba(214,179,106,0.10));
-  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
-}
-
-.badge-new::before{
-  content:"";
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, var(--gold2), var(--gold));
-  box-shadow: 0 0 0 3px rgba(214,179,106,0.18);
-}
-    
-    time{
-      font-size: .9rem;
-      color: rgba(174,184,214,0.88);
-      white-space: nowrap;
-    }
-
-    .body{
-      color: rgba(232,238,252,0.92);
-      line-height: 1.75;
-      font-size: 1.02rem;
-      letter-spacing: .005em;
-    }
-    .body p{ margin: 0 0 12px; }
-    .body p:last-child{ margin-bottom: 0; }
-
-    footer{
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(216,227,255,0.12);
-      display:flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      color: rgba(174,184,214,0.82);
-      font-size: .88rem;
-    }
-
-    .links a{
-      color: rgba(232,238,252,0.88);
-      text-decoration: none;
-      margin-left: 12px;
-    }
-    .links a:hover{ text-decoration: underline; }
-
-    /* Mobile polish */
-    @media (max-width: 720px){
-      .wrap{ padding-left: 14px; padding-right: 14px; }
-      header{ padding: 16px 14px 14px; }
-      .toprow{ flex-direction: column; align-items: flex-start; }
-      .cta{ align-items: flex-start; min-width: 0; }
-      .tiny{ text-align:left; }
-      .post{ padding: 16px 14px 14px; }
-      .body{ font-size: 1.02rem; }
+    @media (max-width: 380px) {
+      .brand h1 { font-size: 1.35rem; }
+      .header-actions { gap: 6px; }
+      .gfm-btn span { display: none; }
+      .gfm-btn { padding: 10px 12px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="toprow">
+  <!-- Reading progress bar -->
+  <div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+  <div class="site-wrap">
+    <!-- Header -->
+    <header class="site-header" id="siteHeader">
+      <div class="header-row">
         <div class="brand">
           <h1>Updates on Lukas</h1>
-          <p>
-            A simple feed of posts and notes, mostly mirroring GoFundMe updates.
-          </p>
+          <p class="tagline">A simple feed of posts and notes, mostly mirroring GoFundMe updates.</p>
         </div>
-
-        <div class="cta">
-          <a class="gfm" href="https://gofund.me/d7da8c2b6" target="_blank" rel="noopener noreferrer">
-
+        <div class="header-actions">
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <a class="gfm-btn" href="https://gofund.me/d7da8c2b6" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             <span>GoFundMe</span>
           </a>
-          <div class="tiny">Thank you for any support.<br/>It genuinely helps.</div>
         </div>
       </div>
-
+      <div class="support-note">Thank you for any support. It genuinely helps.</div>
     </header>
 
-    <main id="feed" aria-live="polite"></main>
+    <!-- Search -->
+    <div class="search-section">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Search posts..." aria-label="Search posts" />
+        <button class="search-clear" id="searchClear" aria-label="Clear search">&times;</button>
+      </div>
+      <div class="search-info" id="searchInfo"></div>
+    </div>
 
-    <footer>
+    <!-- Feed -->
+    <main class="feed" id="feed" aria-live="polite"></main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
       <div>&copy; <span id="year"></span> Nick Christoforakis</div>
-      <div class="links">
+      <div class="footer-links">
         <a href="mailto:nick@christoforakis.com">Email</a>
         <a href="https://www.linkedin.com/in/nicholas-christoforakis-79a38038b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         <a href="https://www.instagram.com/nickchristoforakis/" target="_blank" rel="noopener noreferrer">Instagram</a>
@@ -387,97 +563,102 @@
     </footer>
   </div>
 
-  <script>
-    // Current year
-    (function () {
-      var el = document.getElementById('year');
-      if (el) el.textContent = new Date().getFullYear();
-    })();
+  <!-- Back to top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
 
-    /**
-     * EDIT POSTS HERE.
-     * - date: ISO string "YYYY-MM-DD" (or "YYYY-MM-DDTHH:mm" if you want)
-     * - title: short
-     * - body: array of paragraphs (strings)
-     * - tags: optional array
-     */
-    var posts = [
+  <script>
+    /* ==============================================
+       DEFAULT POSTS — all original text preserved
+       ============================================== */
+    var DEFAULT_POSTS = [
   {
+    id: "back-in-the-cicu",
     date: "2026-02-19",
     title: "Back in the CICU",
     isNew: true,
+    pinned: false,
     body: [
       "If you enjoy fairytale endings, this is not going to be a pleasant update.",
-      "Unfortunately, the medicines that were so miraculously working have stopped being so miraculous. Lukas has been readmitted to the CICU, and it's frankly more dire than ever. His disease has progressed rapidly, and we don't know why.",
+      "Unfortunately, the medicines that were so miraculously working have stopped being so miraculous. Lukas has been readmitted to the CICU, and it\u2019s frankly more dire than ever. His disease has progressed rapidly, and we don\u2019t know why.",
       "As of Monday night, Lukas has been placed on ECMO.",
       "Extracorporeal membrane oxygenation, commonly known as ECMO, is one of the most advanced cardiovascular life supports known to medicine. The machine receives your entire blood flow through tubes inserted into major blood vessels, then cleans, oxygenates, warms, and pumps the blood for you, allowing the heart and lungs to rest. However, it comes with its own set of risks.",
-      "Lukas is constantly monitored by 2 or more people and wears oxygen saturation monitors all over his extremities, to ensure that he hasn't developed a blood clot that could cause him to lose his limbs, or worse, send him into cardiac arrest or a stroke. As, unfortunately, ECMO patients are prone to do, even with copious amounts of blood thinners.",
-      "He's constantly receiving 10+ infusions into a central catheter that feeds into his major arteries. He's hooked up to so many monitors and machines it's hard not to get tangled just walking near him. It's impossible to express the severity of the situation. Even with the most advanced care in the world, it's only just enough to keep him alive until the now-certain lung transplant.",
-      "And, speaking of a lung transplant: 1 week ago, we received an offer. We were overjoyed. The nightmare might finally ease up. But it's never that easy. When the surgeons flew out to verify that the lungs would be a good fit, they found that the donor had some sort of infection that would ultimately cause problems, should Lukas receive the lungs.",
-      "I cannot properly convey the agony and despair in Lukas' scream when I told him that he wasn't going to get new lungs that day. It was the most heartbreaking moment of my entire life.",
-      "All this is to say: we don't know what's going to happen next. Every day we can do nothing but wait. Every day in the CICU is spent in terror, even surrounded by the best doctors in the world. Every day Lukas spends without a transplant decreases his odds of survival afterwards.",
-      "I'm sorry to deliver such horrible news. All we can do now is hope.",
+      "Lukas is constantly monitored by 2 or more people and wears oxygen saturation monitors all over his extremities, to ensure that he hasn\u2019t developed a blood clot that could cause him to lose his limbs, or worse, send him into cardiac arrest or a stroke. As, unfortunately, ECMO patients are prone to do, even with copious amounts of blood thinners.",
+      "He\u2019s constantly receiving 10+ infusions into a central catheter that feeds into his major arteries. He\u2019s hooked up to so many monitors and machines it\u2019s hard not to get tangled just walking near him. It\u2019s impossible to express the severity of the situation. Even with the most advanced care in the world, it\u2019s only just enough to keep him alive until the now-certain lung transplant.",
+      "And, speaking of a lung transplant: 1 week ago, we received an offer. We were overjoyed. The nightmare might finally ease up. But it\u2019s never that easy. When the surgeons flew out to verify that the lungs would be a good fit, they found that the donor had some sort of infection that would ultimately cause problems, should Lukas receive the lungs.",
+      "I cannot properly convey the agony and despair in Lukas\u2019 scream when I told him that he wasn\u2019t going to get new lungs that day. It was the most heartbreaking moment of my entire life.",
+      "All this is to say: we don\u2019t know what\u2019s going to happen next. Every day we can do nothing but wait. Every day in the CICU is spent in terror, even surrounded by the best doctors in the world. Every day Lukas spends without a transplant decreases his odds of survival afterwards.",
+      "I\u2019m sorry to deliver such horrible news. All we can do now is hope.",
       "-Nicholas and the Christoforakis Family"
     ]
   },
-
   {
+    id: "lukas-is-home",
     date: "2025-12-18",
     title: "Lukas is Home",
+    isNew: false,
+    pinned: false,
     body: [
-      "On his 120th day in Boston Children's Hospital, Lukas has finally come home. Alive, and on his own two feet.",
+      "On his 120th day in Boston Children\u2019s Hospital, Lukas has finally come home. Alive, and on his own two feet.",
       "There were times when we thought this may never happen. Hopeless times, when it seemed like we might never leave. Desperate times, when a double lung transplant seemed all too certain and his lifespan seemed to shrink in front of us.",
-      "But against seemingly all odds, we are home. There are so many things that came together to bring us back here: Lukas' care team, amazing modern medicines, the support of the entire community. And crucially, hope.",
-      "The experience of hope is difficult to convey in a message like this. It's something we had to learn across the last four months. Sometimes, it's easy to have hope. Like when you're told he's responding well to medicines (against everyone's predictions) and he might get to keep his own lungs, or when nurses start mentioning discharge day. Often, it was nearly impossible to have hope. Months in the Cardiac ICU with an uncertain future, awoken each night by running feet and other kids' alarms. Wondering if someday, the code blue will be for Lukas.",
-      "Hope is born in those dark times. It's light in the abyss of despair. And the really curious thing is that the most powerful hope only comes when you've lost it all.",
-      "If there's two things we learned from this experience it's how to hope and how to be grateful. On gratitude: we don't know how to express it enough, but we know how to feel it. Gratitude for the world-class care he received. Gratitude that we brought him in to the hospital when we did. Gratitude that so many people across the community came together to support us. Gratitude that somehow, medication worked for him. Most of all, gratitude for life. For the ability to leave BCH with a heartbeat, on his feet.",
+      "But against seemingly all odds, we are home. There are so many things that came together to bring us back here: Lukas\u2019 care team, amazing modern medicines, the support of the entire community. And crucially, hope.",
+      "The experience of hope is difficult to convey in a message like this. It\u2019s something we had to learn across the last four months. Sometimes, it\u2019s easy to have hope. Like when you\u2019re told he\u2019s responding well to medicines (against everyone\u2019s predictions) and he might get to keep his own lungs, or when nurses start mentioning discharge day. Often, it was nearly impossible to have hope. Months in the Cardiac ICU with an uncertain future, awoken each night by running feet and other kids\u2019 alarms. Wondering if someday, the code blue will be for Lukas.",
+      "Hope is born in those dark times. It\u2019s light in the abyss of despair. And the really curious thing is that the most powerful hope only comes when you\u2019ve lost it all.",
+      "If there\u2019s two things we learned from this experience it\u2019s how to hope and how to be grateful. On gratitude: we don\u2019t know how to express it enough, but we know how to feel it. Gratitude for the world-class care he received. Gratitude that we brought him in to the hospital when we did. Gratitude that so many people across the community came together to support us. Gratitude that somehow, medication worked for him. Most of all, gratitude for life. For the ability to leave BCH with a heartbeat, on his feet.",
       "We know many of you might want to know what happened. We did too, and it took a while to get the full picture. In the end, the likely story is this: Lukas has two conditions, one causing the other. The first, more insidious one, is probably Pulmonary Veno-Occlusive Disease (PVOD). This is when the small vessels in the lungs constrict and harden, making gas exchange difficult and blocking blood flow. This is the disease that the doctors thought would necessitate a transplant. The second condition, his initial diagnosis, is Pulmonary Hypertension (PH), which is a descriptive name for when something restricts blood flow in the pulmonary artery (the vessel that carries deoxygenated blood from the right side of the heart to the lungs) and causes an overpressure. In his case, that restriction was likely caused by PVOD. If untreated, he likely would have died of right-side heart failure within a year. Lukas is a unique case, but in similar cases, oftentimes the vasodilator therapies given for PH worsen the PVOD and/or result in intensely bad fluid buildup in the lungs. This is why a lung transplant was the likely option.",
-      "Miraculously, though, as his care team gently experimented with vasodilators, they found that Lukas somehow responded well. The medicine (epoprostenol) had its own challenges: it was light-sensitive, and it had a three minute half-life in the body, after which the blood vessels would rapidly collapse back to their original width. So, for several months, Lukas was on a constant infusion. Finally, once he was stable and healthy enough, the care team transitioned him onto his current medicine, a similar yet much more stable drug called Remodulin, which comes in a little portable pump similar to what you'd see insulin in for a diabetic patient.",
+      "Miraculously, though, as his care team gently experimented with vasodilators, they found that Lukas somehow responded well. The medicine (epoprostenol) had its own challenges: it was light-sensitive, and it had a three minute half-life in the body, after which the blood vessels would rapidly collapse back to their original width. So, for several months, Lukas was on a constant infusion. Finally, once he was stable and healthy enough, the care team transitioned him onto his current medicine, a similar yet much more stable drug called Remodulin, which comes in a little portable pump similar to what you\u2019d see insulin in for a diabetic patient.",
       "For the near future, Lukas will also continue to receive oxygen, as it helps ease the strain on his heart as he strengthens more. You might see him around with a little canister in a backpack.",
-      "There's a long road ahead medicine-wise, and all kinds of exciting new prospects in development. Right now, we are grateful for the incredibly advanced medicines and care that Lukas received and will continue to receive. Whatever's next, we're ready.",
-      "Thank you all, for your support, love, prayers, and each one of the miraculous interactions we've had. Even though Lukas is not completely out of the woods yet, he's home now and he's so much healthier than we could have ever expected. We can't wait to see you.",
+      "There\u2019s a long road ahead medicine-wise, and all kinds of exciting new prospects in development. Right now, we are grateful for the incredibly advanced medicines and care that Lukas received and will continue to receive. Whatever\u2019s next, we\u2019re ready.",
+      "Thank you all, for your support, love, prayers, and each one of the miraculous interactions we\u2019ve had. Even though Lukas is not completely out of the woods yet, he\u2019s home now and he\u2019s so much healthier than we could have ever expected. We can\u2019t wait to see you.",
       "-Nicholas and the Christoforakis Family"
     ]
   },
-
   {
+    id: "we-surpassed-50000",
     date: "2025-09-07",
     title: "We Surpassed $50,000",
+    isNew: false,
+    pinned: false,
     body: [
-      "We’ve surpassed $50,000. Thank you!!",
-      "We are in awe. Thanks to all of you: family, friends, neighbors, teachers, classmates, and even kind strangers, Lukas’s fundraiser has now surpassed $50,000, our stretch goal. When we started this campaign, we never could have imagined such an outpouring of love and support.",
-      "Every single gift, share, and message has lifted us during a time that often feels impossible. Because of you, our family can stay close to Lukas without the crushing weight of financial worry. More than that, you’ve shown us the power of community and given Lukas’s story strength far beyond our own household.",
+      "We\u2019ve surpassed $50,000. Thank you!!",
+      "We are in awe. Thanks to all of you: family, friends, neighbors, teachers, classmates, and even kind strangers, Lukas\u2019s fundraiser has now surpassed $50,000, our stretch goal. When we started this campaign, we never could have imagined such an outpouring of love and support.",
+      "Every single gift, share, and message has lifted us during a time that often feels impossible. Because of you, our family can stay close to Lukas without the crushing weight of financial worry. More than that, you\u2019ve shown us the power of community and given Lukas\u2019s story strength far beyond our own household.",
       "From the bottom of our hearts, thank you for walking with us in this fight. Your generosity is giving Lukas and our family more time, more hope, and more of the joy that makes life worth living.",
       "With endless gratitude,",
       "Oksana and the Christoforakis Family"
     ]
   },
-
   {
+    id: "in-one-day-25000",
     date: "2025-08-28",
     title: "In One Day: $25,000+",
+    isNew: false,
+    pinned: false,
     body: [
-      "We are completely overwhelmed. In just one day, you helped us reach- and even surpass- our original goal of $25,000. The enormous community response and the countless donations and heartfelt messages have us grateful beyond words. To all those who've donated or even just shared Lukas' story: Thank you feels weak. It's not possible to express our gratitude in a little digital update. Your support means the absolute world to our family.",
-      "When we set our original goal, it was our best guess at what would keep us afloat in the immediate weeks ahead. We've now seen the amazing level of support from people in our community and far, far beyond, and we think it might be possible to raise even more as we prepare for a tough few months in the CICU.",
-      "To all those who've donated already, thank you. If you'd like to help more, consider sharing Lukas' story to those outside of our community.",
+      "We are completely overwhelmed. In just one day, you helped us reach- and even surpass- our original goal of $25,000. The enormous community response and the countless donations and heartfelt messages have us grateful beyond words. To all those who\u2019ve donated or even just shared Lukas\u2019 story: Thank you feels weak. It\u2019s not possible to express our gratitude in a little digital update. Your support means the absolute world to our family.",
+      "When we set our original goal, it was our best guess at what would keep us afloat in the immediate weeks ahead. We\u2019ve now seen the amazing level of support from people in our community and far, far beyond, and we think it might be possible to raise even more as we prepare for a tough few months in the CICU.",
+      "To all those who\u2019ve donated already, thank you. If you\u2019d like to help more, consider sharing Lukas\u2019 story to those outside of our community.",
       "With so much love,",
       "Oksana and the Christoforakis Family"
     ]
   },
-
   {
+    id: "our-story",
     date: "2025-08-25",
     title: "Our Story",
+    isNew: false,
+    pinned: false,
     body: [
-      "My name is Oksana Christoforakis, mother of the 8-year-old Lukas. Just a year ago, Lukas was a whirlwind of energy, swimming, biking, racing his brothers, and filling every room with laughter. He was unstoppable. Then came the shortness of breath, the fainting spells, the moments that didn’t make sense. We thought it was something small, maybe dehydration. Instead, it was the beginning of something far more serious.",
-      "Last week, after yet another confusing and seemingly random incident, Lukas was rushed first to Baystate Hospital, and then urgently transferred to Boston Children’s. What doctors found was heartbreaking.",
+      "My name is Oksana Christoforakis, mother of the 8-year-old Lukas. Just a year ago, Lukas was a whirlwind of energy, swimming, biking, racing his brothers, and filling every room with laughter. He was unstoppable. Then came the shortness of breath, the fainting spells, the moments that didn\u2019t make sense. We thought it was something small, maybe dehydration. Instead, it was the beginning of something far more serious.",
+      "Last week, after yet another confusing and seemingly random incident, Lukas was rushed first to Baystate Hospital, and then urgently transferred to Boston Children\u2019s. What doctors found was heartbreaking.",
       "Lukas was diagnosed with 2 rare lung conditions, which both complicate and cause each other. Both are already 1-in-a-million, but together? A completely unique case.",
       "In the days since, dozens of specialists have tried to find a way forward. The conversations always circle back to one unimaginable possibility, a double lung transplant.",
-      "Most don’t know this, but transplant is not a cure. It’s a chance for more time, but with enormous risks and lifelong challenges, and a median survival of only 6 years. Lukas is only eight years old. He doesn’t yet understand what all of this means, and for now we want to protect his sense of joy and hope as much as possible.",
-      "For us as his parents, this has been shattering. Every morning, I wake up in a hospital chair, watching monitors beep and machines hum, wondering how our lives could change so completely, so suddenly. My husband and I are doing everything we can to stay strong for Lukas and his two older brothers. But the truth is that this fight takes more than emotional strength. It takes resources we simply don’t have.",
-      "We are deeply grateful that MassHealth will cover his hospital bills. But everything else, food, gas, housing near the hospital, parking, the countless small costs that add up each day, has already stretched us to the limit. It is impossible to focus on healing when you’re also worrying about whether you can afford to remain at your child’s bedside.",
-      "That is why we are asking for help. Our goal is to raise at least $25,000 to support our family through this crisis. Every single dollar will go toward making sure we can stay close to Lukas while he needs us most. Your gift, whether large or small, means we don’t have to choose between caring for our son and managing the weight of day-to-day expenses.",
-      "We know these are difficult times for everyone, and asking for help does not come easily. But what we’ve learned is that community, love, and generosity are the only way through something like this. If you can donate, we are endlessly grateful. If you cannot, sharing Lukas’s story is just as meaningful.",
+      "Most don\u2019t know this, but transplant is not a cure. It\u2019s a chance for more time, but with enormous risks and lifelong challenges, and a median survival of only 6 years. Lukas is only eight years old. He doesn\u2019t yet understand what all of this means, and for now we want to protect his sense of joy and hope as much as possible.",
+      "For us as his parents, this has been shattering. Every morning, I wake up in a hospital chair, watching monitors beep and machines hum, wondering how our lives could change so completely, so suddenly. My husband and I are doing everything we can to stay strong for Lukas and his two older brothers. But the truth is that this fight takes more than emotional strength. It takes resources we simply don\u2019t have.",
+      "We are deeply grateful that MassHealth will cover his hospital bills. But everything else, food, gas, housing near the hospital, parking, the countless small costs that add up each day, has already stretched us to the limit. It is impossible to focus on healing when you\u2019re also worrying about whether you can afford to remain at your child\u2019s bedside.",
+      "That is why we are asking for help. Our goal is to raise at least $25,000 to support our family through this crisis. Every single dollar will go toward making sure we can stay close to Lukas while he needs us most. Your gift, whether large or small, means we don\u2019t have to choose between caring for our son and managing the weight of day-to-day expenses.",
+      "We know these are difficult times for everyone, and asking for help does not come easily. But what we\u2019ve learned is that community, love, and generosity are the only way through something like this. If you can donate, we are endlessly grateful. If you cannot, sharing Lukas\u2019s story is just as meaningful.",
       "From the bottom of my heart, thank you for helping us carry this burden. Lukas deserves more time. More hope. And more of the little joys that make his life so beautiful.",
       "With love and gratitude,",
       "Oksana Christoforakis"
@@ -485,73 +666,361 @@
   }
 ];
 
-    // --- Rendering / search / sort ---
-    var feed = document.getElementById('feed');
+    /* ==============================================
+       STORAGE HELPERS
+       ============================================== */
+    var STORAGE_KEY = "christoforakis_posts";
 
-    function formatDate(iso){
-      // Keep it readable and “bloggy”
+    function loadPosts() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      return DEFAULT_POSTS;
+    }
+
+    var posts = loadPosts();
+
+    /* ==============================================
+       UTILITIES
+       ============================================== */
+    function formatDate(iso) {
       var d = new Date(iso);
       if (Number.isNaN(d.getTime())) return iso;
-
-      var opts = { year: "numeric", month: "short", day: "numeric" };
-      return d.toLocaleDateString(undefined, opts);
+      return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
     }
 
-    function normalize(s){
-      return (s || "").toLowerCase().trim();
-    }
-
-    function sortPosts(arr){
-  return arr.slice().sort(function(a,b){
-    return new Date(b.date) - new Date(a.date); // always newest first
-  });
-}
-
-    function render(){
-      if (!feed) return;
-      var filtered = sortPosts(posts);
-
-      if (filtered.length === 0){
-        feed.innerHTML =
-          '<article><div class="post">' +
-          '<div class="posthead"><h2>No matches</h2><time></time></div>' +
-          '<div class="body"><p>Try a different search term.</p></div>' +
-          '</div></article>';
-        return;
-      }
-
-      feed.innerHTML = filtered.map(function(p){
-        var paragraphs = (p.body || []).map(function(txt){
-          return "<p>" + escapeHtml(txt) + "</p>";
-        }).join("");
-
-        return (
-          '<article>' +
-            '<div class="post">' +
-              '<div class="posthead">' +
-               '<h2>' + escapeHtml(p.title) +
-  (p.isNew ? ' <span class="badge-new">New</span>' : '') +
-'</h2>' +
-                '<time datetime="' + escapeAttr(p.date) + '">' + escapeHtml(formatDate(p.date)) + '</time>' +
-              '</div>' +
-              '<div class="body">' + paragraphs + '</div>' +
-            '</div>' +
-          '</article>'
-        );
-      }).join("");
-    }
-
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, function(m){
-        return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[m];
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
       });
     }
 
-    function escapeAttr(str){
+    function escapeAttr(str) {
       return String(str).replace(/"/g, "&quot;");
     }
 
-    render();
+    function normalize(s) {
+      return (s || "").toLowerCase().trim();
+    }
+
+    function wordCount(bodyArr) {
+      return bodyArr.join(" ").split(/\s+/).length;
+    }
+
+    function readingTime(bodyArr) {
+      var mins = Math.max(1, Math.round(wordCount(bodyArr) / 230));
+      return mins + " min read";
+    }
+
+    function sortPosts(arr) {
+      return arr.slice().sort(function(a, b) {
+        // Pinned posts first
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        // Then by date, newest first
+        return new Date(b.date) - new Date(a.date);
+      });
+    }
+
+    function slugify(str) {
+      return normalize(str).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    }
+
+    /* ==============================================
+       THEME
+       ============================================== */
+    (function() {
+      var stored = localStorage.getItem("christoforakis_theme");
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = stored || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === "dark" ? "#0f0f0f" : "#faf8f4";
+    })();
+
+    document.getElementById("themeToggle").addEventListener("click", function() {
+      var cur = document.documentElement.getAttribute("data-theme");
+      var next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("christoforakis_theme", next);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = next === "dark" ? "#0f0f0f" : "#faf8f4";
+    });
+
+    /* ==============================================
+       YEAR
+       ============================================== */
+    (function() {
+      var el = document.getElementById("year");
+      if (el) el.textContent = new Date().getFullYear();
+    })();
+
+    /* ==============================================
+       RENDER
+       ============================================== */
+    var feed = document.getElementById("feed");
+    var searchInput = document.getElementById("searchInput");
+    var searchClear = document.getElementById("searchClear");
+    var searchInfo = document.getElementById("searchInfo");
+    var COLLAPSE_THRESHOLD = 180;
+
+    function render(query) {
+      if (!feed) return;
+      query = normalize(query || "");
+      var sorted = sortPosts(posts);
+      var filtered = sorted;
+
+      if (query) {
+        filtered = sorted.filter(function(p) {
+          var hay = normalize(p.title) + " " + normalize(p.body.join(" "));
+          return hay.indexOf(query) !== -1;
+        });
+      }
+
+      // Search info
+      if (query) {
+        searchInfo.textContent = filtered.length === 0
+          ? "No posts found for \u201c" + query + "\u201d"
+          : filtered.length + " post" + (filtered.length !== 1 ? "s" : "") + " found";
+        searchInfo.classList.add("visible");
+        searchClear.classList.add("visible");
+      } else {
+        searchInfo.classList.remove("visible");
+        searchClear.classList.remove("visible");
+      }
+
+      if (filtered.length === 0) {
+        feed.innerHTML = '<div class="no-results"><h2>No matches</h2><p>Try a different search term.</p></div>';
+        return;
+      }
+
+      feed.innerHTML = filtered.map(function(p) {
+        var slug = p.id || slugify(p.title);
+        var words = wordCount(p.body);
+        var shouldCollapse = words > COLLAPSE_THRESHOLD && !query;
+        var paragraphs = p.body.map(function(txt) {
+          return "<p>" + escapeHtml(txt) + "</p>";
+        }).join("");
+
+        var badges = "";
+        if (p.pinned) {
+          badges += '<span class="badge-pinned"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>Pinned</span>';
+        }
+        if (p.isNew) {
+          badges += '<span class="badge-new">New</span>';
+        }
+
+        return (
+          '<div class="post-item' +
+            (p.isNew ? ' is-new' : '') +
+            (p.pinned ? ' is-pinned' : '') +
+          '" id="post-' + slug + '">' +
+            '<div class="post-card">' +
+              '<div class="post-inner">' +
+                '<div class="post-meta">' +
+                  '<div class="post-meta-left">' +
+                    '<time class="post-date" datetime="' + escapeAttr(p.date) + '">' + escapeHtml(formatDate(p.date)) + '</time>' +
+                    badges +
+                  '</div>' +
+                  '<span class="reading-time">' + escapeHtml(readingTime(p.body)) + '</span>' +
+                '</div>' +
+                '<h2 class="post-title">' + escapeHtml(p.title) + '</h2>' +
+                '<div class="post-body' + (shouldCollapse ? ' collapsed' : '') + '" data-slug="' + slug + '">' +
+                  paragraphs +
+                '</div>' +
+                (shouldCollapse
+                  ? '<button class="read-more-btn visible" data-slug="' + slug + '" aria-expanded="false">Read more</button>'
+                  : '') +
+              '</div>' +
+              '<div class="post-footer">' +
+                '<button class="share-btn" data-title="' + escapeAttr(p.title) + '" data-slug="' + slug + '">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
+                  'Share' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join("");
+
+      // Bind read-more
+      var rmBtns = feed.querySelectorAll(".read-more-btn");
+      for (var i = 0; i < rmBtns.length; i++) rmBtns[i].addEventListener("click", handleReadMore);
+
+      // Bind share
+      var sBtns = feed.querySelectorAll(".share-btn");
+      for (var j = 0; j < sBtns.length; j++) sBtns[j].addEventListener("click", handleShare);
+
+      observePosts();
+    }
+
+    function handleReadMore(e) {
+      var btn = e.currentTarget;
+      var slug = btn.getAttribute("data-slug");
+      var body = feed.querySelector('.post-body[data-slug="' + slug + '"]');
+      if (!body) return;
+      if (body.classList.contains("collapsed")) {
+        body.classList.remove("collapsed");
+        btn.textContent = "Read less";
+        btn.setAttribute("aria-expanded", "true");
+      } else {
+        body.classList.add("collapsed");
+        btn.textContent = "Read more";
+        btn.setAttribute("aria-expanded", "false");
+        var el = document.getElementById("post-" + slug);
+        if (el && el.getBoundingClientRect().top < 0) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+
+    function handleShare(e) {
+      var btn = e.currentTarget;
+      var slug = btn.getAttribute("data-slug");
+      var title = btn.getAttribute("data-title");
+      var url = window.location.origin + window.location.pathname + "#post-" + slug;
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function() {});
+      } else {
+        navigator.clipboard.writeText(url).then(function() {
+          btn.classList.add("copied");
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Copied!';
+          setTimeout(function() {
+            btn.classList.remove("copied");
+            btn.innerHTML = orig;
+          }, 2000);
+        }).catch(function() {});
+      }
+    }
+
+    /* ==============================================
+       SEARCH
+       ============================================== */
+    var searchTimeout;
+    searchInput.addEventListener("input", function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(function() { render(searchInput.value); }, 200);
+    });
+    searchClear.addEventListener("click", function() {
+      searchInput.value = "";
+      render("");
+      searchInput.focus();
+    });
+
+    /* ==============================================
+       SCROLL ANIMATIONS
+       ============================================== */
+    var observer;
+    function observePosts() {
+      if (!("IntersectionObserver" in window)) {
+        var items = document.querySelectorAll(".post-item");
+        for (var i = 0; i < items.length; i++) items[i].classList.add("visible");
+        return;
+      }
+      if (observer) observer.disconnect();
+      observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
+      var items = document.querySelectorAll(".post-item:not(.visible)");
+      for (var i = 0; i < items.length; i++) observer.observe(items[i]);
+    }
+
+    /* ==============================================
+       STICKY HEADER
+       ============================================== */
+    var siteHeader = document.getElementById("siteHeader");
+    function updateHeader() {
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      if (y > 60) siteHeader.classList.add("scrolled");
+      else siteHeader.classList.remove("scrolled");
+    }
+
+    /* ==============================================
+       PROGRESS BAR
+       ============================================== */
+    var progressBar = document.getElementById("progressBar");
+    function updateProgress() {
+      var top = window.pageYOffset || document.documentElement.scrollTop;
+      var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      progressBar.style.width = h <= 0 ? "0%" : Math.min(100, (top / h) * 100) + "%";
+    }
+
+    /* ==============================================
+       BACK TO TOP
+       ============================================== */
+    var backToTop = document.getElementById("backToTop");
+    function updateBackToTop() {
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      if (y > 400) backToTop.classList.add("visible");
+      else backToTop.classList.remove("visible");
+    }
+    backToTop.addEventListener("click", function() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    /* ==============================================
+       SCROLL EVENT
+       ============================================== */
+    var scrollTicking = false;
+    window.addEventListener("scroll", function() {
+      if (!scrollTicking) {
+        requestAnimationFrame(function() {
+          updateHeader();
+          updateProgress();
+          updateBackToTop();
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
+    }, { passive: true });
+
+    /* ==============================================
+       DEEP LINK
+       ============================================== */
+    function handleHash() {
+      var hash = window.location.hash;
+      if (hash && hash.indexOf("#post-") === 0) {
+        var el = document.getElementById(hash.substring(1));
+        if (el) {
+          var body = el.querySelector(".post-body.collapsed");
+          var btn = el.querySelector(".read-more-btn");
+          if (body && btn) {
+            body.classList.remove("collapsed");
+            btn.textContent = "Read less";
+            btn.setAttribute("aria-expanded", "true");
+          }
+          setTimeout(function() { el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
+        }
+      }
+    }
+
+    /* ==============================================
+       INIT
+       ============================================== */
+    render("");
+    updateHeader();
+    updateProgress();
+    updateBackToTop();
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+
+    // Listen for storage changes from admin panel
+    window.addEventListener("storage", function(e) {
+      if (e.key === STORAGE_KEY) {
+        posts = loadPosts();
+        render(searchInput.value);
+      }
+    });
   </script>
 </body>
 </html>
