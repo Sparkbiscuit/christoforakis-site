@@ -534,6 +534,11 @@
         <label for="loginConfirm">Confirm Password</label>
         <input type="password" id="loginConfirm" placeholder="Confirm password" autocomplete="new-password" />
       </div>
+      <div class="field hidden" id="tokenField">
+        <label for="loginToken">GitHub Token</label>
+        <input type="password" id="loginToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+        <div class="hint">Fine-grained PAT with Contents read/write for this repo. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:var(--accent);">Create one here</a></div>
+      </div>
       <button class="btn btn-primary" id="loginBtn">Sign In</button>
     </div>
   </div>
@@ -569,6 +574,10 @@
       <div class="dash-header">
         <h2>Posts</h2>
         <div class="dash-actions">
+          <button class="btn" id="settingsBtn" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Settings
+          </button>
           <button class="btn" id="exportBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export
@@ -685,6 +694,23 @@
     </div>
   </div>
 
+  <!-- Settings modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card" style="width: min(500px, 100%); text-align: left;">
+      <h3>Settings</h3>
+      <p>Update your GitHub Personal Access Token.</p>
+      <div class="field">
+        <label for="settingsToken">GitHub Token</label>
+        <input type="password" id="settingsToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+        <div class="hint">Fine-grained PAT with Contents read/write for this repo.</div>
+      </div>
+      <div class="modal-actions" style="justify-content: flex-start;">
+        <button class="btn btn-primary" id="saveSettingsBtn">Save Token</button>
+        <button class="btn" id="closeSettingsBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
@@ -692,9 +718,16 @@
     /* ==============================================
        CONSTANTS
        ============================================== */
-    var STORAGE_KEY = "christoforakis_posts";
     var PASS_KEY = "christoforakis_admin_hash";
     var SESSION_KEY = "christoforakis_admin_session";
+    var TOKEN_KEY = "christoforakis_github_token";
+    var REPO_OWNER = "Sparkbiscuit";
+    var REPO_NAME = "christoforakis-site";
+    var FILE_PATH = "posts.json";
+    var API_BASE = "https://api.github.com";
+
+    // Track the file SHA for updates
+    var fileSha = null;
 
     /* ==============================================
        DEFAULT POSTS (same as index.html)
@@ -817,24 +850,80 @@
     }
 
     /* ==============================================
-       POSTS STORAGE
+       GITHUB API — READ / WRITE posts.json
        ============================================== */
-    function loadPosts() {
+    var posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
+    var ghToken = localStorage.getItem(TOKEN_KEY) || "";
+
+    function getHeaders() {
+      return {
+        "Authorization": "Bearer " + ghToken,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      };
+    }
+
+    async function loadPostsFromGitHub() {
+      if (!ghToken) return false;
       try {
-        var raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        var res = await fetch(
+          API_BASE + "/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE_PATH,
+          { headers: getHeaders() }
+        );
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        var data = await res.json();
+        fileSha = data.sha;
+        var decoded = atob(data.content.replace(/\n/g, ""));
+        var parsed = JSON.parse(decoded);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          posts = parsed;
         }
-      } catch (e) {}
-      return JSON.parse(JSON.stringify(DEFAULT_POSTS));
+        return true;
+      } catch (e) {
+        console.error("Failed to load from GitHub:", e);
+        return false;
+      }
     }
 
-    function savePosts(arr) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    async function savePostsToGitHub(commitMsg) {
+      if (!ghToken) { showToast("GitHub token not set"); return false; }
+      var json = JSON.stringify(posts, null, 2) + "\n";
+      var encoded = btoa(unescape(encodeURIComponent(json)));
+      var body = {
+        message: commitMsg || "Update posts",
+        content: encoded
+      };
+      if (fileSha) body.sha = fileSha;
+
+      try {
+        var res = await fetch(
+          API_BASE + "/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE_PATH,
+          { method: "PUT", headers: getHeaders(), body: JSON.stringify(body) }
+        );
+        if (!res.ok) {
+          var errData = await res.json().catch(function() { return {}; });
+          throw new Error(errData.message || "HTTP " + res.status);
+        }
+        var result = await res.json();
+        fileSha = result.content.sha;
+        return true;
+      } catch (e) {
+        console.error("Failed to save to GitHub:", e);
+        showToast("Save failed: " + e.message);
+        return false;
+      }
     }
 
-    var posts = loadPosts();
+    // Wrapper that saves + shows feedback
+    async function savePosts(arr, commitMsg) {
+      posts = arr || posts;
+      showToast("Publishing...");
+      var ok = await savePostsToGitHub(commitMsg);
+      if (ok) {
+        showToast("Published to site");
+      }
+      return ok;
+    }
 
     function sortPosts(arr) {
       return arr.slice().sort(function(a, b) {
@@ -894,6 +983,8 @@
     var loginPassword = document.getElementById("loginPassword");
     var loginConfirm = document.getElementById("loginConfirm");
     var confirmField = document.getElementById("confirmField");
+    var tokenField = document.getElementById("tokenField");
+    var loginToken = document.getElementById("loginToken");
     var loginError = document.getElementById("loginError");
     var loginBtn = document.getElementById("loginBtn");
 
@@ -907,11 +998,14 @@
       if (isSetup) {
         loginSubtitle.textContent = "Create your admin password";
         confirmField.classList.remove("hidden");
+        tokenField.classList.remove("hidden");
         loginBtn.textContent = "Create Password";
         loginPassword.autocomplete = "new-password";
+        loginToken.value = localStorage.getItem(TOKEN_KEY) || "";
       } else {
         loginSubtitle.textContent = "Enter your admin password";
         confirmField.classList.add("hidden");
+        tokenField.classList.add("hidden");
         loginBtn.textContent = "Sign In";
         loginPassword.autocomplete = "current-password";
       }
@@ -925,55 +1019,98 @@
       }
     });
     loginConfirm.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        if (isSetup) loginToken.focus();
+        else handleLogin();
+      }
+    });
+    loginToken.addEventListener("keydown", function(e) {
       if (e.key === "Enter") handleLogin();
     });
 
     async function handleLogin() {
       var pw = loginPassword.value;
       loginError.classList.remove("visible");
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Connecting...";
 
       if (!pw) {
         loginError.textContent = "Please enter a password.";
         loginError.classList.add("visible");
+        resetLoginBtn();
         return;
       }
 
       if (isSetup) {
         var confirm = loginConfirm.value;
+        var token = loginToken.value.trim();
         if (pw !== confirm) {
           loginError.textContent = "Passwords do not match.";
           loginError.classList.add("visible");
+          resetLoginBtn();
           return;
         }
         if (pw.length < 4) {
           loginError.textContent = "Password must be at least 4 characters.";
           loginError.classList.add("visible");
+          resetLoginBtn();
           return;
         }
+        if (!token) {
+          loginError.textContent = "GitHub token is required to publish posts.";
+          loginError.classList.add("visible");
+          resetLoginBtn();
+          return;
+        }
+        // Validate token by trying to read the repo
+        ghToken = token;
+        var ok = await loadPostsFromGitHub();
+        if (!ok) {
+          loginError.textContent = "Could not connect to GitHub. Check your token and try again.";
+          loginError.classList.add("visible");
+          ghToken = "";
+          resetLoginBtn();
+          return;
+        }
+        localStorage.setItem(TOKEN_KEY, token);
         var hash = await hashPassword(pw);
         localStorage.setItem(PASS_KEY, hash);
         isSetup = false;
         sessionStorage.setItem(SESSION_KEY, "1");
-        showToast("Password created successfully");
+        showToast("Setup complete");
         showAdmin();
       } else {
         var hash = await hashPassword(pw);
         var stored = localStorage.getItem(PASS_KEY);
         if (hash === stored) {
           sessionStorage.setItem(SESSION_KEY, "1");
-          showAdmin();
+          ghToken = localStorage.getItem(TOKEN_KEY) || "";
+          await showAdmin();
         } else {
           loginError.textContent = "Incorrect password. Please try again.";
           loginError.classList.add("visible");
           loginPassword.value = "";
           loginPassword.focus();
+          resetLoginBtn();
         }
       }
     }
 
-    function showAdmin() {
+    function resetLoginBtn() {
+      loginBtn.disabled = false;
+      loginBtn.textContent = isSetup ? "Create Password" : "Sign In";
+    }
+
+    async function showAdmin() {
       loginView.style.display = "none";
       adminApp.classList.remove("hidden");
+      // Load latest posts from GitHub
+      if (ghToken) {
+        showToast("Loading posts...");
+        var ok = await loadPostsFromGitHub();
+        if (!ok) showToast("Using cached posts (GitHub unreachable)");
+        else showToast("Posts loaded");
+      }
       renderDashboard();
     }
 
@@ -1066,16 +1203,17 @@
     /* ==============================================
        PIN TOGGLE
        ============================================== */
-    function togglePin(id) {
+    async function togglePin(id) {
+      var post = null;
       for (var i = 0; i < posts.length; i++) {
         if (posts[i].id === id) {
           posts[i].pinned = !posts[i].pinned;
+          post = posts[i];
           break;
         }
       }
-      savePosts(posts);
       renderDashboard();
-      showToast(posts.find(function(p){return p.id===id;}).pinned ? "Post pinned" : "Post unpinned");
+      await savePosts(posts, (post.pinned ? "Pin" : "Unpin") + ": " + post.title);
     }
 
     /* ==============================================
@@ -1095,14 +1233,14 @@
       deleteModal.classList.add("active");
     }
 
-    deleteConfirmBtn.addEventListener("click", function() {
+    deleteConfirmBtn.addEventListener("click", async function() {
       if (pendingDeleteId) {
+        var deleted = posts.find(function(p) { return p.id === pendingDeleteId; });
         posts = posts.filter(function(p) { return p.id !== pendingDeleteId; });
-        savePosts(posts);
         pendingDeleteId = null;
         deleteModal.classList.remove("active");
         renderDashboard();
-        showToast("Post deleted");
+        await savePosts(posts, "Delete: " + (deleted ? deleted.title : "post"));
       }
     });
 
@@ -1180,7 +1318,7 @@
     editorBackBtn.addEventListener("click", closeEditor);
     cancelPostBtn.addEventListener("click", closeEditor);
 
-    savePostBtn.addEventListener("click", function() {
+    savePostBtn.addEventListener("click", async function() {
       var title = postTitleInput.value.trim();
       var date = postDateInput.value;
       var bodyText = postBodyInput.value.trim();
@@ -1190,9 +1328,12 @@
       if (!bodyText) { showToast("Body is required"); postBodyInput.focus(); return; }
 
       var bodyArr = bodyText.split(/\n\s*\n/).map(function(s) { return s.trim(); }).filter(Boolean);
+      var commitMsg;
+
+      savePostBtn.disabled = true;
+      savePostBtn.textContent = "Publishing...";
 
       if (editingId) {
-        // Update existing
         for (var i = 0; i < posts.length; i++) {
           if (posts[i].id === editingId) {
             posts[i].title = title;
@@ -1203,9 +1344,8 @@
             break;
           }
         }
-        showToast("Post updated");
+        commitMsg = "Update: " + title;
       } else {
-        // Create new
         var newPost = {
           id: generateId(),
           date: date,
@@ -1215,11 +1355,13 @@
           body: bodyArr
         };
         posts.unshift(newPost);
-        showToast("Post created");
+        commitMsg = "New post: " + title;
       }
 
-      savePosts(posts);
-      closeEditor();
+      var ok = await savePosts(posts, commitMsg);
+      savePostBtn.disabled = false;
+      savePostBtn.textContent = "Save Post";
+      if (ok) closeEditor();
     });
 
     // Live preview
@@ -1295,13 +1437,12 @@
       importModal.classList.add("active");
     });
 
-    confirmImportBtn.addEventListener("click", function() {
+    confirmImportBtn.addEventListener("click", async function() {
       var raw = importTextarea.value.trim();
       if (!raw) { showToast("Paste JSON data first"); return; }
       try {
         var parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) throw new Error("Not an array");
-        // Validate structure
         for (var i = 0; i < parsed.length; i++) {
           if (!parsed[i].title || !parsed[i].date || !Array.isArray(parsed[i].body)) {
             throw new Error("Invalid post at index " + i);
@@ -1311,10 +1452,15 @@
           if (typeof parsed[i].isNew === "undefined") parsed[i].isNew = false;
         }
         posts = parsed;
-        savePosts(posts);
-        importModal.classList.remove("active");
-        renderDashboard();
-        showToast("Imported " + posts.length + " posts");
+        confirmImportBtn.disabled = true;
+        confirmImportBtn.textContent = "Publishing...";
+        var ok = await savePosts(posts, "Import " + posts.length + " posts");
+        confirmImportBtn.disabled = false;
+        confirmImportBtn.textContent = "Import";
+        if (ok) {
+          importModal.classList.remove("active");
+          renderDashboard();
+        }
       } catch (e) {
         showToast("Invalid JSON: " + e.message);
       }
@@ -1326,6 +1472,49 @@
 
     importModal.addEventListener("click", function(e) {
       if (e.target === importModal) importModal.classList.remove("active");
+    });
+
+    /* ==============================================
+       SETTINGS
+       ============================================== */
+    var settingsModal = document.getElementById("settingsModal");
+    var settingsToken = document.getElementById("settingsToken");
+    var saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    var closeSettingsBtn = document.getElementById("closeSettingsBtn");
+
+    document.getElementById("settingsBtn").addEventListener("click", function() {
+      settingsToken.value = localStorage.getItem(TOKEN_KEY) || "";
+      settingsModal.classList.add("active");
+    });
+
+    saveSettingsBtn.addEventListener("click", async function() {
+      var token = settingsToken.value.trim();
+      if (!token) { showToast("Token is required"); return; }
+      // Validate
+      saveSettingsBtn.disabled = true;
+      saveSettingsBtn.textContent = "Verifying...";
+      var oldToken = ghToken;
+      ghToken = token;
+      var ok = await loadPostsFromGitHub();
+      if (ok) {
+        localStorage.setItem(TOKEN_KEY, token);
+        settingsModal.classList.remove("active");
+        renderDashboard();
+        showToast("Token updated");
+      } else {
+        ghToken = oldToken;
+        showToast("Invalid token — could not connect");
+      }
+      saveSettingsBtn.disabled = false;
+      saveSettingsBtn.textContent = "Save Token";
+    });
+
+    closeSettingsBtn.addEventListener("click", function() {
+      settingsModal.classList.remove("active");
+    });
+
+    settingsModal.addEventListener("click", function(e) {
+      if (e.target === settingsModal) settingsModal.classList.remove("active");
     });
 
     /* ==============================================
