@@ -667,22 +667,27 @@
 ];
 
     /* ==============================================
-       STORAGE HELPERS
+       LOAD POSTS FROM posts.json (fallback to defaults)
        ============================================== */
-    var STORAGE_KEY = "christoforakis_posts";
+    var posts = DEFAULT_POSTS;
 
-    function loadPosts() {
-      try {
-        var raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          var parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (e) {}
-      return DEFAULT_POSTS;
+    function fetchPosts() {
+      fetch("posts.json?_=" + Date.now())
+        .then(function(res) {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          if (Array.isArray(data) && data.length > 0) {
+            posts = data;
+            render(searchInput ? searchInput.value : "");
+            handleHash();
+          }
+        })
+        .catch(function() {
+          // Use DEFAULT_POSTS already assigned
+        });
     }
-
-    var posts = loadPosts();
 
     /* ==============================================
        UTILITIES
@@ -1014,13 +1019,8 @@
     handleHash();
     window.addEventListener("hashchange", handleHash);
 
-    // Listen for storage changes from admin panel
-    window.addEventListener("storage", function(e) {
-      if (e.key === STORAGE_KEY) {
-        posts = loadPosts();
-        render(searchInput.value);
-      }
-    });
+    // Fetch live posts from posts.json (overwrites defaults if available)
+    fetchPosts();
   </script>
 </body>
 </html>
