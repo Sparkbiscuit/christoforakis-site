@@ -873,7 +873,10 @@
         if (!res.ok) throw new Error("HTTP " + res.status);
         var data = await res.json();
         fileSha = data.sha;
-        var decoded = atob(data.content.replace(/\n/g, ""));
+        var raw = atob(data.content.replace(/\n/g, ""));
+        var bytes = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+        var decoded = new TextDecoder().decode(bytes);
         var parsed = JSON.parse(decoded);
         if (Array.isArray(parsed) && parsed.length > 0) {
           posts = parsed;
@@ -888,7 +891,10 @@
     async function savePostsToGitHub(commitMsg) {
       if (!ghToken) { showToast("GitHub token not set"); return false; }
       var json = JSON.stringify(posts, null, 2) + "\n";
-      var encoded = btoa(unescape(encodeURIComponent(json)));
+      var jsonBytes = new TextEncoder().encode(json);
+      var binary = "";
+      for (var i = 0; i < jsonBytes.length; i++) binary += String.fromCharCode(jsonBytes[i]);
+      var encoded = btoa(binary);
       var body = {
         message: commitMsg || "Update posts",
         content: encoded
