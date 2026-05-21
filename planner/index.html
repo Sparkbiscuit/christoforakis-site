@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Planner — Pre-Med Academic Planning</title>
+  <title>Compass — Pre-Med Academic Planning</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
-  <meta name="description" content="Personal pre-med academic planner: schedule, requirements, GPA." />
+  <meta name="description" content="Compass — a personal pre-med academic planner: schedule, requirements, GPA." />
   <meta name="robots" content="noindex" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -84,7 +84,7 @@ const { useState, useEffect, useMemo, useReducer, useRef, useCallback, Fragment 
    CONSTANTS
    ===================================================================== */
 
-const STORAGE_KEY = "premed_planner_v1";
+const STORAGE_KEY = "compass_planner_v1";
 
 const TERMS = [
   "Fall 2025", "Winter 2026", "Spring 2026",
@@ -126,24 +126,27 @@ const TAG_META = {
   NSCI_ELEC_PHIL: { label: "NSCI Elec: Philosophical", group: "NSCI", color: "violet" },
   NSCI_SENIOR:    { label: "NSCI Senior Work",    group: "NSCI", color: "violet" },
 
-  // Distribution
-  DIST_LIT: { label: "LIT", group: "DIST", color: "amber" },
-  DIST_ART: { label: "ART", group: "DIST", color: "amber" },
-  DIST_PHL: { label: "PHL", group: "DIST", color: "amber" },
-  DIST_HIS: { label: "HIS", group: "DIST", color: "amber" },
-  DIST_SCI: { label: "SCI", group: "DIST", color: "amber" },
-  DIST_DED: { label: "DED", group: "DIST", color: "amber" },
-  DIST_SOC: { label: "SOC", group: "DIST", color: "amber" },
-  DIST_LNG: { label: "LNG", group: "DIST", color: "amber" },
+  // Distribution — official Middlebury catalog codes
+  DIST_LIT: { label: "LIT · Literature",                       group: "DIST", color: "amber" },
+  DIST_ART: { label: "ART · The Arts",                         group: "DIST", color: "amber" },
+  DIST_PHL: { label: "PHL · Philosophical & Religious Studies",group: "DIST", color: "amber" },
+  DIST_HIS: { label: "HIS · Historical Studies",               group: "DIST", color: "amber" },
+  DIST_SCI: { label: "SCI · Physical & Life Sciences",         group: "DIST", color: "amber" },
+  DIST_DED: { label: "DED · Deductive Reasoning",              group: "DIST", color: "amber" },
+  DIST_SOC: { label: "SOC · Social Analysis",                  group: "DIST", color: "amber" },
+  DIST_LNG: { label: "LNG · Foreign Language",                 group: "DIST", color: "amber" },
 
-  // Cultures & Civilizations
-  CC_EUR: { label: "C&C: Europe",        group: "CC", color: "emerald" },
-  CC_AMR: { label: "C&C: Americas",      group: "CC", color: "emerald" },
-  CC_NOA: { label: "C&C: North Africa",  group: "CC", color: "emerald" },
-  CC_SOA: { label: "C&C: South Asia",    group: "CC", color: "emerald" },
-  CC_MDE: { label: "C&C: Middle East",   group: "CC", color: "emerald" },
-  CC_SAF: { label: "C&C: Sub-Saharan",   group: "CC", color: "emerald" },
-  CC_CMP: { label: "C&C: Comparative",   group: "CC", color: "emerald" },
+  // Cultures & Civilizations — official Middlebury regional codes
+  // (per catalog: EUR, AMR, NOR, NOA, SOA, MDE, SAF, AAL, CMP)
+  CC_EUR: { label: "EUR · Europe",                             group: "CC", color: "emerald" },
+  CC_AMR: { label: "AMR · Americas",                           group: "CC", color: "emerald" },
+  CC_NOR: { label: "NOR · Northern America (US/Canada)",       group: "CC", color: "emerald" },
+  CC_NOA: { label: "NOA · North Asia (China/Korea/Japan)",     group: "CC", color: "emerald" },
+  CC_SOA: { label: "SOA · South Asia",                         group: "CC", color: "emerald" },
+  CC_MDE: { label: "MDE · Middle East",                        group: "CC", color: "emerald" },
+  CC_SAF: { label: "SAF · Sub-Saharan Africa",                 group: "CC", color: "emerald" },
+  CC_AAL: { label: "AAL · Africa/Asia/Latin Am./Caribbean",    group: "CC", color: "emerald" },
+  CC_CMP: { label: "CMP · Comparative",                        group: "CC", color: "emerald" },
 
   // College writing
   CW_FIRST:  { label: "CW: First-Year Seminar", group: "ADMIN", color: "sky" },
@@ -210,10 +213,12 @@ const REQUIREMENTS = [
     enumerateChildren: true },
 
   // ----- C&C -----
+  // Per Middlebury catalog: regional categories are EUR, AMR, NOR, NOA, SOA, MDE, SAF, AAL.
+  // CMP courses may also carry a regional tag, but cannot count toward both.
   { id: "cc", group: "Cultures & Civilizations",
     label: "3 different regions + 1 Comparative",
     type: "ccRegions",
-    regionTags: ["CC_EUR","CC_AMR","CC_NOA","CC_SOA","CC_MDE","CC_SAF"],
+    regionTags: ["CC_EUR","CC_AMR","CC_NOR","CC_NOA","CC_SOA","CC_MDE","CC_SAF","CC_AAL"],
     cmpTag: "CC_CMP",
     regionCount: 3 },
 
@@ -250,7 +255,7 @@ const SEED_COURSES = [
     tags:["DIST_LNG"], prereqs:[], term:"Fall 2025", status:"completed" },
   { id:"psci109-f25", code:"PSCI 0109", title:"International Politics", credits:1, grade:"A",
     tags:["DIST_SOC","CC_EUR"], prereqs:[], term:"Fall 2025", status:"completed",
-    notes:"Confirm CC region tag with registrar." },
+    notes:"Confirm CC region with registrar — likely EUR or CMP." },
 
   // ----- Winter 2026 -----
   { id:"grmn102-w26", code:"GRMN 0102", title:"Beginning German Continued", credits:1, grade:"B",
@@ -264,7 +269,7 @@ const SEED_COURSES = [
     notes:"Confirm ART tag." },
   { id:"psci239-s26", code:"PSCI 0239", title:"Future Great Power Relations", credits:1, grade:"A",
     tags:["CC_CMP"], prereqs:[], term:"Spring 2026", status:"completed",
-    notes:"Could be CC_NOA — confirm with registrar." },
+    notes:"Likely CMP (great-power comparison) or NOA if China-focused. Confirm with registrar." },
 
   // ----- Fall 2026 (in progress / registered) -----
   { id:"psyc105-f26", code:"PSYC 0105", title:"Introduction to Psychology", credits:1,
@@ -326,7 +331,8 @@ const SEED_COURSES = [
   { id:"nsci500-f28", code:"NSCI 0500", title:"Senior Seminar", credits:1, prospectiveGrade:"B+",
     tags:["NSCI_SENIOR"], prereqs:["NSCI 0252"], term:"Fall 2028", status:"planned" },
   { id:"dist1-f28", code:"DIST TBD", title:"Distribution / C&C Course", credits:1, prospectiveGrade:"B+",
-    tags:["CC_SOA"], prereqs:[], term:"Fall 2028", status:"planned" },
+    tags:["CC_NOA"], prereqs:[], term:"Fall 2028", status:"planned",
+    notes:"Pick a region that closes the C&C gap (currently NOA — North Asia)." },
   { id:"flex-f28", code:"FLEX", title:"Flexible Course", credits:1, prospectiveGrade:"B+",
     tags:[], prereqs:[], term:"Fall 2028", status:"planned" },
 
@@ -741,8 +747,8 @@ function Sidebar({ view, setView, warnings }) {
   return (
     <aside className="w-56 shrink-0 border-r border-white/5 bg-ink-900 min-h-screen sticky top-0 self-start">
       <div className="px-4 py-5 border-b border-white/5">
-        <div className="text-gold-400 text-xs uppercase tracking-widest">Pre-Med Planner</div>
-        <div className="text-ink-100 font-semibold mt-1">Middlebury · NSCI</div>
+        <div className="text-gold-400 text-xs uppercase tracking-widest">Compass</div>
+        <div className="text-ink-100 font-semibold mt-1">Middlebury · NSCI · Pre-Med</div>
         <a href="/" className="text-[11px] text-ink-400 hover:text-ink-200 mt-2 inline-block">← christoforakis.com</a>
       </div>
       <nav className="p-2 space-y-0.5">
@@ -1306,7 +1312,7 @@ function DistributionGrid({ courses }) {
 }
 
 function CCMap({ courses }) {
-  const regions = ["CC_EUR","CC_AMR","CC_NOA","CC_SOA","CC_MDE","CC_SAF"];
+  const regions = ["CC_EUR","CC_AMR","CC_NOR","CC_NOA","CC_SOA","CC_MDE","CC_SAF","CC_AAL"];
   const ccReq = REQUIREMENTS.find(r => r.id === "cc");
   const res = satisfiesRequirement(ccReq, courses);
   const covered = new Set(res.covered || []);
@@ -1530,7 +1536,7 @@ function SettingsView({ state, dispatch }) {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `planner-export-${new Date().toISOString().slice(0,10)}.json`;
+    a.href = url; a.download = `compass-export-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
@@ -1577,9 +1583,13 @@ function SettingsView({ state, dispatch }) {
 
       <Card title="About">
         <div className="p-4 text-sm text-ink-300 leading-relaxed space-y-2">
-          <p>A personal planning tool for Middlebury College Neuroscience / pre-med. Data lives entirely in your browser's localStorage — clearing site data will wipe it. Use Export JSON for backups.</p>
+          <p><strong className="text-gold-400">Compass</strong> — a personal planning tool for Middlebury College Neuroscience / pre-med. Data lives entirely in your browser's localStorage — clearing site data will wipe it. Use Export JSON for backups.</p>
           <p className="text-ink-500 text-xs">
-            Constraints encoded: 34 credits, 7 of 8 distributions, 4 C&C w/ region + CMP, 3 NSCI electives from ≥2 groupings,
+            Distribution and Cultures &amp; Civilizations codes follow the Middlebury catalog (LIT/ART/PHL/HIS/SCI/DED/SOC/LNG and EUR/AMR/NOR/NOA/SOA/MDE/SAF/AAL/CMP).
+            Med-school prereqs follow Middlebury Health Professions guidance.
+          </p>
+          <p className="text-ink-500 text-xs">
+            Constraints encoded: 34 credits, 7 of 8 distributions, 4 C&amp;C w/ region + CMP, 3 NSCI electives from ≥2 groupings,
             NSCI 0251 → 0252 ordering, NSCI 0251 not open to seniors, single-distribution-counting rule, transfer-physics flag for committee letter.
           </p>
         </div>
