@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Compass — Pre-Med Academic Planning</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="description" content="Compass — a personal pre-med academic planner: schedule, requirements, GPA." />
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            ink: {
+              900: '#0a0a0a',
+              850: '#0f0f0f',
+              800: '#171717',
+              750: '#1f1f1f',
+              700: '#262626',
+              600: '#404040',
+              500: '#6a6a6a',
+              400: '#8a8a8a',
+              300: '#a0a0a0',
+              200: '#d4d4d4',
+              100: '#e8e8e8',
+              50:  '#f5f5f5',
+            },
+            gold: {
+              400: '#e6b422',
+              500: '#d4a017',
+              600: '#b8860b',
+              700: '#9a7209',
+            },
+          },
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html, body { background: #0f0f0f; color: #e8e8e8; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    /* Slimmer scrollbar for the schedule grid */
+    .thin-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+    .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 6px; }
+    .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    .dragging { opacity: 0.4; }
+    .drop-target { outline: 2px dashed #d4a017; outline-offset: -4px; background: rgba(212,160,23,0.06); }
+    .clickable { cursor: pointer; }
+    .clickable:hover { background: rgba(255,255,255,0.04); }
+    select, input, textarea { color-scheme: dark; }
+    details > summary { cursor: pointer; list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    .tag-pill { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.02em; }
+  </style>
+
+  <!-- React + Babel standalone (no build step) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="dark bg-ink-850 text-ink-100 min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+"use strict";
+
+const { useState, useEffect, useMemo, useReducer, useRef, useCallback, Fragment } = React;
+
+/* =====================================================================
+   CONSTANTS
+   ===================================================================== */
+
+const STORAGE_KEY = "compass_planner_v1";
+
+const TERMS = [
+  "Fall 2025", "Winter 2026", "Spring 2026",
+  "Fall 2026", "Winter 2027", "Spring 2027", "Summer 2027",
+  "Fall 2027", "Winter 2028", "Spring 2028", "Summer 2028",
+  "Fall 2028", "Winter 2029", "Spring 2029",
+];
+
+const WINTER_TERMS = new Set(TERMS.filter(t => t.startsWith("Winter")));
+const SUMMER_TERMS = new Set(TERMS.filter(t => t.startsWith("Summer")));
+
+// Middlebury 4.0 scale
+const GRADE_POINTS = {
+  "A+": 4.0, "A": 4.0, "A-": 3.67,
+  "B+": 3.33, "B": 3.0, "B-": 2.67,
+  "C+": 2.33, "C": 2.0, "C-": 1.67,
+  "D+": 1.33, "D": 1.0, "D-": 0.67,
+  "F": 0,
+};
+const GRADE_OPTIONS = ["", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F", "P", "CR", "NC", "W"];
+
+// BCPM (Biology, Chemistry, Physics, Math) — AMCAS-style. NSCI courses count as Biology for AMCAS.
+const BCPM_PREFIXES = ["BIOL", "CHEM", "PHYS", "MATH", "NSCI"];
+
+/* =====================================================================
+   REQUIREMENT TAGS — single source of truth for labels + grouping
+   ===================================================================== */
+
+const TAG_META = {
+  // Neuroscience major background
+  NSCI_BG_PSYC:   { label: "NSCI Bg: PSYC 0105",  group: "NSCI", color: "violet" },
+  NSCI_BG_BIO:    { label: "NSCI Bg: BIOL 0145",  group: "NSCI", color: "violet" },
+  NSCI_BG_CHEM:   { label: "NSCI Bg: Chem",       group: "NSCI", color: "violet" },
+  NSCI_BG_STATS:  { label: "NSCI Bg: Stats",      group: "NSCI", color: "violet" },
+  NSCI_FOUND_251: { label: "NSCI 0251 (Found I)", group: "NSCI", color: "violet" },
+  NSCI_FOUND_252: { label: "NSCI 0252 (Found II)",group: "NSCI", color: "violet" },
+  NSCI_ELEC_BIO:  { label: "NSCI Elec: Biological",  group: "NSCI", color: "violet" },
+  NSCI_ELEC_PSYC: { label: "NSCI Elec: Psychological", group: "NSCI", color: "violet" },
+  NSCI_ELEC_PHIL: { label: "NSCI Elec: Philosophical", group: "NSCI", color: "violet" },
+  NSCI_SENIOR:    { label: "NSCI Senior Work",    group: "NSCI", color: "violet" },
+
+  // Distribution — official Middlebury catalog codes
+  DIST_LIT: { label: "LIT · Literature",                       group: "DIST", color: "amber" },
+  DIST_ART: { label: "ART · The Arts",                         group: "DIST", color: "amber" },
+  DIST_PHL: { label: "PHL · Philosophical & Religious Studies",group: "DIST", color: "amber" },
+  DIST_HIS: { label: "HIS · Historical Studies",               group: "DIST", color: "amber" },
+  DIST_SCI: { label: "SCI · Physical & Life Sciences",         group: "DIST", color: "amber" },
+  DIST_DED: { label: "DED · Deductive Reasoning",              group: "DIST", color: "amber" },
+  DIST_SOC: { label: "SOC · Social Analysis",                  group: "DIST", color: "amber" },
+  DIST_LNG: { label: "LNG · Foreign Language",                 group: "DIST", color: "amber" },
+
+  // Cultures & Civilizations — official Middlebury regional codes
+  // (per catalog: EUR, AMR, NOR, NOA, SOA, MDE, SAF, AAL, CMP)
+  CC_EUR: { label: "EUR · Europe",                             group: "CC", color: "emerald" },
+  CC_AMR: { label: "AMR · Americas",                           group: "CC", color: "emerald" },
+  CC_NOR: { label: "NOR · Northern America (US/Canada)",       group: "CC", color: "emerald" },
+  CC_NOA: { label: "NOA · North Asia (China/Korea/Japan)",     group: "CC", color: "emerald" },
+  CC_SOA: { label: "SOA · South Asia",                         group: "CC", color: "emerald" },
+  CC_MDE: { label: "MDE · Middle East",                        group: "CC", color: "emerald" },
+  CC_SAF: { label: "SAF · Sub-Saharan Africa",                 group: "CC", color: "emerald" },
+  CC_AAL: { label: "AAL · Africa/Asia/Latin Am./Caribbean",    group: "CC", color: "emerald" },
+  CC_CMP: { label: "CMP · Comparative",                        group: "CC", color: "emerald" },
+
+  // College writing
+  CW_FIRST:  { label: "CW: First-Year Seminar", group: "ADMIN", color: "sky" },
+  CW_SECOND: { label: "CW: Second Course",      group: "ADMIN", color: "sky" },
+
+  // Med school prerequisites
+  MED_CHEM_GEN: { label: "Med: Gen Chem",   group: "MED", color: "rose" },
+  MED_CHEM_ORG: { label: "Med: Org Chem",   group: "MED", color: "rose" },
+  MED_CHEM_BIO: { label: "Med: Biochem",    group: "MED", color: "rose" },
+  MED_BIO:      { label: "Med: Bio w/ Lab", group: "MED", color: "rose" },
+  MED_PHYS:     { label: "Med: Physics w/ Lab", group: "MED", color: "rose" },
+  MED_PSYC:     { label: "Med: Psychology", group: "MED", color: "rose" },
+  MED_STATS:    { label: "Med: Statistics", group: "MED", color: "rose" },
+  MED_MATH:     { label: "Med: Math/Calc",  group: "MED", color: "rose" },
+  MED_ENG:      { label: "Med: English/CW", group: "MED", color: "rose" },
+
+  // Admin
+  WINTER_TERM: { label: "Winter Term", group: "ADMIN", color: "sky" },
+  PE:          { label: "PE Unit",     group: "ADMIN", color: "sky" },
+};
+
+const ALL_TAGS = Object.keys(TAG_META);
+
+const COLOR_PILL = {
+  violet:  "bg-violet-500/15 text-violet-300 border-violet-500/30",
+  amber:   "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+  rose:    "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  sky:     "bg-sky-500/15 text-sky-300 border-sky-500/30",
+  gray:    "bg-white/5 text-ink-300 border-white/10",
+};
+
+/* =====================================================================
+   REQUIREMENT DEFINITIONS
+   Each is { id, label, type, ... } where type drives the satisfier logic.
+   Types:
+     - "single":    one course with this tag
+     - "credits":   N credits worth of courses carrying this tag
+     - "groupCount":  N courses from a set of tag-options (e.g. distributions)
+     - "regionDistinct": 3 distinct regions + 1 fixed tag (C&C)
+   ===================================================================== */
+
+const REQUIREMENTS = [
+  // ----- NSCI Major -----
+  { id: "nsci_bg_psyc",  group: "NSCI Major / Backgrounds", label: "PSYC 0105 (Intro Psych)", type: "single", tag: "NSCI_BG_PSYC" },
+  { id: "nsci_bg_bio",   group: "NSCI Major / Backgrounds", label: "BIOL 0145 (Cell Bio/Genetics)", type: "single", tag: "NSCI_BG_BIO" },
+  { id: "nsci_bg_chem",  group: "NSCI Major / Backgrounds", label: "Chem requirement", type: "single", tag: "NSCI_BG_CHEM" },
+  { id: "nsci_bg_stats", group: "NSCI Major / Backgrounds", label: "Statistics", type: "single", tag: "NSCI_BG_STATS" },
+  { id: "nsci_f1", group: "NSCI Major / Foundations", label: "NSCI 0251 (Foundation I)", type: "single", tag: "NSCI_FOUND_251" },
+  { id: "nsci_f2", group: "NSCI Major / Foundations", label: "NSCI 0252 (Foundation II)", type: "single", tag: "NSCI_FOUND_252", after: "NSCI_FOUND_251" },
+  { id: "nsci_electives", group: "NSCI Major / Electives",
+    label: "3 electives from ≥2 of 3 groupings (Bio / Psych / Phil)",
+    type: "groupCount", count: 3,
+    options: ["NSCI_ELEC_BIO","NSCI_ELEC_PSYC","NSCI_ELEC_PHIL"],
+    requireGroupings: 2 },
+  { id: "nsci_senior", group: "NSCI Major / Senior", label: "Senior Work", type: "single", tag: "NSCI_SENIOR" },
+
+  // ----- Middlebury Distribution -----
+  { id: "dist", group: "Distribution (7 of 8)",
+    label: "7 of 8 distribution categories",
+    type: "groupCount", count: 7,
+    options: ["DIST_LIT","DIST_ART","DIST_PHL","DIST_HIS","DIST_SCI","DIST_DED","DIST_SOC","DIST_LNG"],
+    uniquePerCourse: true,
+    enumerateChildren: true },
+
+  // ----- C&C -----
+  // Per Middlebury catalog: regional categories are EUR, AMR, NOR, NOA, SOA, MDE, SAF, AAL.
+  // CMP courses may also carry a regional tag, but cannot count toward both.
+  { id: "cc", group: "Cultures & Civilizations",
+    label: "3 different regions + 1 Comparative",
+    type: "ccRegions",
+    regionTags: ["CC_EUR","CC_AMR","CC_NOR","CC_NOA","CC_SOA","CC_MDE","CC_SAF","CC_AAL"],
+    cmpTag: "CC_CMP",
+    regionCount: 3 },
+
+  // ----- Med School Prereqs -----
+  { id: "med_chem_gen", group: "Med School Prereqs", label: "General Chemistry (2 credits)", type: "credits", tag: "MED_CHEM_GEN", credits: 2 },
+  { id: "med_chem_org", group: "Med School Prereqs", label: "Organic Chemistry (2 credits)", type: "credits", tag: "MED_CHEM_ORG", credits: 2 },
+  { id: "med_chem_bio", group: "Med School Prereqs", label: "Biochemistry (1 credit)",       type: "credits", tag: "MED_CHEM_BIO", credits: 1 },
+  { id: "med_bio",      group: "Med School Prereqs", label: "Biology w/ Lab (2 credits)",     type: "credits", tag: "MED_BIO",      credits: 2 },
+  { id: "med_phys",     group: "Med School Prereqs", label: "Physics w/ Lab (2 credits)",     type: "credits", tag: "MED_PHYS",     credits: 2 },
+  { id: "med_psyc",     group: "Med School Prereqs", label: "Psychology (1 credit)",          type: "credits", tag: "MED_PSYC",     credits: 1 },
+  { id: "med_stats",    group: "Med School Prereqs", label: "Statistics (1 credit)",          type: "credits", tag: "MED_STATS",    credits: 1 },
+  { id: "med_math",     group: "Med School Prereqs", label: "Math/Calculus (1 credit)",       type: "credits", tag: "MED_MATH",     credits: 1 },
+  { id: "med_eng",      group: "Med School Prereqs", label: "English/College Writing (2 credits)", type: "credits", tag: "MED_ENG", credits: 2 },
+
+  // ----- College Admin -----
+  { id: "admin_credits", group: "College Admin", label: "34 total credits (no AP)", type: "totalCredits", credits: 34 },
+  { id: "admin_winter",  group: "College Admin", label: "2 Winter Term credits",    type: "credits", tag: "WINTER_TERM", credits: 2 },
+  { id: "admin_pe",      group: "College Admin", label: "2 PE units",               type: "credits", tag: "PE", credits: 2 },
+  { id: "admin_cw1",     group: "College Admin", label: "First-Year Seminar (CW)",  type: "single", tag: "CW_FIRST" },
+  { id: "admin_cw2",     group: "College Admin", label: "Second CW course",         type: "single", tag: "CW_SECOND" },
+];
+
+/* =====================================================================
+   SEED DATA — the student's transcript + planned schedule
+   ===================================================================== */
+
+const SEED_COURSES = [
+  // ----- Fall 2025 (completed) -----
+  { id:"econ150-f25", code:"ECON 0150", title:"Intro Macroeconomics", credits:1, grade:"C+",
+    tags:["DIST_SOC"], prereqs:[], term:"Fall 2025", status:"completed" },
+  { id:"fyse1118-f25", code:"FYSE 1118", title:"Happiness", credits:1, grade:"A",
+    tags:["CW_FIRST"], prereqs:[], term:"Fall 2025", status:"completed" },
+  { id:"grmn101-f25", code:"GRMN 0101", title:"Beginning German", credits:1, grade:"B+",
+    tags:["DIST_LNG"], prereqs:[], term:"Fall 2025", status:"completed" },
+  { id:"psci109-f25", code:"PSCI 0109", title:"International Politics", credits:1, grade:"A",
+    tags:["DIST_SOC","CC_EUR"], prereqs:[], term:"Fall 2025", status:"completed",
+    notes:"Confirm CC region with registrar — likely EUR or CMP." },
+
+  // ----- Winter 2026 -----
+  { id:"grmn102-w26", code:"GRMN 0102", title:"Beginning German Continued", credits:1, grade:"B",
+    tags:["WINTER_TERM"], prereqs:["GRMN 0101"], term:"Winter 2026", status:"completed" },
+
+  // ----- Spring 2026 -----
+  { id:"grmn103-s26", code:"GRMN 0103", title:"Beginning German Continued", credits:1, grade:"C",
+    tags:[], prereqs:["GRMN 0102"], term:"Spring 2026", status:"completed" },
+  { id:"harc130-s26", code:"HARC 0130", title:"Intro to Architectural Design", credits:1, grade:"A",
+    tags:["DIST_ART"], prereqs:[], term:"Spring 2026", status:"completed",
+    notes:"Confirm ART tag." },
+  { id:"psci239-s26", code:"PSCI 0239", title:"Future Great Power Relations", credits:1, grade:"A",
+    tags:["CC_CMP"], prereqs:[], term:"Spring 2026", status:"completed",
+    notes:"Likely CMP (great-power comparison) or NOA if China-focused. Confirm with registrar." },
+
+  // ----- Fall 2026 (in progress / registered) -----
+  { id:"psyc105-f26", code:"PSYC 0105", title:"Introduction to Psychology", credits:1,
+    prospectiveGrade:"A-", tags:["NSCI_BG_PSYC","MED_PSYC","DIST_SOC"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+  { id:"engl103-f26", code:"ENGL 0103", title:"Reading Literature", credits:1,
+    prospectiveGrade:"B+", tags:["DIST_LIT","CW_SECOND","MED_ENG"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+  { id:"phil156-f26", code:"PHIL 0156", title:"Contemporary Moral Issues", credits:1,
+    prospectiveGrade:"B+", tags:["DIST_PHL"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+  { id:"chem105-f26", code:"CHEM 0105", title:"General Chemistry", credits:1,
+    prospectiveGrade:"B", tags:["NSCI_BG_CHEM","MED_CHEM_GEN","DIST_SCI"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+
+  // ----- Winter 2027 -----
+  { id:"wt-2027", code:"WT 2027", title:"Winter 2027 TBD", credits:1,
+    tags:["WINTER_TERM"], prereqs:[], term:"Winter 2027", status:"planned" },
+
+  // ----- Spring 2027 -----
+  { id:"chem205-sp27", code:"CHEM 0205", title:"Organic Chemistry I", credits:1, prospectiveGrade:"B",
+    tags:["MED_CHEM_GEN","MED_CHEM_ORG"], prereqs:["CHEM 0105"], term:"Spring 2027", status:"planned",
+    notes:"At Midd, CHEM 0205 also completes the Gen Chem prereq pair w/ CHEM 0105." },
+  { id:"biol145-sp27", code:"BIOL 0145", title:"Cell Biology and Genetics", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_BG_BIO","MED_BIO","DIST_SCI"], prereqs:[], term:"Spring 2027", status:"planned" },
+  { id:"nsci251-sp27", code:"NSCI 0251", title:"Brain and Behavior (Found I)", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_FOUND_251"], prereqs:["PSYC 0105"], term:"Spring 2027", status:"planned",
+    notes:"Not open to seniors." },
+  { id:"his-sp27", code:"HIST TBD", title:"History Distribution", credits:1, prospectiveGrade:"B+",
+    tags:["DIST_HIS"], prereqs:[], term:"Spring 2027", status:"planned" },
+
+  // ----- Summer 2027 (transfer) -----
+  { id:"phys1-su27", code:"PHYS I TRF", title:"Physics I (Away — Transfer)", credits:1, prospectiveGrade:"B",
+    tags:["MED_PHYS"], prereqs:[], term:"Summer 2027", status:"planned",
+    notes:"Transfer credit. Flag for committee letter." },
+
+  // ----- Fall 2027 -----
+  { id:"chem305-f27", code:"CHEM 0305", title:"Organic Chemistry II", credits:1, prospectiveGrade:"B",
+    tags:["MED_CHEM_ORG"], prereqs:["CHEM 0205"], term:"Fall 2027", status:"planned" },
+  { id:"nsci252-f27", code:"NSCI 0252", title:"Cellular & Molecular Neuro (Found II)", credits:1, prospectiveGrade:"B",
+    tags:["NSCI_FOUND_252"], prereqs:["NSCI 0251","BIOL 0145"], term:"Fall 2027", status:"planned" },
+  { id:"psyc201-f27", code:"PSYC 0201", title:"Psychological Statistics", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_BG_STATS","MED_STATS","DIST_DED"], prereqs:["PSYC 0105"], term:"Fall 2027", status:"planned" },
+  { id:"phys2-or-elec-f27", code:"PHYS II / NSCI Elec", title:"Physics II OR NSCI Elective", credits:1, prospectiveGrade:"B",
+    tags:["MED_PHYS"], prereqs:[], term:"Fall 2027", status:"planned",
+    notes:"Decide: Physics II at Midd vs. an NSCI elective. Adjust tags accordingly." },
+
+  // ----- Spring 2028 -----
+  { id:"chem322-sp28", code:"CHEM 0322", title:"Biochemistry", credits:1, prospectiveGrade:"B",
+    tags:["MED_CHEM_BIO","NSCI_ELEC_BIO"], prereqs:["CHEM 0305"], term:"Spring 2028", status:"planned",
+    notes:"Often counts as both Biochem prereq and Biological NSCI elective — verify with major coordinator." },
+  { id:"nsci-elec2-sp28", code:"NSCI Elec 2", title:"NSCI Elective #2 (Psychological)", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_ELEC_PSYC"], prereqs:[], term:"Spring 2028", status:"planned" },
+  { id:"cc-sp28", code:"C&C TBD", title:"C&C Course", credits:1, prospectiveGrade:"B+",
+    tags:["CC_AMR"], prereqs:[], term:"Spring 2028", status:"planned",
+    notes:"Pick region that closes the C&C gap." },
+  { id:"flex-sp28", code:"FLEX", title:"Flexible Course", credits:1, prospectiveGrade:"B+",
+    tags:[], prereqs:[], term:"Spring 2028", status:"planned" },
+
+  // ----- Fall 2028 -----
+  { id:"nsci-elec3-f28", code:"NSCI Elec 3", title:"NSCI Elective #3 (Philosophical)", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_ELEC_PHIL"], prereqs:[], term:"Fall 2028", status:"planned" },
+  { id:"nsci500-f28", code:"NSCI 0500", title:"Senior Seminar", credits:1, prospectiveGrade:"B+",
+    tags:["NSCI_SENIOR"], prereqs:["NSCI 0252"], term:"Fall 2028", status:"planned" },
+  { id:"dist1-f28", code:"DIST TBD", title:"Distribution / C&C Course", credits:1, prospectiveGrade:"B+",
+    tags:["CC_NOA"], prereqs:[], term:"Fall 2028", status:"planned",
+    notes:"Pick a region that closes the C&C gap (currently NOA — North Asia)." },
+  { id:"flex-f28", code:"FLEX", title:"Flexible Course", credits:1, prospectiveGrade:"B+",
+    tags:[], prereqs:[], term:"Fall 2028", status:"planned" },
+
+  // ----- Spring 2029 (light) -----
+  { id:"rem1-sp29", code:"REM 1", title:"Remaining Requirement", credits:1, prospectiveGrade:"A-",
+    tags:[], prereqs:[], term:"Spring 2029", status:"planned" },
+  { id:"rem2-sp29", code:"REM 2", title:"Remaining Requirement", credits:1, prospectiveGrade:"A-",
+    tags:[], prereqs:[], term:"Spring 2029", status:"planned" },
+];
+
+/* =====================================================================
+   STORAGE
+   ===================================================================== */
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.courses)) return defaultState();
+    return { ...defaultState(), ...parsed };
+  } catch (e) {
+    console.warn("Failed to load planner state:", e);
+    return defaultState();
+  }
+}
+
+function defaultState() {
+  return {
+    courses: SEED_COURSES,
+    customRequirements: [],
+    settings: {
+      view: "dashboard",
+      mcatTargetTerm: "Spring 2029",
+      bcpmIncludeNSCI: true,
+    },
+    lastSaved: null,
+  };
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, lastSaved: new Date().toISOString() }));
+  } catch (e) {
+    console.warn("Failed to save planner state:", e);
+  }
+}
+
+/* =====================================================================
+   REDUCER
+   ===================================================================== */
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "set_view":
+      return { ...state, settings: { ...state.settings, view: action.view } };
+    case "update_settings":
+      return { ...state, settings: { ...state.settings, ...action.patch } };
+    case "add_course":
+      return { ...state, courses: [...state.courses, action.course] };
+    case "update_course":
+      return {
+        ...state,
+        courses: state.courses.map(c => c.id === action.id ? { ...c, ...action.patch } : c),
+      };
+    case "delete_course":
+      return { ...state, courses: state.courses.filter(c => c.id !== action.id) };
+    case "move_course":
+      return {
+        ...state,
+        courses: state.courses.map(c =>
+          c.id === action.id ? { ...c, term: action.term } : c
+        ),
+      };
+    case "reset":
+      return defaultState();
+    case "replace_state":
+      return action.state;
+    default:
+      return state;
+  }
+}
+
+/* =====================================================================
+   LOGIC HELPERS
+   ===================================================================== */
+
+const termIndex = (t) => TERMS.indexOf(t);
+
+function effectiveGrade(course) {
+  // For GPA, use actual grade if completed; otherwise prospective if set.
+  if (course.status === "completed" && course.grade) return course.grade;
+  if (course.prospectiveGrade) return course.prospectiveGrade;
+  if (course.grade) return course.grade;
+  return null;
+}
+
+function gradePoints(g) {
+  if (g == null) return null;
+  return GRADE_POINTS.hasOwnProperty(g) ? GRADE_POINTS[g] : null;
+}
+
+function isBCPM(course, includeNSCI = true) {
+  const prefix = (course.code || "").trim().split(/\s+/)[0].toUpperCase();
+  if (!includeNSCI && prefix === "NSCI") return false;
+  return BCPM_PREFIXES.includes(prefix);
+}
+
+function computeGPA(courses, opts = {}) {
+  const { onlyCompleted = false, includeProspective = true, bcpm = false, includeNSCI = true, term = null } = opts;
+  let quality = 0, hours = 0;
+  for (const c of courses) {
+    if (term && c.term !== term) continue;
+    if (onlyCompleted && c.status !== "completed") continue;
+    if (bcpm && !isBCPM(c, includeNSCI)) continue;
+    let g = null;
+    if (c.status === "completed" && c.grade) g = c.grade;
+    else if (includeProspective) g = c.prospectiveGrade || c.grade || null;
+    const gp = gradePoints(g);
+    if (gp == null) continue;
+    quality += gp * c.credits;
+    hours += c.credits;
+  }
+  if (hours === 0) return { gpa: null, hours: 0, quality: 0 };
+  return { gpa: quality / hours, hours, quality };
+}
+
+/* ---------- Requirement satisfaction ---------- */
+
+function countCreditsForTag(courses, tag) {
+  let credits = 0;
+  for (const c of courses) {
+    if ((c.tags || []).includes(tag)) credits += c.credits;
+  }
+  return credits;
+}
+
+function satisfiesRequirement(req, courses) {
+  switch (req.type) {
+    case "single": {
+      const list = courses.filter(c => (c.tags||[]).includes(req.tag));
+      return { satisfied: list.length > 0, courses: list, detail: list.length > 0 ? "✓" : "open" };
+    }
+    case "credits": {
+      const list = courses.filter(c => (c.tags||[]).includes(req.tag));
+      const total = list.reduce((s, c) => s + c.credits, 0);
+      return {
+        satisfied: total >= req.credits,
+        courses: list,
+        detail: `${total} / ${req.credits} cr`,
+      };
+    }
+    case "groupCount": {
+      // Match courses tagged with any of the options. Distribution rule: a single course can only count
+      // toward ONE distribution category, so we greedily assign each course to its first matching option
+      // not yet covered, then count covered options.
+      const tagged = courses
+        .filter(c => (c.tags||[]).some(t => req.options.includes(t)));
+      const covered = new Set();
+      const assignments = [];
+      if (req.uniquePerCourse) {
+        // Greedy: each course covers at most one not-yet-covered option.
+        for (const c of tagged) {
+          const candidate = (c.tags||[]).find(t => req.options.includes(t) && !covered.has(t));
+          if (candidate) {
+            covered.add(candidate);
+            assignments.push({ course: c, tag: candidate });
+          }
+        }
+      } else {
+        for (const c of tagged) {
+          for (const t of (c.tags||[])) {
+            if (req.options.includes(t)) covered.add(t);
+          }
+          assignments.push({ course: c, tag: (c.tags||[]).find(t => req.options.includes(t)) });
+        }
+      }
+      const groupings = req.requireGroupings || 0;
+      const groupingsSatisfied = groupings === 0 || covered.size >= groupings;
+      return {
+        satisfied: covered.size >= req.count && groupingsSatisfied,
+        courses: tagged,
+        covered: Array.from(covered),
+        assignments,
+        detail: `${covered.size} / ${req.count}${groupings ? ` (≥${groupings} groupings)` : ""}`,
+      };
+    }
+    case "ccRegions": {
+      // 3 distinct regions + 1 CMP. A course can carry multiple region tags; greedy distinct assignment.
+      const taggedRegion = courses.filter(c => (c.tags||[]).some(t => req.regionTags.includes(t)));
+      const covered = new Set();
+      const assignments = [];
+      for (const c of taggedRegion) {
+        const candidate = (c.tags||[]).find(t => req.regionTags.includes(t) && !covered.has(t));
+        if (candidate) { covered.add(candidate); assignments.push({ course: c, tag: candidate }); }
+      }
+      const cmpCourses = courses.filter(c => (c.tags||[]).includes(req.cmpTag));
+      const regionsOK = covered.size >= req.regionCount;
+      const cmpOK = cmpCourses.length > 0;
+      return {
+        satisfied: regionsOK && cmpOK,
+        courses: [...taggedRegion, ...cmpCourses],
+        covered: Array.from(covered),
+        cmpCourses,
+        detail: `${covered.size} / ${req.regionCount} regions${cmpOK ? " + CMP ✓" : " + CMP open"}`,
+      };
+    }
+    case "totalCredits": {
+      const total = courses.reduce((s,c) => s + c.credits, 0);
+      return {
+        satisfied: total >= req.credits,
+        courses: [],
+        detail: `${total} / ${req.credits} cr`,
+      };
+    }
+    default:
+      return { satisfied: false, courses: [], detail: "unknown" };
+  }
+}
+
+/* ---------- Warnings ---------- */
+
+function computeWarnings(courses) {
+  const warnings = [];
+  const byCode = new Map();
+  for (const c of courses) byCode.set(c.code, c);
+
+  // Prereq violations
+  for (const c of courses) {
+    for (const p of (c.prereqs || [])) {
+      const pre = byCode.get(p);
+      if (!pre) {
+        warnings.push({ severity: "warn", course: c.id,
+          message: `${c.code} requires ${p}, but ${p} is not on your schedule.` });
+        continue;
+      }
+      const cIdx = termIndex(c.term);
+      const pIdx = termIndex(pre.term);
+      if (cIdx >= 0 && pIdx >= 0 && pIdx >= cIdx) {
+        warnings.push({ severity: "error", course: c.id,
+          message: `${c.code} (${c.term}) must come AFTER ${p} (${pre.term}). Prereq order violated.` });
+      }
+    }
+  }
+
+  // NSCI 0251 not open to seniors
+  for (const c of courses) {
+    if ((c.tags||[]).includes("NSCI_FOUND_251")) {
+      if (c.term && (c.term.includes("2028") || c.term.includes("2029"))) {
+        warnings.push({ severity: "error", course: c.id,
+          message: `NSCI 0251 is not open to seniors. Currently placed in ${c.term}.` });
+      }
+    }
+  }
+
+  // NSCI 0252 must follow NSCI 0251
+  const c251 = courses.find(c => (c.tags||[]).includes("NSCI_FOUND_251"));
+  const c252 = courses.find(c => (c.tags||[]).includes("NSCI_FOUND_252"));
+  if (c251 && c252) {
+    const i1 = termIndex(c251.term), i2 = termIndex(c252.term);
+    if (i1 >= 0 && i2 >= 0 && i2 <= i1) {
+      warnings.push({ severity: "error", course: c252.id,
+        message: `NSCI 0252 (${c252.term}) must follow NSCI 0251 (${c251.term}).` });
+    }
+  }
+
+  // Overloaded fall/spring (>4 standard courses)
+  const termCounts = {};
+  for (const c of courses) {
+    if (!c.term) continue;
+    termCounts[c.term] = (termCounts[c.term] || 0) + c.credits;
+  }
+  for (const t of TERMS) {
+    if (WINTER_TERMS.has(t) || SUMMER_TERMS.has(t)) continue;
+    if ((termCounts[t] || 0) > 4) {
+      warnings.push({ severity: "warn", course: null,
+        message: `${t} is overloaded: ${termCounts[t]} credits (typical max 4).` });
+    }
+  }
+
+  // Distribution double-counting (a course tagged with 2+ DIST_ tags can only count once)
+  for (const c of courses) {
+    const distTags = (c.tags||[]).filter(t => t.startsWith("DIST_"));
+    if (distTags.length > 1) {
+      warnings.push({ severity: "warn", course: c.id,
+        message: `${c.code} carries multiple distribution tags (${distTags.join(", ")}). Only one will count.` });
+    }
+  }
+
+  // Physics transfer note
+  for (const c of courses) {
+    if ((c.tags||[]).includes("MED_PHYS") && /TRF|TRANS|AWAY/i.test(c.code)) {
+      warnings.push({ severity: "info", course: c.id,
+        message: `${c.code} is transfer credit — note for committee letter.` });
+    }
+  }
+
+  // MCAT prep conflict: by end of junior year (Spring 2028), key prereqs should be done
+  const mcatPrereqs = ["MED_CHEM_GEN","MED_CHEM_ORG","MED_CHEM_BIO","MED_BIO","MED_PHYS","MED_PSYC","MED_STATS"];
+  const cutoff = termIndex("Spring 2028");
+  for (const tag of mcatPrereqs) {
+    const done = courses.some(c => (c.tags||[]).includes(tag) &&
+      c.term && termIndex(c.term) <= cutoff);
+    if (!done) {
+      warnings.push({ severity: "info", course: null,
+        message: `MCAT prep: ${TAG_META[tag].label} not scheduled before end of junior year (Spring 2028).` });
+    }
+  }
+
+  return warnings;
+}
+
+/* =====================================================================
+   UI PRIMITIVES
+   ===================================================================== */
+
+function TagPill({ tag, removable, onRemove }) {
+  const meta = TAG_META[tag] || { label: tag, color: "gray" };
+  return (
+    <span className={`tag-pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded border ${COLOR_PILL[meta.color]}`}>
+      {meta.label}
+      {removable && (
+        <button onClick={onRemove} className="opacity-60 hover:opacity-100 ml-0.5" type="button" aria-label="Remove tag">×</button>
+      )}
+    </span>
+  );
+}
+
+function Card({ title, right, children, className="" }) {
+  return (
+    <section className={`bg-ink-800 border border-white/5 rounded-lg ${className}`}>
+      {(title || right) && (
+        <header className="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
+          <h3 className="text-sm font-semibold text-ink-100">{title}</h3>
+          {right}
+        </header>
+      )}
+      <div>{children}</div>
+    </section>
+  );
+}
+
+function ProgressBar({ value, max, color="bg-gold-500" }) {
+  const pct = Math.min(100, max === 0 ? 0 : (value / max) * 100);
+  return (
+    <div className="w-full h-1.5 bg-white/5 rounded">
+      <div className={`h-full rounded ${color}`} style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+function Stat({ label, value, sub }) {
+  return (
+    <div className="bg-ink-800 border border-white/5 rounded-lg px-4 py-3">
+      <div className="text-[11px] uppercase tracking-wide text-ink-400">{label}</div>
+      <div className="text-2xl font-semibold mt-0.5">{value}</div>
+      {sub && <div className="text-xs text-ink-400 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+/* =====================================================================
+   APP
+   ===================================================================== */
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, undefined, loadState);
+  const [lastSaved, setLastSaved] = useState(state.lastSaved);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    saveState(state);
+    if (firstRender.current) { firstRender.current = false; return; }
+    setLastSaved(new Date().toISOString());
+  }, [state]);
+
+  const { courses, settings } = state;
+  const warnings = useMemo(() => computeWarnings(courses), [courses]);
+  const view = settings.view || "dashboard";
+
+  const setView = (v) => dispatch({ type: "set_view", view: v });
+
+  return (
+    <div className="min-h-screen flex">
+      <Sidebar view={view} setView={setView} warnings={warnings} />
+      <main className="flex-1 min-w-0">
+        <TopBar lastSaved={lastSaved} />
+        <div className="p-6 max-w-[1500px]">
+          {view === "dashboard"     && <Dashboard state={state} dispatch={dispatch} warnings={warnings} setView={setView} />}
+          {view === "schedule"      && <Schedule state={state} dispatch={dispatch} warnings={warnings} />}
+          {view === "requirements"  && <Requirements state={state} dispatch={dispatch} />}
+          {view === "gpa"           && <GPAView state={state} dispatch={dispatch} />}
+          {view === "courses"       && <CoursesView state={state} dispatch={dispatch} />}
+          {view === "settings"      && <SettingsView state={state} dispatch={dispatch} />}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ---------- Sidebar ---------- */
+
+function Sidebar({ view, setView, warnings }) {
+  const items = [
+    ["dashboard",    "Dashboard"],
+    ["schedule",     "Schedule"],
+    ["requirements", "Requirements"],
+    ["gpa",          "GPA"],
+    ["courses",      "Courses"],
+    ["settings",     "Settings"],
+  ];
+  const errors = warnings.filter(w => w.severity === "error").length;
+  return (
+    <aside className="w-56 shrink-0 border-r border-white/5 bg-ink-900 min-h-screen sticky top-0 self-start">
+      <div className="px-4 py-5 border-b border-white/5">
+        <div className="text-gold-400 text-xs uppercase tracking-widest">Compass</div>
+        <div className="text-ink-100 font-semibold mt-1">Middlebury · NSCI · Pre-Med</div>
+        <a href="/" className="text-[11px] text-ink-400 hover:text-ink-200 mt-2 inline-block">← christoforakis.com</a>
+      </div>
+      <nav className="p-2 space-y-0.5">
+        {items.map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setView(id)}
+            className={`w-full text-left px-3 py-2 rounded text-sm transition ${
+              view === id ? "bg-gold-500/10 text-gold-400" : "text-ink-200 hover:bg-white/5"
+            }`}>
+            {label}
+            {id === "schedule" && errors > 0 && (
+              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] rounded-full bg-rose-500/20 text-rose-300">{errors}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+      <div className="px-4 py-3 mt-2 text-[11px] text-ink-500 leading-relaxed">
+        Personal tool. All data is stored locally in your browser.
+      </div>
+    </aside>
+  );
+}
+
+function TopBar({ lastSaved }) {
+  return (
+    <header className="border-b border-white/5 px-6 py-3 flex items-center justify-between sticky top-0 bg-ink-850/95 backdrop-blur z-10">
+      <div className="text-sm text-ink-300">
+        <span className="text-gold-400 font-medium">Graduation:</span> Spring 2029 ·{" "}
+        <span className="text-gold-400 font-medium">App year:</span> Summer 2029
+      </div>
+      <div className="text-xs text-ink-500">
+        {lastSaved ? `Saved ${new Date(lastSaved).toLocaleTimeString()}` : "Loaded from local storage"}
+      </div>
+    </header>
+  );
+}
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+
+function Dashboard({ state, warnings, setView }) {
+  const { courses, settings } = state;
+  const cum = computeGPA(courses, { includeProspective: true, includeNSCI: settings.bcpmIncludeNSCI });
+  const cumCompleted = computeGPA(courses, { onlyCompleted: true });
+  const bcpm = computeGPA(courses, { bcpm: true, includeProspective: true, includeNSCI: settings.bcpmIncludeNSCI });
+
+  const totalCredits = courses.reduce((s,c) => s + c.credits, 0);
+  const completedCredits = courses.filter(c => c.status === "completed").reduce((s,c)=>s+c.credits,0);
+
+  // Open requirements
+  const allReqs = REQUIREMENTS.map(r => ({ req: r, res: satisfiesRequirement(r, courses) }));
+  const open = allReqs.filter(({ res }) => !res.satisfied);
+
+  // Unscheduled requirement tags (any requirement whose target is empty)
+  const semsLeft = TERMS.filter(t => termIndex(t) >= termIndex("Fall 2026")).length;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat label="Cumulative GPA (proj.)" value={cum.gpa ? cum.gpa.toFixed(2) : "—"} sub={`${cum.hours} cr graded`} />
+        <Stat label="BCPM GPA (proj.)" value={bcpm.gpa ? bcpm.gpa.toFixed(2) : "—"} sub={`${bcpm.hours} cr BCPM`} />
+        <Stat label="Credits Planned" value={`${totalCredits} / 34`} sub={`${completedCredits} completed`} />
+        <Stat label="Open Requirements" value={open.length} sub={`${REQUIREMENTS.length} tracked`} />
+      </div>
+
+      {warnings.length > 0 && (
+        <Card title={`Warnings (${warnings.length})`}>
+          <ul className="divide-y divide-white/5">
+            {warnings.slice(0, 8).map((w, i) => (
+              <li key={i} className="px-4 py-2 text-sm flex items-start gap-3">
+                <span className={`mt-0.5 px-1.5 py-0.5 text-[10px] rounded font-mono uppercase ${
+                  w.severity === "error" ? "bg-rose-500/20 text-rose-300" :
+                  w.severity === "warn"  ? "bg-amber-500/20 text-amber-300" :
+                                            "bg-sky-500/20 text-sky-300"
+                }`}>{w.severity}</span>
+                <span className="text-ink-200">{w.message}</span>
+              </li>
+            ))}
+            {warnings.length > 8 && (
+              <li className="px-4 py-2 text-xs text-ink-400">…and {warnings.length - 8} more. See Schedule.</li>
+            )}
+          </ul>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Open Requirements"
+              right={<button onClick={() => setView("requirements")} className="text-xs text-gold-400 hover:text-gold-300">All →</button>}>
+          <ul className="divide-y divide-white/5">
+            {open.slice(0, 10).map(({ req, res }) => (
+              <li key={req.id} className="px-4 py-2 flex items-center justify-between">
+                <div className="text-sm">
+                  <div className="text-ink-100">{req.label}</div>
+                  <div className="text-[11px] text-ink-400">{req.group}</div>
+                </div>
+                <div className="text-xs font-mono text-ink-300">{res.detail}</div>
+              </li>
+            ))}
+            {open.length === 0 && <li className="px-4 py-3 text-sm text-emerald-400">All tracked requirements complete.</li>}
+          </ul>
+        </Card>
+
+        <Card title="MCAT Countdown">
+          <div className="p-4 text-sm space-y-2">
+            <div><span className="text-ink-400">Target application:</span> Summer 2029</div>
+            <div><span className="text-ink-400">Semesters remaining:</span> {semsLeft}</div>
+            <div className="pt-2 border-t border-white/5 text-ink-300">
+              MCAT prep ideally happens late junior year (Spring 2028 → Summer 2028), after biochem + physics.
+              The Schedule view flags prereqs not scheduled by then.
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   SCHEDULE
+   ===================================================================== */
+
+function Schedule({ state, dispatch, warnings }) {
+  const { courses, settings } = state;
+  const [dragId, setDragId] = useState(null);
+  const [dropTerm, setDropTerm] = useState(null);
+
+  // Group courses by term
+  const byTerm = useMemo(() => {
+    const map = {};
+    for (const t of TERMS) map[t] = [];
+    map.__unscheduled = [];
+    for (const c of courses) {
+      if (c.term && map[c.term]) map[c.term].push(c);
+      else map.__unscheduled.push(c);
+    }
+    return map;
+  }, [courses]);
+
+  const warningsByCourse = useMemo(() => {
+    const m = {};
+    for (const w of warnings) if (w.course) (m[w.course] = m[w.course] || []).push(w);
+    return m;
+  }, [warnings]);
+
+  // Running cumulative GPA per term
+  const cumByTerm = useMemo(() => {
+    let q = 0, h = 0;
+    const out = {};
+    for (const t of TERMS) {
+      for (const c of (byTerm[t] || [])) {
+        const g = effectiveGrade(c);
+        const gp = gradePoints(g);
+        if (gp != null) { q += gp * c.credits; h += c.credits; }
+      }
+      out[t] = h > 0 ? q / h : null;
+    }
+    return out;
+  }, [byTerm]);
+
+  const onDragStart = (id) => setDragId(id);
+  const onDragEnd = () => { setDragId(null); setDropTerm(null); };
+  const onDropTo = (term) => {
+    if (dragId) dispatch({ type: "move_course", id: dragId, term });
+    setDragId(null); setDropTerm(null);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Schedule</h2>
+        <div className="flex items-center gap-2">
+          <AddCourseInline dispatch={dispatch} />
+        </div>
+      </div>
+
+      {warnings.length > 0 && (
+        <details className="bg-ink-800 border border-white/5 rounded-lg">
+          <summary className="px-4 py-2 text-sm text-amber-300">
+            {warnings.length} warning{warnings.length === 1 ? "" : "s"} — expand
+          </summary>
+          <ul className="divide-y divide-white/5 border-t border-white/5">
+            {warnings.map((w, i) => (
+              <li key={i} className="px-4 py-2 text-xs flex items-start gap-3">
+                <span className={`mt-0.5 px-1.5 py-0.5 text-[10px] rounded font-mono uppercase ${
+                  w.severity === "error" ? "bg-rose-500/20 text-rose-300" :
+                  w.severity === "warn"  ? "bg-amber-500/20 text-amber-300" :
+                                            "bg-sky-500/20 text-sky-300"
+                }`}>{w.severity}</span>
+                <span className="text-ink-200">{w.message}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <div className="overflow-x-auto thin-scroll pb-2">
+        <div className="flex gap-3 min-w-max">
+          {TERMS.map(t => {
+            const list = byTerm[t] || [];
+            const credits = list.reduce((s,c)=>s+c.credits,0);
+            const termGPA = computeGPA(courses, { term: t, includeProspective: true });
+            const isWinter = WINTER_TERMS.has(t);
+            const isSummer = SUMMER_TERMS.has(t);
+            const past = termIndex(t) < termIndex("Fall 2026");
+            return (
+              <div
+                key={t}
+                onDragOver={(e) => { e.preventDefault(); setDropTerm(t); }}
+                onDragLeave={() => setDropTerm(prev => prev === t ? null : prev)}
+                onDrop={() => onDropTo(t)}
+                className={`w-60 shrink-0 bg-ink-800 border rounded-lg ${
+                  dropTerm === t ? "drop-target" : "border-white/5"
+                }`}>
+                <div className={`px-3 py-2 border-b border-white/5 ${past ? "opacity-80" : ""}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold">{t}</div>
+                    <div className={`text-[10px] uppercase tracking-wide ${
+                      isWinter ? "text-sky-300" : isSummer ? "text-amber-300" : "text-ink-400"
+                    }`}>
+                      {isWinter ? "Winter" : isSummer ? "Summer" : past ? "Past" : "Term"}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-ink-400 mt-0.5">
+                    {credits} cr · term {termGPA.gpa ? termGPA.gpa.toFixed(2) : "—"} · cum {cumByTerm[t] ? cumByTerm[t].toFixed(2) : "—"}
+                  </div>
+                </div>
+                <div className="p-2 space-y-2 min-h-[160px]">
+                  {list.length === 0 && (
+                    <div className="text-[11px] text-ink-500 italic px-1 py-2 text-center">drop here</div>
+                  )}
+                  {list.map(c => (
+                    <CourseCard
+                      key={c.id}
+                      course={c}
+                      onDragStart={() => onDragStart(c.id)}
+                      onDragEnd={onDragEnd}
+                      dispatch={dispatch}
+                      warnings={warningsByCourse[c.id] || []}
+                      dragging={dragId === c.id}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Unscheduled column */}
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDropTerm("__unscheduled"); }}
+            onDrop={() => { if (dragId) dispatch({ type:"move_course", id: dragId, term: null }); onDragEnd(); }}
+            className={`w-60 shrink-0 bg-ink-900 border-2 border-dashed ${dropTerm === "__unscheduled" ? "drop-target" : "border-white/10"} rounded-lg`}>
+            <div className="px-3 py-2 border-b border-white/10">
+              <div className="text-sm font-semibold text-ink-300">Unscheduled</div>
+              <div className="text-[11px] text-ink-500 mt-0.5">{byTerm.__unscheduled.length} courses</div>
+            </div>
+            <div className="p-2 space-y-2 min-h-[160px]">
+              {byTerm.__unscheduled.map(c => (
+                <CourseCard
+                  key={c.id}
+                  course={c}
+                  onDragStart={() => onDragStart(c.id)}
+                  onDragEnd={onDragEnd}
+                  dispatch={dispatch}
+                  warnings={warningsByCourse[c.id] || []}
+                  dragging={dragId === c.id}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CourseCard({ course, onDragStart, onDragEnd, dispatch, warnings, dragging }) {
+  const [open, setOpen] = useState(false);
+  const grade = effectiveGrade(course);
+  const isProspective = course.status !== "completed";
+  const statusColor = course.status === "completed" ? "border-emerald-500/30" :
+                      course.status === "in-progress" ? "border-amber-500/30" :
+                      "border-white/10";
+  const hasErr = warnings.some(w => w.severity === "error");
+  const hasWarn = warnings.some(w => w.severity === "warn");
+  return (
+    <div
+      draggable
+      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(); }}
+      onDragEnd={onDragEnd}
+      className={`bg-ink-700 border ${statusColor} rounded p-2 text-xs cursor-grab active:cursor-grabbing ${dragging ? "dragging" : ""} ${hasErr ? "ring-1 ring-rose-500/40" : hasWarn ? "ring-1 ring-amber-500/30" : ""}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="font-mono font-semibold text-ink-100">{course.code}</div>
+          <div className="text-ink-300 truncate">{course.title}</div>
+        </div>
+        <div className="text-right shrink-0">
+          <div className={`font-mono font-semibold ${isProspective ? "text-ink-400" : "text-gold-400"}`}>
+            {grade || "—"}{isProspective && grade ? "*" : ""}
+          </div>
+          <div className="text-[10px] text-ink-500">{course.credits} cr</div>
+        </div>
+      </div>
+      {course.tags && course.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          {course.tags.map(t => <TagPill key={t} tag={t} />)}
+        </div>
+      )}
+      <button onClick={() => setOpen(o => !o)} className="text-[10px] text-ink-400 hover:text-ink-200 mt-1.5">
+        {open ? "▾ less" : "▸ edit"}
+      </button>
+      {open && (
+        <CourseEditor course={course} dispatch={dispatch} compact onClose={() => setOpen(false)} />
+      )}
+    </div>
+  );
+}
+
+/* ---------- Course Editor (used inline + on Courses page) ---------- */
+
+function CourseEditor({ course, dispatch, compact, onClose }) {
+  const [tagInput, setTagInput] = useState("");
+  const patch = (p) => dispatch({ type: "update_course", id: course.id, patch: p });
+
+  const addTag = (t) => {
+    if (!t) return;
+    const tag = t.trim().toUpperCase().replace(/\s+/g, "_");
+    if (!course.tags || course.tags.includes(tag)) return;
+    patch({ tags: [...(course.tags || []), tag] });
+    setTagInput("");
+  };
+  const removeTag = (t) => patch({ tags: (course.tags || []).filter(x => x !== t) });
+
+  const presetTag = (t) => {
+    if (!t) return;
+    if (course.tags && course.tags.includes(t)) return;
+    patch({ tags: [...(course.tags || []), t] });
+  };
+
+  return (
+    <div className={`${compact ? "mt-2 pt-2 border-t border-white/10" : "p-4"} space-y-2 text-xs`}>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block">
+          <div className="text-ink-400 text-[10px] uppercase">Code</div>
+          <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1"
+                 value={course.code} onChange={e => patch({ code: e.target.value })} />
+        </label>
+        <label className="block">
+          <div className="text-ink-400 text-[10px] uppercase">Credits</div>
+          <input type="number" step="0.25" className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1"
+                 value={course.credits} onChange={e => patch({ credits: parseFloat(e.target.value) || 0 })} />
+        </label>
+      </div>
+      <label className="block">
+        <div className="text-ink-400 text-[10px] uppercase">Title</div>
+        <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1"
+               value={course.title} onChange={e => patch({ title: e.target.value })} />
+      </label>
+      <div className="grid grid-cols-3 gap-2">
+        <label className="block">
+          <div className="text-ink-400 text-[10px] uppercase">Term</div>
+          <select className="w-full bg-ink-900 border border-white/10 rounded px-1 py-1"
+                  value={course.term || ""} onChange={e => patch({ term: e.target.value || null })}>
+            <option value="">— Unscheduled —</option>
+            {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="block">
+          <div className="text-ink-400 text-[10px] uppercase">Status</div>
+          <select className="w-full bg-ink-900 border border-white/10 rounded px-1 py-1"
+                  value={course.status} onChange={e => patch({ status: e.target.value })}>
+            <option value="completed">completed</option>
+            <option value="in-progress">in-progress</option>
+            <option value="planned">planned</option>
+          </select>
+        </label>
+        <label className="block">
+          <div className="text-ink-400 text-[10px] uppercase">
+            {course.status === "completed" ? "Grade" : "Proj. Grade"}
+          </div>
+          <select className="w-full bg-ink-900 border border-white/10 rounded px-1 py-1"
+                  value={course.status === "completed" ? (course.grade || "") : (course.prospectiveGrade || "")}
+                  onChange={e => course.status === "completed"
+                    ? patch({ grade: e.target.value || null })
+                    : patch({ prospectiveGrade: e.target.value || null })}>
+            {GRADE_OPTIONS.map(g => <option key={g} value={g}>{g || "—"}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <label className="block">
+        <div className="text-ink-400 text-[10px] uppercase">Prerequisites (comma-sep course codes)</div>
+        <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1 font-mono"
+               value={(course.prereqs || []).join(", ")}
+               onChange={e => patch({ prereqs: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })} />
+      </label>
+
+      <div>
+        <div className="text-ink-400 text-[10px] uppercase mb-1">Tags</div>
+        <div className="flex flex-wrap gap-1 mb-1">
+          {(course.tags || []).map(t => (
+            <TagPill key={t} tag={t} removable onRemove={() => removeTag(t)} />
+          ))}
+        </div>
+        <div className="flex gap-1">
+          <select value="" onChange={e => { presetTag(e.target.value); e.target.value=""; }}
+                  className="flex-1 bg-ink-900 border border-white/10 rounded px-1 py-1 text-[11px]">
+            <option value="">+ add tag…</option>
+            {ALL_TAGS.filter(t => !(course.tags || []).includes(t)).map(t =>
+              <option key={t} value={t}>{TAG_META[t].label} ({t})</option>
+            )}
+          </select>
+          <input className="w-24 bg-ink-900 border border-white/10 rounded px-2 py-1 font-mono text-[11px]"
+                 placeholder="custom"
+                 value={tagInput}
+                 onChange={e => setTagInput(e.target.value)}
+                 onKeyDown={e => { if (e.key === "Enter") { addTag(tagInput); } }} />
+        </div>
+      </div>
+
+      <label className="block">
+        <div className="text-ink-400 text-[10px] uppercase">Notes</div>
+        <textarea className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1" rows="2"
+                  value={course.notes || ""} onChange={e => patch({ notes: e.target.value })} />
+      </label>
+
+      <div className="flex items-center justify-between pt-1">
+        <button
+          onClick={() => { if (confirm(`Delete ${course.code}?`)) dispatch({ type: "delete_course", id: course.id }); }}
+          className="text-rose-400 hover:text-rose-300 text-[11px]">Delete</button>
+        {onClose && <button onClick={onClose} className="text-ink-300 hover:text-ink-100 text-[11px]">Close</button>}
+      </div>
+    </div>
+  );
+}
+
+function AddCourseInline({ dispatch }) {
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [title, setTitle] = useState("");
+  const [term, setTerm] = useState("");
+  const add = () => {
+    if (!code) return;
+    const id = `${code.replace(/\s+/g, "")}-${Math.random().toString(36).slice(2,7)}`.toLowerCase();
+    dispatch({ type: "add_course", course: {
+      id, code, title, credits: 1, tags: [], prereqs: [],
+      term: term || null, status: term ? "planned" : "planned",
+    }});
+    setCode(""); setTitle(""); setTerm(""); setOpen(false);
+  };
+  return (
+    <div className="flex items-center gap-2">
+      {open ? (
+        <div className="flex items-center gap-1 bg-ink-800 border border-white/10 rounded px-2 py-1">
+          <input autoFocus className="bg-transparent w-24 text-xs outline-none font-mono" placeholder="CHEM 0105" value={code} onChange={e=>setCode(e.target.value)} />
+          <input className="bg-transparent w-32 text-xs outline-none" placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
+          <select className="bg-ink-900 border border-white/10 rounded text-xs px-1 py-0.5" value={term} onChange={e=>setTerm(e.target.value)}>
+            <option value="">unscheduled</option>
+            {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <button onClick={add} className="px-2 py-0.5 bg-gold-500 text-ink-900 rounded text-xs font-semibold">Add</button>
+          <button onClick={() => setOpen(false)} className="text-ink-400 text-xs px-1">×</button>
+        </div>
+      ) : (
+        <button onClick={() => setOpen(true)} className="text-xs text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded px-2 py-1">+ Add Course</button>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================================
+   REQUIREMENTS
+   ===================================================================== */
+
+function Requirements({ state }) {
+  const { courses } = state;
+  const grouped = {};
+  for (const r of REQUIREMENTS) {
+    const top = r.group.split(" / ")[0];
+    if (!grouped[top]) grouped[top] = [];
+    grouped[top].push(r);
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Requirements</h2>
+
+      {Object.entries(grouped).map(([top, reqs]) => {
+        const total = reqs.length;
+        const satisfied = reqs.filter(r => satisfiesRequirement(r, courses).satisfied).length;
+        return (
+          <Card key={top}
+                title={top}
+                right={<span className="text-xs text-ink-300 font-mono">{satisfied}/{total} ✓</span>}>
+            <ul className="divide-y divide-white/5">
+              {reqs.map(r => <RequirementRow key={r.id} req={r} courses={courses} />)}
+            </ul>
+          </Card>
+        );
+      })}
+
+      <DistributionGrid courses={state.courses} />
+      <CCMap courses={state.courses} />
+    </div>
+  );
+}
+
+function RequirementRow({ req, courses }) {
+  const res = satisfiesRequirement(req, courses);
+  const subgroup = req.group.includes(" / ") ? req.group.split(" / ")[1] : null;
+  return (
+    <li className="px-4 py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full shrink-0 ${res.satisfied ? "bg-emerald-400" : "bg-amber-400"}`} />
+            <span className="text-sm text-ink-100">{req.label}</span>
+            {subgroup && <span className="text-[10px] uppercase tracking-wide text-ink-500">{subgroup}</span>}
+          </div>
+          {(res.courses && res.courses.length > 0) && (
+            <div className="text-[11px] text-ink-400 mt-1 ml-4 flex flex-wrap gap-x-2 gap-y-0.5">
+              {res.courses.map(c => (
+                <span key={c.id} className="font-mono">{c.code}{c.term ? ` (${c.term})` : ""}</span>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="text-xs font-mono text-ink-300 shrink-0">{res.detail}</div>
+      </div>
+    </li>
+  );
+}
+
+function DistributionGrid({ courses }) {
+  const cats = ["DIST_LIT","DIST_ART","DIST_PHL","DIST_HIS","DIST_SCI","DIST_DED","DIST_SOC","DIST_LNG"];
+  const distReq = REQUIREMENTS.find(r => r.id === "dist");
+  const res = satisfiesRequirement(distReq, courses);
+  const map = {};
+  for (const a of (res.assignments || [])) map[a.tag] = a.course;
+
+  return (
+    <Card title="Distribution — visual grid (need 7 of 8)">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-4">
+        {cats.map(t => {
+          const c = map[t];
+          return (
+            <div key={t} className={`rounded border p-2 ${c ? "bg-amber-500/10 border-amber-500/30" : "bg-white/[0.02] border-white/10"}`}>
+              <div className="text-xs font-mono font-semibold">{TAG_META[t].label}</div>
+              {c ? (
+                <div className="text-[11px] text-ink-200 mt-0.5">{c.code} <span className="text-ink-400">{c.term}</span></div>
+              ) : (
+                <div className="text-[11px] text-ink-500 mt-0.5 italic">open</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function CCMap({ courses }) {
+  const regions = ["CC_EUR","CC_AMR","CC_NOR","CC_NOA","CC_SOA","CC_MDE","CC_SAF","CC_AAL"];
+  const ccReq = REQUIREMENTS.find(r => r.id === "cc");
+  const res = satisfiesRequirement(ccReq, courses);
+  const covered = new Set(res.covered || []);
+  return (
+    <Card title="Cultures & Civilizations — regions + comparative">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-4">
+        {regions.map(t => (
+          <div key={t} className={`rounded border p-2 ${covered.has(t) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/[0.02] border-white/10"}`}>
+            <div className="text-xs font-mono font-semibold">{TAG_META[t].label}</div>
+            <div className="text-[11px] mt-0.5">{covered.has(t) ? <span className="text-emerald-300">✓ covered</span> : <span className="text-ink-500 italic">open</span>}</div>
+          </div>
+        ))}
+        <div className={`rounded border p-2 ${(res.cmpCourses||[]).length ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/[0.02] border-white/10"}`}>
+          <div className="text-xs font-mono font-semibold">{TAG_META.CC_CMP.label}</div>
+          <div className="text-[11px] mt-0.5">{(res.cmpCourses||[]).length ? <span className="text-emerald-300">✓ {res.cmpCourses[0].code}</span> : <span className="text-ink-500 italic">open</span>}</div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* =====================================================================
+   GPA
+   ===================================================================== */
+
+function GPAView({ state, dispatch }) {
+  const { courses, settings } = state;
+  const cum = computeGPA(courses, { includeProspective: true, includeNSCI: settings.bcpmIncludeNSCI });
+  const cumDone = computeGPA(courses, { onlyCompleted: true });
+  const bcpm = computeGPA(courses, { bcpm: true, includeProspective: true, includeNSCI: settings.bcpmIncludeNSCI });
+  const bcpmDone = computeGPA(courses, { bcpm: true, onlyCompleted: true, includeNSCI: settings.bcpmIncludeNSCI });
+
+  const perTerm = TERMS.map(t => ({
+    term: t,
+    gpa: computeGPA(courses, { term: t, includeProspective: true }),
+    bcpm: computeGPA(courses, { term: t, bcpm: true, includeProspective: true, includeNSCI: settings.bcpmIncludeNSCI }),
+  })).filter(x => x.gpa.hours > 0);
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">GPA</h2>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat label="Cumulative (completed)" value={cumDone.gpa ? cumDone.gpa.toFixed(3) : "—"} sub={`${cumDone.hours} cr`} />
+        <Stat label="Cumulative (projected)" value={cum.gpa ? cum.gpa.toFixed(3) : "—"} sub={`${cum.hours} cr`} />
+        <Stat label="BCPM (completed)" value={bcpmDone.gpa ? bcpmDone.gpa.toFixed(3) : "—"} sub={`${bcpmDone.hours} cr`} />
+        <Stat label="BCPM (projected)" value={bcpm.gpa ? bcpm.gpa.toFixed(3) : "—"} sub={`${bcpm.hours} cr`} />
+      </div>
+
+      <Card title="Settings">
+        <div className="p-4 text-sm flex items-center gap-4">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={settings.bcpmIncludeNSCI}
+                   onChange={e => dispatch({ type:"update_settings", patch:{ bcpmIncludeNSCI: e.target.checked }})} />
+            Include NSCI courses in BCPM (AMCAS-style)
+          </label>
+        </div>
+      </Card>
+
+      <Card title="Per-term GPA">
+        <table className="w-full text-sm">
+          <thead className="text-[11px] uppercase tracking-wide text-ink-400 bg-white/[0.02]">
+            <tr><th className="text-left px-4 py-2">Term</th>
+                <th className="text-right px-4 py-2">Credits</th>
+                <th className="text-right px-4 py-2">Term GPA</th>
+                <th className="text-right px-4 py-2">BCPM GPA</th></tr>
+          </thead>
+          <tbody>
+            {perTerm.map(({ term, gpa, bcpm }) => (
+              <tr key={term} className="border-t border-white/5">
+                <td className="px-4 py-2">{term}</td>
+                <td className="px-4 py-2 text-right font-mono">{gpa.hours}</td>
+                <td className="px-4 py-2 text-right font-mono">{gpa.gpa ? gpa.gpa.toFixed(3) : "—"}</td>
+                <td className="px-4 py-2 text-right font-mono">{bcpm.gpa ? bcpm.gpa.toFixed(3) : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+
+      <Card title="What-if mode — edit any prospective grade below to see live impact">
+        <table className="w-full text-sm">
+          <thead className="text-[11px] uppercase tracking-wide text-ink-400 bg-white/[0.02]">
+            <tr>
+              <th className="text-left px-4 py-2">Term</th>
+              <th className="text-left px-4 py-2">Course</th>
+              <th className="text-left px-4 py-2">Title</th>
+              <th className="text-right px-4 py-2">Cr</th>
+              <th className="text-center px-4 py-2">Status</th>
+              <th className="text-center px-4 py-2">Grade</th>
+              <th className="text-center px-4 py-2">Proj.</th>
+              <th className="text-center px-4 py-2">BCPM?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...courses].sort((a,b) => (termIndex(a.term)||99) - (termIndex(b.term)||99))
+              .map(c => (
+              <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                <td className="px-4 py-1.5 text-ink-300">{c.term || "—"}</td>
+                <td className="px-4 py-1.5 font-mono">{c.code}</td>
+                <td className="px-4 py-1.5 text-ink-300 truncate max-w-[200px]">{c.title}</td>
+                <td className="px-4 py-1.5 text-right font-mono">{c.credits}</td>
+                <td className="px-4 py-1.5 text-center text-[11px]">
+                  <span className={
+                    c.status === "completed" ? "text-emerald-300" :
+                    c.status === "in-progress" ? "text-amber-300" : "text-ink-400"
+                  }>{c.status}</span>
+                </td>
+                <td className="px-4 py-1.5 text-center">
+                  <select className="bg-ink-900 border border-white/10 rounded text-xs px-1 py-0.5"
+                          value={c.grade || ""}
+                          onChange={e => dispatch({ type:"update_course", id:c.id, patch:{ grade: e.target.value || null }})}>
+                    {GRADE_OPTIONS.map(g => <option key={g} value={g}>{g || "—"}</option>)}
+                  </select>
+                </td>
+                <td className="px-4 py-1.5 text-center">
+                  <select className="bg-ink-900 border border-white/10 rounded text-xs px-1 py-0.5"
+                          value={c.prospectiveGrade || ""}
+                          onChange={e => dispatch({ type:"update_course", id:c.id, patch:{ prospectiveGrade: e.target.value || null }})}>
+                    {GRADE_OPTIONS.map(g => <option key={g} value={g}>{g || "—"}</option>)}
+                  </select>
+                </td>
+                <td className="px-4 py-1.5 text-center text-[11px] text-ink-400">{isBCPM(c, settings.bcpmIncludeNSCI) ? "✓" : ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
+/* =====================================================================
+   COURSES — table CRUD
+   ===================================================================== */
+
+function CoursesView({ state, dispatch }) {
+  const [filter, setFilter] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const list = useMemo(() => {
+    const f = filter.trim().toLowerCase();
+    return [...state.courses]
+      .filter(c => !f || c.code.toLowerCase().includes(f) || c.title.toLowerCase().includes(f) || (c.tags||[]).some(t => t.toLowerCase().includes(f)))
+      .sort((a,b) => (termIndex(a.term)||99) - (termIndex(b.term)||99) || a.code.localeCompare(b.code));
+  }, [state.courses, filter]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold">Courses</h2>
+        <div className="flex items-center gap-2">
+          <input className="bg-ink-800 border border-white/10 rounded px-2 py-1 text-sm w-64"
+                 placeholder="Filter by code / title / tag…" value={filter}
+                 onChange={e => setFilter(e.target.value)} />
+          <AddCourseInline dispatch={dispatch} />
+        </div>
+      </div>
+
+      <Card>
+        <table className="w-full text-sm">
+          <thead className="text-[11px] uppercase tracking-wide text-ink-400 bg-white/[0.02]">
+            <tr>
+              <th className="text-left px-4 py-2">Term</th>
+              <th className="text-left px-4 py-2">Code</th>
+              <th className="text-left px-4 py-2">Title</th>
+              <th className="text-right px-4 py-2">Cr</th>
+              <th className="text-center px-4 py-2">Grade</th>
+              <th className="text-left px-4 py-2">Tags</th>
+              <th className="text-right px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map(c => (
+              <Fragment key={c.id}>
+                <tr className="border-t border-white/5 hover:bg-white/[0.02]">
+                  <td className="px-4 py-2 text-ink-300">{c.term || "—"}</td>
+                  <td className="px-4 py-2 font-mono font-semibold">{c.code}</td>
+                  <td className="px-4 py-2 text-ink-200">{c.title}</td>
+                  <td className="px-4 py-2 text-right font-mono">{c.credits}</td>
+                  <td className="px-4 py-2 text-center font-mono">
+                    {effectiveGrade(c) || "—"}
+                    {c.status !== "completed" && effectiveGrade(c) && <span className="text-ink-500">*</span>}
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="flex flex-wrap gap-1">
+                      {(c.tags||[]).map(t => <TagPill key={t} tag={t} />)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <button onClick={() => setEditingId(editingId === c.id ? null : c.id)}
+                            className="text-xs text-gold-400 hover:text-gold-300">
+                      {editingId === c.id ? "close" : "edit"}
+                    </button>
+                  </td>
+                </tr>
+                {editingId === c.id && (
+                  <tr className="border-t border-white/5 bg-ink-900/50">
+                    <td colSpan="7" className="p-0">
+                      <CourseEditor course={c} dispatch={dispatch} onClose={() => setEditingId(null)} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
+/* =====================================================================
+   SETTINGS / IMPORT-EXPORT / RESET
+   ===================================================================== */
+
+function SettingsView({ state, dispatch }) {
+  const [importText, setImportText] = useState("");
+  const [msg, setMsg] = useState(null);
+
+  const exportJSON = () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `compass-export-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const importJSON = () => {
+    try {
+      const parsed = JSON.parse(importText);
+      if (!parsed || !Array.isArray(parsed.courses)) { setMsg("Invalid file: missing courses array."); return; }
+      if (!confirm("Replace all current data?")) return;
+      dispatch({ type: "replace_state", state: parsed });
+      setMsg("Imported.");
+      setImportText("");
+    } catch (e) {
+      setMsg("JSON parse error: " + e.message);
+    }
+  };
+
+  const reset = () => {
+    if (!confirm("Reset to seed data? This wipes all local edits.")) return;
+    dispatch({ type: "reset" });
+  };
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <h2 className="text-lg font-semibold">Settings</h2>
+
+      <Card title="Backup / Restore">
+        <div className="p-4 space-y-3 text-sm">
+          <div className="flex gap-2">
+            <button onClick={exportJSON} className="px-3 py-1.5 bg-gold-500 text-ink-900 rounded font-semibold text-xs">Export JSON</button>
+            <button onClick={reset} className="px-3 py-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded text-xs">Reset to Seed Data</button>
+          </div>
+          <div>
+            <div className="text-ink-400 text-xs mb-1">Paste exported JSON to restore:</div>
+            <textarea className="w-full bg-ink-900 border border-white/10 rounded p-2 font-mono text-[11px]"
+                      rows="6" value={importText} onChange={e => setImportText(e.target.value)} />
+            <div className="flex items-center gap-2 mt-2">
+              <button onClick={importJSON} className="px-3 py-1.5 bg-ink-700 text-ink-100 rounded text-xs">Import</button>
+              {msg && <span className="text-xs text-ink-300">{msg}</span>}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card title="About">
+        <div className="p-4 text-sm text-ink-300 leading-relaxed space-y-2">
+          <p><strong className="text-gold-400">Compass</strong> — a personal planning tool for Middlebury College Neuroscience / pre-med. Data lives entirely in your browser's localStorage — clearing site data will wipe it. Use Export JSON for backups.</p>
+          <p className="text-ink-500 text-xs">
+            Distribution and Cultures &amp; Civilizations codes follow the Middlebury catalog (LIT/ART/PHL/HIS/SCI/DED/SOC/LNG and EUR/AMR/NOR/NOA/SOA/MDE/SAF/AAL/CMP).
+            Med-school prereqs follow Middlebury Health Professions guidance.
+          </p>
+          <p className="text-ink-500 text-xs">
+            Constraints encoded: 34 credits, 7 of 8 distributions, 4 C&amp;C w/ region + CMP, 3 NSCI electives from ≥2 groupings,
+            NSCI 0251 → 0252 ordering, NSCI 0251 not open to seniors, single-distribution-counting rule, transfer-physics flag for committee letter.
+          </p>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* =====================================================================
+   MOUNT
+   ===================================================================== */
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+  </script>
+</body>
+</html>
