@@ -71,6 +71,9 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Local Middlebury course catalog (curated) -->
+  <script src="./catalog.js"></script>
 </head>
 <body class="dark bg-ink-850 text-ink-100 min-h-screen">
   <div id="root"></div>
@@ -245,9 +248,11 @@ const REQUIREMENTS = [
    SEED DATA — the student's transcript + planned schedule
    ===================================================================== */
 
+// Prospective grades intentionally left blank — fill them in on the GPA page
+// (or click a card's "edit") and the cumulative / BCPM numbers update live.
 const SEED_COURSES = [
-  // ----- Fall 2025 (completed) -----
-  { id:"econ150-f25", code:"ECON 0150", title:"Intro Macroeconomics", credits:1, grade:"C+",
+  // ----- Fall 2025 (completed, actual transcript) -----
+  { id:"econ150-f25", code:"ECON 0150", title:"Introductory Macroeconomics", credits:1, grade:"C+",
     tags:["DIST_SOC"], prereqs:[], term:"Fall 2025", status:"completed" },
   { id:"fyse1118-f25", code:"FYSE 1118", title:"Happiness", credits:1, grade:"A",
     tags:["CW_FIRST"], prereqs:[], term:"Fall 2025", status:"completed" },
@@ -255,93 +260,133 @@ const SEED_COURSES = [
     tags:["DIST_LNG"], prereqs:[], term:"Fall 2025", status:"completed" },
   { id:"psci109-f25", code:"PSCI 0109", title:"International Politics", credits:1, grade:"A",
     tags:["DIST_SOC","CC_EUR"], prereqs:[], term:"Fall 2025", status:"completed",
-    notes:"Confirm CC region with registrar — likely EUR or CMP." },
+    notes:"Confirm CC region designation with registrar — could be EUR or CMP." },
 
   // ----- Winter 2026 -----
-  { id:"grmn102-w26", code:"GRMN 0102", title:"Beginning German Continued", credits:1, grade:"B",
+  { id:"grmn102-w26", code:"GRMN 0102", title:"Beginning German Continued (Winter)", credits:1, grade:"B",
     tags:["WINTER_TERM"], prereqs:["GRMN 0101"], term:"Winter 2026", status:"completed" },
 
   // ----- Spring 2026 -----
   { id:"grmn103-s26", code:"GRMN 0103", title:"Beginning German Continued", credits:1, grade:"C",
     tags:[], prereqs:["GRMN 0102"], term:"Spring 2026", status:"completed" },
-  { id:"harc130-s26", code:"HARC 0130", title:"Intro to Architectural Design", credits:1, grade:"A",
+  { id:"harc130-s26", code:"HARC 0130", title:"Introduction to Architectural Design", credits:1, grade:"A",
     tags:["DIST_ART"], prereqs:[], term:"Spring 2026", status:"completed",
-    notes:"Confirm ART tag." },
+    notes:"Confirm ART tag with registrar." },
   { id:"psci239-s26", code:"PSCI 0239", title:"Future Great Power Relations", credits:1, grade:"A",
     tags:["CC_CMP"], prereqs:[], term:"Spring 2026", status:"completed",
-    notes:"Likely CMP (great-power comparison) or NOA if China-focused. Confirm with registrar." },
+    notes:"Likely CMP. May also carry a regional designation; confirm." },
 
-  // ----- Fall 2026 (in progress / registered) -----
+  // ----- Fall 2026 (registered, no projected grade yet) -----
   { id:"psyc105-f26", code:"PSYC 0105", title:"Introduction to Psychology", credits:1,
-    prospectiveGrade:"A-", tags:["NSCI_BG_PSYC","MED_PSYC","DIST_SOC"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+    tags:["NSCI_BG_PSYC","MED_PSYC","DIST_SOC"], prereqs:[], term:"Fall 2026", status:"in-progress" },
   { id:"engl103-f26", code:"ENGL 0103", title:"Reading Literature", credits:1,
-    prospectiveGrade:"B+", tags:["DIST_LIT","CW_SECOND","MED_ENG"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+    tags:["DIST_LIT","CW_SECOND","MED_ENG"], prereqs:[], term:"Fall 2026", status:"in-progress" },
   { id:"phil156-f26", code:"PHIL 0156", title:"Contemporary Moral Issues", credits:1,
-    prospectiveGrade:"B+", tags:["DIST_PHL"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+    tags:["DIST_PHL"], prereqs:[], term:"Fall 2026", status:"in-progress" },
   { id:"chem105-f26", code:"CHEM 0105", title:"General Chemistry", credits:1,
-    prospectiveGrade:"B", tags:["NSCI_BG_CHEM","MED_CHEM_GEN","DIST_SCI"], prereqs:[], term:"Fall 2026", status:"in-progress" },
+    tags:["NSCI_BG_CHEM","MED_CHEM_GEN","DIST_SCI"], prereqs:[], term:"Fall 2026", status:"in-progress" },
 
-  // ----- Winter 2027 -----
+  // ----- Winter 2027 (TBD) -----
   { id:"wt-2027", code:"WT 2027", title:"Winter 2027 TBD", credits:1,
     tags:["WINTER_TERM"], prereqs:[], term:"Winter 2027", status:"planned" },
 
-  // ----- Spring 2027 -----
-  { id:"chem205-sp27", code:"CHEM 0205", title:"Organic Chemistry I", credits:1, prospectiveGrade:"B",
-    tags:["MED_CHEM_GEN","MED_CHEM_ORG"], prereqs:["CHEM 0105"], term:"Spring 2027", status:"planned",
-    notes:"At Midd, CHEM 0205 also completes the Gen Chem prereq pair w/ CHEM 0105." },
-  { id:"biol145-sp27", code:"BIOL 0145", title:"Cell Biology and Genetics", credits:1, prospectiveGrade:"B+",
-    tags:["NSCI_BG_BIO","MED_BIO","DIST_SCI"], prereqs:[], term:"Spring 2027", status:"planned" },
-  { id:"nsci251-sp27", code:"NSCI 0251", title:"Brain and Behavior (Found I)", credits:1, prospectiveGrade:"B+",
-    tags:["NSCI_FOUND_251"], prereqs:["PSYC 0105"], term:"Spring 2027", status:"planned",
-    notes:"Not open to seniors." },
-  { id:"his-sp27", code:"HIST TBD", title:"History Distribution", credits:1, prospectiveGrade:"B+",
+  // ----- Spring 2027 (advisor plan) -----
+  { id:"chem205-sp27", code:"CHEM 0205", title:"Organic Chemistry I", credits:1,
+    tags:["DIST_SCI","MED_CHEM_GEN","MED_CHEM_ORG"], prereqs:["CHEM 0105"], term:"Spring 2027", status:"planned",
+    notes:"CHEM 0105 + CHEM 0205 together complete the 2-credit Gen Chem med-school prereq at Midd." },
+  { id:"biol145-sp27", code:"BIOL 0145", title:"Cell Biology and Genetics", credits:1,
+    tags:["DIST_SCI","NSCI_BG_BIO","MED_BIO"], prereqs:[], term:"Spring 2027", status:"planned" },
+  { id:"nsci251-sp27", code:"NSCI 0251", title:"Fundamentals of Cellular and Molecular Neuroscience", credits:1,
+    tags:["NSCI_FOUND_251","DIST_SCI"], prereqs:["BIOL 0145"], term:"Spring 2027", status:"planned",
+    notes:"Prereq is BIOL 0145 (AP biology not accepted). Open to seniors by waiver only." },
+  { id:"his-sp27", code:"HIST TBD", title:"History Distribution", credits:1,
     tags:["DIST_HIS"], prereqs:[], term:"Spring 2027", status:"planned" },
 
   // ----- Summer 2027 (transfer) -----
-  { id:"phys1-su27", code:"PHYS I TRF", title:"Physics I (Away — Transfer)", credits:1, prospectiveGrade:"B",
+  { id:"phys1-su27", code:"PHYS I TRF", title:"Physics I (Away — Transfer)", credits:1,
     tags:["MED_PHYS"], prereqs:[], term:"Summer 2027", status:"planned",
-    notes:"Transfer credit. Flag for committee letter." },
+    notes:"Transfer credit. Note for the HPC committee letter." },
 
   // ----- Fall 2027 -----
-  { id:"chem305-f27", code:"CHEM 0305", title:"Organic Chemistry II", credits:1, prospectiveGrade:"B",
-    tags:["MED_CHEM_ORG"], prereqs:["CHEM 0205"], term:"Fall 2027", status:"planned" },
-  { id:"nsci252-f27", code:"NSCI 0252", title:"Cellular & Molecular Neuro (Found II)", credits:1, prospectiveGrade:"B",
-    tags:["NSCI_FOUND_252"], prereqs:["NSCI 0251","BIOL 0145"], term:"Fall 2027", status:"planned" },
-  { id:"psyc201-f27", code:"PSYC 0201", title:"Psychological Statistics", credits:1, prospectiveGrade:"B+",
-    tags:["NSCI_BG_STATS","MED_STATS","DIST_DED"], prereqs:["PSYC 0105"], term:"Fall 2027", status:"planned" },
-  { id:"phys2-or-elec-f27", code:"PHYS II / NSCI Elec", title:"Physics II OR NSCI Elective", credits:1, prospectiveGrade:"B",
+  { id:"chem305-f27", code:"CHEM 0305", title:"Organic Chemistry II", credits:1,
+    tags:["DIST_SCI","MED_CHEM_ORG"], prereqs:["CHEM 0205"], term:"Fall 2027", status:"planned" },
+  { id:"nsci252-f27", code:"NSCI 0252", title:"Fundamentals of Behavioral Neuroscience", credits:1,
+    tags:["NSCI_FOUND_252","DIST_SCI"], prereqs:["PSYC 0105","NSCI 0251"], term:"Fall 2027", status:"planned",
+    notes:"Open to NSCI majors only; others by approval." },
+  { id:"psyc201-f27", code:"PSYC 0201", title:"Psychological Statistics", credits:1,
+    tags:["DIST_DED","NSCI_BG_STATS","MED_STATS"], prereqs:["PSYC 0105"], term:"Fall 2027", status:"planned" },
+  { id:"phys2-or-elec-f27", code:"PHYS / NSCI Elec", title:"Physics II OR NSCI Elective", credits:1,
     tags:["MED_PHYS"], prereqs:[], term:"Fall 2027", status:"planned",
-    notes:"Decide: Physics II at Midd vs. an NSCI elective. Adjust tags accordingly." },
+    notes:"Decide: Physics II at Midd vs. an NSCI elective. Edit tags once decided." },
 
   // ----- Spring 2028 -----
-  { id:"chem322-sp28", code:"CHEM 0322", title:"Biochemistry", credits:1, prospectiveGrade:"B",
-    tags:["MED_CHEM_BIO","NSCI_ELEC_BIO"], prereqs:["CHEM 0305"], term:"Spring 2028", status:"planned",
-    notes:"Often counts as both Biochem prereq and Biological NSCI elective — verify with major coordinator." },
-  { id:"nsci-elec2-sp28", code:"NSCI Elec 2", title:"NSCI Elective #2 (Psychological)", credits:1, prospectiveGrade:"B+",
-    tags:["NSCI_ELEC_PSYC"], prereqs:[], term:"Spring 2028", status:"planned" },
-  { id:"cc-sp28", code:"C&C TBD", title:"C&C Course", credits:1, prospectiveGrade:"B+",
+  { id:"chem322-sp28", code:"CHEM 0322", title:"Biochemistry of Macromolecules", credits:1,
+    tags:["DIST_SCI","MED_CHEM_BIO","NSCI_ELEC_BIO"], prereqs:["CHEM 0205"], term:"Spring 2028", status:"planned",
+    notes:"Often counts as both the Biochem prereq and a Biological NSCI elective — verify with the major coordinator." },
+  { id:"nsci-elec2-sp28", code:"NSCI Elec 2", title:"NSCI Elective #2 (Psychological)", credits:1,
+    tags:["NSCI_ELEC_PSYC"], prereqs:[], term:"Spring 2028", status:"planned",
+    notes:"Candidates: PSYC 0206 Brain Plasticity, PSYC/NSCI 0418, PSYC/NSCI 0437." },
+  { id:"cc-sp28", code:"C&C TBD", title:"C&C Course", credits:1,
     tags:["CC_AMR"], prereqs:[], term:"Spring 2028", status:"planned",
-    notes:"Pick region that closes the C&C gap." },
-  { id:"flex-sp28", code:"FLEX", title:"Flexible Course", credits:1, prospectiveGrade:"B+",
+    notes:"Pick a region that closes the C&C gap." },
+  { id:"flex-sp28", code:"FLEX", title:"Flexible Course", credits:1,
     tags:[], prereqs:[], term:"Spring 2028", status:"planned" },
 
   // ----- Fall 2028 -----
-  { id:"nsci-elec3-f28", code:"NSCI Elec 3", title:"NSCI Elective #3 (Philosophical)", credits:1, prospectiveGrade:"B+",
-    tags:["NSCI_ELEC_PHIL"], prereqs:[], term:"Fall 2028", status:"planned" },
-  { id:"nsci500-f28", code:"NSCI 0500", title:"Senior Seminar", credits:1, prospectiveGrade:"B+",
+  { id:"nsci-elec3-f28", code:"NSCI Elec 3", title:"NSCI Elective #3 (Philosophical)", credits:1,
+    tags:["NSCI_ELEC_PHIL"], prereqs:[], term:"Fall 2028", status:"planned",
+    notes:"Need to verify which PHIL courses currently carry the NSCI philosophical-elective designation." },
+  { id:"nsci500-f28", code:"NSCI 0500", title:"Senior Research", credits:1,
     tags:["NSCI_SENIOR"], prereqs:["NSCI 0252"], term:"Fall 2028", status:"planned" },
-  { id:"dist1-f28", code:"DIST TBD", title:"Distribution / C&C Course", credits:1, prospectiveGrade:"B+",
+  { id:"dist1-f28", code:"DIST TBD", title:"Distribution / C&C Course", credits:1,
     tags:["CC_NOA"], prereqs:[], term:"Fall 2028", status:"planned",
     notes:"Pick a region that closes the C&C gap (currently NOA — North Asia)." },
-  { id:"flex-f28", code:"FLEX", title:"Flexible Course", credits:1, prospectiveGrade:"B+",
+  { id:"flex-f28", code:"FLEX", title:"Flexible Course", credits:1,
     tags:[], prereqs:[], term:"Fall 2028", status:"planned" },
 
   // ----- Spring 2029 (light) -----
-  { id:"rem1-sp29", code:"REM 1", title:"Remaining Requirement", credits:1, prospectiveGrade:"A-",
+  { id:"rem1-sp29", code:"REM 1", title:"Remaining Requirement", credits:1,
     tags:[], prereqs:[], term:"Spring 2029", status:"planned" },
-  { id:"rem2-sp29", code:"REM 2", title:"Remaining Requirement", credits:1, prospectiveGrade:"A-",
+  { id:"rem2-sp29", code:"REM 2", title:"Remaining Requirement", credits:1,
     tags:[], prereqs:[], term:"Spring 2029", status:"planned" },
 ];
+
+/* =====================================================================
+   CATALOG — combines the bundled catalog.js with user-added entries
+   ===================================================================== */
+
+const USER_CATALOG_KEY = "compass_user_catalog_v1";
+
+function loadUserCatalog() {
+  try {
+    const raw = localStorage.getItem(USER_CATALOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveUserCatalog(list) {
+  try { localStorage.setItem(USER_CATALOG_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function getCatalog() {
+  const bundled = (window.COMPASS_CATALOG && window.COMPASS_CATALOG.courses) || [];
+  const user = loadUserCatalog();
+  // user entries override bundled by code
+  const byCode = new Map();
+  for (const c of bundled) byCode.set(c.code, { ...c, _source: "bundled" });
+  for (const c of user)    byCode.set(c.code, { ...c, _source: "user" });
+  return Array.from(byCode.values()).sort((a,b) => a.code.localeCompare(b.code));
+}
+
+function searchCatalog(query) {
+  const q = (query || "").trim().toLowerCase();
+  if (!q) return getCatalog();
+  return getCatalog().filter(c =>
+    c.code.toLowerCase().includes(q) ||
+    c.title.toLowerCase().includes(q) ||
+    (c.tags || []).some(t => t.toLowerCase().includes(q))
+  );
+}
 
 /* =====================================================================
    STORAGE
@@ -405,6 +450,13 @@ function reducer(state, action) {
         ...state,
         courses: state.courses.map(c =>
           c.id === action.id ? { ...c, term: action.term } : c
+        ),
+      };
+    case "clear_projected":
+      return {
+        ...state,
+        courses: state.courses.map(c =>
+          c.status === "completed" ? c : { ...c, prospectiveGrade: null }
         ),
       };
     case "reset":
@@ -578,12 +630,12 @@ function computeWarnings(courses) {
     }
   }
 
-  // NSCI 0251 not open to seniors
+  // NSCI 0251 — open to seniors by waiver only
   for (const c of courses) {
     if ((c.tags||[]).includes("NSCI_FOUND_251")) {
       if (c.term && (c.term.includes("2028") || c.term.includes("2029"))) {
-        warnings.push({ severity: "error", course: c.id,
-          message: `NSCI 0251 is not open to seniors. Currently placed in ${c.term}.` });
+        warnings.push({ severity: "warn", course: c.id,
+          message: `NSCI 0251 is open to seniors by waiver only. Currently placed in ${c.term}.` });
       }
     }
   }
@@ -725,6 +777,7 @@ function App() {
           {view === "requirements"  && <Requirements state={state} dispatch={dispatch} />}
           {view === "gpa"           && <GPAView state={state} dispatch={dispatch} />}
           {view === "courses"       && <CoursesView state={state} dispatch={dispatch} />}
+          {view === "catalog"       && <CatalogView state={state} dispatch={dispatch} />}
           {view === "settings"      && <SettingsView state={state} dispatch={dispatch} />}
         </div>
       </main>
@@ -741,6 +794,7 @@ function Sidebar({ view, setView, warnings }) {
     ["requirements", "Requirements"],
     ["gpa",          "GPA"],
     ["courses",      "Courses"],
+    ["catalog",      "Catalog"],
     ["settings",     "Settings"],
   ];
   const errors = warnings.filter(w => w.severity === "error").length;
@@ -1035,34 +1089,65 @@ function CourseCard({ course, onDragStart, onDragEnd, dispatch, warnings, draggi
                       "border-white/10";
   const hasErr = warnings.some(w => w.severity === "error");
   const hasWarn = warnings.some(w => w.severity === "warn");
+
+  const handleDragStart = (e) => {
+    e.dataTransfer.effectAllowed = "move";
+    // Firefox requires data to be set, or the drag never initiates
+    try { e.dataTransfer.setData("text/plain", course.id); } catch (_) {}
+    onDragStart();
+  };
+
   return (
     <div
       draggable
-      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(); }}
+      onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
-      className={`bg-ink-700 border ${statusColor} rounded p-2 text-xs cursor-grab active:cursor-grabbing ${dragging ? "dragging" : ""} ${hasErr ? "ring-1 ring-rose-500/40" : hasWarn ? "ring-1 ring-amber-500/30" : ""}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="font-mono font-semibold text-ink-100">{course.code}</div>
-          <div className="text-ink-300 truncate">{course.title}</div>
-        </div>
-        <div className="text-right shrink-0">
-          <div className={`font-mono font-semibold ${isProspective ? "text-ink-400" : "text-gold-400"}`}>
-            {grade || "—"}{isProspective && grade ? "*" : ""}
+      className={`group bg-ink-700 border ${statusColor} rounded text-xs ${dragging ? "dragging" : ""} ${hasErr ? "ring-1 ring-rose-500/40" : hasWarn ? "ring-1 ring-amber-500/30" : ""}`}>
+      {/* Drag handle row — explicit grab cursor + grip icon for discoverability */}
+      <div className="flex items-start gap-1.5 p-2 cursor-grab active:cursor-grabbing select-none">
+        <span className="text-ink-500 group-hover:text-ink-300 mt-0.5 font-mono leading-none" title="Drag to move between terms">⠿</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="font-mono font-semibold text-ink-100">{course.code}</div>
+              <div className="text-ink-300 truncate">{course.title}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className={`font-mono font-semibold ${isProspective ? "text-ink-400" : "text-gold-400"}`}>
+                {grade || "—"}{isProspective && grade ? "*" : ""}
+              </div>
+              <div className="text-[10px] text-ink-500">{course.credits} cr</div>
+            </div>
           </div>
-          <div className="text-[10px] text-ink-500">{course.credits} cr</div>
+          {course.tags && course.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {course.tags.map(t => <TagPill key={t} tag={t} />)}
+            </div>
+          )}
         </div>
       </div>
-      {course.tags && course.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-1.5">
-          {course.tags.map(t => <TagPill key={t} tag={t} />)}
-        </div>
-      )}
-      <button onClick={() => setOpen(o => !o)} className="text-[10px] text-ink-400 hover:text-ink-200 mt-1.5">
-        {open ? "▾ less" : "▸ edit"}
-      </button>
+
+      {/* Actions row — non-draggable so selects/buttons work cleanly */}
+      <div draggable={false} onMouseDown={(e) => e.stopPropagation()}
+           className="flex items-center justify-between gap-1 px-2 pb-2 -mt-1">
+        <select
+          value={course.term || ""}
+          onChange={(e) => dispatch({ type: "move_course", id: course.id, term: e.target.value || null })}
+          className="bg-ink-900 border border-white/10 rounded text-[10px] px-1 py-0.5 flex-1 min-w-0"
+          title="Move to a different term"
+        >
+          <option value="">— Unscheduled —</option>
+          {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <button onClick={() => setOpen(o => !o)} className="text-[10px] text-gold-400 hover:text-gold-300 px-1">
+          {open ? "close" : "edit"}
+        </button>
+      </div>
+
       {open && (
-        <CourseEditor course={course} dispatch={dispatch} compact onClose={() => setOpen(false)} />
+        <div draggable={false} onMouseDown={(e) => e.stopPropagation()} className="px-2 pb-2">
+          <CourseEditor course={course} dispatch={dispatch} compact onClose={() => setOpen(false)} />
+        </div>
       )}
     </div>
   );
@@ -1186,32 +1271,81 @@ function CourseEditor({ course, dispatch, compact, onClose }) {
   );
 }
 
-function AddCourseInline({ dispatch }) {
+function addCourseFromCatalog(entry, term, dispatch) {
+  const id = `${entry.code.replace(/\s+/g, "")}-${Math.random().toString(36).slice(2,7)}`.toLowerCase();
+  dispatch({ type: "add_course", course: {
+    id,
+    code: entry.code,
+    title: entry.title || "",
+    credits: entry.credits || 1,
+    tags: [...(entry.tags || [])],
+    prereqs: [...(entry.prereqs || [])],
+    notes: entry.notes || "",
+    term: term || null,
+    status: "planned",
+  }});
+}
+
+function AddCourseInline({ dispatch, defaultTerm }) {
   const [open, setOpen] = useState(false);
-  const [code, setCode] = useState("");
-  const [title, setTitle] = useState("");
-  const [term, setTerm] = useState("");
-  const add = () => {
+  const [query, setQuery] = useState("");
+  const [term, setTerm] = useState(defaultTerm || "");
+  const matches = useMemo(() => searchCatalog(query).slice(0, 8), [query]);
+
+  const addFromCatalog = (entry) => {
+    addCourseFromCatalog(entry, term, dispatch);
+    setQuery(""); setTerm(defaultTerm || ""); setOpen(false);
+  };
+  const addCustom = () => {
+    const code = query.trim();
     if (!code) return;
     const id = `${code.replace(/\s+/g, "")}-${Math.random().toString(36).slice(2,7)}`.toLowerCase();
     dispatch({ type: "add_course", course: {
-      id, code, title, credits: 1, tags: [], prereqs: [],
-      term: term || null, status: term ? "planned" : "planned",
+      id, code, title: "", credits: 1, tags: [], prereqs: [],
+      term: term || null, status: "planned",
     }});
-    setCode(""); setTitle(""); setTerm(""); setOpen(false);
+    setQuery(""); setTerm(defaultTerm || ""); setOpen(false);
   };
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative">
       {open ? (
-        <div className="flex items-center gap-1 bg-ink-800 border border-white/10 rounded px-2 py-1">
-          <input autoFocus className="bg-transparent w-24 text-xs outline-none font-mono" placeholder="CHEM 0105" value={code} onChange={e=>setCode(e.target.value)} />
-          <input className="bg-transparent w-32 text-xs outline-none" placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
-          <select className="bg-ink-900 border border-white/10 rounded text-xs px-1 py-0.5" value={term} onChange={e=>setTerm(e.target.value)}>
-            <option value="">unscheduled</option>
-            {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <button onClick={add} className="px-2 py-0.5 bg-gold-500 text-ink-900 rounded text-xs font-semibold">Add</button>
-          <button onClick={() => setOpen(false)} className="text-ink-400 text-xs px-1">×</button>
+        <div className="absolute right-0 top-0 z-30 bg-ink-800 border border-white/10 rounded p-2 w-[28rem] shadow-lg">
+          <div className="flex items-center gap-1">
+            <input autoFocus className="flex-1 bg-ink-900 border border-white/10 rounded px-2 py-1 text-xs font-mono"
+                   placeholder="Search catalog (BIOL 0145, biochem, …) or type new course code"
+                   value={query} onChange={e=>setQuery(e.target.value)} />
+            <select className="bg-ink-900 border border-white/10 rounded text-xs px-1 py-1" value={term} onChange={e=>setTerm(e.target.value)}>
+              <option value="">unscheduled</option>
+              {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <button onClick={() => setOpen(false)} className="text-ink-400 text-xs px-1" title="Close">×</button>
+          </div>
+          <div className="mt-2 max-h-64 overflow-y-auto thin-scroll">
+            {matches.length === 0 && (
+              <div className="px-2 py-3 text-xs text-ink-400">
+                No catalog matches. <button onClick={addCustom} className="text-gold-400 hover:text-gold-300 underline">Add "{query}" as a custom course</button>
+              </div>
+            )}
+            {matches.map(entry => (
+              <button key={entry.code} onClick={() => addFromCatalog(entry)}
+                      className="w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-xs flex items-start gap-2">
+                <span className="font-mono font-semibold text-ink-100 shrink-0 w-20">{entry.code}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="text-ink-200">{entry.title}</span>
+                  <span className="flex flex-wrap gap-1 mt-0.5">
+                    {(entry.tags || []).slice(0, 6).map(t => <TagPill key={t} tag={t} />)}
+                  </span>
+                </span>
+                {entry.verified === false && <span className="text-[10px] text-amber-300 shrink-0" title="Tags not yet verified against the official catalog">unverified</span>}
+              </button>
+            ))}
+            {matches.length > 0 && query && !matches.find(m => m.code.toLowerCase() === query.toLowerCase()) && (
+              <button onClick={addCustom} className="w-full text-left px-2 py-1.5 hover:bg-white/5 rounded text-xs text-gold-400">
+                + Add "{query}" as a custom course
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <button onClick={() => setOpen(true)} className="text-xs text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded px-2 py-1">+ Add Course</button>
@@ -1525,6 +1659,154 @@ function CoursesView({ state, dispatch }) {
 }
 
 /* =====================================================================
+   CATALOG VIEW — browse + add courses; user can extend the catalog
+   ===================================================================== */
+
+function CatalogView({ state, dispatch }) {
+  const [query, setQuery] = useState("");
+  const [tick, setTick] = useState(0);
+  const matches = useMemo(() => searchCatalog(query), [query, tick]);
+  const onSchedule = useMemo(() => new Set(state.courses.map(c => c.code)), [state.courses]);
+
+  const meta = window.COMPASS_CATALOG || { version: "unknown", source: "" };
+  const userEntries = useMemo(() => loadUserCatalog(), [tick]);
+
+  const addEntry = (entry, term = null) => addCourseFromCatalog(entry, term, dispatch);
+
+  const removeUserEntry = (code) => {
+    const next = loadUserCatalog().filter(c => c.code !== code);
+    saveUserCatalog(next);
+    setTick(n => n + 1);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Catalog</h2>
+        <AddCatalogEntry onAdded={() => setTick(n => n + 1)} />
+      </div>
+
+      <Card>
+        <div className="px-4 py-3 border-b border-white/5 text-xs text-ink-400">
+          <span className="text-ink-200">Compass catalog v{meta.version}</span> · {meta.source}
+          <div className="text-[11px] mt-1">
+            Bundled: {((window.COMPASS_CATALOG && window.COMPASS_CATALOG.courses) || []).length} courses ·
+            Your additions: {userEntries.length} ·
+            Don't see a course? Use "+ Add Catalog Entry" or just add it directly to your plan from the Schedule.
+          </div>
+        </div>
+        <div className="px-4 py-2 border-b border-white/5">
+          <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1.5 text-sm font-mono"
+                 placeholder="Search by code, title, or tag…" value={query}
+                 onChange={e => setQuery(e.target.value)} />
+        </div>
+        <table className="w-full text-sm">
+          <thead className="text-[11px] uppercase tracking-wide text-ink-400 bg-white/[0.02]">
+            <tr>
+              <th className="text-left px-4 py-2">Code</th>
+              <th className="text-left px-4 py-2">Title</th>
+              <th className="text-right px-4 py-2">Cr</th>
+              <th className="text-left px-4 py-2">Tags</th>
+              <th className="text-left px-4 py-2">Prereqs</th>
+              <th className="text-right px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {matches.length === 0 && (
+              <tr><td colSpan="6" className="px-4 py-6 text-center text-sm text-ink-400">No matches.</td></tr>
+            )}
+            {matches.map(entry => {
+              const planned = onSchedule.has(entry.code);
+              return (
+                <tr key={entry.code} className="border-t border-white/5 hover:bg-white/[0.02]">
+                  <td className="px-4 py-2 font-mono font-semibold text-ink-100 whitespace-nowrap">
+                    {entry.code}
+                    {entry._source === "user" && <span className="ml-1 text-[10px] text-sky-300">·user</span>}
+                    {entry.verified === false && <span className="ml-1 text-[10px] text-amber-300" title="Tags not verified against the official catalog">·unv</span>}
+                  </td>
+                  <td className="px-4 py-2 text-ink-200">
+                    {entry.title}
+                    {entry.notes && <div className="text-[11px] text-ink-400 mt-0.5">{entry.notes}</div>}
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono">{entry.credits || 1}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex flex-wrap gap-1">
+                      {(entry.tags || []).map(t => <TagPill key={t} tag={t} />)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 font-mono text-[11px] text-ink-300">
+                    {(entry.prereqs || []).join(", ") || "—"}
+                  </td>
+                  <td className="px-4 py-2 text-right whitespace-nowrap">
+                    {planned ? (
+                      <span className="text-[11px] text-emerald-300">on plan</span>
+                    ) : (
+                      <button onClick={() => addEntry(entry)}
+                              className="text-xs text-gold-400 hover:text-gold-300">+ add</button>
+                    )}
+                    {entry._source === "user" && (
+                      <button onClick={() => removeUserEntry(entry.code)}
+                              className="text-xs text-rose-400 hover:text-rose-300 ml-2">remove</button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
+function AddCatalogEntry({ onAdded }) {
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
+  const [prereqs, setPrereqs] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const save = () => {
+    if (!code.trim()) return;
+    const entry = {
+      code: code.trim(),
+      title: title.trim(),
+      credits: 1,
+      tags: tags.split(",").map(s => s.trim()).filter(Boolean),
+      prereqs: prereqs.split(",").map(s => s.trim()).filter(Boolean),
+      notes: notes.trim() || undefined,
+      verified: false,
+    };
+    const list = loadUserCatalog().filter(c => c.code !== entry.code);
+    list.push(entry);
+    saveUserCatalog(list);
+    setCode(""); setTitle(""); setTags(""); setPrereqs(""); setNotes("");
+    setOpen(false);
+    onAdded && onAdded();
+  };
+
+  if (!open) {
+    return <button onClick={() => setOpen(true)} className="text-xs text-gold-400 hover:text-gold-300 border border-gold-500/30 rounded px-2 py-1">+ Add Catalog Entry</button>;
+  }
+  return (
+    <div className="bg-ink-800 border border-white/10 rounded p-3 w-[32rem] space-y-2 text-xs">
+      <div className="grid grid-cols-2 gap-2">
+        <input className="bg-ink-900 border border-white/10 rounded px-2 py-1 font-mono" placeholder="Code (e.g. NSCI 0410)" value={code} onChange={e => setCode(e.target.value)} />
+        <input className="bg-ink-900 border border-white/10 rounded px-2 py-1" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
+      </div>
+      <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1 font-mono" placeholder="Tags (comma sep: DIST_SCI, NSCI_ELEC_BIO)" value={tags} onChange={e => setTags(e.target.value)} />
+      <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1 font-mono" placeholder="Prereqs (comma sep: BIOL 0145, PSYC 0105)" value={prereqs} onChange={e => setPrereqs(e.target.value)} />
+      <input className="w-full bg-ink-900 border border-white/10 rounded px-2 py-1" placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} />
+      <div className="flex justify-end gap-2">
+        <button onClick={() => setOpen(false)} className="text-ink-400 hover:text-ink-200">Cancel</button>
+        <button onClick={save} className="px-3 py-1 bg-gold-500 text-ink-900 rounded font-semibold">Save</button>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
    SETTINGS / IMPORT-EXPORT / RESET
    ===================================================================== */
 
@@ -1565,8 +1847,12 @@ function SettingsView({ state, dispatch }) {
 
       <Card title="Backup / Restore">
         <div className="p-4 space-y-3 text-sm">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={exportJSON} className="px-3 py-1.5 bg-gold-500 text-ink-900 rounded font-semibold text-xs">Export JSON</button>
+            <button onClick={() => { if (confirm("Clear projected grades on every planned / in-progress course?")) dispatch({ type: "clear_projected" }); }}
+                    className="px-3 py-1.5 bg-ink-700 text-ink-100 border border-white/10 rounded text-xs">
+              Clear All Projected Grades
+            </button>
             <button onClick={reset} className="px-3 py-1.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded text-xs">Reset to Seed Data</button>
           </div>
           <div>
