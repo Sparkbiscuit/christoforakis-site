@@ -2,5 +2,12 @@
 Super Visuals_ Backgrounds Library..fig
 .fig-preview/
 
+# Family photo originals stay local; production copies are metadata-free assets/photos files
+foxy/*.jpeg
+foxy/*.jpg
+foxy/*.heic
+foxy/*.HEIC
+foxy/.previews/
+
 # Local editor files
 .DS_Store

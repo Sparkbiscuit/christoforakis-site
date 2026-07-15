@@ -127,11 +127,11 @@
     }
 
     const startedAt = performance.now();
-    const duration = 900;
+    const duration = 1500;
     const tick = (now) => {
       const progress = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      number.textContent = String(Math.round(target * eased));
+      const eased = 1 - Math.pow(1 - progress, 2);
+      number.textContent = String(progress < 1 ? Math.floor(target * eased) : target);
       if (progress < 1) {
         requestAnimationFrame(tick);
       } else if (container) {
