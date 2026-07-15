@@ -4,7 +4,7 @@ A small, expressive family website: one shared front door, six individual worlds
 
 The site is intentionally built as a static website. It has no framework, package manager, database, build pipeline, or server-side application. HTML, CSS, browser JavaScript, JSON, and image assets are all that is required to run it. Publishing from the private writing room uses GitHub's Contents API to update those same JSON and image files.
 
-> Project status: the redesign is implemented locally. Publishing or deploying it is a separate, deliberate step.
+> Project status: the redesign and photographic profile-enrichment pass are implemented in this repository. Publishing or deploying the site is a separate, deliberate step.
 
 ## Contents
 
@@ -32,12 +32,12 @@ The site is intentionally built as a static website. It has no framework, packag
 
 The landing page is a map rather than a conventional stack of profile cards. Each member of the family occupies a distinct visual region, built from the supplied Super Visuals background library:
 
-- Nicholas: Middlebury and Loom, his time-aware ADHD scheduling app.
-- Andreas: a high-school-senior page ready for more detail later.
-- Lukas: an illustrated interest board for airliners, U.S. military jets, and Formula 1.
+- Nicholas: Middlebury and an expanded view of Loom, his time-aware ADHD scheduling app.
+- Andreas: an intentionally unwritten high-school-senior page with room for his own words later.
+- Lukas: a photographic interest board for airliners, U.S. military jets, and Formula 1.
 - Oksana: a personal notebook for photographs and written posts.
-- Kiriakos: a small-business-owner page ready for more detail later.
-- Foxy: the family's orange, cream, and black shepherd mix.
+- Kiriakos: an intentionally open small-business-owner page that does not invent details before he supplies them.
+- Foxy: the family's orange, cream, and black shepherd mix, now represented by a family-photo gallery.
 
 Lukas's medical and family updates have moved out of the landing page and into a searchable archive at `/updates/`. The newest update is still surfaced on the home page, so important news remains easy to find without defining the entire family landing experience.
 
@@ -47,11 +47,11 @@ Lukas's medical and family updates have moved out of the landing page and into a
 | --- | --- | --- |
 | `/` | Magical family landing page and latest-update preview | `index.html`, `posts.json` |
 | `/nicholas/` | Nicholas, Middlebury, and Loom | `nicholas/index.html` |
-| `/andreas/` | Andreas's profile placeholder | `andreas/index.html` |
+| `/andreas/` | Andreas's reserved profile space | `andreas/index.html` |
 | `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html` |
 | `/oksana/` | Oksana's notebook and photograph feed | `oksana/index.html`, `blog-posts.json` |
-| `/kiriakos/` | Kiriakos's profile placeholder | `kiriakos/index.html` |
-| `/foxy/` | Foxy's profile | `foxy/index.html` |
+| `/kiriakos/` | Kiriakos's reserved profile space | `kiriakos/index.html` |
+| `/foxy/` | Foxy's portrait and family-photo gallery | `foxy/index.html`, `assets/photos/` |
 | `/updates/` | Searchable archive of Lukas's family updates | `updates/index.html`, `posts.json` |
 | `/admin.html` | Private browser-based writing room | `admin.html`, GitHub Contents API |
 | `/planner/` | Existing planner retained from the previous site | `planner/index.html` |
@@ -71,6 +71,7 @@ christoforakis.com/
 ├── og-image.png                  # Existing social image
 ├── README.md
 ├── CONTENT-GUIDE.md
+├── IMAGE-CREDITS.md              # Provenance and licenses for production photography
 ├── assets/
 │   ├── backgrounds/
 │   │   ├── landing.webp
@@ -80,6 +81,15 @@ christoforakis.com/
 │   │   ├── oksana.webp
 │   │   ├── kiriakos.webp
 │   │   └── foxy.webp
+│   ├── interests/                # Credited aircraft and motorsport photographs
+│   │   ├── airliner.jpg
+│   │   ├── f22-raptor.jpg
+│   │   └── formula-one.jpg
+│   ├── photos/                   # Metadata-free family-owned production copies
+│   │   ├── foxy-autumn.jpg
+│   │   ├── foxy-deep-snow.jpg
+│   │   ├── foxy-family-day.jpg
+│   │   └── foxy-first-snow.jpg
 │   ├── css/
 │   │   ├── site.css              # Public-page layout and components
 │   │   └── admin.css             # Writing-room styles
@@ -102,7 +112,9 @@ christoforakis.com/
     └── log.json                  # Hallmark design log
 ```
 
-The local source file `Super Visuals_ Backgrounds Library..fig` and the temporary `.fig-preview/` extraction workspace are intentionally ignored by Git. The optimized images actually used by the site live in `assets/backgrounds/`.
+The local source file `Super Visuals_ Backgrounds Library..fig` and the temporary `.fig-preview/` extraction workspace are intentionally ignored by Git. The optimized images actually used by the site live in `assets/backgrounds/`, `assets/interests/`, and `assets/photos/`.
+
+Family-photo originals live locally in `foxy/` and are ignored by Git in every supported extension. Only resized, metadata-free derivatives belong in `assets/photos/`. This separation is deliberate: it keeps full-resolution camera files and embedded location data out of repository history.
 
 ## How the site works
 
@@ -139,9 +151,9 @@ There is no separate admin server. When an authorized author presses **Publish c
 
 The site uses a custom Hallmark treatment built on these foundations:
 
-- Macrostructure: **Map / Diagram**. The family is presented as six destinations instead of a repetitive card grid.
+- Macrostructure: **Map / Diagram** for the shared landing hub, enriched with a **Photographic** profile treatment. The family is presented as six destinations, while profile pages use one composition suited to the person rather than a repeated card template.
 - Theme foundation: **Hum**. Warm off-white surfaces, dark ink, compact labels, and bright color accents keep the experience lively without making it childish.
-- Imagery: optimized crops derived from the user-supplied Super Visuals Figma library.
+- Imagery: optimized crops derived from the user-supplied Super Visuals Figma library, family-owned photographs, and three self-hosted credited images on Lukas's page.
 - Interaction: Apple-inspired physical feedback, restrained spring-like motion, spatial consistency, translucent material only where it supports navigation, and a complete reduced-motion path.
 
 ### Tokens
@@ -165,16 +177,19 @@ The CSS includes system fallbacks. If the font request is blocked, the site rema
 - Statement footer: “Five people. One dog. Plenty happening.”
 - Optional reveal motion that is disabled when reduced motion is requested.
 
-### Background asset policy
+### Image asset policy
 
-The seven production background files are WebP images sized for the site, rather than full-resolution design exports. When replacing one:
+The seven production background files are WebP images sized for the site, rather than full-resolution design exports. The Foxy gallery uses family-owned JPEG derivatives, and Lukas's interests use licensed or public-domain JPEGs documented in `IMAGE-CREDITS.md`. When replacing or adding any image:
 
 1. Start with a licensed or family-owned source.
 2. Export an image large enough for a high-density display, but no larger than needed.
-3. Prefer WebP for photographic or texture-heavy art.
+3. Prefer WebP for photographic or texture-heavy art when the local toolchain supports it; an optimized JPEG is acceptable for credited or family photography.
 4. Check the crop at wide desktop and narrow mobile widths.
 5. Keep the original design source outside Git unless it is genuinely needed by collaborators.
 6. Confirm that the total page weight remains reasonable.
+7. Strip embedded location and camera metadata from public family photographs.
+8. Record third-party attribution, licensing, and modifications in `IMAGE-CREDITS.md`.
+9. Keep full-resolution family originals outside Git.
 
 ## Content files and schemas
 
@@ -497,7 +512,7 @@ At minimum, test:
 | Family menu | Directory fits viewport | Directory scrolls internally | First link receives focus; Escape returns focus |
 | Updates | Seven existing entries load; pinned entry leads | Search and details remain usable | Search, details, and share button are reachable |
 | Oksana notebook | Empty or populated state is intentional | Images do not overflow | Links and posts follow reading order |
-| Profiles | Hero and calls to action are legible | No clipped heading or artwork | Focus state is visible |
+| Profiles | Distinct compositions and photography render cleanly | No clipped heading, artwork, gallery, or horizontal scroll | Focus state is visible; credits disclosure is reachable |
 | Writing room | Setup/login/editor layouts fit | Editor controls remain usable | Labels, tab controls, and actions are reachable |
 
 Also test with the operating system's **Reduce Motion** setting enabled. Reveals and decorative bursts should be removed without hiding content.
@@ -539,6 +554,8 @@ Before publishing, check for:
 Assume that a published post can be copied, archived, quoted, and retained even after it is removed from the site. Deleting a post from the current JSON does not erase it from Git history or third-party caches.
 
 For health information, write from the family's direct experience, avoid implying medical advice, and have another family member review high-stakes claims before publishing.
+
+The Foxy source photographs are a special case: originals stay local in `foxy/`, while only resized copies with EXIF and GPS metadata removed are committed under `assets/photos/`. Never force-add the ignored originals. The visible family photograph should also be re-reviewed if the family's preference about showing identifiable people changes.
 
 ## Troubleshooting
 
@@ -626,6 +643,8 @@ These choices keep the site fast, legible, easy to host, and inexpensive to main
 - Confirm New and Pinned flags are intentional.
 - Review privacy and medical details.
 - Check every photograph and its description.
+- Confirm newly added third-party images have a complete `IMAGE-CREDITS.md` entry.
+- Confirm new family photographs are optimized derivatives with metadata removed, not originals.
 - Preview the public page after publishing.
 
 ### Monthly
