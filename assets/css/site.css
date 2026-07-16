@@ -102,7 +102,7 @@ summary:focus-visible {
   position: fixed;
   top: var(--space-md);
   left: var(--space-md);
-  z-index: 1000;
+  z-index: var(--z-skip-link);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-pill);
   background: var(--color-ink);
@@ -510,7 +510,7 @@ summary:focus-visible {
 
 .home-intro {
   display: grid;
-  min-height: calc(76vh - var(--header-height));
+  min-height: calc(76dvh - var(--header-height));
   grid-template-columns: minmax(0, 0.82fr) minmax(18rem, 1.18fr);
   align-items: end;
   gap: clamp(var(--space-xl), 7vw, 8rem);
@@ -776,7 +776,7 @@ summary:focus-visible {
 .profile-hero {
   position: relative;
   display: grid;
-  min-height: calc(88vh - var(--header-height));
+  min-height: calc(88dvh - var(--header-height));
   grid-template-columns: minmax(17rem, 0.76fr) minmax(24rem, 1.24fr);
   align-items: stretch;
   gap: clamp(var(--space-xl), 5vw, var(--space-4xl));
@@ -1455,6 +1455,7 @@ summary:focus-visible {
 .journal-post__image {
   width: 100%;
   max-height: 38rem;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
@@ -1477,7 +1478,7 @@ summary:focus-visible {
 }
 
 .post-badge {
-  padding: 0.25rem 0.75rem;
+  padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-pill);
   color: var(--color-accent-ink);
   background: var(--color-accent);
@@ -1582,7 +1583,7 @@ summary:focus-visible {
 .search-field {
   width: min(100%, 32rem);
   min-height: 3.25rem;
-  padding: 0.75rem 1rem;
+  padding: var(--space-sm) var(--space-md);
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: var(--radius-pill);
   background: var(--color-surface);
@@ -1727,7 +1728,7 @@ summary:focus-visible {
 
 .star-burst {
   position: fixed;
-  z-index: 1000;
+  z-index: var(--z-burst);
   width: 24px;
   height: 24px;
   background: linear-gradient(90deg, var(--color-clear) 47%, var(--color-accent-3) 47% 53%, var(--color-clear) 53%), linear-gradient(0deg, var(--color-clear) 47%, var(--color-accent-3) 47% 53%, var(--color-clear) 53%);

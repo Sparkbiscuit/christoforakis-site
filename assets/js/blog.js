@@ -23,6 +23,8 @@
       image.className = "journal-post__image";
       image.src = post.image;
       image.alt = post.imageAlt || "";
+      image.width = 1600;
+      image.height = 1200;
       image.loading = "lazy";
       image.decoding = "async";
       article.appendChild(image);
