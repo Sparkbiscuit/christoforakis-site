@@ -92,4 +92,7 @@
   --page-max: 92rem;
   --reading-max: 46rem;
   --header-height: 4.5rem;
+
+  --z-skip-link: 1000;
+  --z-burst: 1000;
 }

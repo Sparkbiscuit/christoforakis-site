@@ -180,7 +180,10 @@
       const date = document.querySelector("[data-latest-date]");
       const excerpt = document.querySelector("[data-latest-excerpt]");
       title.textContent = latest.title;
-      if (date) date.textContent = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${latest.date}T12:00:00Z`));
+      if (date) {
+        date.dateTime = latest.date;
+        date.textContent = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${latest.date}T12:00:00Z`));
+      }
       if (excerpt && latest.body && latest.body.length) {
         const source = latest.body.find((part) => String(part).length > 70) || latest.body[0];
         const compact = String(source).replace(/\s+/g, " ").trim();
