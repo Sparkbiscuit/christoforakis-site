@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Local design assets (too large / not part of the site)
+*.fig
+.fig-preview/
+
+# Personal photos not published on the site
+foxy/
+
+# Local tooling
+.claude/
