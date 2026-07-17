@@ -95,7 +95,6 @@ christoforakis.com/
 │   │   └── admin.css             # Writing-room styles
 │   ├── js/
 │   │   ├── site.js               # Shared navigation, footer, motion, latest update
-│   │   ├── updates.js            # Updates feed, search, share links
 │   │   ├── blog.js               # Oksana notebook feed
 │   │   └── admin.js              # Authentication, editor, upload, publishing
 │   └── uploads/                  # Created automatically after notebook image uploads
@@ -412,7 +411,7 @@ Start in `tokens.css`. Component-specific layout belongs in `assets/css/site.css
 
 ### Change shared navigation or footer content
 
-Edit `headerMarkup()` or `footerMarkup()` in `assets/js/site.js`. Because these are shared templates, test at least the landing page, a profile page, the updates page, and mobile navigation afterward.
+Edit `headerMarkup()` or `footerMarkup()` in `assets/js/site.js`. Because these are shared templates, test at least the landing page, a profile page, and mobile navigation afterward. (The updates page is self-contained and renders its own header and footer.)
 
 ### Edit posts without the writing room
 
@@ -481,7 +480,6 @@ There is no bundled test runner, so verification combines syntax checks, JSON va
 
 ```bash
 node --check assets/js/site.js
-node --check assets/js/updates.js
 node --check assets/js/blog.js
 node --check assets/js/admin.js
 ```
@@ -510,7 +508,7 @@ At minimum, test:
 | --- | --- | --- | --- |
 | Landing map | No overlap; backgrounds crop well | One-column map; no horizontal scroll | Family menu opens and closes |
 | Family menu | Directory fits viewport | Directory scrolls internally | First link receives focus; Escape returns focus |
-| Updates | Seven existing entries load; pinned entry leads | Search and details remain usable | Search, details, and share button are reachable |
+| Updates | Seven existing entries load; pinned entry leads | Search and read-more remain usable | Search, read-more, and share button are reachable |
 | Oksana notebook | Empty or populated state is intentional | Images do not overflow | Links and posts follow reading order |
 | Profiles | Distinct compositions and photography render cleanly | No clipped heading, artwork, gallery, or horizontal scroll | Focus state is visible; credits disclosure is reachable |
 | Writing room | Setup/login/editor layouts fit | Editor controls remain usable | Labels, tab controls, and actions are reachable |
