@@ -1,0 +1,98 @@
+/* Hallmark · macrostructure: Map / Diagram · tone: playful atmospheric · anchor hue: pear */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
+:root {
+  color-scheme: light;
+
+  --color-paper: oklch(97% 0.012 95);
+  --color-paper-2: oklch(94% 0.016 95);
+  --color-paper-3: oklch(91% 0.02 95);
+  --color-ink: oklch(20% 0.012 250);
+  --color-ink-soft: oklch(20% 0.012 250 / 0.72);
+  --color-ink-faint: oklch(20% 0.012 250 / 0.5);
+  --color-ink-ghost: oklch(20% 0.012 250 / 0.12);
+  --color-clear: oklch(100% 0.005 95 / 0);
+
+  --color-accent: oklch(86% 0.18 95);
+  --color-accent-ink: oklch(20% 0.012 250);
+  --color-accent-deep: oklch(65% 0.16 95);
+  --color-accent-soft: oklch(86% 0.18 95 / 0.18);
+  --color-accent-2: oklch(66% 0.18 235);
+  --color-accent-2-deep: oklch(48% 0.16 235);
+  --color-accent-2-soft: oklch(66% 0.18 235 / 0.14);
+  --color-accent-3: oklch(68% 0.24 18);
+  --color-accent-3-deep: oklch(49% 0.2 18);
+  --color-accent-3-soft: oklch(68% 0.24 18 / 0.12);
+  --color-mint: oklch(80% 0.16 150);
+  --color-mint-deep: oklch(48% 0.13 150);
+  --color-mint-soft: oklch(80% 0.16 150 / 0.15);
+  --color-lavender: oklch(74% 0.16 305);
+  --color-lavender-deep: oklch(47% 0.15 305);
+  --color-lavender-soft: oklch(74% 0.16 305 / 0.14);
+
+  --color-surface: oklch(99% 0.006 95);
+  --color-surface-soft: oklch(98% 0.01 95 / 0.88);
+  --color-surface-glass: oklch(97% 0.012 95 / 0.82);
+  --color-rule: oklch(20% 0.012 250 / 0.14);
+  --color-rule-strong: oklch(20% 0.012 250 / 0.24);
+  --color-focus: oklch(48% 0.16 235);
+  --color-success: oklch(62% 0.16 150);
+  --color-success-deep: oklch(39% 0.12 150);
+  --color-success-soft: oklch(62% 0.16 150 / 0.12);
+  --color-error: oklch(58% 0.22 25);
+  --color-error-deep: oklch(42% 0.18 25);
+  --color-error-soft: oklch(58% 0.22 25 / 0.11);
+  --color-image-scrim: oklch(16% 0.018 250 / 0.72);
+  --color-image-scrim-soft: oklch(16% 0.018 250 / 0.28);
+  --color-overlay: oklch(14% 0.018 250 / 0.32);
+
+  --font-display: "Plus Jakarta Sans", "Arial Rounded MT Bold", ui-rounded, system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Arial Rounded MT Bold", ui-rounded, system-ui, sans-serif;
+  --font-label: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-body: 1rem;
+  --text-body-lg: clamp(1.05rem, 1.4vw, 1.22rem);
+  --text-title: clamp(1.8rem, 4vw, 3.5rem);
+  --text-display-s: clamp(3rem, 8vw, 7rem);
+  --text-display: clamp(3.5rem, 10vw, 9.5rem);
+
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-section: clamp(4.5rem, 10vw, 9rem);
+  --space-gutter: clamp(1rem, 3vw, 2.5rem);
+
+  --radius-input: 0.75rem;
+  --radius-card: 1.5rem;
+  --radius-card-lg: 2.25rem;
+  --radius-pill: 999px;
+
+  --rule-thin: 1px;
+  --rule-thick: 2px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-ui: 180ms;
+  --dur-reveal: 560ms;
+
+  --shadow-card: 0 2px 4px oklch(20% 0.012 250 / 0.06), 0 18px 42px -22px oklch(20% 0.012 250 / 0.3);
+  --shadow-card-hover: 0 4px 8px oklch(20% 0.012 250 / 0.08), 0 28px 54px -20px oklch(20% 0.012 250 / 0.34);
+  --shadow-menu: 0 8px 20px oklch(20% 0.012 250 / 0.1), 0 38px 80px -30px oklch(20% 0.012 250 / 0.38);
+  --shadow-focus: 0 0 0 4px oklch(48% 0.16 235 / 0.22);
+
+  --page-max: 92rem;
+  --reading-max: 46rem;
+  --header-height: 4.5rem;
+
+  --z-skip-link: 1000;
+  --z-burst: 1000;
+}

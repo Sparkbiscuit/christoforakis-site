@@ -1,0 +1,20 @@
+{
+  "date": "2026-07-15",
+  "framework": "vanilla HTML, CSS, and JavaScript",
+  "font_stack_found": "Instrument Serif and Inter in inline page styles",
+  "palette_found": "warm neutral hex tokens in inline page styles",
+  "motion_found": "handwritten CSS and JavaScript transitions",
+  "spacing_found": "page-local values without a shared scale",
+  "preserve": [
+    "static hosting model",
+    "posts.json content",
+    "GitHub Contents API publishing model",
+    "planner route"
+  ],
+  "introduce": [
+    "shared OKLCH tokens",
+    "Map / Diagram macrostructure",
+    "Hum motion and interaction discipline",
+    "shared responsive family navigation"
+  ]
+}

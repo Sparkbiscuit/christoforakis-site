@@ -1,12 +1,17 @@
-# macOS
-.DS_Store
-
-# Local design assets (too large / not part of the site)
+# Large local design source and inspection artifacts
+Super Visuals_ Backgrounds Library..fig
 *.fig
 .fig-preview/
 
-# Personal photos not published on the site
-foxy/
+# Family photo originals stay local; production copies are metadata-free assets/photos files
+foxy/*.jpeg
+foxy/*.jpg
+foxy/*.heic
+foxy/*.HEIC
+foxy/.previews/
+
+# Local editor files
+.DS_Store
 
 # Local tooling
 .claude/
