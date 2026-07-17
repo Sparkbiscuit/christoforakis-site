@@ -1,5 +1,6 @@
 # Large local design source and inspection artifacts
 Super Visuals_ Backgrounds Library..fig
+*.fig
 .fig-preview/
 
 # Family photo originals stay local; production copies are metadata-free assets/photos files
@@ -11,3 +12,6 @@ foxy/.previews/
 
 # Local editor files
 .DS_Store
+
+# Local tooling
+.claude/
