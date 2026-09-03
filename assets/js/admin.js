@@ -77,6 +77,10 @@
     dirty: false,
     token: "",
     pendingImage: null,
+    pendingImages: new Map(),
+    loadGeneration: 0,
+    publishing: false,
+    loading: false,
     previewUrl: "",
     deleted: null,
     undoTimer: null
@@ -246,6 +250,7 @@
   function renderImagePreview(record) {
     if (!elements.imagePreview) return;
     elements.imagePreview.replaceChildren();
+    clearPreviewUrl();
     const source = state.pendingImage ? (state.previewUrl = URL.createObjectURL(state.pendingImage)) : record.image;
     if (source) {
       const image = document.createElement("img");
@@ -281,9 +286,11 @@
   }
 
   function selectRecord(id) {
+    if (state.publishing || state.loading) return;
     if (state.selectedId) updateRecordFromForm();
     state.selectedId = id;
-    state.pendingImage = null;
+    state.pendingImage = state.pendingImages.get(id) || null;
+    elements.image.value = "";
     clearPreviewUrl();
     const record = currentRecord();
     if (!record) {
@@ -308,6 +315,7 @@
   }
 
   function newRecord() {
+    if (state.publishing || state.loading) return;
     if (state.selectedId) updateRecordFromForm();
     const now = new Date();
     const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -343,6 +351,8 @@
   }
 
   function deleteRecord() {
+    if (state.publishing || state.loading) return;
+    updateRecordFromForm();
     const index = state.records.findIndex((record) => record.id === state.selectedId);
     if (index < 0) return;
     const [record] = state.records.splice(index, 1);
@@ -353,14 +363,14 @@
   }
 
   function undoDelete() {
-    if (!state.deleted) return;
+    if (!state.deleted || state.publishing || state.loading) return;
+    const restoredId = state.deleted.record.id;
     state.records.splice(state.deleted.index, 0, state.deleted.record);
-    state.selectedId = state.deleted.record.id;
     state.deleted = null;
     elements.undo.hidden = true;
     window.clearTimeout(state.undoTimer);
     markDirty();
-    selectRecord(state.selectedId);
+    selectRecord(restoredId);
   }
 
   function validateEditor(record) {
@@ -388,19 +398,29 @@
   }
 
   async function publish() {
-    const record = updateRecordFromForm();
-    if (!record || !validateEditor(record)) {
+    if (state.publishing || state.loading || !state.dirty) return;
+    updateRecordFromForm();
+    const invalid = state.records.find((record) => !record.title || !record.date || !record.body.length ||
+      (collectionConfig().media && (state.pendingImages.has(record.id) || record.image) && !record.imageAlt));
+    if (invalid) {
+      selectRecord(invalid.id);
+      validateEditor(invalid);
       setMessage(elements.editorStatus, "Complete the highlighted fields", "error");
       return;
     }
+    state.publishing = true;
+    elements.editorForm.inert = true;
     setButtonState(elements.publish, "loading", "Publishing…");
     setConnection("Publishing", "busy");
     try {
-      if (state.pendingImage) {
-        record.image = await uploadImage(state.pendingImage, record);
-        state.pendingImage = null;
-        clearPreviewUrl();
+      for (const record of state.records) {
+        const image = state.pendingImages.get(record.id);
+        if (!image) continue;
+        record.image = await uploadImage(image, record);
+        state.pendingImages.delete(record.id);
       }
+      state.pendingImage = state.pendingImages.get(state.selectedId) || null;
+      clearPreviewUrl();
       const config = collectionConfig();
       const result = await writeFile(config.file, state.records, state.sha, `Publish ${config.label}`);
       state.sha = result.content.sha;
@@ -408,24 +428,38 @@
       setButtonState(elements.publish, "success", "Published");
       setMessage(elements.editorStatus, "Published to the website", "success");
       setConnection("Connected", "online");
-      renderImagePreview(record);
+      if (currentRecord()) renderImagePreview(currentRecord());
+      state.deleted = null;
+      elements.undo.hidden = true;
+      window.clearTimeout(state.undoTimer);
       window.setTimeout(() => setButtonState(elements.publish, "", "Publish changes"), 1500);
     } catch (error) {
       setButtonState(elements.publish, "error", "Try again");
       setMessage(elements.editorStatus, error.message || "Publishing failed", "error");
       setConnection("Needs attention", "error");
       window.setTimeout(() => setButtonState(elements.publish, "", "Publish changes"), 2200);
+    } finally {
+      state.publishing = false;
+      elements.editorForm.inert = false;
     }
   }
 
   async function loadCollection(key) {
-    if (state.dirty && !window.confirm("Switch collections and leave the unpublished changes here?")) return;
+    if (state.publishing) return;
+    if (state.dirty && !window.confirm("Switch collections and discard unpublished changes?")) return;
+    const generation = ++state.loadGeneration;
+    state.loading = true;
     state.collection = key;
     state.records = [];
     state.sha = null;
     state.selectedId = null;
     state.dirty = false;
     state.pendingImage = null;
+    state.pendingImages.clear();
+    state.deleted = null;
+    elements.undo.hidden = true;
+    window.clearTimeout(state.undoTimer);
+    elements.publish.disabled = true;
     clearPreviewUrl();
     const config = collectionConfig();
     elements.collectionTitle.textContent = config.label;
@@ -437,14 +471,18 @@
     setConnection("Loading", "busy");
     try {
       const file = await readFile(config.file);
+      if (generation !== state.loadGeneration) return;
       state.records = Array.isArray(file.value) ? file.value : [];
       state.sha = file.sha;
       renderList();
       setConnection("Connected", "online");
       setMessage(elements.editorStatus, "Saved on GitHub", "");
     } catch (error) {
+      if (generation !== state.loadGeneration) return;
       setConnection("Needs attention", "error");
       setMessage(elements.editorStatus, error.message || "Could not load posts", "error");
+    } finally {
+      if (generation === state.loadGeneration) state.loading = false;
     }
   }
 
@@ -519,12 +557,22 @@
   }
 
   function lock() {
+    if (state.publishing) return;
+    if (state.dirty && !window.confirm("Lock the writing room and discard unpublished changes?")) return;
+    state.loadGeneration += 1;
+    state.loading = false;
     sessionStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem(SESSION_TOKEN_KEY);
     state.token = "";
     state.records = [];
     state.selectedId = null;
     state.dirty = false;
+    state.pendingImage = null;
+    state.pendingImages.clear();
+    state.deleted = null;
+    elements.undo.hidden = true;
+    window.clearTimeout(state.undoTimer);
+    clearPreviewUrl();
     showAuth();
   }
 
@@ -543,6 +591,10 @@
     clearPreviewUrl();
     state.pendingImage = elements.image.files && elements.image.files[0] ? elements.image.files[0] : null;
     const record = currentRecord();
+    if (record) {
+      if (state.pendingImage) state.pendingImages.set(record.id, state.pendingImage);
+      else state.pendingImages.delete(record.id);
+    }
     if (record) renderImagePreview(record);
     markDirty();
   });

@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Updates on Lukas · Christoforakis</title>
+  <title>Updates on Lukas · Christoforakis.com</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#faf7f1" />
   <meta name="description" content="Following Lukas through two rare lung diseases, a double-lung transplant, and the long road home." />
 
   <meta name="color-scheme" content="light dark" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/updates/" />
 
   <!-- Open Graph -->
@@ -931,7 +931,7 @@
     <header class="site-header" id="siteHeader">
       <div class="header-row">
         <div class="brand hero-in hero-in-1">
-          <a class="home-link" href="/"><span class="arrow" aria-hidden="true">&larr;</span> Christoforakis</a>
+          <a class="home-link" href="/"><span class="arrow" aria-hidden="true">&larr;</span> Christoforakis.com</a>
           <h1>Updates on <em>Lukas</em></h1>
         </div>
         <div class="header-actions hero-in hero-in-1">
@@ -1056,7 +1056,7 @@
     isNew: false,
     pinned: true,
     body: [
-      "Lukas was born on February 19, 2017, and every February 19th, we celebrate his birthday. But March 25th will be forever be his extra birthday.",
+      "Lukas was born on February 19, 2017, and every February 19th, we celebrate his birthday. But March 25th will forever be his extra birthday.",
       "Yesterday, Lukas underwent his long-awaited 9 hour double lung transplant. It went, in a word, perfectly. The operation was not only a complete success, but it exceeded even the surgeons' best expectations. There are simply not enough words to describe how exhilarated and thrilled we are.",
       "These lungs couldn't have come at a better time. Things were starting to get dicey, and the risks and concerns kept piling up after over a month on ECMO. Not to mention, with the whole family coincidentally in Boston, we all got to give our best wishes and big hugs as he was brought down to the operating room.",
       "At 6 pm Tuesday, we received news of a possible donor. We were very cautiously optimistic, having gotten our hopes dashed right before the transplant last time. We raced to secure his request for a last meal before the transplant: soft cheeses! Food safety in his newly immunosuppressed life dictates that he steer clear of certain foods, so of course we had a party in the ICU with some favorites: deli meats, brie cheese, cut fruit, and kombucha.",
@@ -1185,7 +1185,7 @@
           return res.json();
         })
         .then(function (data) {
-          if (Array.isArray(data) && data.length > 0) {
+          if (Array.isArray(data)) {
             posts = data;
             render(searchInput ? searchInput.value : "");
             updateStatusPill();
@@ -1334,7 +1334,10 @@
       var pill = document.getElementById("statusPill");
       if (!pill) return;
       var latest = newestPost(posts);
-      if (!latest) return;
+      if (!latest) {
+        pill.classList.remove("visible");
+        return;
+      }
       var slug = latest.id || slugify(latest.title);
       document.getElementById("pillTitle").textContent = latest.title;
       document.getElementById("pillDate").textContent = "· " + formatDate(latest.date);
@@ -1376,7 +1379,9 @@
       }
 
       if (filtered.length === 0) {
-        feed.innerHTML = '<div class="no-results"><h2>No matches</h2><p>Try a different search term.</p></div>';
+        feed.innerHTML = query
+          ? '<div class="no-results"><h2>No matches</h2><p>Try a different search term.</p></div>'
+          : '<div class="no-results"><h2>No updates yet</h2><p>Family updates will appear here when they are published.</p></div>';
         return;
       }
 

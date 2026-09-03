@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Oksana’s Notebook · Christoforakis</title>
+  <title>Oksana’s Notebook · Christoforakis.com</title>
   <meta name="description" content="Pictures and notes from Oksana Christoforakis, financial analyst and mom." />
   <meta name="theme-color" content="#f8f7ed" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/oksana/" />
   <meta property="og:title" content="Oksana’s Notebook" />
   <meta property="og:description" content="Pictures and notes from Oksana Christoforakis, financial analyst and mom." />
@@ -17,9 +17,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css" />
-  <script src="/assets/js/site.js" defer></script>
-  <script src="/assets/js/blog.js" defer></script>
+  <link rel="stylesheet" href="/assets/css/site.css?v=20260903-release1" />
+  <script src="/assets/js/site.js?v=20260903-release1" defer></script>
+  <script src="/assets/js/blog.js?v=20260903-release1" defer></script>
 </head>
 <body>
   <div data-site-header></div>
@@ -30,7 +30,7 @@
         <p class="mono-label">Oksana · notebook</p>
         <h1 class="display-title">Notes from Oksana.</h1>
         <p class="lead">A place for photographs and words from a financial analyst, a mom, and the person living the days behind both titles.</p>
-        <p class="mono-label" data-blog-status aria-live="polite">Loading notes…</p>
+        <p class="mono-label" data-blog-status aria-live="polite"></p>
       </div>
       <figure class="journal-header__art reveal">
         <img src="/assets/backgrounds/oksana.webp" alt="A field of flowers beneath a soft rainbow arch" width="1168" height="880" fetchpriority="high" />
@@ -39,16 +39,24 @@
 
     <section class="journal-preface shell reveal" aria-labelledby="notebook-intro">
       <div>
-        <p class="mono-label">The idea</p>
-        <h2 class="section-title" id="notebook-intro">Numbers by day. The lived parts, here.</h2>
+        <p class="mono-label">From the notebook</p>
+        <h2 class="section-title" id="notebook-intro">The days behind the updates.</h2>
       </div>
       <div class="journal-preface__note">
-        <p>Short notes can stay short. Photographs can carry the story. Longer reflections have room when they need it.</p>
+        <p>Personal passages from Oksana’s writing, beginning with her account of Lukas’s first hospital stay. These excerpts keep their original dates, with links back to the family archive.</p>
         <div class="journal-preface__marks" aria-label="Notebook formats"><span>Photographs</span><span>Text notes</span><span>Both together</span></div>
       </div>
     </section>
 
     <section class="reading-shell journal-feed" data-blog-feed aria-label="Oksana’s posts"></section>
+    <noscript><p class="reading-shell">Enable JavaScript to load the notebook. You can also visit the <a href="/">family home</a>.</p></noscript>
+    <section class="reading-shell" data-blog-error hidden>
+      <div class="empty-state"><div>
+        <h2>The notebook couldn’t be loaded.</h2>
+        <p>Check your connection and try again.</p>
+        <button class="btn btn--small" type="button" data-blog-retry>Try again</button>
+      </div></div>
+    </section>
     <section class="reading-shell" data-blog-empty hidden>
       <div class="empty-state">
         <div>

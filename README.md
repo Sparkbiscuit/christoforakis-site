@@ -32,11 +32,11 @@ The site is intentionally built as a static website. It has no framework, packag
 
 The landing page is a map rather than a conventional stack of profile cards. Each member of the family occupies a distinct visual region, built from the supplied Super Visuals background library:
 
-- Nicholas: Middlebury and an expanded view of Loom, his time-aware ADHD scheduling app.
-- Andreas: an intentionally unwritten high-school-senior page with room for his own words later.
+- Nicholas: neuroscience at Middlebury, Filuma and Meds Ahead, real app screenshots, and his development process.
+- Andreas: high school, Longmeadow cross-country, and his public race profile.
 - Lukas: a photographic interest board for airliners, U.S. military jets, and Formula 1.
 - Oksana: a personal notebook for photographs and written posts.
-- Kiriakos: an intentionally open small-business-owner page that does not invent details before he supplies them.
+- Kiriakos: owner-operator of Mr. Pizza House, with the restaurant link and dated community coverage.
 - Foxy: the family's orange, cream, and black shepherd mix, now represented by a family-photo gallery.
 
 Lukas's medical and family updates have moved out of the landing page and into a searchable archive at `/updates/`. The newest update is still surfaced on the home page, so important news remains easy to find without defining the entire family landing experience.
@@ -46,11 +46,11 @@ Lukas's medical and family updates have moved out of the landing page and into a
 | Route | Purpose | Content source |
 | --- | --- | --- |
 | `/` | Magical family landing page and latest-update preview | `index.html`, `posts.json` |
-| `/nicholas/` | Nicholas, Middlebury, and Loom | `nicholas/index.html` |
-| `/andreas/` | Andreas's reserved profile space | `andreas/index.html` |
+| `/nicholas/` | Nicholas, Filuma, and Meds Ahead | `nicholas/index.html` |
+| `/andreas/` | Andreas and cross-country | `andreas/index.html` |
 | `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html` |
 | `/oksana/` | Oksana's notebook and photograph feed | `oksana/index.html`, `blog-posts.json` |
-| `/kiriakos/` | Kiriakos's reserved profile space | `kiriakos/index.html` |
+| `/kiriakos/` | Kiriakos and Mr. Pizza House | `kiriakos/index.html` |
 | `/foxy/` | Foxy's portrait and family-photo gallery | `foxy/index.html`, `assets/photos/` |
 | `/updates/` | Searchable archive of Lukas's family updates | `updates/index.html`, `posts.json` |
 | `/admin.html` | Private browser-based writing room | `admin.html`, GitHub Contents API |
@@ -256,7 +256,7 @@ Field rules:
 | `image` | No | Root-relative path to an uploaded image. |
 | `imageAlt` | Required with image | Useful description for someone who cannot see the image. |
 
-Notebook posts sort newest first. A text-only post is valid; an image is never required.
+Notebook posts sort newest first. A text-only post is valid; an image is never required. Optional `sourcePostId` and `sourceTitle` fields label archive excerpts and link to their originals. The initial two notes preserve personal passages from Oksana’s signed August 25, 2025 update, omitting fundraising material.
 
 ### Plain text, deliberately
 
@@ -368,7 +368,7 @@ The site must be served over HTTP. Opening the HTML files directly with `file://
 From the repository root:
 
 ```bash
-python3 -m http.server 4173 --bind 127.0.0.1
+python3 scripts/preview.py
 ```
 
 Then open:
@@ -377,10 +377,13 @@ Then open:
 http://127.0.0.1:4173/
 ```
 
+This local-only server disables asset caching and serves `404.html` for missing pages. It does not publish or deploy anything.
+
 Useful local routes:
 
 ```text
 http://127.0.0.1:4173/updates/
+http://127.0.0.1:4173/nicholas/
 http://127.0.0.1:4173/oksana/
 http://127.0.0.1:4173/admin.html
 ```
@@ -474,7 +477,13 @@ After pushing:
 
 ## Testing and quality checks
 
-There is no bundled test runner, so verification combines syntax checks, JSON validation, local-link inspection, and browser testing.
+The September 2026 polish includes Filuma and Meds Ahead on `/nicholas/`, six original app screenshots with full-size links, clearer contact and profile navigation, a 404 page, and corrected editor state handling. The former illustrative Loom schedule is no longer used. Shared CSS and scripts have a version query so existing visitors receive updated assets. Content sources and status dates are recorded in `CONTENT-SOURCES.md`.
+
+Run the offline writing-room regression checks with `node tests/admin.test.mjs`. These use isolated mock storage, files, and network responses; they cannot publish to GitHub. They cover Undo, photo retention, empty collections, validation of every post, stale loads, and lock behavior.
+
+Before deployment, review the local preview and confirm the apps’ time-sensitive App Store review status. Deployment remains a separate step.
+
+Verification combines the standalone Node regression harness, syntax checks, JSON validation, local-link inspection, and browser testing. No package installation is required.
 
 ### JavaScript syntax
 

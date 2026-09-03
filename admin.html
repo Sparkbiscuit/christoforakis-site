@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#f8f7ed" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <title>Writing Room · Christoforakis</title>
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
+  <title>Writing Room · Christoforakis.com</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/admin.css" />
-  <script src="/assets/js/admin.js" defer></script>
+  <script src="/assets/js/admin.js?v=20260903-release1" defer></script>
 </head>
 <body>
   <header class="admin-header">
     <a class="admin-brand" href="/">
       <span class="admin-brand__mark" aria-hidden="true"></span>
-      Christoforakis · Writing room
+      Christoforakis.com · Writing room
     </a>
     <div class="admin-header__actions">
       <span class="connection-status" data-connection>Locked</span>
@@ -74,6 +74,13 @@
       </aside>
 
       <section class="editor-panel" aria-label="Post editor">
+        <div class="editor-toolbar">
+          <div>
+            <span class="editor-toolbar__status" data-editor-status aria-live="polite">Saved on GitHub</span>
+            <a class="quiet-button" href="/updates/" target="_blank" rel="noopener" data-public-link>View public page</a>
+          </div>
+          <button class="push-button" type="button" data-publish disabled>Publish changes</button>
+        </div>
         <div class="editor-empty" data-editor-empty>
           <div>
             <div class="editor-empty__mark" aria-hidden="true"></div>
@@ -83,14 +90,6 @@
         </div>
 
         <form class="editor-form" data-editor-form hidden>
-          <div class="editor-toolbar">
-            <div>
-              <span class="editor-toolbar__status" data-editor-status aria-live="polite">Saved on GitHub</span>
-              <a class="quiet-button" href="/updates/" target="_blank" rel="noopener" data-public-link>View public page</a>
-            </div>
-            <button class="push-button" type="button" data-publish>Publish changes</button>
-          </div>
-
           <div class="editor-fields">
             <div class="field-grid">
               <div class="field">

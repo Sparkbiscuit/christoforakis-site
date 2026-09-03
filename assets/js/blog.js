@@ -4,6 +4,8 @@
   const feed = document.querySelector("[data-blog-feed]");
   const empty = document.querySelector("[data-blog-empty]");
   const status = document.querySelector("[data-blog-status]");
+  const errorState = document.querySelector("[data-blog-error]");
+  const retry = document.querySelector("[data-blog-retry]");
   if (!feed) return;
 
   const formatDate = (date) => new Intl.DateTimeFormat("en-US", {
@@ -49,11 +51,24 @@
       copy.appendChild(paragraph);
     });
     body.append(meta, title, copy);
+    if (typeof post.sourcePostId === "string" && /^[a-zA-Z0-9_-]+$/.test(post.sourcePostId)) {
+      const source = document.createElement("p");
+      source.className = "journal-post__source";
+      const link = document.createElement("a");
+      link.href = `/updates/#${encodeURIComponent(post.sourcePostId)}`;
+      link.textContent = post.sourceTitle || "the family archive";
+      source.append("Oksana · Excerpt from ", link);
+      body.appendChild(source);
+    }
     article.appendChild(body);
     return article;
   }
 
   async function load() {
+    if (status) status.textContent = "Loading notes…";
+    if (retry) retry.disabled = true;
+    if (empty) empty.hidden = true;
+    if (errorState) errorState.hidden = true;
     try {
       const response = await fetch("/blog-posts.json", { cache: "no-store" });
       if (!response.ok) throw new Error("Notebook unavailable");
@@ -61,12 +76,15 @@
       posts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
       feed.replaceChildren(...posts.map(renderPost));
       if (empty) empty.hidden = posts.length > 0;
-      if (status) status.textContent = posts.length ? `${posts.length} ${posts.length === 1 ? "note" : "notes"}` : "The first note is still to come.";
+      if (status) status.textContent = posts.length ? `${posts.length} ${posts.length === 1 ? "note" : "notes"}` : "";
     } catch (error) {
       if (status) status.textContent = "The notebook could not be loaded.";
-      if (empty) empty.hidden = false;
+      if (errorState) errorState.hidden = false;
+    } finally {
+      if (retry) retry.disabled = false;
     }
   }
 
+  if (retry) retry.addEventListener("click", load);
   load();
 })();

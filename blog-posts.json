@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "notebook-a-whirlwind-of-energy",
+    "date": "2025-08-25",
+    "title": "A whirlwind of energy",
+    "body": [
+      "My name is Oksana Christoforakis, mother of the 8-year-old Lukas. Just a year ago, Lukas was a whirlwind of energy, swimming, biking, racing his brothers, and filling every room with laughter. He was unstoppable. Then came the shortness of breath, the fainting spells, the moments that didn't make sense. We thought it was something small, maybe dehydration. Instead, it was the beginning of something far more serious."
+    ],
+    "sourcePostId": "our-story",
+    "sourceTitle": "Our Story"
+  },
+  {
+    "id": "notebook-from-a-hospital-chair",
+    "date": "2025-08-25",
+    "title": "From a hospital chair",
+    "body": [
+      "For us as his parents, this has been shattering. Every morning, I wake up in a hospital chair, watching monitors beep and machines hum, wondering how our lives could change so completely, so suddenly. My husband and I are doing everything we can to stay strong for Lukas and his two older brothers."
+    ],
+    "sourcePostId": "our-story",
+    "sourceTitle": "Our Story"
+  }
+]

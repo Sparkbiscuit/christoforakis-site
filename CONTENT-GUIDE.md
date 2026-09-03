@@ -33,9 +33,9 @@ Do not turn the landing page back into a chronological news feed. The newest Luk
 
 ### Nicholas
 
-Use this page for durable information about Nicholas, Middlebury, and current work. Loom is currently the main project.
+Use this page for durable information about Nicholas, Middlebury, and current work. Filuma (previously Loom) and Meds Ahead are the current apps. Give both equal weight and use actual product screenshots.
 
-When Loom changes materially, update the description to answer:
+When either app changes materially, update the description to answer:
 
 - What problem is it trying to solve?
 - Who is it for?
@@ -46,7 +46,7 @@ Avoid release promises, usage figures, or launch dates unless they are confirmed
 
 ### Andreas
 
-This is intentionally a light placeholder until Andreas chooses what he wants to share. He should decide the interests, activities, work, photographs, and links that represent him.
+Andreas’s page covers his family role, high school, and Longmeadow cross-country. Nicholas confirmed the athletics context on September 3, 2026. Keep the public race-profile link current and let Andreas supply additional stories or interests.
 
 Do not fill the page with inferred personality details simply to make it look complete.
 
@@ -64,9 +64,9 @@ It does not need to behave like an announcement channel. A note can be brief, qu
 
 ### Kiriakos
 
-This is intentionally a light placeholder until Kiriakos chooses what to share about his work, interests, and life.
+Kiriakos’s page covers his role as dad and owner-operator of Mr. Pizza House in Hartford, confirmed by Nicholas on September 3, 2026. It links to the restaurant and clearly dates the June 2022 WFSB community story.
 
-If business information is added later, separate durable facts from time-sensitive details. Confirm public contact information before publishing it.
+Separate durable business facts from time-sensitive details. Prefer the restaurant’s own site for menus, ordering, and opening hours.
 
 ### Foxy
 

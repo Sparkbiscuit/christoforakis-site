@@ -1,8 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Christoforakis family mark">
-  <rect width="64" height="64" rx="18" fill="#f8f7ed"/>
-  <path d="M14 30c0-11 7-18 18-18 12 0 20 8 20 19 0 13-8 21-21 21-11 0-17-8-17-22Z" fill="#f3d72c"/>
-  <path d="M14 34c2 11 8 18 17 18 13 0 21-8 21-21v6c0 13-8 21-21 21-11 0-17-8-17-22Z" fill="#b69a10" opacity=".65"/>
-  <circle cx="25" cy="31" r="3" fill="#24242a"/>
-  <circle cx="40" cy="31" r="3" fill="#24242a"/>
-  <path d="M26 41c4 3 9 3 13 0" fill="none" stroke="#24242a" stroke-linecap="round" stroke-width="3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Christoforakis.com mark">
+  <rect width="64" height="64" rx="16" fill="#f3d72c"/>
+  <path d="M43 19c-3-3.4-7-5-11.5-5C21.3 14 14 21.7 14 32s7.3 18 17.5 18c4.5 0 8.5-1.6 11.5-5" fill="none" stroke="#24242a" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="53" cy="46" r="3.5" fill="#24242a"/>
 </svg>

@@ -2,11 +2,11 @@
   "use strict";
 
   const family = [
-    { name: "Nicholas", detail: "Middlebury + Loom", path: "/nicholas/", tone: "cyan" },
-    { name: "Andreas", detail: "High school senior", path: "/andreas/", tone: "lavender" },
+    { name: "Nicholas", detail: "Filuma + Meds Ahead", path: "/nicholas/", tone: "cyan" },
+    { name: "Andreas", detail: "Longmeadow cross-country", path: "/andreas/", tone: "lavender" },
     { name: "Lukas", detail: "Flight decks + Formula 1", path: "/lukas/", tone: "coral" },
     { name: "Oksana", detail: "Notes + photographs", path: "/oksana/", tone: "mint" },
-    { name: "Kiriakos", detail: "Small business owner", path: "/kiriakos/", tone: "" },
+    { name: "Kiriakos", detail: "Mr. Pizza House", path: "/kiriakos/", tone: "" },
     { name: "Foxy", detail: "The tricolor one", path: "/foxy/", tone: "cyan" }
   ];
 
@@ -21,9 +21,9 @@
       <a class="skip-link" href="#main">Skip to content</a>
       <header class="site-header" data-site-nav>
         <div class="nav-shell shell">
-          <a class="wordmark" href="/" aria-label="Christoforakis family home">
+          <a class="wordmark" href="/" aria-label="Christoforakis.com home">
             <span class="wordmark__character" aria-hidden="true"></span>
-            <span class="wordmark__name">Christoforakis</span>
+            <span class="wordmark__name">Christoforakis.com</span>
           </a>
           <button class="menu-button" type="button" aria-expanded="false" aria-controls="family-menu" data-menu-button>
             Family
@@ -34,13 +34,13 @@
             <a href="/oksana/">Oksana’s notebook</a>
           </nav>
         </div>
-        <div class="mega-menu" id="family-menu" data-mega-menu hidden>
+        <nav class="mega-menu" id="family-menu" aria-label="Family directory" data-mega-menu hidden>
           <div class="mega-menu__grid">${links}</div>
           <div class="mega-menu__footer">
             <p>Lukas’s medical updates now have a home of their own.</p>
             <a class="btn btn--small btn--cyan" href="/updates/">Read updates <span class="btn__arrow" aria-hidden="true">→</span></a>
           </div>
-        </div>
+        </nav>
         <button class="menu-scrim" type="button" aria-label="Close family menu" data-menu-scrim hidden></button>
       </header>`;
   }
@@ -53,6 +53,7 @@
           <div class="site-footer__meta">
             <nav class="site-footer__links" aria-label="Footer">
               <a href="/">Home</a>
+              <a href="/nicholas/">Nicholas &amp; his work</a>
               <a href="/updates/">Family updates</a>
               <a href="/oksana/">Oksana’s notebook</a>
               <a href="/admin.html" rel="nofollow">Write</a>
@@ -69,6 +70,10 @@
     if (headerTarget) headerTarget.innerHTML = headerMarkup();
     if (footerTarget) footerTarget.innerHTML = footerMarkup();
 
+    document.querySelectorAll('.site-header a, .site-footer a').forEach((link) => {
+      if (new URL(link.href).pathname === window.location.pathname) link.setAttribute('aria-current', 'page');
+    });
+
     const year = document.querySelector("[data-year]");
     if (year) year.textContent = String(new Date().getFullYear());
 
@@ -77,23 +82,42 @@
     const scrim = document.querySelector("[data-menu-scrim]");
     if (!button || !menu || !scrim) return;
 
-    const setOpen = (open) => {
+    const background = Array.from(document.body.children).filter((element) =>
+      element !== headerTarget && !['SCRIPT', 'NOSCRIPT'].includes(element.tagName));
+    const priorInert = new Map();
+    const setOpen = (open, restoreFocus = false) => {
       button.setAttribute("aria-expanded", String(open));
       menu.hidden = !open;
       scrim.hidden = !open;
       document.body.classList.toggle("is-menu-open", open);
+      document.documentElement.classList.toggle("is-menu-open", open);
       if (open) {
+        background.forEach((element) => {
+          priorInert.set(element, element.inert);
+          element.inert = true;
+        });
         const firstLink = menu.querySelector("a");
-        window.setTimeout(() => firstLink && firstLink.focus(), 0);
+        if (firstLink) firstLink.focus({ preventScroll: true });
+      } else {
+        background.forEach((element) => { element.inert = priorInert.get(element) || false; });
+        priorInert.clear();
+        if (restoreFocus) button.focus();
       }
     };
 
     button.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
-    scrim.addEventListener("click", () => setOpen(false));
+    scrim.addEventListener("click", () => setOpen(false, true));
     document.addEventListener("keydown", (event) => {
+      if (button.getAttribute("aria-expanded") !== "true") return;
       if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
-        setOpen(false);
-        button.focus();
+        event.preventDefault();
+        setOpen(false, true);
+      } else if (event.key === "Tab") {
+        const stops = [button, ...menu.querySelectorAll('a[href]')];
+        const index = stops.indexOf(document.activeElement);
+        event.preventDefault();
+        const next = (index + (event.shiftKey ? -1 : 1) + stops.length) % stops.length;
+        stops[next].focus();
       }
     });
   }
@@ -113,7 +137,12 @@
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.08 });
-    elements.forEach((element) => observer.observe(element));
+    elements.forEach((element) => {
+      // Reading content stays visible. Only artwork enters with a small reveal.
+      if (!element.matches('figure, .family-map') || window.innerWidth < 640) return;
+      observer.observe(element);
+      element.classList.add('reveal-ready');
+    });
   }
 
   function setupCounter() {
@@ -175,6 +204,11 @@
       const response = await fetch("/posts.json", { cache: "no-store" });
       if (!response.ok) throw new Error("Updates unavailable");
       const posts = await response.json();
+      if (Array.isArray(posts) && posts.length === 0) {
+        const band = title.closest('.latest-band');
+        if (band) band.hidden = true;
+        return;
+      }
       const latest = posts.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
       if (!latest) return;
       const date = document.querySelector("[data-latest-date]");
