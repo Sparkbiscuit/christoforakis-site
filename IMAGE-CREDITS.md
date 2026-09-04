@@ -6,7 +6,7 @@ This file records the origin, license, production treatment, and placement of ph
 
 | Production file | Subject | Creator / source | License | Site use and modifications |
 | --- | --- | --- | --- | --- |
-| `assets/interests/airliner.jpg` | Airbus A380 at sunset | [Chad Ajamian / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Lukas’s Airliners panel; resized, metadata removed, and responsively cropped by CSS. |
+| `assets/interests/airliner.jpg` | Airbus A380 at sunset | [Chad Ajamian / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Lukas’s Airliners panel; a cropped derivative is also used as `assets/backgrounds/lukas.webp` on the family map and Lukas hero. Resized, metadata removed, and responsively cropped by CSS. |
 | `assets/interests/f22-raptor.jpg` | U.S. Air Force F-22 Raptor with condensation cloud | [Trevor Cokley, U.S. Air Force / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:U.S._Air_Force_F-22_Raptor.jpg) | Public domain in the United States as a work of the U.S. federal government | Lukas’s U.S. military jets panel; resized, metadata removed, and responsively cropped by CSS. |
 | `assets/interests/formula-one.jpg` | Carlos Sainz’s Ferrari at the 2024 Dutch Grand Prix | [Steffen Prößdorf / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:2024-08-25_Motorsport,_Formel_1,_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3895_by_Stepro.jpg) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Lukas’s Formula 1 panel; resized, metadata removed, and responsively cropped by CSS. |
 
@@ -21,7 +21,20 @@ The following photographs are family-owned and were supplied locally by the site
 - `assets/photos/foxy-first-snow.jpg`
 - `assets/photos/foxy-family-day.jpg`
 
-Each is an optimized derivative. Production copies are resized JPEGs with embedded EXIF, camera, and location metadata removed. The untouched originals remain local in `foxy/` and are excluded by `.gitignore`; they should not be added to Git.
+Each is an optimized derivative. Production copies are resized JPEGs with embedded EXIF, camera, and location metadata removed. The untouched originals remain local in `foxy/` and are excluded by `.gitignore`; they should not be added to Git. A landscape crop of `foxy-autumn.jpg` is also used as `assets/backgrounds/foxy.webp` on the family map.
+
+## Family-map stills
+
+These are decorative. They do not depict family members, Mr. Pizza House, or a specific Longmeadow course.
+
+| Production file | Subject | Origin | Site use |
+| --- | --- | --- | --- |
+| `assets/backgrounds/nicholas.webp` | Filuma Focus screen | Family-owned app screenshot from `assets/apps/filuma-focus.png` | Nicholas map tile and `/nicholas/` Open Graph image |
+| `assets/backgrounds/andreas.webp` | Autumn cross-country trail | Original generated still, September 4, 2026 | Andreas map tile, hero, and Open Graph image |
+| `assets/backgrounds/oksana.webp` | Open notebook on a kitchen table | Original generated still, September 4, 2026 | Oksana map tile, notebook header, and Open Graph image |
+| `assets/backgrounds/kiriakos.webp` | Neighborhood pizzeria window at dusk | Original generated still, September 4, 2026 | Kiriakos map tile, hero, and Open Graph image |
+
+`assets/backgrounds/lukas.webp` is credited with the A380 photograph above. `assets/backgrounds/foxy.webp` is credited with the family photographs above.
 
 ## Maintenance rule
 

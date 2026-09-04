@@ -16,7 +16,7 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 - Nicholas's July 15 website brief describes Andreas as the middle brother and a high school senior.
 - Nicholas confirmed on September 3 that the Longmeadow athletics context is accurate.
 - Public race history: https://ma.milesplit.com/athletes/10898113-andreas-christoforakis
-- The page does not infer cycling from the decorative artwork or invent results, records, goals, or personal quotes.
+- The page does not infer cycling or invent results, records, goals, or personal quotes. The September 4 family-map still is an autumn trail, not a portrait of Andreas.
 
 ## Kiriakos
 
@@ -24,6 +24,7 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 - Restaurant name, location, menu categories, and ordering link: https://www.mrpizzahouse.com/ (checked September 3).
 - The community menu collaboration is explicitly dated June 2022 and attributed to WFSB: https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/
 - The page does not infer a founding date, current opening hours, or ongoing involvement in the 2022 initiative.
+- The September 4 family-map still for Kiriakos is a decorative pizzeria window. It is not a photograph of Mr. Pizza House or of Kiriakos.
 
 ## Before publication
 
