@@ -24,7 +24,7 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 - Restaurant name, location, menu categories, and ordering link: https://www.mrpizzahouse.com/ (checked September 3).
 - The community menu collaboration is explicitly dated June 2022 and attributed to WFSB: https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/
 - The page does not infer a founding date, current opening hours, or ongoing involvement in the 2022 initiative.
-- The September 4 family-map still for Kiriakos is a decorative pizzeria window. It is not a photograph of Mr. Pizza House or of Kiriakos.
+- The September 4 family-map photograph for Kiriakos is the shop’s own cheese-pizza listing image, used at Nicholas’s request. It is not a portrait of Kiriakos.
 
 ## Before publication
 

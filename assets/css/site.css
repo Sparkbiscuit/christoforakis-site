@@ -843,6 +843,10 @@ summary:focus-visible {
   object-position: center 38%;
 }
 
+.profile-hero--foxy .profile-hero__art img {
+  object-position: center 8%;
+}
+
 .profile-hero--foxy .profile-hero__art {
   height: min(56dvh, 31rem);
   min-height: 0;
@@ -858,6 +862,10 @@ summary:focus-visible {
   .profile-hero--foxy .profile-hero__art {
     height: 28rem;
     min-height: 0;
+  }
+
+  .profile-hero--foxy .profile-hero__art img {
+    object-position: center 8%;
   }
 }
 
@@ -1451,7 +1459,7 @@ summary:focus-visible {
 
 .foxy-photo--family img { object-position: center 45%; }
 .foxy-photo--portrait img { object-position: center 42%; }
-.foxy-photo--deep-snow img { object-position: center 30%; }
+.foxy-photo--deep-snow img { object-position: center 8%; }
 .foxy-photo--first-snow img { object-position: center 44%; }
 
 .journal-feed,

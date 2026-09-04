@@ -25,14 +25,14 @@ Each is an optimized derivative. Production copies are resized JPEGs with embedd
 
 ## Family-map stills
 
-These are decorative. They do not depict family members, Mr. Pizza House, or a specific Longmeadow course.
+Andreas and Oksana tiles are decorative generated stills. They do not depict family members or a named course. Nicholas’s tile is an interim work-table still until a supplied image replaces it.
 
 | Production file | Subject | Origin | Site use |
 | --- | --- | --- | --- |
-| `assets/backgrounds/nicholas.webp` | Filuma Focus screen | Family-owned app screenshot from `assets/apps/filuma-focus.png` | Nicholas map tile and `/nicholas/` Open Graph image |
+| `assets/backgrounds/nicholas.webp` | Work table: notebook, headphones, lamp | Original generated still, September 4, 2026, interim | Nicholas map tile and `/nicholas/` Open Graph image |
 | `assets/backgrounds/andreas.webp` | Autumn cross-country trail | Original generated still, September 4, 2026 | Andreas map tile, hero, and Open Graph image |
 | `assets/backgrounds/oksana.webp` | Open notebook on a kitchen table | Original generated still, September 4, 2026 | Oksana map tile, notebook header, and Open Graph image |
-| `assets/backgrounds/kiriakos.webp` | Neighborhood pizzeria window at dusk | Original generated still, September 4, 2026 | Kiriakos map tile, hero, and Open Graph image |
+| `assets/backgrounds/kiriakos.webp` | Cheese pizza | Official Mr. Pizza House listing photograph via [Slice](https://slicelife.imgix.net/15429/photos/original/Mr_Pizza_House_SpecialCombo.jpg), also used on [mrpizzahouse.com](https://www.mrpizzahouse.com/). Shop-owned; cropped and resized for the family site at the owner’s request. | Kiriakos map tile, hero, and Open Graph image |
 
 `assets/backgrounds/lukas.webp` is credited with the A380 photograph above. `assets/backgrounds/foxy.webp` is credited with the family photographs above.
 
