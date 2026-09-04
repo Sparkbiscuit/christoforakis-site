@@ -5,8 +5,8 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 ## Nicholas and the apps
 
 - Nicholas confirmed on September 3 that Loom is now Filuma, and Meds Ahead is at the same stage of completion.
-- In his September 2 resume conversation, Nicholas explicitly confirmed that both apps were in App Store review. The page dates this status to September 2; it does not claim availability or supply an unverified App Store link.
-- The same conversation confirms the Claude-led planning and review / smaller GPT implementation workflow, the D8 Assistant Business Manager role since May 2026 alongside Social Media Manager, tutoring his brothers, and family caregiving. The revised resume supplies neuroscience at Middlebury.
+- On September 4, Nicholas supplied the live App Store listing for Filuma: https://apps.apple.com/app/filuma/id6792247549 (verified as Filuma by Nicholas George Christoforakis). Meds Ahead remains in review. The page dates this split status to September 4 and links the verified store URL. It does not claim Meds Ahead availability or quote prices.
+- The same conversation confirms the Claude-led planning and review / smaller GPT implementation workflow, the D8 Assistant Business Manager role since May 2026 alongside Social Media Manager, tutoring his brothers, and family caregiving. The revised resume supplies neuroscience at Middlebury. The September 4 kicker on `/nicholas/` reads “Middlebury · medicine · making things”; the lead still states neuroscience at Middlebury.
 - Filuma functionality was checked against its current README and app source, including OnboardingView.swift and SharedStore.swift. The August App Store metadata draft is outdated on subscriptions; the website makes no pricing claim. Optional calendar connections and Apple Speech mean a blanket fully-offline claim would be inaccurate.
 - Meds Ahead functionality and motivation were checked against its README, AppStore/SUBMISSION.md, ForecastEngine.swift, MedicationLabelInterpreter.swift, and SettingsView.swift. Local medication storage and on-device scanning do not mean the user's own device backups or explicit exports are impossible.
 - The six PNGs under assets/apps are byte-for-byte copies of the screenshots Nicholas supplied on September 3. The Filuma sources are AppStoreAssets/1.3.0-build6/iphone-6.5/{01-focus-library,02-your-tasks,04-work-session}.png. The Meds sources are AppStore/Screenshots/6.9-inch-current/{01-today,02-supply,03-medications}.png. Captions describe the screens, not health advice or claims about real patients.
@@ -27,7 +27,7 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 
 ## Before publication
 
-Review the local preview. Reconfirm the dated App Store status if publication is delayed. The original screenshots and older illustration files are preserved; the illustrative Loom demo is no longer loaded. Nicholas approved deployment on September 3 after reviewing the local preview.
+Review the local preview. Reconfirm the dated App Store status if publication is delayed. The original screenshots and older illustration files are preserved; the illustrative Loom demo is no longer loaded. Nicholas approved deployment on September 3 after reviewing the local preview. The September 4 Filuma live-status correction uses the store URL he supplied that afternoon.
 
 ## Notebook and contact additions
 
