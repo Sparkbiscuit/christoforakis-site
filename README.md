@@ -47,6 +47,7 @@ Lukas's medical and family updates have moved out of the landing page and into a
 | --- | --- | --- |
 | `/` | Magical family landing page and latest-update preview | `index.html`, `posts.json` |
 | `/nicholas/` | Nicholas, Filuma, and Meds Ahead | `nicholas/index.html` |
+| `/projects/filuma/` | Filuma product walkthrough and builder story | `projects/filuma/index.html`, `assets/css/filuma.css` |
 | `/andreas/` | Andreas and cross-country | `andreas/index.html` |
 | `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html` |
 | `/oksana/` | Oksana's notebook and photograph feed | `oksana/index.html`, `blog-posts.json` |

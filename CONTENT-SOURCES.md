@@ -28,6 +28,14 @@ This records the basis for the September 3, 2026 local revision. It is an editor
 
 ## Before publication
 
+### Filuma project page, September 6, 2026
+
+- Added `/projects/filuma/` as a bounded product and builder-story page, authorized by Nick in this work session.
+- Product behavior checked against `Sparkbiscuit/Filuma` at commit `52a1c893b039db5271db6cd6811e4525c0dc48d6`: README, SchedulerService, CalendarImportService, and CalendarExportService. The page makes no adoption, testimonial, or clinical-effectiveness claims.
+- Reuses the three existing Filuma screenshots and the existing Nicholas social image. No generated product screens.
+- App Store listing and existing privacy-policy URL returned successfully during verification. Prices are left to the App Store.
+- Launch status is supported by the September 6 canonical Nick OS record and the live App Store listing. The learning section describes the next step, not completed user research.
+
 Review the local preview. Reconfirm the dated App Store status if publication is delayed. The original screenshots and older illustration files are preserved; the illustrative Loom demo is no longer loaded. Nicholas approved deployment on September 3 after reviewing the local preview. The September 4 Filuma live-status correction uses the store URL he supplied that afternoon.
 
 ## Notebook and contact additions
