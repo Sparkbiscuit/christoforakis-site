@@ -42,3 +42,10 @@ Review the local preview. Reconfirm the dated App Store status if publication is
 
 - The notebook contains two personal excerpts from Oksana's signed August 25, 2025 "Our Story" update. Text and dates are preserved, each excerpt links to the original, and fundraising passages are omitted. The other explicitly Oksana-signed entries are fundraising milestones and were excluded; Nicholas-signed entries were not reassigned to Oksana.
 - LinkedIn: https://www.linkedin.com/in/nickchristoforakis/ matched the public profile's name, Middlebury, and neuroscience description on September 3.
+
+## Meds Ahead release and project page, September 7, 2026
+
+- Nick confirmed release for distribution and supplied https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619; listing returned HTTP 200 during this session.
+- Product claims checked against Sparkbiscuit/meds-ahead at a0ca4464b36fafe4fc1f6d75f6b8440cc9a4b15a: README, Documentation/ARCHITECTURE.md, AppStore/SUBMISSION.md and privacy policy.
+- Reuses the existing three screenshots and Nicholas social image. No patient story details, efficacy claims, or invented testimonials added.
+- Both app links appear on the profile. Meds Ahead is free with optional tips, not a subscription.
