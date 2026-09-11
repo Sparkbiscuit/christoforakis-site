@@ -49,3 +49,9 @@ Review the local preview. Reconfirm the dated App Store status if publication is
 - Product claims checked against Sparkbiscuit/meds-ahead at a0ca4464b36fafe4fc1f6d75f6b8440cc9a4b15a: README, Documentation/ARCHITECTURE.md, AppStore/SUBMISSION.md and privacy policy.
 - Reuses the existing three screenshots and Nicholas social image. No patient story details, efficacy claims, or invented testimonials added.
 - Both app links appear on the profile. Meds Ahead is free with optional tips, not a subscription.
+
+## Filuma 1.4 and sparkbiscuit.me links, September 10, 2026
+
+- Nicholas confirmed that Filuma 1.4 has been released. The gallery hints on `/nicholas/` and `/projects/filuma/` no longer describe the screenshots as “the upcoming Filuma 1.4 update.”
+- The three Filuma screenshots under `assets/apps` are byte-for-byte copies of the 1.4 screenshots in `Sparkbiscuit.github.io/filuma/assets` (`focus-1.4.png`, `tasks-1.4.png`, `session-1.4.png`). They supersede the 1.3.0-build6 sources listed above.
+- `/nicholas/` links to each app’s page on sparkbiscuit.me (https://sparkbiscuit.me/filuma/ and https://sparkbiscuit.me/meds/), and its contact links include https://sparkbiscuit.me/. All three returned HTTP 200 on September 10.
