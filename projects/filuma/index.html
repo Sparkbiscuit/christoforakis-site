@@ -3,128 +3,86 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Filuma · Make room for the work</title>
-  <meta name="description" content="Turn a task, deadline, and effort estimate into manageable work blocks. Filuma schedules around your day and brings your next step into focus. For iPhone and iPad." />
+  <title>Filuma · A plan has to survive the day</title>
+  <meta name="description" content="Why Nicholas Christoforakis built Filuma, and three decisions behind how it schedules work, records progress, and brings the first step closer. For iPhone and iPad." />
   <meta name="theme-color" content="#f8f7ed" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/projects/filuma/" />
-  <meta property="og:title" content="Filuma · Make room for the work" />
-  <meta property="og:description" content="A task, a deadline, a place to start. Explore Filuma and the decisions behind the app." />
+  <meta property="og:title" content="Filuma · A plan has to survive the day" />
+  <meta property="og:description" content="A task, a deadline, a place to start. The decisions behind Filuma." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/projects/filuma/" />
   <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Filuma · Make room for the work" />
-  <meta name="twitter:description" content="A task, a deadline, a place to start. For iPhone and iPad, by Nick Christoforakis." />
+  <meta name="twitter:title" content="Filuma · A plan has to survive the day" />
+  <meta name="twitter:description" content="The decisions behind Filuma, by Nicholas Christoforakis." />
   <meta name="twitter:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260904-family3" />
-  <link rel="stylesheet" href="/assets/css/filuma.css?v=20260906" />
-  <script src="/assets/js/site.js?v=20260904-family2" defer></script>
-  <script src="/assets/js/screenshots.js?v=20260904-family2" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
+  <script src="/assets/js/site.js?v=20260911" defer></script>
+  <script src="/assets/js/motion.js?v=20260911" defer></script>
 </head>
-<body class="filuma-page">
+<body class="story-page story-page--filuma">
   <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/nicholas/">About Nick</a></p></noscript>
+  <noscript><p class="shell"><a href="/">Home</a> · <a href="/nicholas/">Nicholas</a></p></noscript>
+
   <main id="main">
-    <section class="filuma-hero shell" aria-labelledby="filuma-title">
-      <div class="filuma-hero__copy">
-        <a class="text-link filuma-back" href="/nicholas/">Nick Christoforakis / Projects</a>
-        <p class="mono-label">Filuma · iPhone &amp; iPad</p>
-        <h1 id="filuma-title">Make room<br>for the work.</h1>
-        <p class="lead">Give Filuma a task, a deadline, and an effort estimate. It finds time in your day, breaks the work into manageable blocks, and brings the next step into focus.</p>
-        <div class="intro-actions">
-          <a class="btn" href="https://apps.apple.com/app/filuma/id6792247549">Get Filuma on the App Store <span aria-hidden="true">↗</span></a>
-          <a class="text-link" href="#how-it-works">See how it works <span aria-hidden="true">↓</span></a>
+    <header class="story-hero shell">
+      <div>
+        <a class="text-link text-link--back" href="/nicholas/">Nicholas</a>
+        <p class="app-name">Filuma</p>
+        <h1 class="display-title">A plan has to survive the day.</h1>
+        <p class="lead">I built Filuma around a problem close to home: making time for the work in front of me, with ADHD planning challenges in mind.</p>
+        <div class="actions">
+          <a class="btn btn--ink" href="https://sparkbiscuit.me/filuma/">Visit Filuma</a>
+          <a class="text-link" href="https://apps.apple.com/app/filuma/id6792247549">App Store</a>
         </div>
-        <p class="filuma-note">Built with ADHD planning challenges in mind.<br>By Nick Christoforakis, a neuroscience student at Middlebury.</p>
       </div>
-      <figure class="filuma-hero__screen">
-        <img src="/assets/apps/filuma-focus.png" alt="Filuma’s Today view shows a Design project, scheduled sessions, and upcoming work." width="1320" height="2868" fetchpriority="high" />
-        <figcaption>The next block. The first action. A place to begin.</figcaption>
+      <figure class="story-hero__stage" data-parallax="-24">
+        <img class="screen" src="/assets/apps/filuma-focus-660.jpg" alt="Filuma’s Today view shows a Design project, scheduled sessions, and upcoming work" width="660" height="1434" fetchpriority="high" />
       </figure>
+    </header>
+
+    <section class="decisions shell" aria-label="Decisions behind Filuma">
+      <article class="decision" data-parallax="12">
+        <h2>Work with the time that exists.</h2>
+        <p><strong>Scheduling.</strong> The scheduler places blocks around existing commitments and prioritizes earlier deadlines when replanning. If the remaining work cannot fit, it surfaces that constraint so the deadline or estimate can be reconsidered.</p>
+        <p>Apple Calendar integration separates importing busy time from exporting work blocks to a dedicated Filuma calendar. Each direction is optional.</p>
+      </article>
+      <article class="decision" data-parallax="22">
+        <h2>Time spent and work finished are different.</h2>
+        <p><strong>Progress.</strong> A timer records effort. You decide how much of the task is complete. Work sessions are linked to their blocks so the same work is not counted twice, and unfinished effort stays in the plan.</p>
+      </article>
+      <article class="decision" data-parallax="32">
+        <h2>Bring the first action closer.</h2>
+        <p><strong>Starting.</strong> The Focus card keeps the next block and an optional first step together. That step also appears in the session timer and block-start notification, so you do not have to reconstruct where to begin.</p>
+      </article>
     </section>
 
-    <section class="profile-section profile-section--pear" id="how-it-works" aria-labelledby="workflow-title">
-      <div class="shell">
-        <div class="app-project__intro">
-          <div>
-            <p class="mono-label">From intention to action</p>
-            <h2 class="section-title" id="workflow-title">Give the task<br>a time and place.</h2>
-          </div>
-          <div class="profile-prose">
-            <p>A task list can tell you what needs doing and still leave you deciding when to do it. Filuma connects the task to the time available before its deadline.</p>
-            <p>Your sleep window, blocked time, and optional daily focus limit shape the plan. You can also choose Apple calendars whose events should count as busy time.</p>
-          </div>
-        </div>
-        <p class="app-gallery-hint" id="workflow-hint">Three screens from Filuma. <span class="app-gallery-hint__scroll">Scroll to explore. </span>Select a screen to view it full size.</p>
-        <div class="app-gallery" role="region" aria-label="How Filuma works" aria-describedby="workflow-hint" tabindex="0">
-          <figure>
-            <a href="/assets/apps/filuma-first-task.png" target="_blank" rel="noopener" aria-label="Open Filuma first task screenshot full size in a new tab"><img src="/assets/apps/filuma-first-task.png" alt="The empty task list invites you to add one task, a deadline, and an effort estimate." width="1320" height="2868" loading="lazy" decoding="async" /></a>
-            <figcaption><strong>01 / Capture the work.</strong><span>Start with one task. Add a deadline and estimate how much time it needs.</span></figcaption>
-          </figure>
-          <figure>
-            <a href="/assets/apps/filuma-focus.png" target="_blank" rel="noopener" aria-label="Open Filuma Focus screenshot full size in a new tab"><img src="/assets/apps/filuma-focus.png" alt="A Focus card puts the next work block and its first action above the upcoming task list." width="1320" height="2868" loading="lazy" decoding="async" /></a>
-            <figcaption><strong>02 / Find your next step.</strong><span>See the next block and an optional first action, such as opening your notes.</span></figcaption>
-          </figure>
-          <figure>
-            <a href="/assets/apps/filuma-session.png" target="_blank" rel="noopener" aria-label="Open Filuma work session screenshot full size in a new tab"><img src="/assets/apps/filuma-session.png" alt="An active work session shows a timer, effort budget, and controls to pause or end and log the session." width="1320" height="2868" loading="lazy" decoding="async" /></a>
-            <figcaption><strong>03 / Work, then reassess.</strong><span>Track a session and record your progress. Missed blocks are replanned when the day changes.</span></figcaption>
-          </figure>
+    <section class="story-close shell" aria-labelledby="try-title">
+      <div data-reveal>
+        <h2 class="section-title" id="try-title">Start with something you actually need to do.</h2>
+        <p class="lead">Try one task with a real deadline. Does the plan make sense? Is the next step clear? If something gets in the way, I’d like to hear about it.</p>
+        <div class="actions">
+          <a class="btn btn--ink" href="mailto:nick@christoforakis.com?subject=Filuma%20feedback">Send feedback</a>
+          <a class="text-link" href="https://apps.apple.com/app/filuma/id6792247549">Get Filuma on the App Store</a>
         </div>
       </div>
-    </section>
-
-    <section class="profile-section shell filuma-story" aria-labelledby="decisions-title">
-      <div class="filuma-story__intro">
-        <p class="mono-label">Behind the app</p>
-        <h2 class="section-title" id="decisions-title">A plan has to<br>survive the day.</h2>
-        <p class="lead">I built Filuma around a problem close to home: making time for the work in front of me. These are three choices that shape how it works.</p>
-        <p class="filuma-stack">SwiftUI · SwiftData · EventKit</p>
-      </div>
-      <div class="filuma-decisions">
-        <article>
-          <span class="mono-label">01 / Scheduling</span>
-          <h3>Work with the time that exists.</h3>
-          <p>The scheduler places blocks around existing commitments and prioritizes earlier deadlines when replanning. If the remaining work cannot fit, it surfaces that constraint so the deadline or estimate can be reconsidered.</p>
-          <p>Apple Calendar integration separates importing busy time from exporting work blocks to a dedicated Filuma calendar. Each direction is optional.</p>
-        </article>
-        <article>
-          <span class="mono-label">02 / Progress</span>
-          <h3>Time spent and work finished are different.</h3>
-          <p>A timer records effort. You decide how much of the task is complete. Work sessions are linked to their blocks so the same work is not counted twice, and unfinished effort stays in the plan.</p>
-        </article>
-        <article>
-          <span class="mono-label">03 / Starting</span>
-          <h3>Bring the first action closer.</h3>
-          <p>The Focus card keeps the next block and an optional first step together. That step also appears in the session timer and block-start notification, so you do not have to reconstruct where to begin.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="profile-section profile-section--paper" aria-labelledby="try-title">
-      <div class="shell filuma-close">
-        <div>
-          <p class="mono-label">Released September 2026</p>
-          <h2 class="section-title" id="try-title">Start with something<br>you actually need to do.</h2>
-          <p class="lead">Try one task with a real deadline. Does the plan make sense? Is the next step clear? If something gets in the way, I’d like to hear about it.</p>
-          <div class="intro-actions">
-            <a class="btn" href="https://apps.apple.com/app/filuma/id6792247549">Get Filuma <span aria-hidden="true">↗</span></a>
-            <a class="text-link" href="mailto:nick@christoforakis.com?subject=Filuma%20feedback">Send feedback</a>
-          </div>
-        </div>
-        <aside class="filuma-release">
-          <h3>From building to learning.</h3>
-          <p>Filuma is now on the App Store. The next step is learning how it holds up in everyday use.</p>
-          <p><a class="text-link" href="https://github.com/Sparkbiscuit/Filuma">Explore the source</a></p>
-          <p><a class="text-link" href="https://sparkbiscuit.me/privacy/">Privacy policy</a></p>
-          <p><a class="text-link" href="/nicholas/">More about Nick and his work</a></p>
-        </aside>
-      </div>
+      <aside class="story-maker" data-parallax="16">
+        <h3>From building to learning.</h3>
+        <p>Filuma is now on the App Store. The next step is learning how it holds up in everyday use.</p>
+        <p>Built with SwiftUI, SwiftData, and EventKit.</p>
+        <p class="links">
+          <a class="text-link" href="https://github.com/Sparkbiscuit/Filuma">Source</a>
+          <a class="text-link" href="https://sparkbiscuit.me/privacy/">Privacy policy</a>
+          <a class="text-link" href="/projects/meds-ahead/">The story of Meds Ahead</a>
+        </p>
+      </aside>
     </section>
   </main>
+
   <div data-site-footer></div>
 </body>
 </html>

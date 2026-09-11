@@ -17,12 +17,12 @@
 
   function renderPost(post) {
     const article = document.createElement("article");
-    article.className = "journal-post reveal is-visible";
+    article.className = "note";
     article.id = post.id;
 
     if (post.image) {
       const image = document.createElement("img");
-      image.className = "journal-post__image";
+      image.className = "note__image";
       image.src = post.image;
       image.alt = post.imageAlt || "";
       image.width = 1600;
@@ -33,29 +33,27 @@
     }
 
     const body = document.createElement("div");
-    body.className = "journal-post__body";
-    const meta = document.createElement("div");
-    meta.className = "post-meta";
+    body.className = "note__body";
     const date = document.createElement("time");
     date.dateTime = post.date;
     date.textContent = formatDate(post.date);
-    meta.appendChild(date);
 
     const title = document.createElement("h2");
     title.textContent = post.title;
     const copy = document.createElement("div");
-    copy.className = "post-copy";
+    copy.className = "note__copy";
     (Array.isArray(post.body) ? post.body : [String(post.body || "")]).forEach((part) => {
       const paragraph = document.createElement("p");
       paragraph.textContent = part;
       copy.appendChild(paragraph);
     });
-    body.append(meta, title, copy);
+    body.append(date, title, copy);
     if (typeof post.sourcePostId === "string" && /^[a-zA-Z0-9_-]+$/.test(post.sourcePostId)) {
       const source = document.createElement("p");
-      source.className = "journal-post__source";
+      source.className = "note__source";
       const link = document.createElement("a");
-      link.href = `/updates/#${encodeURIComponent(post.sourcePostId)}`;
+      // Updates answers #post-<id>, so an excerpt opens the update it came from.
+      link.href = `/updates/#post-${encodeURIComponent(post.sourcePostId)}`;
       link.textContent = post.sourceTitle || "the family archive";
       source.append("Oksana · Excerpt from ", link);
       body.appendChild(source);
@@ -74,7 +72,17 @@
       if (!response.ok) throw new Error("Notebook unavailable");
       const posts = await response.json();
       posts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
-      feed.replaceChildren(...posts.map(renderPost));
+      const notes = posts.map(renderPost);
+      feed.replaceChildren(...notes);
+      // Notes rise in softly as they are reached, unless the visitor arrived for one in particular.
+      const target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+      if (window.familyMotion && !target) {
+        notes.forEach((note) => {
+          note.setAttribute("data-reveal", "");
+          window.familyMotion.reveal(note);
+        });
+      }
+      if (target && feed.contains(target)) target.scrollIntoView({ block: "start" });
       if (empty) empty.hidden = posts.length > 0;
       if (status) status.textContent = posts.length ? `${posts.length} ${posts.length === 1 ? "note" : "notes"}` : "";
     } catch (error) {

@@ -55,3 +55,30 @@ Review the local preview. Reconfirm the dated App Store status if publication is
 - Nicholas confirmed that Filuma 1.4 has been released. The gallery hints on `/nicholas/` and `/projects/filuma/` no longer describe the screenshots as “the upcoming Filuma 1.4 update.”
 - The three Filuma screenshots under `assets/apps` are byte-for-byte copies of the 1.4 screenshots in `Sparkbiscuit.github.io/filuma/assets` (`focus-1.4.png`, `tasks-1.4.png`, `session-1.4.png`). They supersede the 1.3.0-build6 sources listed above.
 - `/nicholas/` links to each app’s page on sparkbiscuit.me (https://sparkbiscuit.me/filuma/ and https://sparkbiscuit.me/meds/), and its contact links include https://sparkbiscuit.me/. All three returned HTTP 200 on September 10.
+
+## Design rebuild, September 11, 2026
+
+- Nicholas chose the rebuild’s direction in this session:
+  - Remove eyebrow labels and helper text.
+  - Give each page one signature moment, plus parallax and soft reveals.
+  - Slim the app pages to their builder stories.
+  - Redesign every family page with its facts and voice kept.
+- Copy edits only remove helper text and repeats, or move a fact from a label into a sentence. No facts were added.
+  - Home: “Pick a world and wander in.” and the family counter were removed. The latest-update excerpt now ends on a full sentence and links to the update itself.
+  - Nicholas: the dated status line and the screenshot galleries were removed. Each app keeps its existing description in a doorway tile.
+  - Andreas: the family relationship moved into the lead. The placeholder “with more of his own stories to come” was removed.
+  - Lukas: “extra birthday March 25” moved from the label into the lead.
+  - Kiriakos: “June 2022” moved into the WFSB sentence.
+  - Foxy: “shepherd mix” moved from the label into the lead. Photo captions were removed; alt text is unchanged.
+  - Oksana: the preface and format chips were removed. Posts and their dates are unchanged.
+  - Filuma and Meds Ahead story pages:
+    - The walkthroughs and galleries were removed in favour of sparkbiscuit.me.
+    - The three decisions and the builder notes are unchanged in substance.
+    - The Meds Ahead disclaimers are now footnotes.
+    - Attribution reads Nicholas Christoforakis.
+- Screenshots: `assets/apps/filuma-focus-660.jpg` and `assets/apps/meds-supply-660.jpg` are 660 × 1434 JPEG copies of the committed screenshots, made with `sips` for the doorway tiles and story pages. The full-size PNGs are unchanged.
+- The Kiriakos photograph’s alt text now describes the combination pizza that is actually pictured.
+- Notebook excerpts now link to `/updates/#post-our-story`, which opens and expands the original update. The earlier `/updates/#our-story` link landed at the top of the archive.
+- For the family to review in `IMAGE-CREDITS.md`, left unchanged:
+  - The A380 row still lists “Lukas hero” among its uses. That hero is now a drawn sky; the photograph remains on the flight board and the family map.
+  - The Mr. Pizza House row lists the subject as “Cheese pizza”.

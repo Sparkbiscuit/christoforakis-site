@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Foxy · Christoforakis.com</title>
+  <title>Foxy · christoforakis.com</title>
   <meta name="description" content="Foxy is the Christoforakis family’s tricolor orange, cream, and black shepherd mix." />
   <meta name="theme-color" content="#f8f7ed" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
@@ -16,59 +16,44 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260904-family3" />
-  <script src="/assets/js/site.js?v=20260904-family2" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
+  <script src="/assets/js/site.js?v=20260911" defer></script>
+  <script src="/assets/js/motion.js?v=20260911" defer></script>
 </head>
 <body>
   <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Family updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
-  <main class="profile-main" id="main">
-    <section class="profile-hero profile-hero--photo profile-hero--foxy shell">
-      <div class="profile-hero__copy reveal">
-        <p class="mono-label">Shepherd mix · tricolor</p>
-        <h1 class="display-title">Foxy</h1>
-        <p class="lead">Orange. Cream. Black. The four-legged branch of the family map.</p>
-        <div class="intro-actions">
-          <a class="text-link" href="#archive">From the archive <span aria-hidden="true">↓</span></a>
-        </div>
-      </div>
-      <figure class="profile-hero__art reveal">
-        <img src="/assets/photos/foxy-autumn.jpg" alt="Foxy sitting among autumn leaves and looking to the side" width="1012" height="1800" fetchpriority="high" />
-        <figcaption class="profile-hero__caption">AUTUMN PORTRAIT · FAMILY ARCHIVE</figcaption>
-      </figure>
-    </section>
+  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
 
-    <section class="profile-section profile-section--coral" id="archive">
-      <div class="shell reveal">
-        <div class="foxy-intro">
-          <div>
-            <p class="mono-label">From the family archive</p>
-            <h2 class="section-title">The weather changes. The ears remain excellent.</h2>
-          </div>
-          <div class="foxy-palette" aria-label="Foxy’s colors"><span class="foxy-palette__orange">Orange</span><span class="foxy-palette__cream">Cream</span><span class="foxy-palette__black">Black</span></div>
-        </div>
-        <div class="foxy-gallery">
-          <figure class="foxy-photo foxy-photo--family">
-            <img src="/assets/photos/foxy-family-day.jpg" alt="Foxy and Lukas smiling together on bright green grass" width="1800" height="1285" loading="lazy" />
-            <figcaption>A sunny family day</figcaption>
+  <main id="main">
+    <header class="foxy-hero shell">
+      <div>
+        <h1 class="display-title">Foxy</h1>
+        <p class="lead">Orange. Cream. Black. A shepherd mix, and the four-legged branch of the family map.</p>
+      </div>
+      <figure class="portrait">
+        <img src="/assets/photos/foxy-autumn.jpg" alt="Foxy sitting among autumn leaves and looking to the side" width="1012" height="1800" fetchpriority="high" decoding="async" data-parallax="-22" />
+      </figure>
+    </header>
+
+    <section class="archive stage" id="archive" aria-labelledby="archive-title">
+      <div class="shell">
+        <h2 class="section-title" id="archive-title" data-reveal>The weather changes. The ears remain excellent.</h2>
+        <div class="prints">
+          <figure class="print print--family" data-scrub=".95 .5 center">
+            <img src="/assets/photos/foxy-family-day.jpg" alt="Foxy and Lukas smiling together on bright green grass" width="1800" height="1285" loading="lazy" decoding="async" data-parallax="-14" />
           </figure>
-          <figure class="foxy-photo foxy-photo--portrait">
-            <img src="/assets/photos/foxy-autumn.jpg" alt="Foxy sitting among autumn leaves" width="1012" height="1800" loading="lazy" />
-            <figcaption>Autumn portrait</figcaption>
+          <figure class="print print--deep" data-scrub=".95 .5 center">
+            <img src="/assets/photos/foxy-deep-snow.jpg" alt="Foxy lying in deep snow and looking upward" width="1350" height="1800" loading="lazy" decoding="async" data-parallax="-14" />
           </figure>
-          <figure class="foxy-photo foxy-photo--deep-snow">
-            <img src="/assets/photos/foxy-deep-snow.jpg" alt="Foxy lying in deep snow and looking upward" width="1350" height="1800" loading="lazy" />
-            <figcaption>Deep-snow day</figcaption>
-          </figure>
-          <figure class="foxy-photo foxy-photo--first-snow">
-            <img src="/assets/photos/foxy-first-snow.jpg" alt="Foxy tasting the first snowflakes from a chair" width="1350" height="1800" loading="lazy" />
-            <figcaption>First flakes</figcaption>
+          <figure class="print print--first" data-scrub=".95 .5 center">
+            <img src="/assets/photos/foxy-first-snow.jpg" alt="Foxy tasting the first snowflakes from a chair" width="1350" height="1800" loading="lazy" decoding="async" data-parallax="-14" />
           </figure>
         </div>
       </div>
     </section>
   </main>
+
   <div data-site-footer></div>
 </body>
 </html>

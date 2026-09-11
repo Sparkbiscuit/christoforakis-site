@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Lukas · Christoforakis.com</title>
+  <title>Lukas · christoforakis.com</title>
   <meta name="description" content="Lukas Christoforakis: fourth grader, lung transplant miracle kid, and fan of airliners, military jets, and Formula 1." />
   <meta name="theme-color" content="#f8f7ed" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
@@ -16,59 +16,66 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260904-family3" />
-  <script src="/assets/js/site.js?v=20260904-family2" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
+  <script src="/assets/js/site.js?v=20260911" defer></script>
+  <script src="/assets/js/motion.js?v=20260911" defer></script>
+  <script src="/assets/js/flight.js?v=20260911" defer></script>
 </head>
 <body>
   <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Family updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
-  <main class="profile-main" id="main">
-    <section class="profile-hero shell">
-      <div class="profile-hero__copy reveal">
-        <p class="mono-label">Fourth grade · extra birthday March 25</p>
-        <h1 class="display-title">Lukas</h1>
-        <p class="lead">Airliners, military jets, and Formula 1. Fourth grader, and a lung transplant miracle kid.</p>
-        <div class="intro-actions">
-          <a class="btn btn--coral" href="/updates/">Read Lukas’s updates <span class="btn__arrow" aria-hidden="true">→</span></a>
-          <a class="text-link" href="#flight-board">The flight board <span aria-hidden="true">↓</span></a>
+  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
+
+  <main id="main">
+    <section class="sky" data-sky aria-labelledby="lukas-title">
+      <div class="sky__clouds" aria-hidden="true"></div>
+      <svg class="sky__flight" aria-hidden="true"></svg>
+      <div class="sky__copy">
+        <h1 class="display-title" id="lukas-title">Lukas</h1>
+        <p class="lead">Airliners, military jets, and Formula 1. A fourth grader and a lung transplant miracle kid, with an extra birthday every March 25.</p>
+        <div class="actions">
+          <a class="btn btn--coral" href="/updates/">Read Lukas’s updates</a>
         </div>
       </div>
-      <figure class="profile-hero__art reveal">
-        <img src="/assets/backgrounds/lukas.webp?v=20260904-family2" alt="An Airbus A380 silhouetted against a gold sunset" width="1536" height="1024" fetchpriority="high" />
-      </figure>
     </section>
 
-    <section class="profile-section profile-section--cyan" id="flight-board">
-      <div class="shell reveal">
-        <h2 class="section-title">The current flight board.</h2>
-        <div class="interest-board">
-          <article class="interest-card interest-card--airliners">
-            <img class="interest-card__media" src="/assets/interests/airliner.jpg" alt="An Airbus A380 silhouetted against a gold sunset" width="2000" height="1324" loading="lazy" />
-            <span class="interest-card__scrim" aria-hidden="true"></span>
-            <span class="interest-card__number" aria-hidden="true">01</span>
-            <div class="interest-card__copy"><h3>Airliners</h3><p>The aircraft, the routes, the cabins, and everything happening at the gate.</p></div>
-          </article>
-          <article class="interest-card interest-card--jets">
-            <img class="interest-card__media" src="/assets/interests/f22-raptor.jpg" alt="A U.S. Air Force F-22 Raptor wrapped in a condensation cloud" width="2000" height="1331" loading="lazy" />
-            <span class="interest-card__scrim" aria-hidden="true"></span>
-            <span class="interest-card__number" aria-hidden="true">02</span>
-            <div class="interest-card__copy"><h3>U.S. military jets</h3><p>Shapes built for speed, from the flight line to the edge of a vapor cloud.</p></div>
-          </article>
-          <article class="interest-card interest-card--f1">
-            <img class="interest-card__media" src="/assets/interests/formula-one.jpg" alt="Carlos Sainz’s Ferrari Formula 1 car at speed during the 2024 Dutch Grand Prix" width="2000" height="1124" loading="lazy" />
-            <span class="interest-card__scrim" aria-hidden="true"></span>
-            <span class="interest-card__number" aria-hidden="true">03</span>
-            <div class="interest-card__copy"><h3>Formula 1</h3><p>Cars, circuits, liveries, and the blur between lights out and the flag.</p></div>
-          </article>
-        </div>
-        <details class="image-credits">
-          <summary>About the photographs</summary>
-          <p><a href="https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg">A380 at sunset</a> by Chad Ajamian, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>, also used on the family map and this page’s hero. <a href="https://commons.wikimedia.org/wiki/File:U.S._Air_Force_F-22_Raptor.jpg">F-22 Raptor</a> by Trevor Cokley, U.S. Air Force, public domain. <a href="https://commons.wikimedia.org/wiki/File:2024-08-25_Motorsport,_Formel_1,_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3895_by_Stepro.jpg">Formula 1</a> by Steffen Prößdorf, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Images resized and cropped for presentation; full details are in <a href="/IMAGE-CREDITS.md">IMAGE-CREDITS.md</a>.</p>
-        </details>
+    <section class="flight-board shell" id="flight-board" aria-labelledby="board-title">
+      <h2 class="section-title" id="board-title" data-reveal>The current flight board.</h2>
+      <div class="interests">
+        <article class="interest" data-parallax="12">
+          <figure class="interest__photo"><img src="/assets/interests/airliner.jpg" alt="An Airbus A380 silhouetted against a gold sunset" width="2000" height="1324" loading="lazy" decoding="async" data-parallax="-16" /></figure>
+          <div class="interest__board">
+            <h3 data-flaps>Airliners</h3>
+            <p>The aircraft, the routes, the cabins, and everything happening at the gate.<sup><a href="#note-airliner" id="ref-airliner" aria-label="Photo credit 1">1</a></sup></p>
+          </div>
+        </article>
+        <article class="interest" data-parallax="22">
+          <figure class="interest__photo"><img src="/assets/interests/f22-raptor.jpg" alt="A U.S. Air Force F-22 Raptor wrapped in a condensation cloud" width="2000" height="1331" loading="lazy" decoding="async" data-parallax="-16" /></figure>
+          <div class="interest__board">
+            <h3 data-flaps>U.S. military jets</h3>
+            <p>Shapes built for speed, from the flight line to the edge of a vapor cloud.<sup><a href="#note-jet" id="ref-jet" aria-label="Photo credit 2">2</a></sup></p>
+          </div>
+        </article>
+        <article class="interest" data-parallax="32">
+          <figure class="interest__photo"><img src="/assets/interests/formula-one.jpg" alt="Carlos Sainz’s Ferrari Formula 1 car at speed during the 2024 Dutch Grand Prix" width="2000" height="1124" loading="lazy" decoding="async" data-parallax="-16" /></figure>
+          <div class="interest__board">
+            <h3 data-flaps>Formula 1</h3>
+            <p>Cars, circuits, liveries, and the blur between lights out and the flag.<sup><a href="#note-f1" id="ref-f1" aria-label="Photo credit 3">3</a></sup></p>
+          </div>
+        </article>
       </div>
     </section>
+
+    <aside class="footnotes shell" aria-label="Photo credits">
+      <ol>
+        <li id="note-airliner"><a href="https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg">A380 at sunset</a> by Chad Ajamian, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>, also used on the family map. <a href="#ref-airliner" aria-label="Back to Airliners">↩</a></li>
+        <li id="note-jet"><a href="https://commons.wikimedia.org/wiki/File:U.S._Air_Force_F-22_Raptor.jpg">F-22 Raptor</a> by Trevor Cokley, U.S. Air Force, public domain. <a href="#ref-jet" aria-label="Back to U.S. military jets">↩</a></li>
+        <li id="note-f1"><a href="https://commons.wikimedia.org/wiki/File:2024-08-25_Motorsport,_Formel_1,_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3895_by_Stepro.jpg">Formula 1</a> by Steffen Prößdorf, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. <a href="#ref-f1" aria-label="Back to Formula 1">↩</a></li>
+      </ol>
+      <p>Photographs are resized and cropped for presentation. Full details are in <a href="/IMAGE-CREDITS.md">IMAGE-CREDITS.md</a>.</p>
+    </aside>
   </main>
+
   <div data-site-footer></div>
 </body>
 </html>

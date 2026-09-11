@@ -1,5 +1,4 @@
-/* Hallmark · macrostructure: Map / Diagram · tone: playful atmospheric · anchor hue: pear */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
+/* Shared tokens for the public pages and the writing room (admin.css). Change a value here only when both should move. */
 :root {
   color-scheme: light;
 
@@ -95,4 +94,24 @@
 
   --z-skip-link: 1000;
   --z-burst: 1000;
+
+  /* Public pages: soft tonal tiles, confident type, and scroll motion. */
+  --text-hero: clamp(3.25rem, 8.6vw, 7.75rem);
+  --text-section: clamp(2.25rem, 4.6vw, 4.25rem);
+  --text-tile: clamp(1.75rem, 2.8vw, 2.5rem);
+  --text-lead: clamp(1.125rem, 1.5vw, 1.3125rem);
+  --text-prose: clamp(1rem, 1.2vw, 1.0625rem);
+  --weight-display: 700;
+  --weight-title: 680;
+  --weight-strong: 650;
+
+  --radius-tile: clamp(1.5rem, 2.2vw, 1.75rem);
+  --radius-stage: clamp(1.75rem, 3.4vw, 3rem);
+  --radius-screen: 13.5% / 6.2%;
+  --stage-inset: clamp(0.5rem, 1.2vw, 1.25rem);
+  --space-chapter: clamp(5.5rem, 11vw, 10rem);
+
+  --shadow-screen: 0 2px 6px oklch(20% 0.012 250 / 0.08), 0 34px 70px -28px oklch(20% 0.012 250 / 0.42);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
 }

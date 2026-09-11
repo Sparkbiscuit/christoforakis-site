@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Andreas · Christoforakis.com</title>
+  <title>Andreas · christoforakis.com</title>
   <meta name="description" content="Andreas Christoforakis: the middle brother, a high school senior, and a cross-country runner at Longmeadow." />
   <meta name="theme-color" content="#f8f7ed" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
@@ -16,46 +16,42 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260904-family3" />
-  <script src="/assets/js/site.js?v=20260904-family2" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
+  <script src="/assets/js/site.js?v=20260911" defer></script>
+  <script src="/assets/js/motion.js?v=20260911" defer></script>
+  <script src="/assets/js/course.js?v=20260911" defer></script>
 </head>
 <body>
   <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Family updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
-  <main class="profile-main" id="main">
-    <section class="profile-hero shell">
-      <div class="profile-hero__copy reveal">
-        <p class="mono-label">Longmeadow · cross-country</p>
-        <h1 class="display-title">Andreas</h1>
-        <p class="lead">The middle brother. A high school senior and cross-country runner at Longmeadow.</p>
-        <div class="intro-actions">
-          <a class="btn" href="https://ma.milesplit.com/athletes/10898113-andreas-christoforakis">Race profile <span aria-hidden="true">↗</span></a>
-          <a class="text-link" href="#course">On the course <span aria-hidden="true">↓</span></a>
-        </div>
-      </div>
-      <figure class="profile-hero__art reveal">
-        <img src="/assets/backgrounds/andreas.webp?v=20260904-family2" alt="An autumn cross-country trail through New England woods" width="1536" height="1024" fetchpriority="high" />
-      </figure>
-    </section>
+  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
 
-    <section class="profile-section profile-section--lavender" id="course">
-      <div class="family-detail shell">
-        <div>
-          <p class="mono-label">Out on the course</p>
-          <h2 class="section-title">Cross-country<br>at Longmeadow.</h2>
-          <p class="lead">Andreas runs cross-country for Longmeadow High School. His race history is collected on MileSplit, from earlier track events to high school cross-country.</p>
-          <a class="text-link" href="https://ma.milesplit.com/athletes/10898113-andreas-christoforakis">Andreas’s race profile <span aria-hidden="true">↗</span></a>
+  <main id="main">
+    <header class="person-hero person-hero--short shell">
+      <h1 class="display-title">Andreas</h1>
+      <p class="lead">The middle brother, between Nicholas and Lukas. A high school senior and cross-country runner at Longmeadow.</p>
+    </header>
+
+    <figure class="trail" data-trail>
+      <div class="trail__scene" data-parallax="-40">
+        <img src="/assets/backgrounds/andreas.webp?v=20260904-family2" alt="An autumn cross-country trail through New England woods" width="1536" height="1024" fetchpriority="high" decoding="async" />
+        <svg class="trail__course" aria-hidden="true"></svg>
+      </div>
+    </figure>
+
+    <section class="course-note shell" id="course" aria-labelledby="course-title" data-reveal>
+      <h2 class="section-title" id="course-title">Cross-country at Longmeadow.</h2>
+      <div>
+        <div class="prose">
+          <p>Andreas runs cross-country for Longmeadow High School. His race history is collected on MileSplit, from earlier track events to high school cross-country.</p>
         </div>
-        <div class="family-detail__aside">
-          <p class="mono-label">In the family</p>
-          <h3>The middle of the family.</h3>
-          <p>Andreas is Nicholas’s younger brother and Lukas’s older brother. This is his place alongside the rest of the family, with more of his own stories to come.</p>
-          <a class="text-link" href="/">Meet the family <span aria-hidden="true">→</span></a>
+        <div class="actions">
+          <a class="btn btn--lavender" href="https://ma.milesplit.com/athletes/10898113-andreas-christoforakis">Race profile</a>
         </div>
       </div>
     </section>
   </main>
+
   <div data-site-footer></div>
 </body>
 </html>

@@ -30,14 +30,14 @@ The site is intentionally built as a static website. It has no framework, packag
 
 ## Experience overview
 
-The landing page is a map rather than a conventional stack of profile cards. Each member of the family occupies a distinct visual region, built from the supplied Super Visuals background library:
+The landing page is a map rather than a conventional stack of profile cards. It composes itself for the screen it is shown on: six rooms gather around the family's yellow character, a contour ground is drawn for the exact size, and paths draw in from home to each room. Each person's page keeps its own colour, imagery, and one signature moment:
 
-- Nicholas: neuroscience at Middlebury, Filuma and Meds Ahead, real app screenshots, and his development process.
-- Andreas: high school, Longmeadow cross-country, and his public race profile.
-- Lukas: a photographic interest board for airliners, U.S. military jets, and Formula 1.
-- Oksana: a personal notebook for photographs and written posts.
-- Kiriakos: owner-operator of Mr. Pizza House, with the restaurant link and dated community coverage.
-- Foxy: the family's orange, cream, and black shepherd mix, now represented by a family-photo gallery.
+- Nicholas: neuroscience at Middlebury, doorway tiles to Filuma and Meds Ahead, how he builds, and how to reach him.
+- Andreas: high school, Longmeadow cross-country, a course drawn along the trail, and his public race profile.
+- Lukas: a dusk sky with a flight path, and a split-flap board for airliners, U.S. military jets, and Formula 1.
+- Oksana: a quiet notebook for photographs and written posts.
+- Kiriakos: owner-operator of Mr. Pizza House, with the pizza turning on its pan and dated community coverage.
+- Foxy: the family's orange, cream, and black shepherd mix, with family photographs that settle like prints.
 
 Lukas's medical and family updates have moved out of the landing page and into a searchable archive at `/updates/`. The newest update is still surfaced on the home page, so important news remains easy to find without defining the entire family landing experience.
 
@@ -45,12 +45,12 @@ Lukas's medical and family updates have moved out of the landing page and into a
 
 | Route | Purpose | Content source |
 | --- | --- | --- |
-| `/` | Magical family landing page and latest-update preview | `index.html`, `posts.json` |
-| `/nicholas/` | Nicholas, Filuma, and Meds Ahead | `nicholas/index.html` |
-| `/projects/meds-ahead/` | Meds Ahead product walkthrough and builder story | `projects/meds-ahead/index.html`, shared project styles |
-| `/projects/filuma/` | Filuma product walkthrough and builder story | `projects/filuma/index.html`, `assets/css/filuma.css` |
-| `/andreas/` | Andreas and cross-country | `andreas/index.html` |
-| `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html` |
+| `/` | Family map and latest-update preview | `index.html`, `assets/js/family-map.js`, `posts.json` |
+| `/nicholas/` | Nicholas, with doorways to Filuma and Meds Ahead | `nicholas/index.html` |
+| `/projects/meds-ahead/` | Meds Ahead builder story; product pages live on sparkbiscuit.me | `projects/meds-ahead/index.html` |
+| `/projects/filuma/` | Filuma builder story; product pages live on sparkbiscuit.me | `projects/filuma/index.html` |
+| `/andreas/` | Andreas and cross-country | `andreas/index.html`, `assets/js/course.js` |
+| `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html`, `assets/js/flight.js` |
 | `/oksana/` | Oksana's notebook and photograph feed | `oksana/index.html`, `blog-posts.json` |
 | `/kiriakos/` | Kiriakos and Mr. Pizza House | `kiriakos/index.html` |
 | `/foxy/` | Foxy's portrait and family-photo gallery | `foxy/index.html`, `assets/photos/` |
@@ -92,11 +92,16 @@ christoforakis.com/
 │   │   ├── foxy-deep-snow.jpg
 │   │   ├── foxy-family-day.jpg
 │   │   └── foxy-first-snow.jpg
+│   ├── apps/                     # App screenshots; *-660.jpg are resized copies for tiles
 │   ├── css/
-│   │   ├── site.css              # Public-page layout and components
+│   │   ├── site.css              # Public pages: foundation, chrome, and each page's composition
 │   │   └── admin.css             # Writing-room styles
 │   ├── js/
-│   │   ├── site.js               # Shared navigation, footer, motion, latest update
+│   │   ├── site.js               # Shared navigation, footer, latest update
+│   │   ├── motion.js             # One scroll engine: parallax, scrubbed progress, reveals
+│   │   ├── family-map.js         # Home: the map composed for the screen
+│   │   ├── flight.js             # Lukas: sky, flight path, and split-flap board
+│   │   ├── course.js             # Andreas: the course along the trail
 │   │   ├── blog.js               # Oksana notebook feed
 │   │   └── admin.js              # Authentication, editor, upload, publishing
 │   └── uploads/                  # Created automatically after notebook image uploads
@@ -125,7 +130,7 @@ The public experience is progressively enhanced:
 
 1. Each route is a complete semantic HTML document.
 2. `tokens.css` and `assets/css/site.css` provide the shared visual system.
-3. `assets/js/site.js` inserts the consistent header and footer, then adds optional motion and latest-update loading.
+3. `assets/js/site.js` inserts the consistent header and footer and loads the latest update. `assets/js/motion.js` adds optional scroll motion, and a few pages add a small module of their own.
 4. Data-backed pages fetch their JSON file over HTTP and construct safe DOM nodes with `textContent`.
 
 The public scripts do not use `innerHTML` for post content. User-written titles, paragraphs, dates, and image descriptions are assigned through DOM properties, which prevents authored text from being interpreted as executable markup.
@@ -150,12 +155,29 @@ There is no separate admin server. When an authorized author presses **Publish c
 
 ### Direction
 
-The site uses a custom Hallmark treatment built on these foundations:
+The site is one house with rooms that have their own light. The house is shared: warm paper, dark ink, soft tonal tiles without outlines, confident type, and one quiet scroll engine. Each page keeps its person's colour, imagery, and one signature moment in their own language.
 
-- Macrostructure: **Map / Diagram** for the shared landing hub, enriched with a **Photographic** profile treatment. The family is presented as six destinations, while profile pages use one composition suited to the person rather than a repeated card template.
-- Theme foundation: **Hum**. Warm off-white surfaces, dark ink, compact labels, and bright color accents keep the experience lively without making it childish.
-- Imagery: optimized crops derived from the user-supplied Super Visuals Figma library, family-owned photographs, and three self-hosted credited images on Lukas's page.
-- Interaction: Apple-inspired physical feedback, restrained spring-like motion, spatial consistency, translucent material only where it supports navigation, and a complete reduced-motion path.
+| Page | Signature moment |
+| --- | --- |
+| Home | The family map composes itself for the screen: rooms gather around the yellow character, a contour ground is drawn for the exact size, and paths draw in from home. |
+| Nicholas | Two doorway tiles whose app screens lift into place as they pass. |
+| Andreas | A cross-country course drawn along the real trail in the photograph. |
+| Lukas | A dusk sky with a flight path the plane flies as the sky scrolls away, and a split-flap departures board. |
+| Oksana | Stillness: photographs and words given room. |
+| Kiriakos | The pizza turns on its pan. |
+| Foxy | Family photographs settle like prints. |
+| Updates | Its own calm reading room, kept as it is. |
+
+### Rules the design holds to
+
+- Show, don't tell. No eyebrow labels over headlines, helper captions, or lines that explain what a visitor can already see or do. A feature is named with a bold lead-in inside its paragraph.
+- Credits and disclaimers go in numbered footnotes at the bottom of the page.
+- No hairlines or hard borders. Content sits on the paper or in a soft tonal tile with a large radius, no outline, and no shadow. Only device screenshots cast a shadow.
+- Display type is weight 680–700 with tight tracking and balanced wraps.
+- Buttons are pills. Links carry a chevron that leans the way they go.
+- Motion is subtle, plays where the visitor is looking, and only moves and fades. With reduced motion, every page rests in its finished state.
+- Heroes are composed for the real screen rather than stretched from one fixed drawing, and scroll cues belong to the art, never to a label.
+- The site is called by its address, christoforakis.com, and credited as made by Nicholas Christoforakis.
 
 ### Tokens
 
@@ -163,20 +185,31 @@ The site uses a custom Hallmark treatment built on these foundations:
 
 The core typefaces are loaded from Google Fonts:
 
-- Plus Jakarta Sans for interface and display typography.
-- JetBrains Mono for dates, labels, and small technical metadata.
+- Plus Jakarta Sans for every public page, loaded as a variable font (weights 400–800).
+- JetBrains Mono, loaded only by the writing room.
+
+The writing room uses `tokens.css` too, so change an existing value only when both should move. Public-page tokens (tile radius, stage inset, display sizes, screen shadow) are grouped at the end of the file.
 
 The CSS includes system fallbacks. If the font request is blocked, the site remains readable and usable.
 
 ### Shared public components
 
-- Sticky site header with a click-open family directory.
-- Keyboard-operable mega menu with Escape-to-close and returned focus.
-- Consistent utility navigation to Updates and Oksana's notebook.
-- Physical press buttons and link affordances.
-- Reusable profile hero, fact rows, editorial blocks, and call-to-action bands.
-- Statement footer: “Five people. One dog. Plenty happening.”
-- Optional reveal motion that is disabled when reduced motion is requested.
+- Sticky glass header with a click-open family menu that shows each person's photo.
+- Keyboard-operable menu with Escape-to-close and returned focus.
+- Consistent utility navigation to Updates and Oksana’s notebook.
+- Pills, chevron links, tonal tiles, rounded stages, and numbered footnotes.
+- A rounded footer sheet: “Five people. One dog. Plenty happening.”
+
+### Motion
+
+`assets/js/motion.js` runs a single `requestAnimationFrame` loop for every public page. An IntersectionObserver keeps work near the viewport, and each frame measures every active element before writing anything.
+
+- `data-parallax=”n”` lets a tile drift a few pixels against the scroll.
+- `data-scrub=”start end [center]”` writes an eased `--progress` from 0 to 1 while an element crosses the window; CSS turns it into rotation, translation, or opacity.
+- `data-reveal` fades and lifts content once, the first time it is reached.
+- Page modules (`family-map.js`, `flight.js`, `course.js`) register their own effects through `window.familyMotion.on`.
+
+Only transforms, opacity, and the strokes of drawn lines change while scrolling. Without JavaScript, or with reduced motion requested, content rests in its finished state and nothing is hidden.
 
 ### Image asset policy
 
@@ -408,7 +441,7 @@ Edit the appropriate route's `index.html`. Keep the established structure where 
 - A shared footer placeholder: `<div data-site-footer></div>`
 - `/assets/js/site.js` loaded with `defer`
 
-The family labels and URLs in the mega menu live in the `family` array near the top of `assets/js/site.js`. If a person's title or path changes, update both the relevant page and this array.
+The family menu's names, paths, and photos live in the `family` array near the top of `assets/js/site.js`. If a person's path or map photo changes, update the page, this array, and the matching room in `index.html`.
 
 ### Change global colors, spacing, or type
 
@@ -479,7 +512,7 @@ After pushing:
 
 ## Testing and quality checks
 
-The September 2026 polish includes Filuma and Meds Ahead on `/nicholas/`, six original app screenshots with full-size links, clearer contact and profile navigation, a 404 page, and corrected editor state handling. The former illustrative Loom schedule is no longer used. Shared CSS and scripts have a version query so existing visitors receive updated assets. Content sources and status dates are recorded in `CONTENT-SOURCES.md`.
+The September 11, 2026 design rebuild gave every public page except Updates a new composition on one shared foundation, slimmed the app pages to their builder stories, and moved credits and disclaimers into footnotes. Shared CSS and scripts carry a version query (`?v=`) so existing visitors receive updated assets; bump it whenever those files change. Content sources and status dates are recorded in `CONTENT-SOURCES.md`.
 
 Run the offline writing-room regression checks with `node tests/admin.test.mjs`. These use isolated mock storage, files, and network responses; they cannot publish to GitHub. They cover Undo, photo retention, empty collections, validation of every post, stale loads, and lock behavior.
 
@@ -491,6 +524,10 @@ Verification combines the standalone Node regression harness, syntax checks, JSO
 
 ```bash
 node --check assets/js/site.js
+node --check assets/js/motion.js
+node --check assets/js/family-map.js
+node --check assets/js/flight.js
+node --check assets/js/course.js
 node --check assets/js/blog.js
 node --check assets/js/admin.js
 ```
@@ -517,14 +554,14 @@ At minimum, test:
 
 | Area | Desktop | Narrow mobile | Keyboard |
 | --- | --- | --- | --- |
-| Landing map | No overlap; backgrounds crop well | One-column map; no horizontal scroll | Family menu opens and closes |
+| Landing map | Rooms never overlap each other or home; paths meet their rooms | Two staggered columns along a spine; no horizontal scroll | Family menu opens and closes |
 | Family menu | Directory fits viewport | Directory scrolls internally | First link receives focus; Escape returns focus |
 | Updates | Seven existing entries load; pinned entry leads | Search and read-more remain usable | Search, read-more, and share button are reachable |
 | Oksana notebook | Empty or populated state is intentional | Images do not overflow | Links and posts follow reading order |
-| Profiles | Distinct compositions and photography render cleanly | No clipped heading, artwork, gallery, or horizontal scroll | Focus state is visible; credits disclosure is reachable |
+| Profiles | Distinct compositions and photography render cleanly | No clipped heading, artwork, or horizontal scroll | Focus state is visible; footnote links are reachable |
 | Writing room | Setup/login/editor layouts fit | Editor controls remain usable | Labels, tab controls, and actions are reachable |
 
-Also test with the operating system's **Reduce Motion** setting enabled. Reveals and decorative bursts should be removed without hiding content.
+Also test with the operating system's **Reduce Motion** setting enabled. Every page should rest in its finished state, with nothing hidden.
 
 ### Browser-console expectations
 

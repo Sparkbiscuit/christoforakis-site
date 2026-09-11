@@ -427,7 +427,7 @@ Profile pages are edited in HTML rather than through the writing room. When a pr
 2. Prefer current, durable details over a long inventory.
 3. Avoid publishing a school, workplace, routine, or location detail without approval.
 4. Review the page at mobile and desktop widths.
-5. Confirm the family-menu subtitle in `assets/js/site.js` still matches.
+5. Confirm the person's entry in the `family` array in `assets/js/site.js` (name, path, and photo) still matches.
 6. Publish through the normal Git workflow.
 
 Placeholder pages are intentional. A short truthful page is better than an invented or overfilled one.
