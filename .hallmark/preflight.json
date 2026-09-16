@@ -8,8 +8,7 @@
   "preserve": [
     "static hosting model",
     "posts.json content",
-    "GitHub Contents API publishing model",
-    "planner route"
+    "GitHub Contents API publishing model"
   ],
   "introduce": [
     "shared OKLCH tokens",

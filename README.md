@@ -56,7 +56,6 @@ Lukas's medical and family updates have moved out of the landing page and into a
 | `/foxy/` | Foxy's portrait and family-photo gallery | `foxy/index.html`, `assets/photos/` |
 | `/updates/` | Searchable archive of Lukas's family updates | `updates/index.html`, `posts.json` |
 | `/admin.html` | Private browser-based writing room | `admin.html`, GitHub Contents API |
-| `/planner/` | Existing planner retained from the previous site | `planner/index.html` |
 
 All public pages share the same injected family navigation and footer. The editor is visually related but intentionally has its own focused layout.
 
@@ -112,7 +111,6 @@ christoforakis.com/
 ├── kiriakos/index.html
 ├── foxy/index.html
 ├── updates/index.html
-├── planner/index.html            # Retained existing page
 └── .hallmark/
     ├── preflight.json            # Recorded design direction
     └── log.json                  # Hallmark design log
@@ -499,7 +497,6 @@ Before committing:
 - Confirm `Super Visuals_ Backgrounds Library..fig` and `.fig-preview/` are not staged.
 - Confirm no GitHub token or other secret appears in the diff.
 - Confirm `posts.json` still contains the complete update archive.
-- Confirm the existing planner was not changed unintentionally.
 - Run the verification checklist below.
 
 After pushing:
