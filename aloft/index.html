@@ -814,7 +814,7 @@ const AIRPORT_DEFS = [
     runways: [{ a: 0, c: 0, hdg: 110, len: 1300, wid: 30, surface: 'gravel', lights: false, ils: [0, 0], papi: false, padC: 80, blendC: 300 }],
     pads: [{ a0: -90, a1: 90, c0: 62, c1: 135 }], terminal: { kind: 'shack', a0: -50, a1: 50, c: 110 }, taxi: { side: 1, off: 60, short: true } },
   { id: 'LUA', name: 'Lukla', region: 'mainland', x: -6000, z: -47000, hdg: 59, elev: 2810, kind: 'mountain', blurb: '527 m · 13% uphill · 2,810 m up · no go-around', townStyle: 'mountain', town: false,
-    runways: [{ a: 0, c: 0, hdg: 59, len: 527, wid: 30, surface: 'asphalt', lights: false, ils: [0, 0], papi: false, slope: 0.133, pad: [25, 30], blend: [40, 30], padC: 45, blendC: 60, corr: false, oneWay: 0 }],
+    runways: [{ a: 0, c: 0, hdg: 59, len: 527, wid: 30, surface: 'asphalt', lights: false, ils: [0, 0], papi: false, slope: 0.133, pad: [25, 30], blend: [40, 30], runOut: [1, 0], padC: 45, blendC: 60, corr: false, oneWay: 0 }],
     // the apron is level, tucked in on the right of the top of the runway; the right turn off the runway joins it where the heights match
     pads: [{ a0: 190, a1: 252, c0: 24, c1: 78, level: 218 }, { a0: 207, a1: 229, c0: 12, c1: 26, level: 218 }, { a0: 92, a1: 132, c0: -50, c1: -16, level: 112, grass: true }], padBlend: 9,
     terminal: { kind: 'lukla', a0: 192, a1: 262, c: 86 },
@@ -1042,7 +1042,7 @@ function terrainModule(DEF) {
     let d;
     // below the threshold a steep wooded slope (30 m down in the first 100 m, 100 m in 300), above the top a stone wall and the hillside
     const drop = a < lowA - 12 ? (lowA - 12 - a) : 0, dropH = drop < 100 ? drop * 0.3 : 30 + (drop - 100) * 0.36;
-    const along = a < lowA - 12 ? e0 - dropH : a > R.half + 22 ? R.elev + R.slope * R.half + 3 + (a - R.half - 22) * 0.9 : e0 + (Math.min(a, R.half) - lowA) * R.slope;
+    const along = a < lowA - 12 ? e0 - 12 * R.slope - dropH : a > R.half + 22 ? R.elev + R.slope * R.half + 3 + (a - R.half - 22) * 0.9 : e0 + (Math.min(a, R.half) - lowA) * R.slope;
     d = Math.max(along, a < lowA - 30 ? 2250 - (lowA - 30 - a) * 0.09 : -1e9);
     // to the right: the apron, terminal and lodges on a ledge near the top; to the left: the tower, the helipad and the village terrace
     const top = sstep(40, 190, a), flatR = lerp(55, 175, top), flatL = lerp(55, 80, top), riseL = lerp(0.62, 0.16, top), fallR = lerp(0.55, 0.7, top);
@@ -1142,7 +1142,8 @@ function terrainModule(DEF) {
       let m = (1 - sstep(R.half + pad, R.half + pad + bl, Math.abs(a))) * (1 - sstep(R.padC, R.padC + R.blendC, Math.abs(c)));
       if (R.deck && a > R.deck[0] - 10) m *= sstep(R.deck[0] + 10, R.deck[0] - 10, a);
       if (m > 0) {
-        const tgt = R.elev + R.slope * clamp(a, -R.half - pad, R.half + pad);
+        // a sloping runway can run straight on into the drop past an end (runOut) instead of levelling off into a lip
+        const tgt = R.elev + R.slope * (R.runOut && R.runOut[a < 0 ? 0 : 1] ? a : clamp(a, -R.half - pad, R.half + pad));
         h = lerp(h, tgt - R.sink, m);
         if (m > o.flat) o.flat = m;
         if (Math.abs(a) < R.half + 30 && Math.abs(c) < R.wid / 2 + 3) { o.surf = R.surface === 'grass' ? 4 : R.surface === 'gravel' ? 3 : R.surface === 'concrete' ? 2 : 1; o.pave = R.sink; o.rw = R; }
@@ -4111,7 +4112,7 @@ const gearExt = () => (GS.nose.leg * 0.25 + GS.main.leg * 0.75) + (GS.main.door 
 const inp = { pitch: 0, roll: 0, yaw: 0, thrUp: false, thrDn: false, brake: false, rev: false, tPitch: 0, tRoll: 0, touchStick: false };
 let invertPitch = store.get('invert', false);
 
-const _f = new THREE.Vector3(), _u = new THREE.Vector3(), _r = new THREE.Vector3(), _t = new THREE.Vector3(), _t2 = new THREE.Vector3(), _vd = new THREE.Vector3();
+const _f = new THREE.Vector3(), _u = new THREE.Vector3(), _r = new THREE.Vector3(), _t = new THREE.Vector3(), _t2 = new THREE.Vector3(), _vd = new THREE.Vector3(), _pm = new THREE.Vector3();
 const _q = new THREE.Quaternion();
 function axes() { _f.set(0, 0, -1).applyQuaternion(S.q); _u.set(0, 1, 0).applyQuaternion(S.q); _r.set(1, 0, 0).applyQuaternion(S.q); }
 function bodyToWorld(v, out) { return out.copy(v).applyQuaternion(S.q).add(S.pos); }
@@ -4162,7 +4163,14 @@ function toggleGear() {
   S.gearHandle = !S.gearHandle; sfx.click();
   toast(S.gearHandle ? 'gear down' : 'gear up');
 }
-const gi = {};
+const gi = {}, gi2 = {};
+// the rise of the ground across 2 × (ux, uz). Paving sits a hand's width proud of the earth beside it and grass pads sit
+// level with it, so read the rise with and without that edge and keep the higher reading: an edge is no drop to fly off
+function riseAlong(x, z, ux, uz) {
+  const g1 = groundInfo(x + ux, z + uz, gi2), p1 = gi2.pave ? gi2.pave + 0.03 : 0;
+  const g0 = groundInfo(x - ux, z - uz, gi2), p0 = gi2.pave ? gi2.pave + 0.03 : 0;
+  return Math.max(g1 - g0, g1 - p1 - g0 + p0);
+}
 function physicsStep(dt) {
   const PF = AC.T.perf, GR = AC.G;
   axes();
@@ -4248,21 +4256,27 @@ function physicsStep(dt) {
   S.pos.addScaledVector(S.vel, dt);
   const lever = (AC.T.levered || 0) * GS.lever;
   const reachM = GR.mainReach + GR.bogieHalf * Math.sin(GS.tilt) + lever;
-  const pm = bodyToWorld(_t.set(0, -reachM, GR.mainZ), _t);
+  const pm = bodyToWorld(_pm.set(0, -reachM, GR.mainZ), _pm);
   const gm = groundInfo(pm.x, pm.z, gi), hm = gi.h, surf = gi.surf, onPave = gi.pave || gi.deck, water = gi.water, flatM = gi.flat, rwHere = gi.rw;
   const dm = gm - pm.y;
   const pn = bodyToWorld(_t2.set(0, -GR.noseReach, GR.noseZ), _t2);
   const gn = groundAt(pn.x, pn.z), dn = gn - pn.y;
   S.agl = Math.max(0, -dm);
   S.surf = surf;
+  // how fast the surface under the wheels falls away as we roll over it (Lukla's runway drops 13 m in every 100)
+  const hv = Math.hypot(S.vel.x, S.vel.z);
+  let gRate = 0;
+  if (hv > 0.3) gRate = Math.min(0, riseAlong(pm.x, pm.z, 1.5 * S.vel.x / hv, 1.5 * S.vel.z / hv) / 3 * hv);
   const locked = gearDownLocked();
   const wasGround = S.onGround;
   if (locked && state === 'fly') {
-    const contact = dm > 0 || (wasGround && dm > -0.45 && S.vel.y < 0.8);
+    // the ground pushes but never pulls: roll along the surface while pressed onto it, and fly off any edge that
+    // falls away faster than the aircraft does (it used to drag you down the hillside past the end at Lukla)
+    const contact = dm > 0 || (wasGround && dm > -0.45 && S.vel.y < gRate + 0.8);
     if (contact) {
       if (!wasGround) touchdown(-S.vel.y, hm, flatM, pm, water, surf, rwHere);
       if (state !== 'fly') return;
-      S.pos.y += dm; if (S.vel.y < 0) S.vel.y = 0;
+      S.pos.y += dm; if (S.vel.y < gRate) S.vel.y = gRate;
       S.onGround = true;
     } else S.onGround = false;
     if (dn > 0 && S.onGround) {
@@ -4322,7 +4336,7 @@ function physicsStep(dt) {
     if (w.y < g) {
       if (sp2.fold && S.tipFold > 0.3) continue;   // a folded tip is standing up, well clear
       if (sp2.what === 'tail strike' && AC.tailWheel && GS.main.leg > 0.9) continue;
-      if (sp2.what === 'tail strike' && S.vel.y > -4) { tailScrape(w); S.q.multiply(_q.setFromAxisAngle(X_AXIS, -(g - w.y) / 22)); if (!S.onGround && S.vel.y < 0) S.vel.y *= 0.5; continue; }
+      if (sp2.what === 'tail strike' && S.vel.y - gRate > -4) { tailScrape(w); S.q.multiply(_q.setFromAxisAngle(X_AXIS, -(g - w.y) / 22)); if (!S.onGround && S.vel.y < 0) S.vel.y *= 0.5; continue; }
       if (sp2.what === 'belly' && !locked) { bellyLanding(w.y < 0.5 && TM.height(w.x, w.z) < 0, w); return; }
       if (sp2.what === 'belly' && locked) continue;
       const wet = TM.height(w.x, w.z) < 0 && !gi.deck;
