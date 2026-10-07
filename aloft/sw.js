@@ -1,7 +1,7 @@
 /* Aloft offline cache, scoped to /aloft/ only.
    The game page is fetched from the network first so updates arrive right away, with the cached copy used offline.
    three.js comes from a pinned CDN URL that never changes, so it is kept in a cache of its own. */
-const VERSION = 'aloft-b664742f1d';
+const VERSION = 'aloft-9ffd959253';
 const CORE = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-64.png'];
 const CDN_CACHE = 'aloft-cdn-three-0.170.0';
 self.addEventListener('install', e => {

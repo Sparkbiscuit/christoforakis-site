@@ -1,7 +1,7 @@
 {
   "name": "Aloft Island Hopper",
   "short_name": "Aloft",
-  "description": "Fly airliners between islands: Kai Tak's checkerboard, Lukla, St Barth, Madeira, a folding-wing 777X and Concorde.",
+  "description": "Fly airliners between islands with traffic all around: Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, a folding-wing 777X and Concorde.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
