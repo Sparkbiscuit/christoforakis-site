@@ -82,3 +82,10 @@ Review the local preview. Reconfirm the dated App Store status if publication is
 - For the family to review in `IMAGE-CREDITS.md`, left unchanged:
   - The A380 row still lists “Lukas hero” among its uses. That hero is now a drawn sky; the photograph remains on the flight board and the family map.
   - The Mr. Pizza House row lists the subject as “Cheese pizza”.
+
+## Meds Ahead after 1.2, October 9, 2026
+
+- Nicholas asked that the Meds Ahead copy match the updated sparkbiscuit.me/meds page, which now says plainly that nothing leaves your iPhone. He ruled on October 9 that the line stays unqualified, because the app itself never exports or sends anyone's data.
+- `nicholas/` now says what the app shows (which medication runs out next, and why) and ends on “Nothing leaves your iPhone.”
+- `projects/meds-ahead/` adds two facts from versions 1.1 and 1.2, checked against Sparkbiscuit/meds-ahead at 1633984 (AppStore/SUBMISSION.md and Documentation/PRODUCT.md): the *Why this date?* view behind every run-out date, and NDC identification against the bundled FDA directory, which fills a product only when the label agrees. The privacy decision now opens with “Nothing leaves your iPhone.”
+- Screenshots: the four `assets/apps/meds-*` files were the August 31 phone captures, which showed a real status bar and a transplant medication with its dose. They are replaced, under the same names, with simulator captures of the app's fictional demo household from October 9 (Lisinopril, Metformin, Levothyroxine, Atorvastatin and an Amoxicillin course; 9:41 status bar). `meds-supply-660.jpg` is again a 660 × 1434 `sips` JPEG of `meds-supply.png`. `meds-medications.png` is 1206 × 2622, from a 6.3-inch simulator.
