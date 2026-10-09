@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="description" content="Fly airliners between islands with traffic all around: Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, a folding-wing 777X and Concorde.">
+<meta name="description" content="Fly airliners between islands: Bora Bora's lagoon, Mt Fuji, Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, the Embraer E190, a folding-wing 777X and Concorde.">
 <meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Aloft">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Aloft Island Hopper">
-<meta property="og:description" content="A 3D flight game: Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, a folding-wing 777X and Concorde.">
+<meta property="og:description" content="A 3D flight game: Bora Bora's lagoon, Mt Fuji, Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, a folding-wing 777X and Concorde.">
 <meta property="og:image" content="https://christoforakis.com/aloft/icons/icon-512.png">
 <meta property="og:url" content="https://christoforakis.com/aloft/">
 <title>Aloft Island Hopper</title>
@@ -491,9 +491,9 @@ const canvas = $('c');
 const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 // graphics presets: laptops ran hot drawing 120 frames a second at full Retina resolution, so the default now caps at 60
 const GFX = {
-  saver: { name: 'battery saver', fps: 30, pr: 1, prT: 1, bloom: false, shadow: 1024, env: 6, trees: 0.5, sub: '30 fps · softer pixels · no glow · half the trees' },
-  balanced: { name: 'balanced', fps: 60, pr: 1.5, prT: 1.5, bloom: true, shadow: 2048, env: 2.5, trees: 1, sub: '60 fps · glow · the cool-running default' },
-  max: { name: 'max', fps: 0, pr: 2, prT: 2, bloom: true, shadow: 2048, env: 1.2, trees: 1, sub: 'as many frames as the screen shows · runs hot' },
+  saver: { name: 'battery saver', fps: 30, pr: 1, prT: 1, bloom: false, shadow: 1024, shadowT: 1024, shadowBox: 110, treeShadows: false, env: 6, trees: 0.5, sub: '30 fps · softer pixels · no glow · half the trees' },
+  balanced: { name: 'balanced', fps: 60, pr: 1.5, prT: 1.5, bloom: true, shadow: 2048, shadowT: 2048, shadowBox: 240, treeShadows: true, env: 2.5, trees: 1, sub: '60 fps · glow · shadows · the cool-running default' },
+  max: { name: 'max', fps: 0, pr: 2, prT: 2, bloom: true, shadow: 4096, shadowT: 2048, shadowBox: 400, treeShadows: true, env: 1.2, trees: 1, sub: 'as many frames as the screen shows · long shadows · runs hot' },
 };
 let gfxKey = store.get('gfx', 'balanced'); if (!GFX[gfxKey]) gfxKey = 'balanced';
 let GQ = GFX[gfxKey];
@@ -645,7 +645,7 @@ const hemi = new THREE.HemisphereLight(0xffffff, 0x445533, 1);
 scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.castShadow = true;
-{ const n = isTouch ? 1024 : GQ.shadow; sun.shadow.mapSize.set(n, n); }
+{ const n = isTouch ? GQ.shadowT : GQ.shadow; sun.shadow.mapSize.set(n, n); }
 const SC = sun.shadow.camera; SC.left = -80; SC.right = 80; SC.top = 80; SC.bottom = -80; SC.near = 10; SC.far = 6000;
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
 scene.add(sun); scene.add(sun.target);
@@ -654,7 +654,8 @@ scene.add(sun); scene.add(sun.target);
 const waterMat = new THREE.ShaderMaterial({
   uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
     time: { value: 0 }, sunDir: { value: new THREE.Vector3() }, sunCol: { value: new THREE.Color() },
-    zen: { value: new THREE.Color() }, hor: { value: new THREE.Color() }, deep: { value: new THREE.Color() }, sunVis: { value: 1 }
+    zen: { value: new THREE.Color() }, hor: { value: new THREE.Color() }, deep: { value: new THREE.Color() }, sunVis: { value: 1 },
+    seaMap: { value: null }, seaRect: { value: new THREE.Vector4(0, 0, 0, 0) }, dayK: { value: 1 }
   }]),
   vertexShader: /* glsl */`
     #include <common>
@@ -672,7 +673,8 @@ const waterMat = new THREE.ShaderMaterial({
     #include <common>
     #include <fog_pars_fragment>
     #include <logdepthbuf_pars_fragment>
-    uniform float time, sunVis; uniform vec3 sunDir, sunCol, zen, hor, deep;
+    uniform float time, sunVis, dayK; uniform vec3 sunDir, sunCol, zen, hor, deep;
+    uniform sampler2D seaMap; uniform vec4 seaRect;
     varying vec3 vW;
     vec2 wv(vec2 p, vec2 d, float f, float a, float s){ return d * (cos(dot(p,d)*f + time*s) * f * a); }
     float wh(vec2 p, vec2 d, float f, float a, float s){ return a * sin(dot(p,d)*f + time*s); }
@@ -695,12 +697,22 @@ const waterMat = new THREE.ShaderMaterial({
       vec3 skyc = mix(hor, zen, pow(R.y, 0.5));
       float sd = max(dot(R, sunDir), 0.0);
       vec3 spec = sunCol * (pow(sd, 700.0) * 7.0 + pow(sd, 50.0) * 0.18) * sunVis;
-      vec3 col = mix(deep, skyc, fres) + spec;
+      // shallow clear water over sand: turquoise in the lagoons, pale where it is only knee deep
+      float shal = 0.0, clr = 0.0, dep = 60.0;
+      if (seaRect.w > 0.5) {
+        vec2 suv = (vW.xz - seaRect.xy) * seaRect.z;
+        if (suv.x > 0.0 && suv.x < 1.0 && suv.y > 0.0 && suv.y < 1.0) {
+          vec4 sm = texture2D(seaMap, suv);
+          dep = sm.r * 63.75 * (1.0 - sm.b * 0.9); clr = sm.g; shal = 1.0 - smoothstep(0.8, 24.0, dep);
+        }
+      }
+      vec3 lag = mix(vec3(0.02, 0.30, 0.40), vec3(0.12, 0.66, 0.70), 1.0 - smoothstep(1.5, 14.0, dep)) * (0.12 + 0.88 * dayK);
+      vec3 col = mix(mix(deep, lag, shal * clr), skyc, fres * (1.0 - 0.15 * shal * clr)) + spec;
       float crest = (wh(p, vec2(0.958,0.287), 0.018, 1.6, 0.9) + wh(p, vec2(-0.371,0.928), 0.031, 0.9, 1.2) + wh(p, vec2(0.659,-0.752), 0.067, 0.42, 1.8)) / 2.92;
       float brk = sin(dot(p, vec2(0.173, 0.097)) + time * 0.6) * sin(dot(p, vec2(-0.081, 0.211)) - time * 0.45) * sin(dot(p, vec2(0.052, -0.031)) + time * 0.2);
       float foam = smoothstep(0.7, 0.97, crest) * smoothstep(0.25, 0.8, brk) * fade * fade;
       col = mix(col, mix(hor, vec3(1.0), 0.55) * (0.2 + 0.8 * sunVis), foam * 0.4);
-      gl_FragColor = vec4(col, mix(0.72, 1.0, fres) + foam * 0.2);
+      gl_FragColor = vec4(col, mix(mix(0.72, 0.5, shal * clr), 1.0, fres) + foam * 0.2);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
       #include <fog_fragment>
@@ -773,22 +785,36 @@ function canvasTex(w, h, draw) { const cv = document.createElement('canvas'); cv
    x = east, z = south, headings are compass degrees
    ========================================================= */
 const ISLAND_DEFS = [
+  // the Caribbean lies west of the Atlantic islands, as on a real map, so the sun sets over St Maarten and rises over Japan
   { key: 'skiathos', x: 16000, z: -3000, ang: 100, rx: 5200, rz: 2600, type: 'hilly', peak: 430, biome: 'med', seed: 3.1 },
-  { key: 'stmaarten', x: 30000, z: 16000, ang: 95, rx: 7500, rz: 5200, type: 'hilly', peak: 420, biome: 'carib', seed: 5.7, lagoon: { u: -4600, v: -700, rx: 2400, rz: 1000 } },
-  { key: 'stbarth', x: 46000, z: 29000, ang: 100, rx: 4200, rz: 2300, type: 'hilly', peak: 310, biome: 'carib', seed: 8.3 },
+  { key: 'stmaarten', x: -46000, z: 46000, ang: 95, rx: 7500, rz: 5200, type: 'hilly', peak: 420, biome: 'carib', seed: 5.7, lagoon: { u: -4600, v: -700, rx: 2400, rz: 1000 } },
+  { key: 'stbarth', x: -26000, z: 50000, ang: 100, rx: 4200, rz: 2300, type: 'hilly', peak: 310, biome: 'carib', seed: 8.3 },
   { key: 'madeira', x: -36000, z: 12000, ang: 40, rx: 11000, rz: 5000, type: 'cliff', peak: 1850, biome: 'atl', seed: 2.2 },
-  { key: 'saltmere', x: 2000, z: 24000, ang: 90, rx: 3600, rz: 3000, type: 'atoll', peak: 0, biome: 'carib', seed: 9.9 },
+  { key: 'saltmere', x: -34000, z: 32000, ang: 90, rx: 3600, rz: 3000, type: 'atoll', peak: 0, biome: 'carib', seed: 9.9 },
   { key: 'kestrel', x: -14000, z: 30000, ang: 30, rx: 4500, rz: 4200, type: 'volcanic', peak: 1500, biome: 'trop', seed: 4.4 },
-  { key: 'brisa', x: 20000, z: 38000, ang: 75, rx: 2000, rz: 900, type: 'flat', peak: 0, biome: 'carib', seed: 6.6 },
+  { key: 'brisa', x: -60000, z: 36000, ang: 75, rx: 2000, rz: 900, type: 'flat', peak: 0, biome: 'carib', seed: 6.6 },
   { key: 'hongkong', x: 43720, z: -11640, ang: 90, rx: 3400, rz: 1300, type: 'hilly', peak: 560, biome: 'trop', seed: 6.1 },
   { x: -6000, z: 6000, ang: 10, rx: 1400, rz: 900, type: 'hilly', peak: 140, biome: 'med', seed: 1.7 },
-  { x: 40000, z: 2000, ang: 60, rx: 1900, rz: 1200, type: 'hilly', peak: 220, biome: 'carib', seed: 7.1 },
+  { key: 'miyajima', x: 40000, z: 2000, ang: 60, rx: 1900, rz: 1200, type: 'hilly', peak: 380, biome: 'jp', seed: 7.1 },
   { x: -25000, z: 34000, ang: 120, rx: 1600, rz: 1300, type: 'volcanic', peak: 520, biome: 'trop', seed: 3.9 },
-  { x: 8000, z: 44000, ang: 0, rx: 1300, rz: 1300, type: 'atoll', peak: 0, biome: 'carib', seed: 2.8 },
+  { key: 'tupai', x: 7000, z: 45500, ang: 20, rx: 1500, rz: 1300, type: 'atoll', peak: 0, biome: 'poly', seed: 2.8 },
   { key: 'flores', x: -50000, z: 26000, ang: 45, rx: 2600, rz: 1500, type: 'cliff', peak: 600, biome: 'atl', seed: 5.2 },
   { key: 'gibraltar', x: -52000, z: -6900, ang: 0, rx: 2600, rz: 1000, type: 'rock', peak: 426, biome: 'med', seed: 7.7 },
-  { key: 'coral', x: 56000, z: 12000, ang: 80, rx: 2400, rz: 1500, type: 'hilly', peak: 260, biome: 'carib', seed: 8.8 },
-  { x: 34000, z: 34000, ang: 20, rx: 900, rz: 700, type: 'flat', peak: 0, biome: 'carib', seed: 4.9 },
+  { key: 'coral', x: -12000, z: 46000, ang: 80, rx: 2400, rz: 1500, type: 'hilly', peak: 260, biome: 'carib', seed: 8.8 },
+  { x: 34000, z: 33000, ang: 20, rx: 900, rz: 700, type: 'flat', peak: 0, biome: 'poly', seed: 4.9 },
+  // French Polynesia: jagged green islands in turquoise lagoons, ringed by reefs and palm motus (u runs along ang, v to its right)
+  { key: 'moorea', x: 1500, z: 25500, ang: 0, rx: 4300, rz: 4000, type: 'hilly', peak: 820, biome: 'poly', seed: 3.3, jag: 1, shore: 0.97,
+    reef: { ru: 5500, rv: 5300, w: 210, motus: 0.25, passes: [[-14, 0.05], [8, 0.045], [140, 0.05]] },
+    bays: [{ u: 3000, v: -1350, ru: 2300, rv: 330 }, { u: 3100, v: 650, ru: 2100, rv: 300 }],
+    spires: [{ u: -300, v: -700, r: 700, h: 1060 }, { u: 1900, v: -400, r: 520, h: 860 }, { u: 600, v: 1500, r: 600, h: 840 }] },
+  { key: 'borabora', x: 20500, z: 38500, ang: 0, rx: 3400, rz: 1700, type: 'hilly', peak: 300, biome: 'poly', seed: 6.4, jag: 1, shore: 0.965,
+    reef: { ru: 6100, rv: 5000, cv: 900, w: 300, motus: 0.75, passes: [[-90, 0.07]] },
+    spires: [{ u: 400, v: -500, r: 520, h: 740 }, { u: -350, v: -1150, r: 460, h: 660 }] },
+  // Japan: a long green island under a Fuji of snow, and Hachijojima's two volcanoes out to the southeast
+  { key: 'japan', x: 41000, z: 15000, ang: 75, rx: 11000, rz: 6000, type: 'hilly', peak: 520, biome: 'jp', seed: 7.3,
+    cones: [{ u: 4200, v: -600, r: 6300, h: 2950, crater: 110 }] },
+  { key: 'hachijo', x: 55000, z: 34500, ang: 135, rx: 5200, rz: 2700, type: 'hilly', peak: 90, biome: 'jp', seed: 2.6, beach: 'black',
+    cones: [{ u: -2700, v: -150, r: 2400, h: 854, crater: 55 }, { u: 2650, v: 250, r: 3100, h: 701, rough: 0.4 }] },
 ];
 const ISL = {}; ISLAND_DEFS.forEach(I => { if (I.key) ISL[I.key] = I; });
 // island-local → world
@@ -867,6 +893,24 @@ AIRPORT_DEFS.push(
   { id: 'WMR', name: 'Westmoor', region: 'mainland', x: -56000, z: -27000, hdg: 120, elev: null, kind: 'regional', blurb: '2,400 m · a regional field on the western plain',
     runways: [{ a: 0, c: 0, hdg: 120, len: 2400, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: true, padC: 260 }],
     pads: [{ a0: -420, a1: 420, c0: 170, c1: 440 }], terminal: { kind: 'regional', a0: -340, a1: 340, c: 370 }, taxi: { side: 1, off: 140 } },
+  // French Polynesia: only the ATR, the Twin Otter and the Embraer fly in. Runway numbers are magnetic (13° east), headings true
+  { id: 'BOB', name: 'Bora Bora', region: 'poly', isl: 'borabora', u: 5150, v: 3300, hdg: 124, elev: 3, kind: 'small', only: ['atr72', 'otter', 'e190'], blurb: '1,505 m on Motu Mute · a boat to Vaitape across the lagoon',
+    runways: [{ a: 0, c: 0, hdg: 124, num: 11, len: 1505, wid: 22, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, pad: [60, 60], blend: [70, 70], padC: 85, blendC: 70, corr: false }],
+    pads: [{ a0: -150, a1: 60, c0: 30, c1: 112 }], padBlend: 40, terminal: { kind: 'poly', a0: -110, a1: 20, c: 126 }, taxi: { side: 1, short: true, links: [-45] },
+    town: false, features: [{ type: 'motu' }] },
+  { id: 'MOZ', name: 'Moorea', region: 'poly', isl: 'moorea', u: 2880, v: 2760, hdg: 133, elev: 4, kind: 'small', only: ['atr72', 'otter', 'e190'], blurb: '1,237 m at Temae · bungalows on the lagoon beside the runway',
+    runways: [{ a: 0, c: 0, hdg: 133, num: 12, len: 1237, wid: 30, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, pad: [40, 40], blend: [60, 60], padC: 62, blendC: 80, corr: false }],
+    pads: [{ a0: -100, a1: 40, c0: 36, c1: 108 }], padBlend: 40, terminal: { kind: 'poly', a0: -90, a1: 10, c: 122 }, taxi: { side: 1, short: true, links: [-30] },
+    town: { n: 60 }, townStyle: 'poly' },
+  // Japan: Mt Fuji Shizuoka among the tea fields, and Hachijojima between its two volcanoes
+  { id: 'FSZ', name: 'Mt Fuji Shizuoka', region: 'jp', isl: 'japan', u: -4600, v: 2100, hdg: 115, elev: 132, kind: 'regional', blurb: '2,500 m on a tea-field plateau · Fuji fills the windscreen',
+    runways: [{ a: 0, c: 0, hdg: 115, num: 12, len: 2500, wid: 60, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: true, pad: [90, 90], blend: [320, 320], padC: 240, blendC: 330, corr: false }],
+    pads: [{ a0: -330, a1: 330, c0: -430, c1: -170 }], terminal: { kind: 'regional', a0: -260, a1: 260, c: -360 }, taxi: { side: -1, off: 150 },
+    town: { n: 150 }, townStyle: 'jp', features: [{ type: 'tea', r: 1700 }] },
+  { id: 'HAC', name: 'Hachijojima', region: 'jp', isl: 'hachijo', u: -60, v: 120, hdg: 73, elev: 92, kind: 'small', blurb: '2,000 m in the saddle between Hachijo-Fuji and Mihara-yama',
+    runways: [{ a: 0, c: 0, hdg: 73, num: 8, len: 2000, wid: 45, surface: 'asphalt', lights: true, ils: [0, 1], papi: true, pad: [60, 60], blend: [240, 240], padC: 160, blendC: 220, corr: false }],
+    pads: [{ a0: -330, a1: 30, c0: -250, c1: -105 }], terminal: { kind: 'small', a0: -280, a1: -20, c: -200 }, taxi: { side: -1, off: 95 },
+    town: { n: 80 }, townStyle: 'jp' },
 );
 const CITY = { x: 4800, z: -31800, hdg: 80, hw: 2300, hd: 1500 };
 
@@ -950,11 +994,16 @@ function terrainModule(DEF) {
   const ridged = (x, y, oct) => { let a = 1, f = 1, s = 0, n = 0; for (let i = 0; i < oct; i++) { let v = 1 - Math.abs(noise(x * f + 17.3 * i, y * f - 9.1 * i)); v *= v; s += a * v; n += a; a *= 0.5; f *= 2.1; } return s / n; };
   const hash2 = (x, y) => { let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
-  const BIOME = { ocean: 0, mainland: 1, carib: 2, med: 3, atl: 4, trop: 5 };
+  const BIOME = { ocean: 0, mainland: 1, carib: 2, med: 3, atl: 4, trop: 5, poly: 6, jp: 7 };
   const ISLS = DEF.islands.map(I => {
     const t = I.ang * D2R;
-    return Object.assign({}, I, { ax: Math.sin(t), az: -Math.cos(t), bx: Math.cos(t), bz: Math.sin(t), bb: Math.max(I.rx, I.rz) * 1.8, bio: BIOME[I.biome] });
+    // how far the island reaches: its own shelf, any cone that spills past it, and the reef ringing its lagoon
+    let reach = Math.max(I.rx, I.rz) * 1.8;
+    for (const C of I.cones || []) reach = Math.max(reach, Math.hypot(C.u, C.v) + C.r * 1.05);
+    if (I.reef) reach = Math.max(reach, Math.hypot(I.reef.cu || 0, I.reef.cv || 0) + Math.max(I.reef.ru, I.reef.rv) * 1.3);
+    return Object.assign({}, I, { ax: Math.sin(t), az: -Math.cos(t), bx: Math.cos(t), bz: Math.sin(t), bb: reach, bio: BIOME[I.biome] });
   });
+  const angGap = (a, b) => { let d = (a - b) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; return Math.abs(d); };
   const APS = DEF.airports;
   const CITY = DEF.city, ct = CITY.hdg * D2R, cdx = Math.sin(ct), cdz = -Math.cos(ct), cbx = Math.cos(ct), cbz = Math.sin(ct);
 
@@ -983,7 +1032,54 @@ function terrainModule(DEF) {
     const dx = x - I.x, dz = z - I.z;
     const u = dx * I.ax + dz * I.az, v = dx * I.bx + dz * I.bz;
     const d = Math.sqrt((u / I.rx) ** 2 + (v / I.rz) ** 2);
-    if (d > 1.75) return -80;
+    if (d > 1.75 && !I.cones && !I.reef) return -80;
+    let h = d > 1.75 ? -80 : coreH(I, x, z, u, v, d, o);
+    // volcanic cones (Fuji, Hachijo-Fuji): concave flanks that run down to the sea, a small crater on top
+    if (I.cones) for (const C of I.cones) {
+      const r = Math.hypot(u - C.u, v - C.v) / C.r;
+      if (r >= 1) continue;
+      const rough = C.rough ? 1 - C.rough * 0.45 + C.rough * 0.9 * ridged(x * 0.0012 + I.seed, z * 0.0012, 4) : 1;
+      let ch = C.h * Math.pow(1 - r, 1.8) * rough * (0.985 + 0.03 * noise(x * 0.0025, z * 0.0025));
+      if (C.crater) ch -= C.crater * sstep(0.065, 0.02, r);
+      // gullies down the upper flanks
+      ch -= sstep(0.12, 0.5, r) * sstep(0.95, 0.6, r) * C.h * 0.012 * Math.max(0, noise(Math.atan2(v - C.v, u - C.u) * 9 + I.seed, r * 3));
+      // the cone smothers the hills it rises from, so Fuji's flanks stay smooth all the way up
+      h = h < 0 ? h + ch * lerp(0.75, 1, sstep(0.7, 0.45, r)) : h * (1 - 0.92 * sstep(0.95, 0.45, r)) + ch;
+    }
+    // basalt spires: Otemanu, Rotui, the shark's tooth of Moorea
+    if (I.spires && d < 1.2) for (const P of I.spires) {
+      const r = Math.hypot(u - P.u, v - P.v) / P.r;
+      if (r < 1) h += P.h * Math.pow(1 - r, 1.25) * (0.86 + 0.14 * ridged(x * 0.004 + I.seed, z * 0.004, 3));
+    }
+    // a barrier reef: a shallow sandy lagoon inside, palm motus along the rim, deep blue outside, and the passes boats use
+    if (I.reef) {
+      const Rf = I.reef, ru = (u - (Rf.cu || 0)) / Rf.ru, rv = (v - (Rf.cv || 0)) / Rf.rv;
+      const rd = Math.sqrt(ru * ru + rv * rv) * (1 + 0.03 * noise(x * 0.0008 + I.seed, z * 0.0008));
+      if (rd < 1.5) {
+        const half = Rf.w / Math.max(Rf.ru, Rf.rv), ang = Math.atan2(rv, ru) * 180 / Math.PI;
+        const lag = rd < 1 ? lerp(-7.5, -1.9, sstep(0.4, 0.97, rd)) + 1.5 * noise(x * 0.0026, z * 0.0026) : lerp(-2.2, -80, sstep(1 + half, 1 + half * 7, rd));
+        let pass = 0; for (const [pa, pw] of Rf.passes || []) pass = Math.max(pass, sstep(pw * 57.3, pw * 22, angGap(ang, pa)));
+        const angR = ang * D2R, motu = sstep(-0.05, 0.22, noise(Math.cos(angR) * 2.3 + I.seed * 3, Math.sin(angR) * 2.3) * 0.8 + noise(x * 0.0021, z * 0.0021) * 0.35 + (Rf.motus - 0.5) * 1.1);
+        const ring = sstep(half * 1.7, half * 0.45, Math.abs(rd - 1)), top = 1.8 + 1.3 * Math.max(0, noise(x * 0.006, z * 0.006));
+        let crest = lerp(-0.45, top, motu * sstep(half * 1.25, half * 0.55, Math.abs(rd - 1)));
+        crest = lerp(crest, -16, pass);
+        const hr = lerp(lag, crest, ring);
+        if (hr > h) {
+          h = hr;
+          if (h > -0.7 && h < 1.5) o.sand = Math.max(o.sand, sstep(1.5, 0.8, h) * 0.95);
+        }
+      }
+    }
+    // bays cut deep into the island (Cook's Bay, Opunohu)
+    if (I.bays) for (const B of I.bays) {
+      const bd = Math.hypot((u - B.u) / B.ru, (v - B.v) / B.rv) * (1 + 0.1 * noise(x * 0.004, z * 0.004));
+      const k = sstep(1.12, 0.72, bd);
+      if (k > 0) h = lerp(h, lerp(-3, -14, sstep(-0.8, 0.9, (u - B.u) / B.ru)), k);
+    }
+    if (I.beach && o.sand > 0.2) o.beach = I.beach;
+    return h;
+  }
+  function coreH(I, x, z, u, v, d, o) {
     const w = fbm(x * 0.00028 + I.seed, z * 0.00028 - I.seed, 3);
     const dd = d * (1 + 0.2 * w);
     let h;
@@ -996,7 +1092,7 @@ function terrainModule(DEF) {
       h = lerp(-80, -1.5, sstep(1.45, 1.0, dd)) + 4.5 * sstep(1.0, 0.72, dd) + 1.2 * noise(x * 0.003, z * 0.003) * sstep(0.9, 0.6, dd);
       if (h < 2.2) o.sand = Math.max(o.sand, sstep(2.4, 1.0, h));
     } else {
-      h = lerp(-80, -3, sstep(1.5, 1.02, dd)) + 7 * sstep(1.02, 0.86, dd);
+      h = lerp(-80, -3, sstep(1.5, 1.02, dd)) + 7 * sstep(1.02, I.shore || 0.86, dd);
       if (I.type === 'volcanic') {
         const cone = Math.pow(sstep(1.0, 0.0, dd), 1.7);
         h += cone * I.peak * (0.82 + 0.18 * ridged(x * 0.0009 + I.seed, z * 0.0009, 4)) - sstep(0.12, 0.04, dd) * I.peak * 0.18;
@@ -1008,7 +1104,8 @@ function terrainModule(DEF) {
         h += Math.pow(sstep(0.92, 0.1, dd), 1.25) * I.peak * (0.62 + 0.38 * ridged(x * 0.0004 + I.seed, z * 0.0004, 5));
       } else {
         const inland = sstep(0.95, 0.4, dd);
-        h += inland * ((fbm(x * 0.0007 + I.seed, z * 0.0007, 5) * 0.5 + 0.5) * 80 + Math.pow(ridged(x * 0.00045 + I.seed * 3, z * 0.00045, 5), 1.6) * I.peak * sstep(0.9, 0.3, dd));
+        if (I.jag) h += inland * ((fbm(x * 0.0008 + I.seed, z * 0.0008, 4) * 0.5 + 0.5) * 70 + Math.pow(ridged(x * 0.00062 + I.seed * 3, z * 0.00062, 4), 1.45) * I.peak * sstep(0.95, 0.3, dd));
+        else h += inland * ((fbm(x * 0.0007 + I.seed, z * 0.0007, 5) * 0.5 + 0.5) * 80 + Math.pow(ridged(x * 0.00045 + I.seed * 3, z * 0.00045, 5), 1.6) * I.peak * sstep(0.9, 0.3, dd));
       }
       if (h > -1 && h < 3.2 && dd > 0.78) o.sand = Math.max(o.sand, sstep(3.2, 1.4, h) * (I.type === 'cliff' ? 0.5 : 1));
     }
@@ -1238,6 +1335,8 @@ function terrainModule(DEF) {
     if (bio === 2) return sstep(-0.1, 0.45, n) * sstep(6, 40, h) * 0.8;                                // Caribbean scrub
     if (bio === 4) return sstep(-0.3, 0.3, n) * sstep(150, 400, h) * (1 - sstep(1450, 1700, h));      // Madeira laurel forest
     if (bio === 5) return sstep(-0.35, 0.2, n) * sstep(8, 30, h) * (1 - sstep(900, 1150, h));          // volcanic jungle
+    if (bio === 6) return Math.max(sstep(-0.5, 0.05, n) * sstep(2, 14, h), 0.55 * sstep(1.6, 3, h) * (1 - sstep(60, 140, h))) * (1 - sstep(780, 1000, h));   // Polynesia: palms on every motu, jungle up the ridges
+    if (bio === 7) return sstep(-0.4, 0.15, n) * sstep(6, 30, h) * (1 - sstep(1500, 1800, h));          // Japan: pine, cedar and bamboo up to Fuji's tree line
     return sstep(-0.05, 0.4, n) * sstep(8, 40, h) * (1 - sstep(3100, 3400, h));                       // mainland woods
   }
 
@@ -1251,6 +1350,9 @@ function terrainModule(DEF) {
     rock: lin(0x8b8173), rockB: lin(0x5a544f), alpine: lin(0x8c9a66), snow: lin(0xf2f5f8), mown: lin(0x93be66), mownD: lin(0x86ad5a),
     urban: lin(0x8f928a), road: lin(0x3c3f44), dirt: lin(0x9a8466), gravel: lin(0x8f8778), dry: lin(0xa89d5e), dryC: lin(0x9aa05a), rockD: lin(0x5d5c62), scree: lin(0xa39e94),
     wheat: lin(0xcdb86c), fresh: lin(0x93c25c), plowed: lin(0x8c6c4c), pasture: lin(0x7aa655), orchard: lin(0x5f8f40),
+    lagoon: lin(0x7fe3d6), lagoonL: lin(0xd6f6ec), polyDeep: lin(0x1a8fa8), grassP: lin(0x3f9a3a), grassP2: lin(0x2f7f30), basalt: lin(0x4a4a42),
+    grassJ: lin(0x6a9a4c), grassJ2: lin(0x4c7c3a), forestJ: lin(0x2c4e2e), paddy: lin(0x9cc95e), paddy2: lin(0x7fb04a), tea: lin(0x2f6a2e), teaRow: lin(0x5f9a45),
+    scoria: lin(0x6a5048), scoriaD: lin(0x4a3a36), sandJ: lin(0xbdb4a3), sandK: lin(0x45413e),
   };
   const mix3 = (o, a, b, t) => { o[0] = a[0] + (b[0] - a[0]) * t; o[1] = a[1] + (b[1] - a[1]) * t; o[2] = a[2] + (b[2] - a[2]) * t; return o; };
   const T1 = [0, 0, 0], T2 = [0, 0, 0];
@@ -1258,6 +1360,10 @@ function terrainModule(DEF) {
     const h = s.h, bio = s.bio;
     const v = noise(x * 0.004, z * 0.004) * 0.5 + 0.5, v2 = noise(x * 0.017 + 7, z * 0.017) * 0.5 + 0.5;
     if (h < -0.4) {
+      if (bio === 6) {   // a Polynesian lagoon: white coral sand under a few metres of glass-clear water
+        mix3(out, C.deep, C.polyDeep, sstep(-60, -16, h)); mix3(out, out, C.lagoon, sstep(-16, -4, h)); mix3(out, out, C.lagoonL, sstep(-4.5, -0.5, h) * (0.75 + 0.25 * v));
+        return out;
+      }
       const sh = bio === 2 ? C.turq : bio === 5 ? C.turq : C.shelfM;
       mix3(out, C.deep, sh, sstep(-38, -3, h));
       if (h > -3) mix3(out, out, bio === 2 ? C.turqL : sh, sstep(-3, -0.4, h) * 0.8);
@@ -1266,7 +1372,7 @@ function terrainModule(DEF) {
     if (s.road) { out[0] = C.road[0]; out[1] = C.road[1]; out[2] = C.road[2]; return out; }
     if (s.surf === 3) { mix3(out, C.gravel, C.dirt, v2 * 0.5); return out; }
     if (s.sand > 0.05) {
-      const sd = s.beach === 'rock' ? (v2 > 0.5 ? C.rockD : C.scree) : s.beach === 'gold' || bio === 3 ? C.sandG : bio === 2 || s.beach === 'white' ? C.sandW : bio === 4 ? C.sandB : C.sandM;
+      const sd = s.beach === 'rock' ? (v2 > 0.5 ? C.rockD : C.scree) : s.beach === 'black' ? C.sandK : s.beach === 'gold' || bio === 3 ? C.sandG : bio === 2 || bio === 6 || s.beach === 'white' ? C.sandW : bio === 4 ? C.sandB : bio === 7 ? C.sandJ : C.sandM;
       baseLand(T1, x, z, s, ny, v, v2);
       return mix3(out, T1, sd, clamp(s.sand, 0, 1));
     }
@@ -1276,6 +1382,7 @@ function terrainModule(DEF) {
     const h = s.h, bio = s.bio;
     let g1 = C.grassT, g2 = C.grassT2;
     if (bio === 2) { g1 = C.grassC; g2 = C.grassC2; } else if (bio === 3) { g1 = C.grassM; g2 = C.grassM2; } else if (bio === 4) { g1 = C.grassA; g2 = C.grassA2; } else if (bio === 5) { g1 = C.grassV; g2 = C.grassC2; }
+    else if (bio === 6) { g1 = C.grassP; g2 = C.grassP2; } else if (bio === 7) { g1 = C.grassJ; g2 = C.grassJ2; }
     mix3(out, g1, g2, v);
     const big = noise(x * 0.0009 + 5, z * 0.0009 - 3) * 0.5 + 0.5;
     if (bio === 2 || bio === 3) mix3(out, out, bio === 3 ? C.dry : C.dryC, sstep(0.45, 0.85, big) * 0.55);
@@ -1285,15 +1392,23 @@ function terrainModule(DEF) {
       const fc = fh < 0.28 ? C.wheat : fh < 0.52 ? C.fresh : fh < 0.7 ? C.plowed : fh < 0.86 ? C.pasture : C.orchard;
       mix3(out, out, fc, sstep(-0.1, 0.35, noise(x * 0.00032 + 3, z * 0.00032)) * (1 - fk) * 0.72);
     }
-    mix3(out, out, bio === 3 ? C.forestM : C.forest, fk * 0.75);
+    if (bio === 7 && h < 70 && ny > 0.985 && fk < 0.6 && (s.city || 0) < 0.2) {   // rice paddies on the flat land by the coast
+      const u = (x * 0.94 + z * 0.34) / 46, w = (-x * 0.34 + z * 0.94) / 30, ph = hash2(Math.floor(u), Math.floor(w)), fu = u - Math.floor(u), fw = w - Math.floor(w);
+      mix3(out, out, ph < 0.55 ? C.paddy : C.paddy2, 0.8 * (1 - sstep(40, 70, h)) * sstep(0.03, 0.08, Math.min(fu, 1 - fu, fw, 1 - fw)));
+    }
+    mix3(out, out, bio === 3 ? C.forestM : bio === 7 ? C.forestJ : C.forest, fk * 0.75);
+    if (bio === 7) {   // Fuji: red-black scoria above the trees, snow on the top, streaking down the gullies
+      mix3(T2, C.scoria, C.scoriaD, v2); mix3(out, out, T2, sstep(1450, 1850, h + v * 120));
+      mix3(out, out, C.snow, sstep(2050, 2300, h + v * 160 + 140 * noise(x * 0.004, z * 0.004)) * sstep(0.45, 0.7, ny));
+    }
     if (bio === 1) {
       mix3(out, out, C.alpine, sstep(1500, 2300, h + v * 200));
       mix3(T2, C.rock, C.rockD, v2); mix3(T2, T2, C.scree, sstep(0.4, 0.9, big) * 0.35);
       mix3(out, out, T2, Math.max(sstep(0.84, 0.64, ny), sstep(2600, 3400, h + v * 300)));
       mix3(out, out, C.snow, sstep(3650, 4050, h + v * 400) * sstep(0.5, 0.78, ny));
     } else {
-      mix3(T2, C.rock, C.rockB, bio === 4 || bio === 5 ? 0.7 + v2 * 0.3 : v2);
-      mix3(out, out, T2, Math.max(sstep(0.8, 0.6, ny), sstep(1200, 1650, h + v * 150)));
+      if (bio === 6) mix3(T2, C.basalt, C.rockB, v2); else mix3(T2, C.rock, C.rockB, bio === 4 || bio === 5 ? 0.7 + v2 * 0.3 : v2);
+      mix3(out, out, T2, Math.max(sstep(bio === 6 ? 0.66 : bio === 7 ? 0.62 : 0.8, bio === 6 ? 0.48 : bio === 7 ? 0.42 : 0.6, ny), bio === 7 ? 0 : sstep(1200, 1650, h + v * 150)));
     }
     if (s.city > 0.05) mix3(out, out, C.urban, s.city * 0.75);
     if (s.flat > 0.35) mix3(out, out, h > 1200 ? C.dirt : v2 > 0.5 ? C.mown : C.mownD, sstep(0.35, 0.95, s.flat) * (h > 1200 ? 0.6 : 1));
@@ -1310,7 +1425,7 @@ function terrainModule(DEF) {
     for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
       const x = x0 + (i - 1) * cell, z = z0 + (j - 1) * cell;
       const h = sample(x, z, S), k = j * G + i;
-      H[k] = h; BI[k] = S.bio; SA[k] = S.sand; FT[k] = S.flat; CT[k] = S.city || 0; SU[k] = S.surf; RD[k] = S.road ? 1 : 0; BE[k] = S.beach === 'gold' ? 1 : S.beach === 'white' ? 2 : S.beach === 'rock' ? 3 : 0;
+      H[k] = h; BI[k] = S.bio; SA[k] = S.sand; FT[k] = S.flat; CT[k] = S.city || 0; SU[k] = S.surf; RD[k] = S.road ? 1 : 0; BE[k] = S.beach === 'gold' ? 1 : S.beach === 'white' ? 2 : S.beach === 'rock' ? 3 : S.beach === 'black' ? 4 : 0;
       FL[k] = (S.flat > 0.02 ? 1 : 0) | (S.sand > 0.3 ? 2 : 0) | (S.road ? 4 : 0) | ((S.city || 0) > 0.4 ? 8 : 0) | (S.surf ? 16 : 0) | (S.flat > 0.5 ? 32 : 0) | (S.clear ? 64 : 0);
     }
     const skirt = 4 * n, vc = N1 * N1 + skirt;
@@ -1323,7 +1438,7 @@ function terrainModule(DEF) {
       let nx = H[k - 1] - H[k + 1], nz = H[k - G] - H[k + G], ny = 2 * cell;
       const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
       nrm[vi * 3] = nx; nrm[vi * 3 + 1] = ny; nrm[vi * 3 + 2] = nz;
-      S.h = h; S.bio = BI[k]; S.sand = SA[k]; S.flat = FT[k]; S.city = CT[k]; S.surf = SU[k]; S.road = RD[k]; S.beach = BE[k] === 1 ? 'gold' : BE[k] === 2 ? 'white' : BE[k] === 3 ? 'rock' : '';
+      S.h = h; S.bio = BI[k]; S.sand = SA[k]; S.flat = FT[k]; S.city = CT[k]; S.surf = SU[k]; S.road = RD[k]; S.beach = BE[k] === 1 ? 'gold' : BE[k] === 2 ? 'white' : BE[k] === 3 ? 'rock' : BE[k] === 4 ? 'black' : '';
       colorAt(x, z, S, ny, out);
       col[vi * 3] = out[0]; col[vi * 3 + 1] = out[1]; col[vi * 3 + 2] = out[2];
     }
@@ -1364,6 +1479,12 @@ function terrainModule(DEF) {
         else if (bio === 3) type = r3 < 0.85 ? 1 : 0;
         else if (bio === 4) type = h > 900 ? 2 : r3 < 0.4 ? 1 : 0;
         else if (bio === 5) { type = h < 320 ? (r3 < 0.78 ? 3 : 0) : (h < 650 && r3 < 0.3 ? 3 : 0); if (h < 30) dens = Math.max(dens, 0.3); }
+        else if (bio === 6) { type = h < 160 ? (r3 < 0.9 ? 3 : 0) : (r3 < 0.25 ? 3 : 0); if (h < 12) dens = Math.max(dens, 0.55); }
+        else if (bio === 7) {
+          const bam = noise(x * 0.004 + 31, z * 0.004 - 7);   // bamboo grows in groves
+          type = h > 1100 ? 2 : bam > 0.32 && h < 600 ? 5 : h < 220 && r3 < 0.1 ? 6 : r3 < 0.62 ? 4 : r3 < 0.85 ? 2 : 0;
+          if (type === 5) dens = Math.max(dens, 0.5);
+        }
         else type = h > 1300 ? 2 : r3 < 0.35 ? 2 : 0;
         if (bio === 1 && h > 3300) continue;
         if (r3 * 0.999 > dens) continue;
@@ -1375,11 +1496,14 @@ function terrainModule(DEF) {
   }
 
   /* ---------- a coloured overview image for the maps ---------- */
+  // the overview image, and alongside it a sea chart for the water shader: depth, how clear and tropical, and land
+  const CLEAR = [40, 40, 200, 130, 70, 190, 255, 60];
   function mapImage(cx, cz, half, N) {
-    const img = new Uint8ClampedArray(N * N * 4), S = {};
+    const img = new Uint8ClampedArray(N * N * 4), sea = new Uint8ClampedArray(N * N * 4), S = {};
     for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-      const x = cx + (i / N * 2 - 1) * half, z = cz + (j / N * 2 - 1) * half;
+      const x = cx + ((i + 0.5) / N * 2 - 1) * half, z = cz + ((j + 0.5) / N * 2 - 1) * half;
       const h = sample(x, z, S), k = (j * N + i) * 4;
+      sea[k] = clamp(-h * 4, 0, 255); sea[k + 1] = CLEAR[S.bio] || 40; sea[k + 2] = h > 0.3 ? 255 : 0; sea[k + 3] = 255;
       let r, g, b, a = 255;
       if (h < 0) { const t = clamp(-h / 60, 0, 1); r = lerp(62, 14, t); g = lerp(160, 44, t); b = lerp(170, 78, t); a = 200; }
       else if (S.sand > 0.3) { r = 214; g = 204; b = 170; }
@@ -1387,7 +1511,7 @@ function terrainModule(DEF) {
       else { const t = clamp(h / 3000, 0, 1); r = lerp(104, 150, t); g = lerp(150, 140, t); b = lerp(96, 128, t); if (S.city > 0.4) { r = 150; g = 150; b = 146; } }
       img[k] = r; img[k + 1] = g; img[k + 2] = b; img[k + 3] = a;
     }
-    return img;
+    return { img, sea };
   }
   return { sample, height, base, buildTile, mapImage, noise, fbm, forestK, cityMask, mainlandL, pathNear };
 }
@@ -1402,15 +1526,15 @@ function terrainWorkerMain() {
       const r = TM.buildTile(m.x0, m.z0, m.size, m.n, m.trees);
       self.postMessage({ type: 'tile', key: m.key, pos: r.pos, nrm: r.nrm, col: r.col, trees: r.trees }, [r.pos.buffer, r.nrm.buffer, r.col.buffer, r.trees.buffer]);
     } else if (m.type === 'map') {
-      const img = TM.mapImage(m.cx, m.cz, m.half, m.N);
-      self.postMessage({ type: 'map', img, N: m.N }, [img.buffer]);
+      const { img, sea } = TM.mapImage(m.cx, m.cz, m.half, m.N);
+      self.postMessage({ type: 'map', img, sea, N: m.N }, [img.buffer, sea.buffer]);
     }
   };
 }
 
 const WORLD_DEF = {
   seed: 20260927,
-  islands: ISLAND_DEFS.map(({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon }) => ({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon })),
+  islands: ISLAND_DEFS.map(({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon, jag, reef, cones, spires, bays, beach, shore }) => ({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon, jag, reef, cones, spires, bays, beach, shore })),
   airports: AIRPORT_DEFS,
   city: CITY,
 };
@@ -1473,11 +1597,16 @@ function planTown(A) {
     if (sc > bs) { bs = sc; best = [x, z]; }
   }
   if (!best) return;
-  const [tx, tz] = best, L0 = Math.hypot(tx - door[0], tz - door[1]), ux = (tx - door[0]) / L0, uz = (tz - door[1]) / L0, vx = -uz, vz = ux;
+  const [tx, tz] = best, L0 = Math.hypot(tx - door[0], tz - door[1]), ux = (tx - door[0]) / L0, uz = (tz - door[1]) / L0;
   // the access road wanders a little on its way into town
   const access = [];
-  for (let t = 0; t <= L0; t += 40) { const w = Math.sin(t / L0 * Math.PI) * (TM.noise(t * 0.004 + A.x * 0.001, 3.1) * 70); access.push([door[0] + ux * t + vx * w, door[1] + uz * t + vz * w]); }
+  for (let t = 0; t <= L0; t += 40) { const w = Math.sin(t / L0 * Math.PI) * (TM.noise(t * 0.004 + A.x * 0.001, 3.1) * 70); access.push([door[0] + ux * t - uz * w, door[1] + uz * t + ux * w]); }
   access.push([tx, tz]);
+  A.townPlan = layoutTown(tx, tz, ux, uz, n, access, rnd);
+}
+// streets and houses around a centre, the main street along (ux, uz); access is the road in, or null for a village on its own
+function layoutTown(tx, tz, ux, uz, n, access, rnd) {
+  const vx = -uz, vz = ux, hAt = (x, z) => TM.height(x, z);
   // streets: a main street through the centre and cross streets either side, each cut short at water or steep ground
   const streets = [], spacing = n > 60 ? 115 : 90, K = n > 120 ? 3 : n > 60 ? 2 : 1, Wd = n > 120 ? 300 : n > 60 ? 220 : 130;
   const walk = (x0, z0, dx, dz, len) => {
@@ -1489,6 +1618,7 @@ function planTown(A) {
   for (const sg of [1, -1]) addStreet(walk(tx, tz, ux * sg, uz * sg, (K + 0.6) * spacing));
   for (let k = -K; k <= K; k++) { const cx = tx + ux * k * spacing, cz = tz + uz * k * spacing; if (hAt(cx, cz) < 1.6) continue; for (const sg of [1, -1]) addStreet(walk(cx, cz, vx * sg, vz * sg, Wd * (0.7 + rnd() * 0.5))); }
   // houses face their street from behind a front garden
+  if (!access) access = streets.length ? streets[0].slice(0, 2) : [[tx, tz], [tx + ux, tz + uz]];
   const houses = [], occ = new Set(), all = [access, ...streets];
   const distToStreet = (x, z, skip) => { let d = 1e9; for (const P of all) { if (P === skip) continue; for (let i = 0; i < P.length - 1; i++) { const ax = P[i][0], az = P[i][1], wx = P[i + 1][0] - ax, wz = P[i + 1][1] - az, l2 = wx * wx + wz * wz || 1, t = clamp(((x - ax) * wx + (z - az) * wz) / l2, 0, 1); d = Math.min(d, Math.hypot(x - ax - wx * t, z - az - wz * t)); } } return d; };
   for (const P of [...streets, access.slice(Math.floor(access.length * 0.55))]) {
@@ -1507,11 +1637,20 @@ function planTown(A) {
       }
     }
   }
-  A.townPlan = { access, streets, houses, center: [tx, tz] };
   markTownPath(access, 6);
   for (const P of streets) markTownPath(P, 18);
+  return { access, streets, houses, center: [tx, tz] };
 }
 for (const A of AIRPORT_DEFS) planTown(A);
+// villages with no airfield of their own: Vaitape across the lagoon from Motu Mute, and Miyajima's shrine town
+const VILLAGES = [
+  { id: 'VAI', name: 'Vaitape', isl: 'borabora', u: -1000, v: -1430, dir: 0, n: 70, townStyle: 'poly', kind: 'strip' },
+  { id: 'MYJ', name: 'Miyajima', isl: 'miyajima', u: 0, v: -900, dir: 0, n: 40, townStyle: 'jp', kind: 'strip' },
+];
+for (const V of VILLAGES) {
+  const I = ISL[V.isl], [x, z] = islPoint(I, V.u, V.v), t = (I.ang + V.dir) * D2R, rnd = mulberry32(V.id.charCodeAt(0) * 131 + V.id.charCodeAt(2));
+  V.x = x; V.z = z; V.rws = []; V.townPlan = layoutTown(x, z, Math.sin(t), -Math.cos(t), V.n, null, rnd);
+}
 const WORLD_DEF_JSON = JSON.parse(JSON.stringify(WORLD_DEF, (k, v) => k === 'rw' || k === 'townPlan' ? undefined : v));
 const noise = TM.noise;
 const _S = {};
@@ -1586,7 +1725,7 @@ function initWorker() {
       const m = e.data;
       if (m.type === 'ready') { workerOK = true; return; }
       if (m.type === 'tile') { inflight--; tileArrived(m.key, m); }
-      if (m.type === 'map') mapArrived(m.img, m.N);
+      if (m.type === 'map') mapArrived(m.img, m.N, m.sea);
     };
     worker.onerror = () => { workerFailed = true; workerOK = false; worker = null; requeueInflight(); };
     worker.postMessage({ type: 'init', DEF: WORLD_DEF_JSON });
@@ -1719,12 +1858,37 @@ const TREE_GEO = (() => {
     g.translate(top[0], top[1], top[2]);
     parts.push(vcolor(g, f % 2 ? 0x4f8a35 : 0x5e9a3d, 0.1));
   }
-  for (let k = 0; k < 3; k++) { const g = new THREE.SphereGeometry(0.28, 5, 3); g.translate(top[0] + Math.cos(k * 2.1) * 0.35, top[1] - 0.4, Math.sin(k * 2.1) * 0.35); parts.push(vcolor(g, 0x6a5230)); }
+  for (let k = 0; k < 3; k++) { const g = new THREE.OctahedronGeometry(0.3, 0); g.translate(top[0] + Math.cos(k * 2.1) * 0.35, top[1] - 0.4, Math.sin(k * 2.1) * 0.35); parts.push(vcolor(g, 0x6a5230)); }
   const palm = mergeGeometries(parts);
-  return [broad, pine, conifer, palm];
+  // Japanese black pine: a twisting trunk and flat clouds of needles, a garden bonsai grown tall
+  const jp = []; let jx = 0, jy = 0, jz = 0;
+  for (const [lx, lz, len, r] of [[0.16, 0.05, 2.6, 0.27], [-0.3, 0.12, 2.2, 0.22], [0.42, -0.1, 2.0, 0.18], [-0.12, -0.32, 1.6, 0.14]]) {
+    const g = new THREE.CylinderGeometry(r * 0.8, r, len, 5, 1, true); g.translate(0, len / 2, 0); g.rotateZ(-lx); g.rotateX(lz); g.translate(jx, jy, jz);
+    jp.push(vcolor(g, 0x5b4636, 0.08));
+    jx += Math.sin(lx) * len; jz += Math.sin(lz) * len; jy += Math.cos(lx) * Math.cos(lz) * len;
+  }
+  for (const [x, y, z, r, c] of [[jx, jy + 0.5, jz, 2.5, 0x2f5a33], [jx * 0.55 + 1.9, jy - 1.7, jz * 0.5 + 0.5, 1.9, 0x37663a], [jx * 0.3 - 1.7, jy - 2.9, jz * 0.3 - 0.7, 1.7, 0x2c5531], [jx * 0.2 + 0.6, jy - 4.2, 1.4, 1.4, 0x33613a], [jx - 1.1, jy + 1.6, jz + 0.4, 1.3, 0x2a5230]])
+    jp.push(blob(r, x, y, z, 1, 0.36, c));
+  const jpine = mergeGeometries(jp);
+  shadeBottom(jpine, jy - 5, jy + 1.5, 0.7);
+  // a bamboo grove: a dozen tall culms leaning out, with feathery tops
+  const bb = [], rb = mulberry32(77);
+  for (let k = 0; k < 9; k++) {
+    const a = rb() * TAU, d = 0.3 + rb() * 1.7, h = 10.5 + rb() * 5, lean = 0.03 + rb() * 0.09;
+    const g = new THREE.CylinderGeometry(0.08, 0.11, h, 3, 1, true); g.translate(0, h / 2, 0); g.rotateZ(-lean * Math.cos(a)); g.rotateX(lean * Math.sin(a)); g.translate(Math.cos(a) * d, 0, Math.sin(a) * d);
+    bb.push(vcolor(g, k % 3 ? 0x8ea54a : 0xa3b85c, 0.08));
+  }
+  for (const [x, y, z, r, sy, c] of [[0, 11.5, 0, 2.4, 2.0, 0x7aa346], [1.3, 9.5, 0.7, 1.8, 1.6, 0x88b050], [-0.9, 12.8, -0.6, 1.6, 1.5, 0x6f9a3f]]) bb.push(blob(r, x, y, z, 1, sy, c));
+  const bamboo = mergeGeometries(bb);
+  shadeBottom(bamboo, 6, 14, 0.72);
+  // cherry blossom: a low, spreading crown of pink
+  const sakura = mergeGeometries([trunk(0.3, 3.3, 0x4a3a33), blob(3.6, 0, 5.7, 0, 1.15, 0.66, 0xf4b5c8), blob(2.6, 2.3, 5.3, 1.0, 1, 0.72, 0xf9c9d6), blob(2.4, -2.1, 5.5, -1.0, 1, 0.68, 0xefa6bc), blob(2.0, 0.6, 6.9, -1.6, 1, 0.7, 0xfbd7e1)]);
+  shadeBottom(sakura, 3.2, 7.6, 0.72);
+  return [broad, pine, conifer, palm, jpine, bamboo, sakura];
 })();
 const treeMats = [new THREE.MeshLambertMaterial({ vertexColors: true }), new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })];
 const TREE_CAP = isTouch ? 9000 : 18000;
+const TREE_TYPES = TREE_GEO.length;
 const treePools = TREE_GEO.map((g, i) => {
   const im = new THREE.InstancedMesh(g, i === 3 ? treeMats[1] : treeMats[0], TREE_CAP);
   im.count = 0; im.frustumCulled = false; im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -1734,12 +1898,12 @@ const treePools = TREE_GEO.map((g, i) => {
 const _tm = new THREE.Matrix4(), _tq = new THREE.Quaternion(), _ts = new THREE.Vector3(), _tp = new THREE.Vector3(), _tc = new THREE.Color(), _Y = new THREE.Vector3(0, 1, 0);
 function rebuildTrees() {
   treesDirty = false;
-  const counts = [0, 0, 0, 0];
+  const counts = new Array(TREE_TYPES).fill(0);
   for (const k of drawSet) {
     const t = tiles.get(k); if (!t || !t.trees || !t.trees.length) continue;
     const T = t.trees;
     for (let q = 0; q < T.length; q += 7) {
-      const type = T[q + 4] | 0, im = treePools[type];
+      const type = T[q + 4] | 0, im = treePools[type]; if (!im) continue;
       if (counts[type] >= TREE_CAP) continue;
       if (GQ.trees < 1 && ((Math.sin(T[q] * 12.9898 + T[q + 2] * 78.233) * 43758.5453) % 1 + 1) % 1 > GQ.trees) continue;   // battery saver thins the forest evenly
       const s = T[q + 3];
@@ -1754,17 +1918,52 @@ function rebuildTrees() {
   treePools.forEach((im, i) => { im.count = counts[i]; im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; });
 }
 
+// the trees nearest the aircraft cast shadows: a small second set of the same instances, drawn only into the shadow map
+const TREE_SHADOW_CAP = isTouch ? 700 : 1400;
+const treeShadowPools = TREE_GEO.map((g, i) => {
+  const im = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, side: i === 3 ? THREE.DoubleSide : THREE.FrontSide }), TREE_SHADOW_CAP);
+  im.count = 0; im.frustumCulled = false; im.castShadow = true; im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(im); return im;
+});
+const _tsAt = new THREE.Vector3(1e9, 0, 0); let _tsKey = '';
+function updateTreeShadows(focus, R) {
+  const on = GQ.treeShadows && focus.y - Math.max(0, TM.height(focus.x, focus.z)) < 900;
+  if (!on) { if (treeShadowPools[0].count || _tsKey) { treeShadowPools.forEach(im => { im.count = 0; }); _tsKey = ''; } return; }
+  if (_tsAt.distanceTo(focus) < R * 0.25 && _tsKey === drawKey) return;
+  _tsAt.copy(focus); _tsKey = drawKey;
+  const counts = new Array(TREE_TYPES).fill(0), R2 = R * R * 1.1;
+  for (const k of drawSet) {
+    const t = tiles.get(k); if (!t || !t.trees || !t.trees.length) continue;
+    if (focus.x < t.x0 - R || focus.x > t.x0 + t.size + R || focus.z < t.z0 - R || focus.z > t.z0 + t.size + R) continue;
+    const T = t.trees;
+    for (let q = 0; q < T.length; q += 7) {
+      const dx = T[q] - focus.x, dz = T[q + 2] - focus.z; if (dx * dx + dz * dz > R2) continue;
+      const type = T[q + 4] | 0, im = treeShadowPools[type]; if (!im || counts[type] >= TREE_SHADOW_CAP) continue;
+      if (GQ.trees < 1 && ((Math.sin(T[q] * 12.9898 + T[q + 2] * 78.233) * 43758.5453) % 1 + 1) % 1 > GQ.trees) continue;
+      const s = T[q + 3];
+      _tq.setFromAxisAngle(_Y, T[q + 5]);
+      _tm.compose(_tp.set(T[q], T[q + 1], T[q + 2]), _tq, _ts.set(s, s * (0.85 + T[q + 6] * 0.3), s));
+      im.setMatrixAt(counts[type]++, _tm);
+    }
+  }
+  treeShadowPools.forEach((im, i) => { im.count = counts[i]; im.instanceMatrix.needsUpdate = true; });
+}
+
 /* ---------- the overview image used by the minimap and the world map ---------- */
 const MAP = { cx: 0, cz: -7000, half: 66000, size: 512 };
 const mapBase = document.createElement('canvas'); mapBase.width = mapBase.height = MAP.size;
 let mapReady = false;
-function mapArrived(img, N) {
+function mapArrived(img, N, sea) {
+  if (sea) {   // the sea chart: shallow, clear water turns turquoise over the sand
+    const t = new THREE.DataTexture(sea instanceof Uint8Array ? sea : new Uint8Array(sea.buffer || sea), N, N, THREE.RGBAFormat);
+    t.magFilter = t.minFilter = THREE.LinearFilter; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.needsUpdate = true;
+    waterMat.uniforms.seaMap.value = t; waterMat.uniforms.seaRect.value.set(MAP.cx - MAP.half, MAP.cz - MAP.half, 1 / (MAP.half * 2), 1);
+  }
   const g = mapBase.getContext('2d'); g.putImageData(new ImageData(img instanceof Uint8ClampedArray ? img : new Uint8ClampedArray(img), N, N), 0, 0);
   mapReady = true;
 }
 function requestMap() {
   if (workerOK && worker) worker.postMessage({ type: 'map', cx: MAP.cx, cz: MAP.cz, half: MAP.half, N: MAP.size });
-  else mapArrived(TM.mapImage(MAP.cx, MAP.cz, MAP.half, MAP.size), MAP.size);
+  else { const r = TM.mapImage(MAP.cx, MAP.cz, MAP.half, MAP.size); mapArrived(r.img, MAP.size, r.sea); }
 }
 
 /* ---------- village lights on low coastal ground (and the city's street grid) ---------- */
@@ -1896,8 +2095,8 @@ function numberTex(txt, letter) {
     if (letter) { g.save(); g.translate(w / 2, 96 + 150); g.scale(0.72, 1.0); g.fillText(letter, 0, 4); g.restore(); }
   });
 }
-const ids2 = (hdg, lr) => {
-  const n1 = Math.round(hdg / 10) || 36, n2 = Math.round(wrapDeg(hdg + 180) / 10) || 36, l2 = lr === 'L' ? 'R' : lr === 'R' ? 'L' : lr || '';
+const ids2 = (hdg, lr, num) => {
+  const n1 = num || Math.round(hdg / 10) || 36, n2 = num ? (num + 17) % 36 + 1 : Math.round(wrapDeg(hdg + 180) / 10) || 36, l2 = lr === 'L' ? 'R' : lr === 'R' ? 'L' : lr || '';
   return [String(n1).padStart(2, '0') + (lr || ''), String(n2).padStart(2, '0') + l2];
 };
 // a frame that sits on the runway surface: a along -z, c along +x, pitched for sloped strips
@@ -1917,7 +2116,7 @@ const RUNWAYS = [];
 function insideRunway(R, x, z, margin = 0) { const px = x - R.cx, pz = z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz; return Math.abs(a) < R.half + margin && Math.abs(c) < R.wid / 2 + margin; }
 
 function buildRunway(A, R) {
-  R.ids = ids2(R.hdg, R.lr); R.airport = A; RUNWAYS.push(R);
+  R.ids = ids2(R.hdg, R.lr, R.num); R.airport = A; RUNWAYS.push(R);
   const g = rwGroup(R); g.updateMatrixWorld(true); R.group = g;
   const L = R.len, paved = R.surface !== 'grass';
   const put = (mat, c, y, a, w, l) => { const m = new THREE.Mesh(PLANE1, mat); m.position.set(c, y, -a); m.scale.set(w, 1, l); m.receiveShadow = true; g.add(m); return m; };
@@ -2157,6 +2356,7 @@ function buildTerminal(A) {
     const rf = box(g, 8, 0.4, 10, new THREE.MeshLambertMaterial({ color: 0x6c3a2a }), T.c, 3.6, -am); rf.rotation.z = 0.12;
     for (let k = 0; k < 3; k++) { const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 10), new THREE.MeshLambertMaterial({ color: k ? 0x2f6fb0 : 0xc0392b })); drum.position.set(T.c + side * 5, 0.45, -(am + 2 + k * 0.8)); g.add(drum); }
   } else if (T.kind === 'lukla') buildLukla(A, g);
+  else if (T.kind === 'poly') polyTerminal(A, g);
   // windsock at every field
   const ws = new THREE.Group(), R = A.rws[0], wa = -R.half + Math.min(350, R.len * 0.3), wc = -(R.wid / 2 + 45);
   const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 7, 5), metalGray); pole.position.y = 3.5; ws.add(pole);
@@ -2371,7 +2571,7 @@ function ribbonGeo(pts, width, lift = 0.16) {
 const TRAFFIC = [], CAR_MAX = 200;
 const carBodies = new THREE.InstancedMesh((() => { const b = new THREE.BoxGeometry(4.3, 1.05, 1.8); b.translate(0, 0.72, 0); return b; })(), new THREE.MeshLambertMaterial({ color: 0xffffff }), CAR_MAX);
 const carCabs = new THREE.InstancedMesh((() => { const b = new THREE.BoxGeometry(2.3, 0.75, 1.62); b.translate(-0.25, 1.6, 0); return b; })(), new THREE.MeshLambertMaterial({ color: 0x1f2a36 }), CAR_MAX);
-carBodies.count = carCabs.count = 0; carBodies.frustumCulled = carCabs.frustumCulled = false;
+carBodies.count = carCabs.count = 0; carBodies.frustumCulled = carCabs.frustumCulled = false; carBodies.castShadow = carCabs.castShadow = true;
 scene.add(carBodies, carCabs);
 const CAR_COLS = [0xd23b3b, 0xf2f2f2, 0x2f6fb0, 0x333333, 0xe0b030, 0x3f8f4a, 0xc9ccd1, 0x7a2f8f, 0xf2f2f2];
 const _trP = new THREE.Vector3(), _trQ = new THREE.Quaternion(), _trM = new THREE.Matrix4(), _trOne = new THREE.Vector3(1, 1, 1), _trY = new THREE.Vector3(0, 1, 0);
@@ -2465,13 +2665,17 @@ function crowd(list, face) {
   const r = mulberry32(list.length * 7 + 3);
   list.forEach(([x, y, z]) => { const f = face || [x + (r() - 0.5) * 10, z + (r() - 0.5) * 10]; person(x, y, z, f[0], f[1], r() < 0.45 ? 1 : r() < 0.3 ? 2 : r() < 0.3 ? 3 : 0, r); });
 }
+const _qLie = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
 function buildPeople() {
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(), cc = new THREE.Color();
   const batch = (geo, list, col) => {
     if (!list.length) return;
     const im = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ color: 0xffffff }), list.length);
-    list.forEach((p, k) => { m4.compose(v.set(p.x, p.y, p.z), q.setFromAxisAngle(_trY, p.yaw), sc.set(p.s, p.s, p.s)); im.setMatrixAt(k, m4); im.setColorAt(k, cc.setHex(col(p))); });
-    im.frustumCulled = false; scene.add(im);
+    list.forEach((p, k) => {
+      q.setFromAxisAngle(_trY, p.yaw); if (p.lie) q.multiply(_qLie);   // sunbathers lie on their backs, head up the beach
+      m4.compose(v.set(p.x, p.y + (p.lie ? 0.14 : 0), p.z), q, sc.set(p.s, p.s, p.s)); im.setMatrixAt(k, m4); im.setColorAt(k, cc.setHex(col(p)));
+    });
+    im.frustumCulled = false; im.castShadow = true; scene.add(im);
   };
   batch(PEOPLE_GEO.legs, PEOPLE, p => p.pants);
   batch(PEOPLE_GEO.hair, PEOPLE, p => p.hair);
@@ -2565,6 +2769,8 @@ const TOWN_STYLES = {
   trop: { walls: [0xe6d3a8, 0xc9b38a, 0xd8e8c8, 0xf0dcc0, 0xa8c8d8, 0xf2e6c8], roofs: [0x8a8f96, 0x9c3b2c, 0x3f6f8a, 0x6f7a5a, 0xb8bcc2] },
   mainland: { walls: [0xe8e2d6, 0xd8d2c4, 0xf2efe8, 0xc9c2b4, 0xe0d0b8, 0xf4f1ea], roofs: [0x5a5f66, 0x7a4a36, 0x4a5058, 0x8a3a2c, 0x6b4a3a] },
   mountain: { walls: [0x9a958c, 0xb8b2a6, 0xd8d2c6, 0x8a857c, 0xf0ece4], roofs: [0x2f6fb0, 0x3f8f5a, 0xc2412f, 0x2a9d8f, 0x4a6fa5, 0x8a8f96] },
+  poly: { walls: [0xf6ead0, 0xe9d6b2, 0xbfe6dc, 0xf7cfc4, 0xfdfbf5, 0xd5ead0, 0xc9a77c], roofs: [0x8c6a42, 0x9a7a4c, 0xb8452f, 0x3f8f6a, 0x7d5f3a, 0xf2f2f2], roofShape: 'thatch' },
+  jp: { walls: [0xf2efe6, 0xe8e2d4, 0x8a6a4c, 0xd9d3c6, 0xf6f3ec, 0x6f5640], roofs: [0x3a414c, 0x464e5a, 0x2f353e, 0x52504c, 0x3f4a5a], roofShape: 'jp' },
 };
 const HOUSES = [];   // houses from every town, drawn as one batch once the world is built
 function buildTownPlan(A) {
@@ -2581,11 +2787,11 @@ function buildTownPlan(A) {
     LAMPS.push([x + ox, TM.height(x + ox, z + oz), z + oz]);
   }
   if (L.length) scene.add(glowPoints(L, 'town'));
-  const treeType = { carib: 3, trop: 3, med: 1, atl: 0, mainland: 0, mountain: 2 }[A.townStyle || A.region] ?? 0;
+  const treeType = { carib: 3, trop: 3, poly: 3, jp: 6, med: 1, atl: 0, mainland: 0, mountain: 2 }[A.townStyle || A.region] ?? 0;
   for (const h of P.houses) {
-    HOUSES.push(Object.assign({}, h, { wall: st.walls[(h.k * 97 | 0) % st.walls.length], roof: st.roofs[(h.k * 13 | 0) % st.roofs.length] }));
+    HOUSES.push(Object.assign({}, h, { wall: st.walls[(h.k * 97 | 0) % st.walls.length], roof: st.roofs[(h.k * 13 | 0) % st.roofs.length], shape: st.roofShape }));
     // a tree in the side garden of most houses
-    if (h.k < 0.7) { const sd = h.k < 0.35 ? -1 : 1, lx = sd * (h.w / 2 + 2.8), lz = (h.k * 7 % 1 - 0.5) * h.d * 0.6, x = h.x + Math.cos(h.rot) * lx + Math.sin(h.rot) * lz, z = h.z - Math.sin(h.rot) * lx + Math.cos(h.rot) * lz; GARDEN_TREES.push([x, TM.height(x, z), z, h.k < 0.5 ? treeType : (treeType === 3 ? 0 : treeType), 0.7 + h.k * 0.5, h.k * 40]); }
+    if (h.k < 0.7) { const sd = h.k < 0.35 ? -1 : 1, lx = sd * (h.w / 2 + 2.8), lz = (h.k * 7 % 1 - 0.5) * h.d * 0.6, x = h.x + Math.cos(h.rot) * lx + Math.sin(h.rot) * lz, z = h.z - Math.sin(h.rot) * lx + Math.cos(h.rot) * lz; GARDEN_TREES.push([x, TM.height(x, z), z, treeType === 6 ? (h.k < 0.35 ? 6 : 4) : h.k < 0.5 ? treeType : (treeType === 3 ? 0 : treeType), 0.7 + h.k * 0.5, h.k * 40]); }
   }
   // cars to and from the terminal, and along the main street
   addTraffic(access.concat(access.slice().reverse()), A.kind === 'strip' ? 1 : 3, 11, { loop: true });
@@ -2594,7 +2800,7 @@ function buildTownPlan(A) {
 }
 const LAMPS = [], GARDEN_TREES = [];
 function buildHouses() {
-  for (let t = 0; t < 4; t++) {
+  for (let t = 0; t < TREE_TYPES; t++) {
     const list = GARDEN_TREES.filter(g => g[3] === t); if (!list.length) continue;
     const im = new THREE.InstancedMesh(TREE_GEO[t], treeMats[t === 3 ? 1 : 0], list.length), m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
     list.forEach(([x, y, z, , s2, ang], k) => { m.compose(v.set(x, y - 0.4, z), q.setFromAxisAngle(_trY, ang), sc.set(s2, s2, s2)); im.setMatrixAt(k, m); });
@@ -2604,19 +2810,26 @@ function buildHouses() {
   const wallG = new THREE.BoxGeometry(1, 1, 1); wallG.translate(0, 0.5, 0);
   const pyrG = new THREE.ConeGeometry(0.7071, 1, 4, 1); pyrG.rotateY(Math.PI / 4); pyrG.translate(0, 0.5, 0);
   const gabG = (() => { const g = new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(-0.5, 0), new THREE.Vector2(0.5, 0), new THREE.Vector2(0, 1)]), { depth: 1, bevelEnabled: false }); g.translate(0, 0, -0.5); g.rotateY(Math.PI / 2); return g; })();
-  const gab = HOUSES.filter(h => h.gable && !h.flat), pyr = HOUSES.filter(h => !h.gable && !h.flat);
+  const gab = HOUSES.filter(h => h.gable && !h.flat && !h.shape), pyr = HOUSES.filter(h => !h.gable && !h.flat && !h.shape);
+  const thatch = HOUSES.filter(h => h.shape === 'thatch'), jpr = HOUSES.filter(h => h.shape === 'jp');
   const walls = new THREE.InstancedMesh(wallG, bldMat, n), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(), cc = new THREE.Color();
   HOUSES.forEach((h, k) => {
     q.setFromAxisAngle(_trY, h.rot);
     m4.compose(v.set(h.x, h.y - 1.8, h.z), q, sc.set(h.w, h.hh + 1.8, h.d)); walls.setMatrixAt(k, m4); walls.setColorAt(k, cc.setHex(h.wall));
     addObstacle(h.x, h.y + h.hh / 2, h.z, h.w / 2, h.hh / 2 + 1.8, h.d / 2, -h.rot);
   });
-  walls.frustumCulled = false; scene.add(walls);
-  for (const [G, list] of [[pyrG, pyr], [gabG, gab]]) {
+  walls.frustumCulled = false; walls.castShadow = true; scene.add(walls);
+  for (const [G, list, kind] of [[pyrG, pyr], [gabG, gab], [HIP, thatch, 'thatch'], [JP_ROOF, jpr, 'jp']]) {
     if (!list.length) continue;
-    const roofs = new THREE.InstancedMesh(G, new THREE.MeshLambertMaterial({ color: 0xffffff }), list.length);
-    list.forEach((h, k) => { q.setFromAxisAngle(_trY, h.rot); m4.compose(v.set(h.x, h.y + h.hh, h.z), q, sc.set(h.w + 0.9, (h.gable ? 2.6 : 2.2) + h.k * 1.2, h.d + 0.9)); roofs.setMatrixAt(k, m4); roofs.setColorAt(k, cc.setHex(h.roof)); });
-    roofs.frustumCulled = false; scene.add(roofs);
+    const roofs = new THREE.InstancedMesh(G, new THREE.MeshLambertMaterial({ color: 0xffffff, side: kind ? THREE.DoubleSide : THREE.FrontSide }), list.length);
+    list.forEach((h, k) => {
+      q.setFromAxisAngle(_trY, h.rot);
+      if (kind === 'thatch') m4.compose(v.set(h.x, h.y + h.hh, h.z), q, sc.set(h.w + 2.2, 3.6 + h.k * 1.6, h.d + 2.2));
+      else if (kind === 'jp') m4.compose(v.set(h.x, h.y + h.hh - 0.25, h.z), q, sc.set(h.w + 1.6, 3.0 + h.k * 0.8, h.d + 1.6));
+      else m4.compose(v.set(h.x, h.y + h.hh, h.z), q, sc.set(h.w + 0.9, (h.gable ? 2.6 : 2.2) + h.k * 1.2, h.d + 0.9));
+      roofs.setMatrixAt(k, m4); roofs.setColorAt(k, cc.setHex(h.roof));
+    });
+    roofs.frustumCulled = false; roofs.castShadow = true; scene.add(roofs);
   }
   scene.add(glowPoints(HOUSES.filter((h, k) => k % 2 === 0).map(h => ({ p: [h.x, h.y + h.hh * 0.6, h.z], c: 0xffc88a, s: 1.8 })), 'town'));
   if (LAMPS.length) {   // lamp posts
@@ -3107,14 +3320,387 @@ function buildWreck(A, F) {
 }
 const m4tmp = new THREE.Matrix4();
 
+
+/* =========================================================
+   French Polynesia and Japan: overwater bungalows, tiki bars and beach life in the lagoons;
+   torii, pagodas, a castle and tea fields under Fuji
+   ========================================================= */
+const thatchMat = new THREE.MeshLambertMaterial({ color: 0xa5834f, side: THREE.DoubleSide });
+const thatchDark = new THREE.MeshLambertMaterial({ color: 0x86683e, side: THREE.DoubleSide });
+const woodMat = new THREE.MeshLambertMaterial({ color: 0x8d6a47 });
+const woodDark = new THREE.MeshLambertMaterial({ color: 0x5e4532 });
+const plankMat = new THREE.MeshLambertMaterial({ color: 0xb08a5e });
+const creamMat = new THREE.MeshLambertMaterial({ color: 0xf3ead6 });
+const vermilion = new THREE.MeshLambertMaterial({ color: 0xd4432b });
+const inkMat = new THREE.MeshLambertMaterial({ color: 0x1f2023 });
+const kawara = new THREE.MeshLambertMaterial({ color: 0x3b424d, side: THREE.DoubleSide });
+const plaster = new THREE.MeshLambertMaterial({ color: 0xf4f1ea });
+const stoneMat = new THREE.MeshLambertMaterial({ color: 0x9d988c });
+const bronzeMat = new THREE.MeshLambertMaterial({ color: 0x7a6440 });
+const teaMat = new THREE.MeshLambertMaterial({ color: 0x3b7434 });
+const hullMat = new THREE.MeshLambertMaterial({ color: 0xf3f4f2 });
+
+// collects pieces per material and merges them into one mesh each, so a whole resort costs a handful of draw calls
+function kit() {
+  const parts = new Map(), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+  return {
+    add(mat, geo, x, y, z, ry = 0, sx = 1, sy = 1, sz = 1, rx = 0, rz = 0) {
+      let g = geo.index ? geo.toNonIndexed() : geo.clone();
+      if (g.attributes.uv) g.deleteAttribute('uv');
+      m4.compose(v.set(x, y, z), q.setFromEuler(e.set(rx, ry, rz, 'YXZ')), sc.set(sx, sy, sz)); g.applyMatrix4(m4);
+      (parts.get(mat) || parts.set(mat, []).get(mat)).push(g);
+    },
+    done(parent = scene, shadows = true) {
+      const grp = new THREE.Group();
+      for (const [mat, list] of parts) { const m = new THREE.Mesh(mergeGeometries(list), mat); m.castShadow = shadows; m.receiveShadow = true; grp.add(m); }
+      parent.add(grp); return grp;
+    },
+  };
+}
+const UBOX = new THREE.BoxGeometry(1, 1, 1), UCYL = new THREE.CylinderGeometry(0.5, 0.5, 1, 8), UCYL5 = new THREE.CylinderGeometry(0.5, 0.5, 1, 5);
+// a hipped roof on a unit footprint: ridge along x at y = 1, eaves at y = 0
+function hipRoofGeo(ridge = 0.36, flare = 0) {
+  const r = ridge / 2, P = [[-0.5, 0, -0.5], [0.5, 0, -0.5], [0.5, 0, 0.5], [-0.5, 0, 0.5], [-r, 1, 0], [r, 1, 0]];
+  const T = [[0, 1, 5], [0, 5, 4], [1, 2, 5], [2, 3, 4], [2, 4, 5], [3, 0, 4], [0, 3, 2], [0, 2, 1]];
+  const pos = [];
+  for (const t of T) for (const i of t) { const [x, y, z] = P[i]; pos.push(x * (1 + flare * (1 - y)), y, z * (1 + flare * (1 - y))); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
+}
+// the Japanese roof: concave slopes and eaves that curl up at the corners
+function jpRoofGeo() {
+  const E = [[-0.64, 0.22, -0.64], [0, 0.04, -0.67], [0.64, 0.22, -0.64], [0.67, 0.04, 0], [0.64, 0.22, 0.64], [0, 0.04, 0.67], [-0.64, 0.22, 0.64], [-0.67, 0.04, 0]];
+  const M = [[-0.42, 0.44, -0.42], [0, 0.41, -0.45], [0.42, 0.44, -0.42], [0.45, 0.41, 0], [0.42, 0.44, 0.42], [0, 0.41, 0.45], [-0.42, 0.44, 0.42], [-0.45, 0.41, 0]];
+  const R0 = [-0.24, 1, 0], R1 = [0.24, 1, 0], pos = [], tri = (a, b, c) => pos.push(...a, ...b, ...c);
+  for (let i = 0; i < 8; i++) { const j = (i + 1) % 8; tri(E[i], E[j], M[j]); tri(E[i], M[j], M[i]); }
+  tri(M[0], M[1], R0); tri(M[1], R1, R0); tri(M[1], M[2], R1); tri(M[2], M[3], R1); tri(M[3], M[4], R1);
+  tri(M[4], M[5], R1); tri(M[5], R0, R1); tri(M[5], M[6], R0); tri(M[6], M[7], R0); tri(M[7], M[0], R0);
+  for (let i = 0; i < 8; i++) tri(E[(i + 1) % 8], E[i], [0, 0.04, 0]);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
+}
+const HIP = hipRoofGeo(0.36), HIP_FLARE = hipRoofGeo(0.3, 0.08), JP_ROOF = jpRoofGeo();
+const CONE8 = new THREE.ConeGeometry(0.5, 1, 8), CONE4 = (() => { const g = new THREE.ConeGeometry(0.7071, 1, 4); g.rotateY(Math.PI / 4); return g; })();
+
+// streets and gardens from the town plans (the terrain worker keeps its own copy for the trees)
+function townClear(x, z) {
+  const L = TOWN_GRID[Math.floor(x / TOWN_CELL) * 100003 + Math.floor(z / TOWN_CELL)]; if (!L) return false;
+  for (let i = 0; i < L.length; i += 5) {
+    const ax = L[i], az = L[i + 1], vx = L[i + 2] - ax, vz = L[i + 3] - az, r = L[i + 4], l2 = vx * vx + vz * vz || 1;
+    const t = clamp(((x - ax) * vx + (z - az) * vz) / l2, 0, 1), dx = x - ax - vx * t, dz = z - az - vz * t;
+    if (dx * dx + dz * dz < r * r) return true;
+  }
+  return false;
+}
+// island-local metres → world; the shore along a line, found by walking seaward until the water starts
+const IP = (I, u, v) => islPoint(I, u, v);
+function shoreFrom(x, z, dx, dz, max = 600) {
+  for (let t = 0; t < max; t += 3) { const px = x + dx * t, pz = z + dz * t; if (TM.height(px, pz) < 0.35) return [px, pz, t]; }
+  return null;
+}
+
+/* ---------- overwater bungalows: a boardwalk out from the beach with huts either side ---------- */
+const PIERS = [], BUNGALOW_LIGHTS = [];
+function bungalowPier(K, x0, z0, hdg, count, rnd, opts = {}) {
+  PIERS.push([x0, z0, hdg]);
+  const dx = Math.sin(hdg), dz = -Math.cos(hdg), rx = Math.cos(hdg), rz = Math.sin(hdg);
+  const deck = 2.2, gap = opts.gap || 24, side = opts.side || 0;
+  const len = 18 + Math.ceil(count / (side ? 1 : 2)) * gap;
+  // the main boardwalk on its piles
+  K.add(plankMat, UBOX, x0 + dx * len / 2, deck, z0 + dz * len / 2, -hdg, 2.4, 0.25, len);
+  for (let t = 4; t < len; t += 6) for (const s of [-1, 1]) K.add(woodDark, UCYL5, x0 + dx * t + rx * s * 1.1, deck / 2 - 1.6, z0 + dz * t + rz * s * 1.1, 0, 0.22, deck + 3.2, 0.22);
+  for (let k = 0; k < count; k++) {
+    const s = side || (k % 2 ? 1 : -1), t = 18 + Math.floor(k / (side ? 1 : 2)) * gap + (side ? 0 : (k % 2) * gap * 0.5);
+    const off = 12 + rnd() * 3, bx = x0 + dx * t + rx * s * off, bz = z0 + dz * t + rz * s * off;
+    if (TM.height(bx, bz) > -0.4) continue;   // only out over the water
+    const yaw = -hdg + (s > 0 ? -Math.PI / 2 : Math.PI / 2);   // the deck faces away from the boardwalk
+    // the walkway across to the hut
+    K.add(plankMat, UBOX, x0 + dx * t + rx * s * off * 0.42, deck, z0 + dz * t + rz * s * off * 0.42, -hdg, off * 0.84, 0.2, 1.5);
+    const c = Math.cos(yaw), sn = Math.sin(yaw), L = (lx, lz) => [bx + lx * c + lz * sn, bz - lx * sn + lz * c];
+    for (const [lx, lz] of [[-3.4, -4.2], [3.4, -4.2], [-3.4, 1], [3.4, 1], [-3.4, 5.6], [3.4, 5.6]]) { const [px, pz] = L(lx, lz); K.add(woodDark, UCYL5, px, deck / 2 - 1.7, pz, 0, 0.3, deck + 3.4, 0.3); }
+    { const [px, pz] = L(0, 0.5); K.add(plankMat, UBOX, px, deck + 0.1, pz, yaw, 8.2, 0.3, 11.5); }
+    { const [px, pz] = L(0, -1); K.add(k % 3 ? creamMat : woodMat, UBOX, px, deck + 1.55, pz, yaw, 6.4, 2.6, 7); }
+    { const [px, pz] = L(0, -1); K.add(k % 4 ? thatchMat : thatchDark, HIP, px, deck + 2.75, pz, yaw, 8.6, 4.6, 9.2); }
+    { const [px, pz] = L(0, 4.6); K.add(woodDark, UBOX, px, deck + 0.75, pz, yaw, 8.2, 0.9, 0.12); }   // the deck rail
+    { const [px, pz] = L(3.0, 5.9); K.add(woodDark, UBOX, px, deck - 1.1, pz, yaw, 0.6, 2.4, 0.1); }   // ladder into the lagoon
+    { const [px, pz] = L(0, 2.9); BUNGALOW_LIGHTS.push({ p: [px, deck + 1.6, pz], c: 0xffc27a, s: 1.9 }); }   // warm windows after dark
+  }
+}
+
+/* ---------- tiki bars: a palm-thatch cone on posts, a bar, carved tiki and torches ---------- */
+function tikiBar(K, x, z, yaw, glow) {
+  const y = TM.height(x, z), c = Math.cos(yaw), s = Math.sin(yaw), L = (lx, lz) => [x + lx * c + lz * s, z - lx * s + lz * c];
+  for (let k = 0; k < 6; k++) { const a = k / 6 * TAU, [px, pz] = L(Math.cos(a) * 4.2, Math.sin(a) * 4.2); K.add(woodMat, UCYL5, px, y + 1.6, pz, 0, 0.32, 3.4, 0.32); }
+  K.add(thatchMat, CONE8, x, y + 4.6, z, yaw, 11.5, 3.6, 11.5);
+  K.add(thatchDark, CONE8, x, y + 6.0, z, yaw + 0.2, 4.4, 1.6, 4.4);
+  K.add(woodDark, UBOX, x, y + 0.55, z, yaw, 5, 1.1, 1.1);   // the bar
+  K.add(plankMat, UBOX, x, y + 1.13, z, yaw, 5.4, 0.08, 1.4);
+  for (let k = -2; k <= 2; k++) { const [px, pz] = L(k * 1.1, 1.3); K.add(woodDark, UCYL5, px, y + 0.38, pz, 0, 0.42, 0.76, 0.42); }
+  for (const sd of [-1, 1]) {   // tiki at the door
+    const [px, pz] = L(sd * 5.6, -4.6);
+    K.add(woodDark, UCYL, px, y + 1.1, pz, 0, 0.75, 2.2, 0.75);
+    K.add(inkMat, UBOX, px, y + 1.55, pz, yaw, 0.55, 0.28, 0.82); K.add(thatchDark, UBOX, px, y + 2.3, pz, yaw, 0.95, 0.22, 0.95);
+  }
+  for (const [lx, lz] of [[-7, 3], [7, 3], [-6.5, -6.5], [6.5, -6.5]]) {   // torches
+    const [px, pz] = L(lx, lz), py = TM.height(px, pz);
+    K.add(woodDark, UCYL5, px, py + 1.2, pz, 0, 0.1, 2.4, 0.1); K.add(bronzeMat, UCYL5, px, py + 2.5, pz, 0, 0.28, 0.3, 0.28);
+    glow.push({ p: [px, py + 2.85, pz], c: 0xffa040, s: 1.7, k: 2, ph: px * 0.1 });
+  }
+}
+
+/* ---------- beach life: parasols, loungers, towels, people in and out of the water, canoes on the sand ---------- */
+const LOUNGERS = [], TOWELS = [], PARASOLS = [];
+function beachScene(K, x0, z0, tx, tz, len, seaX, seaZ, rnd, opts = {}) {
+  const n = Math.round(len / 9);
+  for (let i = 0; i < n; i++) {
+    const t = (i / n - 0.5) * len + (rnd() - 0.5) * 5, bx = x0 + tx * t, bz = z0 + tz * t;
+    const sh = shoreFrom(bx - seaX * 60, bz - seaZ * 60, seaX, seaZ, 260); if (!sh) continue;
+    const [wx, wz] = sh, back = 6 + rnd() * 14, px = wx - seaX * back, pz = wz - seaZ * back, py = TM.height(px, pz);
+    if (py < 0.2 || py > 4) continue;
+    const r = rnd(), face = Math.atan2(seaX, -seaZ);
+    if (r < 0.42) {   // a parasol and two loungers, mostly taken
+      PARASOLS.push([px, py, pz, opts.thatch || rnd() < 0.5 ? 1 : 0, rnd()]);
+      for (const sd of [-1, 1]) {
+        const lx = px + tz * sd * 1.3 * 0 + (-seaZ) * sd * 1.25, lz = pz + seaX * sd * 1.25;
+        LOUNGERS.push([lx, py, lz, face]);
+        if (rnd() < 0.75) PEOPLE.push(beachPerson(lx, py + 0.42, lz, face, rnd, true));
+      }
+    } else if (r < 0.66) {   // a towel and a sunbather
+      TOWELS.push([px, py + 0.03, pz, face + (rnd() - 0.5) * 0.4, (rnd() * 6) | 0]);
+      PEOPLE.push(beachPerson(px, py + 0.12, pz, face, rnd, true));
+    } else if (r < 0.84) {   // standing at the water's edge
+      const ex = wx - seaX * (1 + rnd() * 3), ez = wz - seaZ * (1 + rnd() * 3);
+      PEOPLE.push(beachPerson(ex, TM.height(ex, ez), ez, face + (rnd() - 0.5) * 2, rnd, false));
+    } else {   // swimming in the lagoon
+      const ex = wx + seaX * (8 + rnd() * 30), ez = wz + seaZ * (8 + rnd() * 30);
+      if (TM.height(ex, ez) > -1.9) PEOPLE.push(Object.assign(beachPerson(ex, -1.12, ez, rnd() * TAU, rnd, false), { swim: true }));
+    }
+  }
+  // outrigger canoes pulled up on the sand
+  for (let k = 0; k < (opts.canoes ?? 3); k++) {
+    const t = (rnd() - 0.5) * len * 0.8, sh = shoreFrom(x0 + tx * t - seaX * 60, z0 + tz * t - seaZ * 60, seaX, seaZ, 260); if (!sh) continue;
+    outrigger(K, sh[0] - seaX * 3, sh[1] - seaZ * 3, Math.atan2(seaX, -seaZ) + (rnd() - 0.5) * 0.6, Math.max(0.1, TM.height(sh[0] - seaX * 3, sh[1] - seaZ * 3)));
+  }
+}
+function beachPerson(x, y, z, face, rnd, lie) {
+  const p = { x, y, z, yaw: face + (rnd() - 0.5) * 0.6, pose: lie ? 0 : (rnd() < 0.3 ? 1 : rnd() < 0.5 ? 3 : 0), shirt: rnd() < 0.5 ? [0xff5a4f, 0xffd23f, 0x2ab0b0, 0xff7ce0, 0xffffff, 0x3fbf7f][(rnd() * 6) | 0] : SKIN[(rnd() * SKIN.length) | 0], pants: [0x2c4a7a, 0xff5a4f, 0x2ab0b0, 0xffd23f, 0x1e2f4f, 0xff8c2e][(rnd() * 6) | 0], skin: SKIN[(rnd() * SKIN.length) | 0], hair: HAIR[(rnd() * HAIR.length) | 0], s: 0.92 + rnd() * 0.16 };
+  if (lie) p.lie = true;
+  return p;
+}
+function outrigger(K, x, z, yaw, y = 0) {
+  const c = Math.cos(yaw), s = Math.sin(yaw), L = (lx, lz) => [x + lx * c + lz * s, z - lx * s + lz * c];
+  K.add(hullMat, UBOX, x, y + 0.35, z, yaw, 0.55, 0.5, 7);
+  K.add(vermilion, UBOX, x, y + 0.62, z, yaw, 0.6, 0.06, 7.05);
+  { const [px, pz] = L(1.9, 0); K.add(woodMat, UCYL5, px, y + 0.25, pz, yaw, 0.28, 3.6, 0.28, Math.PI / 2); }
+  for (const lz of [-1.2, 1.2]) { const [px, pz] = L(0.95, lz); K.add(woodDark, UBOX, px, y + 0.62, pz, yaw, 1.9, 0.08, 0.1); }
+}
+function motorBoat(K, x, z, yaw, col) {
+  const c = Math.cos(yaw), s = Math.sin(yaw);
+  K.add(hullMat, UBOX, x, 0.45, z, yaw, 2.3, 0.9, 7.2);
+  K.add(hullMat, CONE4, x - s * 4.1, 0.45, z - c * 4.1, yaw, 1.6, 0.9, 1.9, Math.PI / 2);
+  K.add(col, UBOX, x, 0.93, z, yaw, 2.35, 0.08, 7.3);
+  K.add(creamMat, UBOX, x + s * 0.6, 1.4, z + c * 0.6, yaw, 1.9, 1.0, 2.3);
+}
+function buildBeachProps() {
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(1, 1, 1), cc = new THREE.Color();
+  if (LOUNGERS.length) {
+    const g = mergeGeometries([new THREE.BoxGeometry(0.72, 0.08, 2.0).translate(0, 0.36, 0.15), new THREE.BoxGeometry(0.72, 0.08, 0.7).rotateX(-0.75).translate(0, 0.58, -0.95), ...[[-0.3, 0.6], [0.3, 0.6], [-0.3, -0.6], [0.3, -0.6]].map(([lx, lz]) => new THREE.BoxGeometry(0.06, 0.34, 0.06).translate(lx, 0.17, lz))]);
+    const im = new THREE.InstancedMesh(g, new THREE.MeshLambertMaterial({ color: 0xf6f2e8 }), LOUNGERS.length);
+    LOUNGERS.forEach(([x, y, z, yaw], k) => { m4.compose(v.set(x, y, z), q.setFromAxisAngle(_trY, yaw + Math.PI), sc.set(1, 1, 1)); im.setMatrixAt(k, m4); });
+    im.castShadow = true; im.receiveShadow = true; scene.add(im);
+  }
+  if (TOWELS.length) {
+    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(0.95, 0.02, 1.9), new THREE.MeshLambertMaterial({ color: 0xffffff }), TOWELS.length), cols = [0xff5a4f, 0x2ab0b0, 0xffd23f, 0x2f6fb0, 0xff7ce0, 0x3fbf7f];
+    TOWELS.forEach(([x, y, z, yaw, ci], k) => { m4.compose(v.set(x, y, z), q.setFromAxisAngle(_trY, yaw), sc.set(1, 1, 1)); im.setMatrixAt(k, m4); im.setColorAt(k, cc.setHex(cols[ci])); });
+    im.receiveShadow = true; scene.add(im);
+  }
+  if (PARASOLS.length) {
+    const pole = new THREE.CylinderGeometry(0.05, 0.05, 2.5, 5).translate(0, 1.25, 0), top = new THREE.ConeGeometry(1.6, 0.75, 10).translate(0, 2.55, 0);
+    const poles = new THREE.InstancedMesh(pole, woodDark, PARASOLS.length), tops = new THREE.InstancedMesh(top, new THREE.MeshLambertMaterial({ color: 0xffffff }), PARASOLS.length), cols = [0xffffff, 0xff5a4f, 0x2ab0b0, 0xffd23f];
+    PARASOLS.forEach(([x, y, z, th, r], k) => { m4.makeTranslation(x, y, z); poles.setMatrixAt(k, m4); tops.setMatrixAt(k, m4); tops.setColorAt(k, cc.setHex(th ? 0xa5834f : cols[(r * 4) | 0])); });
+    poles.castShadow = tops.castShadow = true; scene.add(poles, tops);
+  }
+}
+
+/* ---------- the Polynesian terminal: an open fare under two great pandanus roofs ---------- */
+function polyTerminal(A, g) {
+  const T = A.terminal, side = Math.sign(T.c) || 1, am = (T.a0 + T.a1) / 2, len = T.a1 - T.a0, depth = 20, K = kit();
+  K.add(concreteGray, UBOX, T.c, 0.3, -am, 0, depth + 4, 0.6, len + 4);
+  for (let a = T.a0 + 4; a <= T.a1 - 4; a += 9) for (const cc of [-depth / 2 + 1, depth / 2 - 1]) K.add(woodMat, UCYL5, T.c + cc, 2.8, -a, 0, 0.5, 5, 0.5);
+  K.add(creamMat, UBOX, T.c + side * 5, 2.2, -(T.a0 + len * 0.3), 0, 8, 3.8, len * 0.35);   // offices and the bag room
+  K.add(creamMat, UBOX, T.c + side * 5, 2.2, -(T.a0 + len * 0.82), 0, 8, 3.8, len * 0.22);
+  for (const [a0, a1] of [[T.a0, am + 4], [am - 4, T.a1]]) K.add(thatchMat, HIP, T.c, 5.2, -(a0 + a1) / 2, 0, depth + 6, 7.5, a1 - a0 + 6);
+  for (let k = 0; k < 10; k++) K.add(plankMat, UBOX, T.c - side * 2 + (k % 2) * 4, 0.85, -(T.a0 + 10 + k * len / 11), 0, 1.6, 0.5, 4);   // benches
+  K.done(g);
+  obstacleFromMesh(A, box(g, depth, 9, len, new THREE.MeshBasicMaterial({ visible: false }), T.c, 4.5, -am));
+  const n = Math.max(2, Math.floor(len / 70));
+  for (let k = 0; k < n; k++) STANDS.push({ A, g, wall: [T.c - side * (depth / 2 + 6), T.a0 + (k + 0.5) * len / n], out: [-side, 0], cls: 'small', bridge: false, gap: len / n });
+  // the sign, in Air Tahiti blue
+  const sign = canvasTex(512, 128, (c2, w, h) => { c2.fillStyle = '#ffffff'; c2.fillRect(0, 0, w, h); c2.fillStyle = '#0a5c8c'; c2.font = 'bold 66px Arial'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText(A.name.toUpperCase(), w / 2, h / 2 + 3); });
+  const sp = new THREE.Mesh(new THREE.PlaneGeometry(14, 3.5), new THREE.MeshLambertMaterial({ map: sign, side: THREE.DoubleSide }));
+  sp.position.set(T.c - side * (depth / 2 + 3.2), 7.6, -am); sp.rotation.y = side * Math.PI / 2; g.add(sp);
+  const L = []; for (let a = T.a0; a <= T.a1; a += 30) L.push({ p: [T.c, 4.2, -a], c: 0xffc070, s: 2.2 });
+  g.add(glowPoints(L, 'town'));
+}
+
+/* ---------- Japan: torii, the five-storey pagoda, temple halls, a castle keep, stone lanterns, tea fields ---------- */
+// these face along heading h: front f = (sin h, -cos h), right r = (cos h, sin h); boxes turn by -h so local -z points to the front
+function torii(K, x, y, z, h, s = 1) {
+  const rx = Math.cos(h), rz = Math.sin(h), yaw = -h;
+  for (const sd of [-1, 1]) { const px = x + rx * sd * 3.4 * s, pz = z + rz * sd * 3.4 * s; K.add(vermilion, UCYL, px, y + 4.3 * s, pz, 0, 0.75 * s, 8.6 * s, 0.75 * s); K.add(inkMat, UCYL, px, y + 0.35 * s, pz, 0, 0.95 * s, 0.7 * s, 0.95 * s); }
+  K.add(vermilion, UBOX, x, y + 6.6 * s, z, yaw, 8.6 * s, 0.55 * s, 0.55 * s);   // nuki
+  K.add(vermilion, UBOX, x, y + 8.75 * s, z, yaw, 10.8 * s, 0.7 * s, 0.9 * s);   // shimaki
+  K.add(inkMat, UBOX, x, y + 9.35 * s, z, yaw, 12.2 * s, 0.5 * s, 1.15 * s);     // kasagi, its ends lifting
+  for (const sd of [-1, 1]) K.add(inkMat, UBOX, x + rx * sd * 6.3 * s, y + 9.55 * s, z + rz * sd * 6.3 * s, yaw, 1.6 * s, 0.5 * s, 1.15 * s, 0, sd * 0.28);
+  K.add(vermilion, UBOX, x, y + 7.7 * s, z, yaw, 0.5 * s, 1.6 * s, 0.4 * s);     // gakuzuka
+}
+function pagoda(K, x, y, z, h, s = 1) {
+  const yaw = -h;
+  K.add(stoneMat, UBOX, x, y + 0.6 * s, z, yaw, 11 * s, 1.2 * s, 11 * s);
+  let t = 1.2 * s;
+  for (let k = 0; k < 5; k++) {
+    const w = (7.2 - k * 0.75) * s, hh = (k ? 2.6 : 3.4) * s;
+    K.add(vermilion, UBOX, x, y + t + hh / 2, z, yaw, w, hh, w);
+    K.add(plaster, UBOX, x, y + t + hh * 0.55, z, yaw, w * 1.02, hh * 0.32, w * 0.4);
+    t += hh;
+    K.add(kawara, JP_ROOF, x, y + t - 0.3 * s, z, yaw, w + 4.2 * s, 2.0 * s, w + 4.2 * s);
+    t += 1.0 * s;
+  }
+  K.add(bronzeMat, UCYL5, x, y + t + 4.2 * s, z, 0, 0.32 * s, 8.4 * s, 0.32 * s);
+  for (let k = 0; k < 9; k++) K.add(bronzeMat, UCYL, x, y + t + 1.2 * s + k * 0.62 * s, z, 0, 1.1 * s, 0.14 * s, 1.1 * s);
+}
+function temple(K, x, y, z, h, s = 1) {
+  const yaw = -h, fx = Math.sin(h), fz = -Math.cos(h), rx = Math.cos(h), rz = Math.sin(h);
+  K.add(stoneMat, UBOX, x, y + 0.8 * s, z, yaw, 30 * s, 1.6 * s, 22 * s);
+  K.add(woodDark, UBOX, x, y + 4.4 * s, z, yaw, 24 * s, 5.6 * s, 16 * s);
+  K.add(plaster, UBOX, x, y + 5 * s, z, yaw, 24.2 * s, 2.2 * s, 16.2 * s);
+  K.add(kawara, JP_ROOF, x, y + 7.0 * s, z, yaw, 34 * s, 9 * s, 26 * s);
+  for (let k = -2; k <= 2; k++) K.add(vermilion, UCYL, x + rx * k * 4.6 * s + fx * 8.6 * s, y + 4.3 * s, z + rz * k * 4.6 * s + fz * 8.6 * s, 0, 0.6 * s, 5.4 * s, 0.6 * s);
+}
+function castle(K, x, y, z, h, s = 1) {
+  const yaw = -h, base = new THREE.CylinderGeometry(0.62, 0.78, 1, 4, 1); base.rotateY(Math.PI / 4);
+  K.add(stoneMat, base, x, y + 6 * s, z, yaw, 34 * s, 12 * s, 28 * s);
+  let t = 12 * s;
+  for (let k = 0; k < 4; k++) {
+    const w = (22 - k * 4) * s, d = (17 - k * 3) * s, hh = (k ? 4.6 : 6) * s;
+    K.add(plaster, UBOX, x, y + t + hh / 2, z, yaw, w, hh, d);
+    t += hh;
+    K.add(kawara, JP_ROOF, x, y + t - 0.6 * s, z, yaw, w + 5 * s, 3.4 * s, d + 5 * s);
+    t += 1.6 * s;
+  }
+  K.add(bronzeMat, UBOX, x, y + t + 0.6 * s, z, yaw, 5 * s, 1.2 * s, 0.6 * s);
+}
+function lantern(K, x, z, glow) {
+  const y = TM.height(x, z);
+  K.add(stoneMat, UCYL5, x, y + 0.25, z, 0, 0.9, 0.5, 0.9); K.add(stoneMat, UCYL5, x, y + 1.1, z, 0, 0.32, 1.3, 0.32);
+  K.add(stoneMat, UBOX, x, y + 2.0, z, 0, 0.75, 0.6, 0.75); K.add(stoneMat, CONE4, x, y + 2.6, z, 0, 1.35, 0.6, 1.35);
+  if (glow) glow.push({ p: [x, y + 2.0, z], c: 0xffc070, s: 1.4 });
+}
+// Shizuoka's tea: long rounded hedges in rows that follow the hillside
+function teaFields(A, F) {
+  const R0 = A.rws[0], rnd = mulberry32(4242), rows = [], m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+  for (let f = 0, tries = 0; f < 22 && tries < 400; tries++) {
+    const ang = rnd() * TAU, dist = 700 + rnd() * F.r, x = A.x + Math.cos(ang) * dist, z = A.z + Math.sin(ang) * dist;
+    const h = TM.height(x, z); if (h < 25 || h > 420 || nearAirfield(x, z, 60) || townClear(x, z)) continue;
+    const dir = rnd() * Math.PI, ux = Math.cos(dir), uz = Math.sin(dir), W = 46 + rnd() * 30, D = 30 + rnd() * 26;
+    let ok = true;
+    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const hx = TM.height(x + ux * a * W / 2 - uz * b * D / 2, z + uz * a * W / 2 + ux * b * D / 2); if (hx < 20 || Math.abs(hx - h) > 14) ok = false; }
+    if (!ok) continue;
+    f++;
+    for (let r = -D / 2; r <= D / 2; r += 1.9) for (let t = -W / 2; t < W / 2; t += 6) {
+      const px = x + ux * (t + 3) - uz * r, pz = z + uz * (t + 3) + ux * r;
+      rows.push([px, TM.height(px, pz), pz, dir]);
+    }
+  }
+  if (!rows.length) return;
+  const g = new THREE.CylinderGeometry(0.62, 0.62, 6.2, 7, 1, false, 0, Math.PI); g.rotateZ(Math.PI / 2); g.rotateX(Math.PI / 2); g.rotateY(Math.PI / 2);
+  const im = new THREE.InstancedMesh(g, teaMat, rows.length);
+  rows.forEach(([x, y, z, dir], k) => { m4.compose(v.set(x, y - 0.12, z), q.setFromAxisAngle(_trY, -dir), sc.set(1, 1.25, 1)); im.setMatrixAt(k, m4); });
+  im.castShadow = true; im.receiveShadow = true; scene.add(im);
+}
+
+/* ---------- placing it all ---------- */
+function buildTropics() {
+  const glow = [], rnd = mulberry32(1771);
+  // Bora Bora: resorts on the motus and off Matira point, the beach at Matira, the airport boat dock, boats in the lagoon
+  { const I = ISL.borabora, K = kit();
+    for (const [u, v, hdgOff, n] of [[2600, 4300, 250, 14], [-1600, 4700, 285, 12], [-4400, 2500, 315, 10], [4300, -1500, 120, 9]]) {
+      const [x, z] = IP(I, u, v), hdg = (I.ang + hdgOff) * D2R, sh = shoreFrom(x - Math.sin(hdg) * 120, z + Math.cos(hdg) * 120, Math.sin(hdg), -Math.cos(hdg), 400);
+      if (sh) bungalowPier(K, sh[0], sh[1], hdg, n, rnd);
+    }
+    { const [x, z] = IP(I, -3150, -350), [sx, sz] = [Math.sin((I.ang + 190) * D2R), -Math.cos((I.ang + 190) * D2R)];
+      beachScene(K, x, z, -sz, sx, 360, sx, sz, rnd, { thatch: true, canoes: 4 });
+      const sh = shoreFrom(x - sx * 80, z - sz * 80, sx, sz, 300); if (sh) tikiBar(K, sh[0] - sx * 26, sh[1] - sz * 26, Math.atan2(sx, -sz), glow); }
+    for (const [u, v, hdgOff] of [[2800, 3900, 250], [-4300, 2300, 315]]) {   // the resorts' own beaches on the motus
+      const [x, z] = IP(I, u, v), hdg = (I.ang + hdgOff) * D2R, sx = Math.sin(hdg), sz = -Math.cos(hdg);
+      beachScene(K, x, z, -sz, sx, 160, sx, sz, rnd, { thatch: true, canoes: 2 });
+      const sh = shoreFrom(x - sx * 80, z - sz * 80, sx, sz, 300); if (sh) tikiBar(K, sh[0] - sx * 24, sh[1] - sz * 24, hdg, glow);
+    }
+    { const A = AIRPORT_DEFS.find(a => a.id === 'BOB'), R = A.rws[0], T = A.terminal, W = (a, c) => [R.cx + a * R.dx + c * R.bx, R.cz + a * R.dz + c * R.bz];
+      const [x0, z0] = W((T.a0 + T.a1) / 2, T.c + 6), hdg = (R.hdg + 90) * D2R, sh = shoreFrom(x0, z0, Math.sin(hdg), -Math.cos(hdg), 300);
+      if (sh) { const dx = Math.sin(hdg), dz = -Math.cos(hdg), len = 60;
+        K.add(plankMat, UBOX, sh[0] + dx * len / 2, 1.4, sh[1] + dz * len / 2, -hdg, 4, 0.3, len);
+        for (let t = 4; t < len; t += 6) for (const sd of [-1, 1]) K.add(woodDark, UCYL5, sh[0] + dx * t + Math.cos(hdg) * sd * 1.8, -0.6, sh[1] + dz * t + Math.sin(hdg) * sd * 1.8, 0, 0.26, 4.2, 0.26);
+        const blue = new THREE.MeshLambertMaterial({ color: 0x0a5c8c });
+        for (const sd of [-1, 1]) motorBoat(K, sh[0] + dx * (len - 14) + Math.cos(hdg) * sd * 5.5, sh[1] + dz * (len - 14) + Math.sin(hdg) * sd * 5.5, hdg, blue);
+      } }
+    for (let k = 0; k < 9; k++) { const a = rnd() * TAU, rr = 0.55 + rnd() * 0.3, [x, z] = IP(I, Math.cos(a) * 6100 * rr, 900 + Math.sin(a) * 5000 * rr); if (TM.height(x, z) < -1.2) (k % 3 ? motorBoat : outrigger)(K, x, z, rnd() * TAU, k % 3 ? (k % 2 ? vermilion : new THREE.MeshLambertMaterial({ color: 0x2f6fb0 })) : 0); }
+    K.done();
+  }
+  // Moorea: the bungalows beside Temae and the beach north of the runway
+  { const I = ISL.moorea, K = kit(), A = AIRPORT_DEFS.find(a => a.id === 'MOZ'), R = A.rws[0];
+    const W = (a, c) => [R.cx + a * R.dx + c * R.bx, R.cz + a * R.dz + c * R.bz];
+    { const [x, z] = W(-900, -40), hdg = (R.hdg - 90) * D2R, sh = shoreFrom(x, z, Math.sin(hdg), -Math.cos(hdg), 300); if (sh) bungalowPier(K, sh[0], sh[1], hdg, 12, rnd, { gap: 22 }); }
+    { const [x, z] = W(-1450, -40), hdg = (R.hdg - 70) * D2R, sh = shoreFrom(x, z, Math.sin(hdg), -Math.cos(hdg), 300); if (sh) bungalowPier(K, sh[0], sh[1], hdg, 8, rnd); }
+    { const [x, z] = W(980, -30), sx = Math.sin((R.hdg - 90) * D2R), sz = -Math.cos((R.hdg - 90) * D2R);
+      beachScene(K, x, z, R.dx, R.dz, 300, sx, sz, rnd, { canoes: 3 });
+      const sh = shoreFrom(x - sx * 60, z - sz * 60, sx, sz, 300); if (sh) tikiBar(K, sh[0] - sx * 24, sh[1] - sz * 24, Math.atan2(sx, -sz), glow); }
+    for (let k = 0; k < 5; k++) { const [x, z] = W(-300 + k * 260, -260 - rnd() * 200); if (TM.height(x, z) < -1.2) (k % 2 ? motorBoat : outrigger)(K, x, z, rnd() * TAU, k % 2 ? vermilion : 0); }
+    K.done();
+  }
+  // Tupai and the palm islet: a lone resort pier each
+  for (const key of ['tupai']) { const I = ISL[key], K = kit(); const [x, z] = IP(I, 0, 0), sh = shoreFrom(x, z, 1, 0, 2000); if (sh) bungalowPier(K, sh[0] - 300, sh[1], 90 * D2R, 6, rnd); K.done(); }
+  // Mt Fuji Shizuoka: the pagoda on the hill facing Fuji, a temple, a castle keep in town, torii, lanterns, the tea
+  { const A = AIRPORT_DEFS.find(a => a.id === 'FSZ'), K = kit(), P = A.townPlan, I = ISL.japan;
+    const fuji = IP(I, I.cones[0].u, I.cones[0].v);
+    const spot = (x, z, r, need = 6) => { for (let k = 0; k < 40; k++) { const a = rnd() * TAU, d = r * (0.4 + rnd() * 0.6), px = x + Math.cos(a) * d, pz = z + Math.sin(a) * d, h = TM.height(px, pz); if (h > need && !nearAirfield(px, pz, 80) && !townClear(px, pz) && !hitObstacle({ x: px, y: h + 5, z: pz })) return [px, h, pz]; } return null; };
+    if (P) {
+      const [cx, cz] = P.center;
+      const c1 = spot(cx, cz, 420, 10); if (c1) { castle(K, c1[0], c1[1] - 1, c1[2], Math.atan2(fuji[0] - c1[0], -(fuji[1] - c1[2])), 0.8); addObstacle(c1[0], c1[1] + 15, c1[2], 16, 16, 16, 0); }
+      const t1 = spot(cx, cz, 600, 8); if (t1) { const h = rnd() * TAU, fx = Math.sin(h), fz = -Math.cos(h); temple(K, t1[0], t1[1] - 0.5, t1[2], h, 0.85); torii(K, t1[0] + fx * 30, TM.height(t1[0] + fx * 30, t1[2] + fz * 30), t1[2] + fz * 30, h, 0.9); for (const sd of [-1, 1]) for (let k = 1; k < 4; k++) lantern(K, t1[0] + fx * (14 + k * 4) - fz * sd * 4, t1[2] + fz * (14 + k * 4) + fx * sd * 4, glow); addObstacle(t1[0], t1[1] + 8, t1[2], 15, 9, 15, h); }
+    }
+    // the pagoda on a hillside, with Fuji behind it and cherry trees around (Chureito)
+    let best = null; for (let k = 0; k < 60; k++) { const a = rnd() * TAU, d = 900 + rnd() * 1600, x = A.x + Math.cos(a) * d, z = A.z + Math.sin(a) * d, h = TM.height(x, z); if (h > 160 && h < 420 && !nearAirfield(x, z, 120) && (!best || h > best[1])) best = [x, h, z]; }
+    if (best) { const h = Math.atan2(fuji[0] - best[0], -(fuji[1] - best[2])); pagoda(K, best[0], best[1] - 1, best[2], h, 1); addObstacle(best[0], best[1] + 18, best[2], 6, 19, 6, 0);
+      for (let k = 0; k < 14; k++) { const a = rnd() * TAU, d = 16 + rnd() * 40, x = best[0] + Math.cos(a) * d, z = best[2] + Math.sin(a) * d; GARDEN_TREES.push([x, TM.height(x, z), z, 6, 0.9 + rnd() * 0.4, rnd() * 6]); } }
+    for (const F of A.features || []) if (F.type === 'tea') teaFields(A, F);
+    K.done();
+  }
+  // Hachijojima: a shrine with its torii above the village
+  { const A = AIRPORT_DEFS.find(a => a.id === 'HAC'), K = kit(), P = A.townPlan;
+    if (P) { const [cx, cz] = P.center; for (let k = 0; k < 30; k++) { const a = rnd() * TAU, x = cx + Math.cos(a) * 260, z = cz + Math.sin(a) * 260, h = TM.height(x, z); if (h > 20 && !nearAirfield(x, z, 80) && !townClear(x, z)) { const hd = Math.atan2(cx - x, -(cz - z)); temple(K, x, h - 0.5, z, hd, 0.6); torii(K, x + Math.sin(hd) * 26, TM.height(x + Math.sin(hd) * 26, z - Math.cos(hd) * 26), z - Math.cos(hd) * 26, hd, 0.8); addObstacle(x, h + 6, z, 10, 7, 10, hd); break; } } }
+    K.done();
+  }
+  // Miyajima: the great torii standing in the sea, the shrine on the shore, a pagoda on the hill behind
+  { const I = ISL.miyajima, K = kit(), [tx, tz] = IP(I, 0, -1500), h = (I.ang - 90) * D2R;   // facing out to sea, its beams along the shore
+    torii(K, tx, -1.6, tz, h, 1.7);
+    const [sx, sz] = IP(I, 0, -1100); temple(K, sx, Math.max(0, TM.height(sx, sz)) + 0.8, sz, h, 0.8);
+    const [px, pz] = IP(I, 350, -700); pagoda(K, px, TM.height(px, pz) - 1, pz, h, 0.85);
+    for (let k = -3; k <= 3; k++) { const [lx, lz] = IP(I, k * 18, -1190); lantern(K, lx, lz, glow); }
+    K.done();
+  }
+  if (glow.length) scene.add(glowPoints(glow, 'town'));
+  if (BUNGALOW_LIGHTS.length) scene.add(glowPoints(BUNGALOW_LIGHTS, 'town'));
+  buildBeachProps();
+}
+
 /* ---------- build every field ---------- */
 AIRPORT_DEFS.forEach(A => { A.rws.forEach(R => buildRunway(A, R)); buildGround(A); buildTerminal(A); buildFeatures(A); });
 AIRPORT_DEFS.forEach(buildTownPlan);
+VILLAGES.forEach(buildTownPlan);
+buildTropics();
 AIRPORT_DEFS.forEach(buildFence);
 buildHouses();
 buildPeople();
 const ALL_ENDS = RUNWAYS.flatMap(R => R.ends);
-
 /* =========================================================
    billboards: clouds, tyre smoke, fire
    ========================================================= */
@@ -3238,7 +3824,7 @@ function cloudDensityAt(p) {
 }
 
 /* =========================================================
-   the fleet: seven real types at real dimensions
+   the fleet: eight real types at real dimensions
    body axes +X right, +Y up, -Z nose; origin on the fuselage axis near the CG
    ========================================================= */
 const TYPES = [
@@ -3358,6 +3944,22 @@ const TYPES = [
     mainDoors: [],
     perf: { thrust: 7.0, lapse: 'prop', cd0: 0.00044, cdGear: 0, cdFlap: 0.00035, k: 0.031, amax: 0.28, flapK: 0.85, ki: 11, pitch: 0.62, roll: 1.25, vmo: 175, mmo: 0.4, mcrit: 0.35, v1: 64, vr: 70, vref: 72 },   // STOL: off the ground well before Lukla's cliff
   },
+  {
+    id: 'e190', name: 'Embraer E190', cls: 'regional jet', blurb: 'double-bubble E-Jet · short-field island hopper · based at Bora Bora',
+    voice: 'boeing', sound: 'jet', minRwy: 1200, paved: true, flaps: true, home: 'BOB',
+    fus: { zN: -17.6, zT: 18.64, R: 1.505, H: 1.72, B: 1.63, yM: -0.05, nL: 5.4, tipY: -0.42, tipR: 0.08, nTop: 2.0, eTop: 0.55, nBot: 2.6, eBot: 0.5, nW: 2.1, eW: 0.52, tc0: 10.6, tailY: 0.95, tailR: 0.17, tTop: 1.8, tBot: 1.1 },
+    win: { style: 'embraer', rows: [{ y: 0.3, z0: -12.0, z1: 10.2, step: 0.53, w: 0.24, h: 0.36 }], doors: [-13.6, 11.7], wingExits: [-0.9, -0.1], cargo: [-8, 5.6] },
+    liv: { accent: '#0096c7', stripe: '#023e8a', text: '#023e8a', belly: '#c8cdd5', tail: '#0096c7', ink: '#ffd166' },
+    wing: { y: -1.12, dih: 5, root: { x: 1.45, z: -4.9, c: 5.9, t: 0.78 }, kink: { x: 5.3, te: 1.35, t: 0.5 }, tip: { x: 13.3, z: 2.25, c: 1.25, t: 0.17 }, winglet: 'ejet', canoes: 3 },
+    jets: [{ x: 4.35, y: -1.86, z: -5.5, r: 0.86, len: 3.9, fan: 0.68 }],
+    tail: { fin: { z0: 11.1, c0: 5.5, h: 6.3, sweep: 43, c1: 2.25, dorsal: 4.4 }, stab: { z0: 13.9, span: 5.75, c0: 3.2, c1: 1.2, sweep: 30, y: 0.42, dih: 6 } },
+    fair: { y: -1.08, sx: 1.75, sy: 0.82, sz: 7.4, z: -0.7 },
+    reach: 2.78, tilt: 0,
+    mains: [{ x: 2.97, z: 0.9, py: -0.86, kind: 'twin', retract: 'in', wr: 0.49, ww: 0.31, spread: 0.32 }],
+    nose: { z: -13.7, py: -1.28, wr: 0.33, ww: 0.2, spread: 0.2, ang: 100 },
+    mainDoors: [{ x: 0.18, z0: -0.4, z1: 2.25, w: 2.05, dir: 1 }],
+    perf: { thrust: 5.3, lapse: 'fan', cd0: 0.000058, cdGear: 0.00013, cdFlap: 0.00025, k: 0.009, amax: 0.27, flapK: 0.8, ki: 16, pitch: 0.5, roll: 1.15, vmo: 320, mmo: 0.82, mcrit: 0.78, v1: 122, vr: 128, vref: 124 },
+  },
 ];
 
 /* ---------- fuselage shape: two half-ellipses per station, a drooped nose and an upswept tail ---------- */
@@ -3413,6 +4015,7 @@ const COCKPITS = {
   atr: { ws: { x0: 0.05, x1: 0.66, y0: 0.26, y1: 0.86, slant: 0.3, zMax: 2.2 }, side: [[[2.02, 0.22], [2.66, 0.24], [2.66, 0.8], [2.02, 0.88]]] },
   concorde: { ws: { x0: 0.07, x1: 0.46, y0: 0.9, y1: 1.3, slant: 0.35, zMin: 7.75, zMax: 9.3, top: true }, side: [[[8.35, 0.72], [9.05, 0.74], [9.05, 1.02], [8.35, 1.08]]] },
   otter: { ws: { x0: 0.05, x1: 0.76, y0: 0.3, y1: 0.86, slant: 0.2, zMin: 2.0, zMax: 3.3 }, side: [[[3.02, 0.08], [4.1, 0.06], [4.1, 0.8], [3.2, 0.84]], [[4.28, 0.1], [4.78, 0.1], [4.78, 0.76], [4.28, 0.76]]] },
+  embraer: { ws: { x0: 0.06, x1: 0.78, y0: 0.3, y1: 0.98, slant: 0.4, zMax: 3.3, vee: 0.08 }, side: [[[2.85, 0.28], [3.55, 0.33], [3.55, 0.92], [2.85, 1.0]], [[3.7, 0.36], [4.25, 0.4], [4.2, 0.76], [3.7, 0.88]]] },
 };
 function pointInPoly(px, py, poly) {
   let inside = false;
@@ -3810,6 +4413,10 @@ function buildAircraft(T) {
         const g2 = surfaceGeometry([{ x: 0, y: 0, z: 0.05, c: t.c * 0.95, t: 0.14, cam: 0 }, { x: 0.8, y: 0, z: 0.55, c: t.c * 0.72, t: 0.1, cam: 0 }, { x: 2.7, y: 0, z: 1.9, c: 0.75, t: 0.05, cam: 0 }], 1, true, true);
         const m = addTo(tg, g2, accent); m.rotation.z = -side * 0.28;
         tipY = 2.4;
+      } else if (W.winglet === 'ejet') {   // the E-Jet's canted winglet
+        const g2 = surfaceGeometry([{ x: 0, y: 0, z: 0.05, c: t.c * 0.92, t: 0.1, cam: 0 }, { x: 0.45, y: 0, z: 0.42, c: t.c * 0.7, t: 0.08, cam: 0 }, { x: 1.6, y: 0, z: 1.3, c: 0.55, t: 0.04, cam: 0 }], 1, true, true);
+        const m = addTo(tg, g2, accent); m.rotation.z = -side * 0.3;
+        tipY = 1.5;
       } else if (W.winglet === 'scimitar') {
         const up = surfaceGeometry([{ x: 0, y: 0, z: 0.0, c: t.c * 0.95, t: 0.1, cam: 0 }, { x: 2.9, y: 0, z: 2.1, c: 0.4, t: 0.04, cam: 0 }], 1, true, true);
         const m1 = addTo(tg, up, accent); m1.rotation.z = -side * 0.2;
@@ -4079,7 +4686,7 @@ function bakeStatic(ac) {
     groups.get(o.material).push(g);
   });
   const out = new THREE.Group();
-  for (const [mat, list] of groups) { const merged = mergeGeometries(list); if (merged) { const m = new THREE.Mesh(merged, mat); m.castShadow = false; m.receiveShadow = true; out.add(m); } }
+  for (const [mat, list] of groups) { const merged = mergeGeometries(list); if (merged) { const m = new THREE.Mesh(merged, mat); m.castShadow = true; m.receiveShadow = true; out.add(m); } }
   return out;
 }
 
@@ -4803,7 +5410,7 @@ const crashSite = new THREE.Vector3();
 function saveBest() { if (score > best) { best = score; store.set('best', best); } }
 const maxRwy = A => Math.max(...A.rws.map(R => R.len));
 const pavedAt = A => A.rws.some(R => R.surface === 'asphalt' || R.surface === 'concrete');
-function suits(A, T = AC.T) { return maxRwy(A) >= T.minRwy && (!T.paved || pavedAt(A)); }
+function suits(A, T = AC.T) { return maxRwy(A) >= T.minRwy && (!T.paved || pavedAt(A)) && (!A.only || A.only.includes(T.id)); }
 function nearAirport(x, z, r = 1500) {
   let best = null, bd = 1e18;
   for (const A of AIRPORT_DEFS) for (const R of A.rws) { const px = x - R.cx, pz = z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz; if (Math.abs(a) < R.half + r && Math.abs(c) < r) { const d = a * a + c * c; if (d < bd) { bd = d; best = A; } } }
@@ -5210,7 +5817,7 @@ function openWorldMap(v) {
 function wmTransform() {
   const c = wm.cv, r = c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
   c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
-  const minX = -64000, maxX = 64000, minZ = -62000, maxZ = 50000;
+  const minX = -64000, maxX = 64000, minZ = -62000, maxZ = 57000;
   const s = Math.min(c.width / (maxX - minX), c.height / (maxZ - minZ)) * 0.96;
   const ox = c.width / 2 - (minX + maxX) / 2 * s, oz = c.height / 2 - (minZ + maxZ) / 2 * s;
   return { s, ox, oz, dpr, toPx: (x, z) => [ox + x * s, oz + z * s], toW: (px, pz) => [(px - ox) / s, (pz - oz) / s] };
@@ -5245,7 +5852,8 @@ wm.cv.addEventListener('pointerdown', e => {
   wm.sel = best; drawWorldMap();
   const info = $('wmapInfo'), flying = state === 'fly';
   const rws = best.rws.map(R => `RWY ${R.ids[0]}/${R.ids[1]} · ${R.len.toLocaleString()} m ${R.surface}${R.slope ? ` · ${(Math.abs(R.slope) * 100).toFixed(1).replace('.0', '')}% slope` : ''}${R.igsPts ? ' · IGS 13' : ''}`).join('<br>');
-  const warn = suits(best) ? '' : `<br><span style="color:var(--amber)">too short or too rough for the ${AC.T.name}</span>`;
+  const onlyNames = best.only ? best.only.map(id => FLEET.find(f => f.T.id === id)?.T.name).filter(Boolean) : null;
+  const warn = suits(best) ? (onlyNames ? `<br>only the ${onlyNames.slice(0, -1).join(', ')} and ${onlyNames[onlyNames.length - 1]} fly in` : '') : onlyNames && !best.only.includes(AC.T.id) ? `<br><span style="color:var(--amber)">only the ${onlyNames.slice(0, -1).join(', ')} and ${onlyNames[onlyNames.length - 1]} fly in here</span>` : `<br><span style="color:var(--amber)">too short or too rough for the ${AC.T.name}</span>`;
   info.innerHTML = `<div class="n">${best.name}</div><div class="s">${best.blurb}<br>${rws}<br>${Math.round(best.elev * M2FT).toLocaleString()} ft elevation${warn}</div><button id="wmGo">${flying ? 'fly here' : 'start here'}</button>`;
   info.hidden = false;
   $('wmGo').onclick = ev => {
@@ -5269,7 +5877,7 @@ function selectAircraft(i, stay) {
   document.body.classList.toggle('foldtips', !!AC.T.foldTips);
   const home = AC.T.home ? AIRPORT_DEFS.findIndex(a => a.id === AC.T.home) : -1;
   if (!stay && changed && home >= 0 && AIRPORT_DEFS[home] !== lastAirport) { selectDeparture(home); toast(AC.T.name + ' · based at ' + AIRPORT_DEFS[home].name); return; }
-  if (!stay && changed && !suits(lastAirport)) { const from = lastAirport.name; selectDeparture(0); toast(from + ' is too short for the ' + AC.T.name + ' · off to ' + AIRPORT_DEFS[0].name); return; }
+  if (!stay && changed && !suits(lastAirport)) { const from = lastAirport.name, why = lastAirport.only && !lastAirport.only.includes(AC.T.id) ? ' takes only the ATR, the Twin Otter and the Embraer' : ' is too short for the ' + AC.T.name; selectDeparture(0); toast(from + why + ' · off to ' + AIRPORT_DEFS[0].name); return; }
   spawnAt(lastAirport, target ? target.A : null);
   if (state === 'end') crashSite.copy(S.pos);
   updatePicker();
@@ -5293,7 +5901,7 @@ function updatePicker() {
   $('pkDots').innerHTML = FLEET.map((f, i) => `<span class="${i === acIndex ? 'on' : ''}" style="--c:${f.T.liv.accent === '#ffffff' ? '#dfe6ee' : f.T.liv.accent}"></span>`).join('');
   const A = lastAirport, R = A.rws.reduce((a, b) => a.len > b.len ? a : b);
   $('apName').textContent = A.name;
-  $('apSub').innerHTML = `${R.len.toLocaleString()} m ${R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}` + (suits(A) ? '' : ` · <span style="color:var(--amber)">tight for the ${T.name}</span>`);
+  $('apSub').innerHTML = `${R.len.toLocaleString()} m ${R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}` + (suits(A) ? '' : A.only && !A.only.includes(T.id) ? ` · <span style="color:var(--amber)">ATR, Twin Otter and Embraer only</span>` : ` · <span style="color:var(--amber)">tight for the ${T.name}</span>`);
 }
 
 /* ---------- aircraft parked at the gates ---------- */
@@ -5304,7 +5912,7 @@ function populateStands() {
   let n = 0;
   for (const st of STANDS) {
     const kind = st.A.kind;
-    let id = kind === 'hub' || kind === 'intl' ? (st.cls === 'big' ? (n % 2 ? 'b777x' : 'a380') : n % 3 === 1 ? 'b737' : 'a330') : kind === 'regional' ? (st.cls === 'small' ? 'atr72' : 'b737') : (st.A.id === 'SBH' || st.A.id === 'LUA' ? 'otter' : 'atr72');
+    let id = kind === 'hub' || kind === 'intl' ? (st.cls === 'big' ? (n % 2 ? 'b777x' : 'a380') : n % 3 === 1 ? 'b737' : 'a330') : kind === 'regional' ? (st.cls === 'small' ? (n % 2 ? 'atr72' : 'e190') : n % 3 === 2 ? 'e190' : 'b737') : (st.A.id === 'SBH' || st.A.id === 'LUA' ? 'otter' : st.A.only ? st.A.only[n % st.A.only.length] : n % 2 ? 'atr72' : 'e190');
     if (kind === 'hub' && st.cls === 'big' && st.out[1] < 0) id = 'b737';
     n++;
     if (Math.random() < 0.12) continue;
@@ -5341,6 +5949,8 @@ function mergeStaticGroup(root) {
   root.traverse(o => {
     if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.material.transparent || o.material.vertexColors || !o.visible) return;
     for (let p = o.parent; p && p !== root; p = p.parent) if (!p.visible) return;
+    // anything that stands up off the ground casts a shadow; flat paint and paving do not
+    if (!o.castShadow) { if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox; if ((bb.max.y - bb.min.y) * o.scale.y > 1.2) o.castShadow = true; }
     const key = o.material.uuid + (o.receiveShadow ? 'r' : '-') + (o.castShadow ? 'c' : '-');
     const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
     g.applyMatrix4(m4.multiplyMatrices(inv, o.matrixWorld));
@@ -5365,7 +5975,7 @@ function mergeStaticGroup(root) {
    AI traffic: airliners land and roll off the runway, line up and climb away, and cruise high overhead.
    They fly scripted paths, not the flight model, and keep off any runway the player is using.
    ========================================================= */
-const AI = [], AI_IDS = ['a330', 'b737', 'atr72', 'a380', 'b777x', 'otter'];
+const AI = [], AI_IDS = ['a330', 'b737', 'atr72', 'a380', 'b777x', 'otter', 'e190'];
 const aiModels = new Map();
 let aiSpawnT = 3, aiTraffic = null;
 const _aiV = new THREE.Vector3(), _aiE = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -5455,7 +6065,7 @@ function aiCruise(id) {
 function aiSpawn() {
   if (AI.length >= aiMax()) return;
   const here = S.pos, near = AIRPORT_DEFS.filter(A => Math.hypot(A.x - here.x, A.z - here.z) < 26000 && !AI.some(q => q.A === A));
-  if (!AI.some(q => q.kind === 'cruise') && Math.random() < 0.3) { aiCruise(['a330', 'b737', 'a380', 'b777x'][(Math.random() * 4) | 0]); return; }
+  if (!AI.some(q => q.kind === 'cruise') && Math.random() < 0.3) { aiCruise(['a330', 'b737', 'a380', 'b777x', 'e190'][(Math.random() * 5) | 0]); return; }
   if (!near.length) return;
   const A = near[(Math.random() * near.length) | 0], ids = AI_IDS.filter(id => suits(A, FLEET.find(f => f.T.id === id).T));
   if (!ids.length) return;
@@ -5594,7 +6204,7 @@ function setGfx(key) {
   gfxKey = key; GQ = GFX[key]; store.set('gfx', key);
   if (GQ.bloom) ensureComposer();
   PR_MAX = prCap(); prNow = PR_MAX; adaptHold = 0; frameAvg = GQ.fps ? 1000 / GQ.fps : 12; resize();
-  const n = isTouch ? 1024 : GQ.shadow;
+  const n = isTouch ? GQ.shadowT : GQ.shadow;
   if (sun.shadow.mapSize.x !== n) { sun.shadow.mapSize.set(n, n); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
   treesDirty = true; envBakeT = 0; needRender = true;
   updateSettings();
@@ -5778,10 +6388,13 @@ function updateEnvironment(dt) {
   hemi.color.copy(p.hemS); hemi.groundColor.copy(p.hemG); hemi.intensity = p.hemI;
   const focus = (state === 'crash' || state === 'end') ? crashSite : S.pos;
   sun.position.copy(focus).addScaledVector(lightDir, 2400); sun.target.position.copy(focus); sun.target.updateMatrixWorld();
-  const k = clamp(fusLen() / 50, 0.7, 1.6); SC.left = SC.bottom = -80 * k; SC.right = SC.top = 80 * k; SC.updateProjectionMatrix();
+  // the sun's shadows cover the ground around the aircraft: hangars, parked jets, houses, the trees nearest it
+  const k = clamp(fusLen() / 50, 0.7, 1.6), bx = GQ.shadowBox * (0.8 + 0.2 * k);
+  if (SC.right !== bx) { SC.left = SC.bottom = -bx; SC.right = SC.top = bx; SC.updateProjectionMatrix(); sun.shadow.normalBias = Math.max(0.25, bx * 2 / sun.shadow.mapSize.x * 2); }
+  updateTreeShadows(focus, bx);
   const W = waterMat.uniforms;
   W.time.value = envT; W.sunDir.value.copy(useSun ? sunDir : moonDir); W.sunCol.value.copy(useSun ? p.sun : moonCol).multiplyScalar(useSun ? 1 : 0.4);
-  W.zen.value.copy(p.zen); W.hor.value.copy(p.hor); W.deep.value.copy(p.deep); W.sunVis.value = useSun ? sstep(-2.5, 2, el) : sstep(0.4, 1, darkness);
+  W.dayK.value = 1 - darkness; W.zen.value.copy(p.zen); W.hor.value.copy(p.hor); W.deep.value.copy(p.deep); W.sunVis.value = useSun ? sstep(-2.5, 2, el) : sstep(0.4, 1, darkness);
   cloudLit.copy(p.hor).lerp(WHITE, 0.55 * (1 - darkness)).lerp(p.sun, 0.25 * (1 - darkness)).multiplyScalar(lerp(1.05, 0.35, darkness));
   cloudShade.copy(p.zen).lerp(p.hor, 0.5).multiplyScalar(lerp(0.9, 0.35, darkness)).lerp(cloudLit, 0.35);
   for (const m of glowMats) {
@@ -5903,7 +6516,7 @@ function bootTick() {
 }
 setTimeout(bootTick, 200);
 requestAnimationFrame(t => { last = t; frame(t); });
-window.__aloft = { S, GS, get state() { return state; }, set state(v) { state = v; }, startGame, toggleGear, setFlaps, keys, cam, AIRPORT_DEFS, get target() { return target; }, spawnAt, physicsStep, inp, updateGear, updateSurfaces, get AC() { return AC; }, selectAircraft, selectDeparture, FLEET, TM, groundAt, groundInfo, get score() { return score; }, get hour() { return dayHour; }, set hour(v) { dayHour = v; }, get why() { return crashReason; }, get landings() { return landings; }, pickTarget, cycleNose, toggleReheat, get pending() { return terrainPending(); }, tiles, openWorldMap, RUNWAYS, get simRate() { return simRate; }, set simRate(v) { simRate = v; }, scene, water, terrainRoot, camera, renderer, get drawSet() { return drawSet; }, TRAFFIC, OBSTACLES, STANDS, ISL, get pxScale() { return pxScale; }, AI, aiArrive, aiDepart, aiCruise, aiSpawn, TOWN_GRID, PEOPLE, HOUSES };
+window.__aloft = { S, GS, get state() { return state; }, set state(v) { state = v; }, startGame, toggleGear, setFlaps, keys, cam, AIRPORT_DEFS, get target() { return target; }, spawnAt, physicsStep, inp, updateGear, updateSurfaces, get AC() { return AC; }, selectAircraft, selectDeparture, FLEET, TM, groundAt, groundInfo, get score() { return score; }, get hour() { return dayHour; }, set hour(v) { dayHour = v; }, get why() { return crashReason; }, get landings() { return landings; }, pickTarget, cycleNose, toggleReheat, get pending() { return terrainPending(); }, tiles, openWorldMap, RUNWAYS, get simRate() { return simRate; }, set simRate(v) { simRate = v; }, scene, water, terrainRoot, camera, renderer, get drawSet() { return drawSet; }, TRAFFIC, OBSTACLES, STANDS, ISL, get pxScale() { return pxScale; }, AI, aiArrive, aiDepart, aiCruise, aiSpawn, TOWN_GRID, PEOPLE, HOUSES, PIERS, VILLAGES };
 </script>
 
 <script>
