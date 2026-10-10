@@ -1,7 +1,7 @@
 {
   "name": "Aloft Island Hopper",
   "short_name": "Aloft",
-  "description": "Fly airliners between islands: Bora Bora's lagoon, Mt Fuji, Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, the Embraer E190, a folding-wing 777X and Concorde.",
+  "description": "Fly between islands: a carrier with catapults and arresting wires for the Super Hornet, a treehouse runway in a giant spruce forest, Bora Bora's lagoon, Mt Fuji, Kai Tak, Lukla, St Barth, a Cessna 172 and Concorde.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

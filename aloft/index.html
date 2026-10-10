@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="description" content="Fly airliners between islands: Bora Bora's lagoon, Mt Fuji, Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, the Embraer E190, a folding-wing 777X and Concorde.">
+<meta name="description" content="Fly between islands: a carrier with catapults and arresting wires for the Super Hornet, a treehouse runway in a giant spruce forest, Bora Bora's lagoon, Mt Fuji, Kai Tak, Lukla, St Barth, a Cessna 172 and Concorde.">
 <meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Aloft">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Aloft Island Hopper">
-<meta property="og:description" content="A 3D flight game: Bora Bora's lagoon, Mt Fuji, Kai Tak's checkerboard, Lukla, St Barth, Skiathos, Gibraltar, a folding-wing 777X and Concorde.">
+<meta property="og:description" content="A 3D flight game: catapult off a carrier in a Super Hornet, land on a treehouse runway among giant spruces, Bora Bora's lagoon, Mt Fuji, Kai Tak, Lukla and Concorde.">
 <meta property="og:image" content="https://christoforakis.com/aloft/icons/icon-512.png">
 <meta property="og:url" content="https://christoforakis.com/aloft/">
 <title>Aloft Island Hopper</title>
@@ -84,8 +84,8 @@
   .pill.on{color:var(--cyan);border-color:var(--cyan)}
   .pill.amber{color:var(--amber);border-color:var(--amber)}
   .pill.fire{color:#ff9a4a;border-color:#ff9a4a;box-shadow:0 0 10px rgba(255,140,60,.45)}
-  .onlyC{display:none}
-  body.concorde .onlyC{display:inline-block}
+  .onlyC,.onlyAB,.onlyH{display:none}
+  body.concorde .onlyC,body.reheat .onlyAB,body.hookjet .onlyH{display:inline-block}
   body.concorde .noC{display:none}
 
   #gearPanel{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:12px 14px;display:flex;gap:14px;align-items:center;pointer-events:auto;cursor:pointer}
@@ -103,6 +103,7 @@
   .gearTxt{font-size:10px;letter-spacing:.16em;color:var(--ink-dim);text-align:center;margin-top:4px}
 
   #fpv{position:absolute;left:0;top:0;width:44px;height:22px;margin:-11px 0 0 -22px;opacity:0;transition:opacity .3s}
+  #fhud{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:none}
   #ils{position:absolute;left:50%;top:50%;width:0;height:0;opacity:0;transition:opacity .4s}
   #ils .gs{position:absolute;left:170px;top:-80px;width:14px;height:160px}
   #ils .loc{position:absolute;left:-80px;top:150px;width:160px;height:14px}
@@ -219,8 +220,9 @@
   body.paused #touch.on{display:none}
   .tbtn{position:absolute;pointer-events:auto;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:.12em;color:var(--ink);text-transform:uppercase;touch-action:none}
   .tbtn.active{background:rgba(143,220,255,.35)}
-  .tbtn.onlyC,.tbtn.onlyX{display:none}
-  body.concorde .tbtn.onlyC,body.foldtips .tbtn.onlyX{display:flex}
+  .tbtn.onlyC,.tbtn.onlyX,.tbtn.onlyAB,.tbtn.onlyH,.tbtn.onlyL{display:none}
+  body.concorde .tbtn.onlyC,body.foldtips .tbtn.onlyX,body.reheat .tbtn.onlyAB,body.hookjet .tbtn.onlyH,body.oncat .tbtn.onlyL{display:flex}
+  .tbtn.launch{width:76px;height:76px;font-size:12px;font-weight:700;color:#1a1204;background:rgba(255,196,64,.85)}
   #stickBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:1px solid var(--glass-edge);background:rgba(8,13,26,.25);display:none}
   #stickKnob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(238,243,250,.35)}
   #thrTrack{position:absolute;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(120px + env(safe-area-inset-bottom,0px));width:54px;height:180px;border-radius:27px;pointer-events:auto;touch-action:none}
@@ -233,8 +235,8 @@
   .dockHead button,#dockBtn{all:unset;cursor:pointer;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
   .dockHead button:focus-visible,#dockBtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
   #dock .r{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:8px;padding:3px 0;border-top:1px solid rgba(238,243,250,.07)}
-  #dock .r.onlyC,#dock .r.onlyX{display:none}
-  body.concorde #dock .r.onlyC,body.foldtips #dock .r.onlyX{display:grid}
+  #dock .r.onlyC,#dock .r.onlyX,#dock .r.onlyAB,#dock .r.onlyH{display:none}
+  body.concorde #dock .r.onlyC,body.foldtips #dock .r.onlyX,body.reheat #dock .r.onlyAB,body.hookjet #dock .r.onlyH{display:grid}
   #dock .caps{display:flex;gap:3px}
   kbd{font-family:var(--mono);font-size:10.5px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;border:1px solid var(--ink-faint);border-bottom-width:2px;color:var(--ink);background:rgba(238,243,250,.06);transition:background .08s,color .08s,border-color .08s}
   kbd.on{background:var(--cyan);color:#06121c;border-color:var(--cyan)}
@@ -270,6 +272,7 @@
 <div id="vignette"></div>
 <div id="cloudVeil"></div>
 
+<canvas id="fhud"></canvas>
 <div id="hud">
   <div id="mapWrap" class="glass" title="Open the world map (Tab)"><canvas id="map" width="300" height="300"></canvas></div>
   <div id="clock">06:00</div>
@@ -319,12 +322,13 @@
       <div><div class="lbl">n1</div><div class="v"><span id="n1">0</span>%</div></div>
       <div class="noC"><div class="lbl">flaps</div><div class="v" id="flapsV">UP</div></div>
       <div class="onlyC"><div class="lbl">nose</div><div class="v" id="noseV">UP</div></div>
+      <div class="onlyH"><div class="lbl">hook</div><div class="v" id="hookV">UP</div></div>
     </div>
     <div class="engCol" style="gap:5px">
       <span class="pill" id="pSpd">spoilers</span>
       <span class="pill" id="pBrk">brakes</span>
       <span class="pill" id="pRev">reverse</span>
-      <span class="pill onlyC" id="pAB">reheat</span>
+      <span class="pill onlyAB" id="pAB">reheat</span>
     </div>
   </div>
 
@@ -407,7 +411,9 @@
     <div class="r"><span class="caps"><kbd data-key="KeyA">A</kbd><kbd data-key="KeyD">D</kbd></span><span class="d">rudder</span><span class="v"></span></div>
     <div class="r"><span class="caps"><kbd data-key="KeyW">W</kbd><kbd data-key="KeyS">S</kbd></span><span class="d">throttle · 0–9 presets</span><span class="v" id="dThr">0%</span></div>
     <div class="r"><span class="caps"><kbd data-key="KeyV">V</kbd></span><span class="d">reverse thrust (hold, on ground)</span><span class="v" id="dRev"></span></div>
-    <div class="r onlyC"><span class="caps"><kbd data-key="KeyQ">Q</kbd></span><span class="d">afterburners</span><span class="v" id="dAB">off</span></div>
+    <div class="r onlyAB"><span class="caps"><kbd data-key="KeyQ">Q</kbd></span><span class="d">afterburners</span><span class="v" id="dAB">off</span></div>
+    <div class="r onlyH"><span class="caps"><kbd data-key="KeyK">K</kbd></span><span class="d">tailhook down · up</span><span class="v" id="dHook">up</span></div>
+    <div class="r onlyH"><span class="caps"><kbd data-key="KeyL">L</kbd></span><span class="d">catapult launch</span><span class="v" id="dCat"></span></div>
     <div class="r onlyC"><span class="caps"><kbd data-key="KeyN">N</kbd></span><span class="d">droop nose · visor</span><span class="v" id="dNose">up</span></div>
     <div class="r onlyX"><span class="caps"><kbd data-key="KeyN">N</kbd></span><span class="d">fold · unfold wingtips (on the ground)</span><span class="v" id="dTips">folded</span></div>
     <div class="r"><span class="caps"><kbd data-key="KeyG">G</kbd></span><span class="d">landing gear</span><span class="v" id="dGear">down</span></div>
@@ -426,7 +432,9 @@
     <div class="r"><span class="caps"><kbd>gear</kbd></span><span class="d">landing gear</span><span class="v" id="tGearV">down</span></div>
     <div class="r noC"><span class="caps"><kbd>flap</kbd></span><span class="d">flaps down · up</span><span class="v" id="tFlapV">1</span></div>
     <div class="r"><span class="caps"><kbd>rev</kbd></span><span class="d">hold for reverse thrust</span><span class="v"></span></div>
-    <div class="r onlyC"><span class="caps"><kbd>a/b</kbd></span><span class="d">afterburners</span><span class="v"></span></div>
+    <div class="r onlyAB"><span class="caps"><kbd>a/b</kbd></span><span class="d">afterburners</span><span class="v"></span></div>
+    <div class="r onlyH"><span class="caps"><kbd>hook</kbd></span><span class="d">tailhook for the carrier's wires</span><span class="v"></span></div>
+    <div class="r onlyH"><span class="caps"><kbd>launch</kbd></span><span class="d">fire the catapult</span><span class="v"></span></div>
     <div class="r onlyC"><span class="caps"><kbd>nose</kbd></span><span class="d">droop nose</span><span class="v"></span></div>
     <div class="r onlyX"><span class="caps"><kbd>tips</kbd></span><span class="d">fold · unfold wingtips</span><span class="v"></span></div>
     <div class="r"><span class="caps"><kbd>pause</kbd></span><span class="d">pause · settings</span><span class="v"></span></div>
@@ -444,7 +452,9 @@
   <div class="tbtn glass" id="tFlapU" style="right:calc(160px + env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">flap−</div>
   <div class="tbtn glass" id="tBrk" style="right:calc(160px + env(safe-area-inset-right,0px));bottom:calc(210px + env(safe-area-inset-bottom,0px))">brake</div>
   <div class="tbtn glass" id="tRev" style="right:calc(230px + env(safe-area-inset-right,0px));bottom:calc(210px + env(safe-area-inset-bottom,0px))">rev</div>
-  <div class="tbtn glass onlyC" id="tAB" style="right:calc(230px + env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">a/b</div>
+  <div class="tbtn glass onlyAB" id="tAB" style="right:calc(230px + env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">a/b</div>
+  <div class="tbtn glass onlyH" id="tHook" style="right:calc(230px + env(safe-area-inset-right,0px));bottom:calc(280px + env(safe-area-inset-bottom,0px))">hook</div>
+  <div class="tbtn onlyL launch" id="tLaunch" style="right:calc(83px + env(safe-area-inset-right,0px));bottom:calc(273px + env(safe-area-inset-bottom,0px))">launch</div>
   <div class="tbtn glass onlyC" id="tNose" style="right:calc(160px + env(safe-area-inset-right,0px));bottom:calc(280px + env(safe-area-inset-bottom,0px))">nose</div>
   <div class="tbtn glass onlyX" id="tTips" style="right:calc(160px + env(safe-area-inset-right,0px));bottom:calc(280px + env(safe-area-inset-bottom,0px))">tips</div>
   <div class="tbtn glass" id="tPause" style="right:calc(160px + env(safe-area-inset-right,0px));top:calc(110px + env(safe-area-inset-top,0px))">pause</div>
@@ -823,15 +833,15 @@ function islPoint(I, u, v) { const t = I.ang * D2R; return [I.x + u * Math.sin(t
 const AIRPORT_DEFS = [
   { id: 'ALI', name: 'Aloft International', region: 'mainland', x: 4000, z: -26000, hdg: 80, elev: null, kind: 'hub', blurb: 'the hub · four runways, four crossings',
     runways: [
-      { a: 0, c: 0, hdg: 80, len: 3600, wid: 60, surface: 'concrete', lr: 'L', lights: true, ils: [1, 1], papi: true, als: true, padC: 330 },
-      { a: 400, c: 0, hdg: 130, len: 3000, wid: 45, surface: 'asphalt', lr: 'L', lights: true, ils: [1, 0], papi: true, als: true, padC: 240 },
+      { a: 0, c: 0, hdg: 80, len: 3600, wid: 60, surface: 'concrete', lr: 'L', lights: true, ils: [1, 1], papi: true, als: ['alsf2', 'alsf2'], padC: 330 },
+      { a: 400, c: 0, hdg: 130, len: 3000, wid: 45, surface: 'asphalt', lr: 'L', lights: true, ils: [1, 0], papi: true, als: ['alsf2', false], padC: 240 },
       { a: -100, c: 330, hdg: 80, len: 3000, wid: 45, surface: 'asphalt', lr: 'R', lights: true, ils: [1, 1], papi: true, als: false, padC: 200 },
       { a: 94, c: 257, hdg: 130, len: 2600, wid: 45, surface: 'concrete', lr: 'R', lights: true, ils: [0, 1], papi: true, als: false, padC: 200 },
     ],
     pads: [{ a0: 520, a1: 1780, c0: -820, c1: -200 }, { a0: -1520, a1: -600, c0: 560, c1: 900 }],
     terminal: { kind: 'hub', a0: 700, a1: 1660, c: -610 }, taxi: { side: -1, off: 190 } },
   { id: 'HBF', name: 'Harbor Field', region: 'mainland', x: -32000, z: -18500, hdg: 70, elev: null, kind: 'regional', blurb: 'coastal regional field',
-    runways: [{ a: 0, c: 0, hdg: 70, len: 2200, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: true, padC: 280 }],
+    runways: [{ a: 0, c: 0, hdg: 70, len: 2200, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: ['malsr', 'malsr'], padC: 280 }],
     pads: [{ a0: -380, a1: 380, c0: -460, c1: -180 }], terminal: { kind: 'regional', a0: -300, a1: 300, c: -380 }, taxi: { side: -1, off: 150 } },
   { id: 'PNR', name: 'Pine Ridge', region: 'mainland', x: -17000, z: -33000, hdg: 180, elev: null, kind: 'strip', blurb: 'grass strip in the hills',
     runways: [{ a: 0, c: 0, hdg: 180, len: 850, wid: 30, surface: 'grass', lights: false, ils: [0, 0], papi: false, padC: 70, blendC: 260 }],
@@ -847,7 +857,7 @@ const AIRPORT_DEFS = [
     features: [{ type: 'shelf' }, { type: 'wreck', d: 46, c: 13 }] },
   // the runway crosses the narrow east end of the island: the road and the rocks at the south end, Xanemos beach past the north end
   { id: 'JSI', name: 'Skiathos', region: 'med', isl: 'skiathos', u: 4750, v: 40, hdg: 19, elev: 9, kind: 'small', blurb: '1,628 m · low over the road and the rocks',
-    runways: [{ a: 0, c: 0, hdg: 19, len: 1628, wid: 30, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, slope: 0.008, pad: [36, 60], blend: [60, 120], padC: 140, blendC: 240 }],
+    runways: [{ a: 0, c: 0, hdg: 19, num: 1, len: 1628, wid: 30, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, slope: 0.008, pad: [36, 60], blend: [60, 120], padC: 140, blendC: 240 }],
     pads: [{ a0: -234, a1: 256, c0: -215, c1: -75, slope: true }], padBlend: 45, terminal: { kind: 'small', a0: -300, a1: -110, c: -240 }, taxi: { side: -1, links: [-214, -64, 171] }, turnPads: true,
     town: { a: -1250, c: -900, n: 240 },
     features: [{ type: 'shoreEnd', end: -1, road: 2.6, beach: 'rock', people: true, bar: true }, { type: 'shoreEnd', end: 1, road: 3.4, beach: 'gold', people: true, gap: 70 }, { type: 'lagoon', a: -520, c: 330, ra: 300, rc: 190 }] },
@@ -860,11 +870,11 @@ const AIRPORT_DEFS = [
     pads: [{ a0: -318, a1: -5, c0: 33, c1: 90, slope: true }], padBlend: 40, terminal: { kind: 'small', a0: -200, a1: -128, c: 112 }, taxi: { side: 1, short: true }, town: false,
     features: [{ type: 'shoreEnd', end: 1, road: 2.6, beach: 'white', noRoad: true, people: true, buoys: true }, { type: 'col', d: 185, road: 44, lh: 92, lc: -150, rh: 128, rc: 215 }, { type: 'town' }] },
   { id: 'FNC', name: 'Madeira', region: 'atl', isl: 'madeira', u: 6500, v: 3853, hdg: 50, elev: 58, kind: 'regional', blurb: 'runway and taxiway stand on 180 pillars',
-    runways: [{ a: 0, c: 0, hdg: 50, len: 2781, wid: 45, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, als: true, padC: 220, deck: [360, 1420], deckC: [-168, 36] }],
+    runways: [{ a: 0, c: 0, hdg: 50, len: 2781, wid: 45, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, als: ['fnc05', 'ssals'], padC: 220, deck: [360, 1420], deckC: [-168, 36] }],
     pads: [{ a0: -900, a1: -250, c0: -420, c1: -190 }], terminal: { kind: 'regional', a0: -820, a1: -330, c: -360 }, taxi: { side: -1, off: 140 },
     features: [{ type: 'seaCut', a0: 360, a1: 1700, c: 460 }] },
   { id: 'SLT', name: 'Saltmere Atoll', region: 'carib', isl: 'saltmere', u: 0, v: 2400, hdg: 90, elev: 3, kind: 'regional', blurb: 'coral ring in the open sea',
-    runways: [{ a: 0, c: 0, hdg: 90, len: 2000, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, padC: 170 }],
+    runways: [{ a: 0, c: 0, hdg: 90, len: 2000, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: ['ssals', 'ssals'], padC: 170 }],
     pads: [{ a0: -250, a1: 250, c0: -330, c1: -150 }], terminal: { kind: 'small', a0: -200, a1: 200, c: -270 }, taxi: { side: -1, off: 110 } },
   { id: 'KSP', name: 'Kestrel Peak', region: 'trop', isl: 'kestrel', u: 0, v: 3200, hdg: 120, elev: 45, kind: 'strip', blurb: 'gravel shelf under a volcano',
     runways: [{ a: 0, c: 0, hdg: 120, len: 1400, wid: 30, surface: 'gravel', lights: false, ils: [0, 0], papi: false, padC: 90, blendC: 320 }],
@@ -873,7 +883,7 @@ const AIRPORT_DEFS = [
     runways: [{ a: 0, c: 0, hdg: 75, len: 900, wid: 30, surface: 'grass', lights: false, ils: [0, 0], papi: false, padC: 60, blendC: 200 }],
     pads: [{ a0: -55, a1: 55, c0: 45, c1: 100 }], terminal: { kind: 'shack', a0: -30, a1: 30, c: 80 }, taxi: { side: 1, off: 45, short: true } },
   { id: 'KTK', name: 'Kai Tak', region: 'mainland', x: 47720, z: -13620, hdg: 134, elev: 5, kind: 'intl', blurb: 'IGS 13 · checkerboard turn over the rooftops',
-    runways: [{ a: 0, c: 0, hdg: 134, len: 3390, wid: 60, surface: 'asphalt', lights: true, ils: [1, 1], als: [1, 0], papi: true, pad: [60, 70], blend: [25, 25], padC: 180, blendC: 25, corrE: [0, 1], pref: 0,
+    runways: [{ a: 0, c: 0, hdg: 134, len: 3390, wid: 60, surface: 'asphalt', lights: true, ils: [1, 1], als: ['kt13', 'kt31'], papi: true, pad: [60, 70], blend: [25, 25], padC: 180, blendC: 25, corrE: [0, 1], pref: 0,
       igs: { crs: 88, gs: 3.1, r: 2000, fin: 900, aim: 300, k: 1300, len: 16000 } }],
     pads: [{ a0: -1655, a1: -635, c0: -475, c1: -170 }], padBlend: 30,
     terminal: { kind: 'intl', a0: -1560, a1: -760, c: -425 }, taxi: { side: -1, off: 150 },
@@ -881,17 +891,17 @@ const AIRPORT_DEFS = [
 ];
 AIRPORT_DEFS.push(
   { id: 'GIB', name: 'Gibraltar', region: 'med', isl: 'gibraltar', u: 1300, v: 0, hdg: 90, elev: 5, kind: 'regional', blurb: '1,829 m · a road crosses the runway under the Rock',
-    runways: [{ a: 0, c: 0, hdg: 90, len: 1829, wid: 45, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, pad: [30, 30], blend: [40, 40], padC: 150, blendC: 70, corr: false }],
+    runways: [{ a: 0, c: 0, hdg: 90, len: 1829, wid: 45, surface: 'asphalt', lights: true, ils: [0, 0], papi: true, als: ['gib09', 'gib27'], pad: [30, 30], blend: [40, 40], padC: 150, blendC: 70, corr: false }],
     pads: [{ a0: -760, a1: -330, c0: -250, c1: -120 }], terminal: { kind: 'regional', a0: -720, a1: -380, c: -205 }, taxi: { side: -1, off: 90 }, town: false,
     features: [{ type: 'rock', a: 380 }] },
   { id: 'CBY', name: 'Coral Bay', region: 'carib', isl: 'coral', u: 0, v: 650, hdg: 80, elev: 4, kind: 'regional', blurb: '1,900 m · a palm-lined regional field',
-    runways: [{ a: 0, c: 0, hdg: 80, len: 1900, wid: 45, surface: 'asphalt', lights: true, ils: [1, 0], papi: true, als: true, pad: [60, 60], blend: [120, 120], padC: 220, blendC: 200 }],
+    runways: [{ a: 0, c: 0, hdg: 80, len: 1900, wid: 45, surface: 'asphalt', lights: true, ils: [1, 0], papi: true, als: ['malsr', false], pad: [60, 60], blend: [120, 120], padC: 220, blendC: 200 }],
     pads: [{ a0: -330, a1: 330, c0: -420, c1: -175 }], terminal: { kind: 'regional', a0: -280, a1: 280, c: -350 }, taxi: { side: -1, off: 120 } },
   { id: 'FLW', name: 'Flores', region: 'atl', isl: 'flores', u: 300, v: -1180, hdg: 45, elev: 128, kind: 'small', blurb: '1,600 m · a clifftop shelf above the Atlantic',
     runways: [{ a: 0, c: 0, hdg: 45, len: 1600, wid: 45, surface: 'asphalt', lights: true, ils: [0, 1], papi: true, pad: [120, 40], blend: [260, 80], padC: 190, blendC: 160 }],
     pads: [{ a0: -220, a1: 160, c0: 120, c1: 250 }], terminal: { kind: 'small', a0: -170, a1: 100, c: 215 }, taxi: { side: 1, off: 90 } },
   { id: 'WMR', name: 'Westmoor', region: 'mainland', x: -56000, z: -27000, hdg: 120, elev: null, kind: 'regional', blurb: '2,400 m · a regional field on the western plain',
-    runways: [{ a: 0, c: 0, hdg: 120, len: 2400, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: true, padC: 260 }],
+    runways: [{ a: 0, c: 0, hdg: 120, len: 2400, wid: 45, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: ['calvert', 'ssals'], padC: 260 }],
     pads: [{ a0: -420, a1: 420, c0: 170, c1: 440 }], terminal: { kind: 'regional', a0: -340, a1: 340, c: 370 }, taxi: { side: 1, off: 140 } },
   // French Polynesia: only the ATR, the Twin Otter and the Embraer fly in. Runway numbers are magnetic (13° east), headings true
   { id: 'BOB', name: 'Bora Bora', region: 'poly', isl: 'borabora', u: 5150, v: 3300, hdg: 124, elev: 3, kind: 'small', only: ['atr72', 'otter', 'e190'], blurb: '1,505 m on Motu Mute · a boat to Vaitape across the lagoon',
@@ -904,15 +914,36 @@ AIRPORT_DEFS.push(
     town: { n: 60 }, townStyle: 'poly' },
   // Japan: Mt Fuji Shizuoka among the tea fields, and Hachijojima between its two volcanoes
   { id: 'FSZ', name: 'Mt Fuji Shizuoka', region: 'jp', isl: 'japan', u: -4600, v: 2100, hdg: 115, elev: 132, kind: 'regional', blurb: '2,500 m on a tea-field plateau · Fuji fills the windscreen',
-    runways: [{ a: 0, c: 0, hdg: 115, num: 12, len: 2500, wid: 60, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: true, pad: [90, 90], blend: [320, 320], padC: 240, blendC: 330, corr: false }],
+    runways: [{ a: 0, c: 0, hdg: 115, num: 12, len: 2500, wid: 60, surface: 'asphalt', lights: true, ils: [1, 1], papi: true, als: ['calvert', false], pad: [90, 90], blend: [320, 320], padC: 240, blendC: 330, corr: false }],
     pads: [{ a0: -330, a1: 330, c0: -430, c1: -170 }], terminal: { kind: 'regional', a0: -260, a1: 260, c: -360 }, taxi: { side: -1, off: 150 },
     town: { n: 150 }, townStyle: 'jp', features: [{ type: 'tea', r: 1700 }] },
   { id: 'HAC', name: 'Hachijojima', region: 'jp', isl: 'hachijo', u: -60, v: 120, hdg: 73, elev: 92, kind: 'small', blurb: '2,000 m in the saddle between Hachijo-Fuji and Mihara-yama',
     runways: [{ a: 0, c: 0, hdg: 73, num: 8, len: 2000, wid: 45, surface: 'asphalt', lights: true, ils: [0, 1], papi: true, pad: [60, 60], blend: [240, 240], padC: 160, blendC: 220, corr: false }],
     pads: [{ a0: -330, a1: 30, c0: -250, c1: -105 }], terminal: { kind: 'small', a0: -280, a1: -20, c: -200 }, taxi: { side: -1, off: 95 },
     town: { n: 80 }, townStyle: 'jp' },
+  // the taiga: Treetops, a plank runway on log trestles among the giant spruces, hung from them by cables, its terminal up in the trees.
+  // Nothing is carved into the hillside: the deck, apron and taxiway all stand on stilts, 30 to 85 m above the forest floor
+  { id: 'TTP', name: 'Treetops', region: 'taiga', x: -35000, z: -32000, hdg: 110, elev: 330, kind: 'small', blurb: '1,500 m of planks on log stilts, hung from the giant spruces', town: false, noFence: true, decked: true,
+    runways: [{ a: 0, c: 0, hdg: 110, len: 1500, wid: 30, surface: 'wood', lights: true, ils: [0, 0], papi: true, pad: [0, 0], blend: [1, 1], deck: [-780, 780], deckC: [-22, 22], corr: false }],
+    pads: [{ a0: -335, a1: -85, c0: 70, c1: 150 }], terminal: { kind: 'tree', a0: -335, a1: -85, c: 196 }, taxi: { side: 1, short: true, links: [-210] },
+    features: [{ type: 'treehouse' }] },
+  // the aircraft carrier: a Nimitz-class flat-top holding station in the open sea, 19.5 m from the water to the flight deck.
+  // Its runway is the angled landing area, 9 degrees to port of the ship's axis, landed on from the stern only; four arresting
+  // wires lie across it. Ship-frame numbers: a forward from amidships, c to starboard
+  { id: 'CVN', name: 'USS Theodore Roosevelt', region: 'sea', x: 15000, z: 12000, hdg: 350, elev: 19.5, kind: 'carrier', ship: true, only: ['fa18'], town: false, noFence: true,
+    blurb: 'a Nimitz-class carrier on station · catapults on the bow · four wires across the angled deck',
+    runways: [{ a: -40, c: -16, hdg: 341, len: 238, wid: 26, surface: 'deck', lights: false, ils: [1, 0], papi: false, oneWay: 0, pad: [0, 0], blend: [1, 1], corr: false }],
+    carrier: {
+      outline: [[167, 2], [160, 16], [140, 26], [110, 36], [60, 38], [-60, 38], [-140, 36], [-158, 30], [-161, 10], [-161, -10], [-152, -22], [-110, -29], [-40, -40], [30, -47], [76, -52], [92, -40], [110, -30], [130, -22], [155, -12]],
+      decks: [[-150, 108, -20, 36], [-161, -150, -10, 28], [108, 140, -22, 30], [140, 158, -12, 17], [158, 166, -5, 7], [-80, 92, -38, -20], [-108, -80, -28, -20]],
+      wires: [50, 62, 74, 86], aimD: 115, gs: 3.5,
+      cats: [{ n: 1, a0: 66, c0: 12, a1: 158, c1: 12 }, { n: 2, a0: 62, c0: -7, a1: 152, c1: -7 }, { n: 3, a0: -12, c0: -20, a1: 76, c1: -32 }, { n: 4, a0: -30, c0: -29, a1: 56, c1: -41 }],
+      island: { a0: -38, a1: 2, c0: 27, c1: 37 },
+    } },
 );
 const CITY = { x: 4800, z: -31800, hdg: 80, hw: 2300, hd: 1500 };
+// the old-growth spruce taiga: giant spruces over podzol and moss, from the western plain up the flanks of the mountains
+const TAIGA = { x: -36000, z: -35000, rx: 21000, rz: 12000 };
 
 // resolve positions: every runway gets a world centre, direction and right-hand vector
 function resolveAirport(A) {
@@ -995,6 +1026,9 @@ function terrainModule(DEF) {
   const hash2 = (x, y) => { let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
   const BIOME = { ocean: 0, mainland: 1, carib: 2, med: 3, atl: 4, trop: 5, poly: 6, jp: 7 };
+  // the old-growth spruce taiga in the northwest: how deep into it a point is, 0 outside to 1 well inside, with a ragged edge
+  const TG = DEF.taiga;
+  const taigaK = (x, z) => TG ? sstep(1.04, 0.78, Math.hypot((x - TG.x) / TG.rx, (z - TG.z) / TG.rz) * (1 + 0.16 * noise(x * 0.00011 + 7.3, z * 0.00011 - 2.9) + 0.05 * noise(x * 0.0007, z * 0.0007))) : 0;
   const ISLS = DEF.islands.map(I => {
     const t = I.ang * D2R;
     // how far the island reaches: its own shelf, any cone that spills past it, and the reef ringing its lagoon
@@ -1117,14 +1151,14 @@ function terrainModule(DEF) {
   }
   // natural terrain before any airport is carved into it
   function base(x, z, o) {
-    let h = -80; o.bio = 0; o.city = 0; o.sand = 0;
+    let h = -80; o.bio = 0; o.city = 0; o.sand = 0; o.tg = 0;
     const L = mainlandL(x, z);
-    if (L > -4500) { h = mainland(x, z, L, o); o.bio = BIOME.mainland; }
+    if (L > -4500) { h = mainland(x, z, L, o); o.bio = BIOME.mainland; if (L > 0) o.tg = taigaK(x, z); }
     for (let i = 0; i < ISLS.length; i++) {
       const I = ISLS[i];
       if (Math.abs(x - I.x) > I.bb || Math.abs(z - I.z) > I.bb) continue;
       const hi = islandH(I, x, z, o);
-      if (hi > h) { h = hi; o.bio = I.bio; }
+      if (hi > h) { h = hi; o.bio = I.bio; o.tg = 0; }
     }
     return h;
   }
@@ -1160,6 +1194,17 @@ function terrainModule(DEF) {
     return out;
   }
   const PN = {};
+  // giant spruces stay out of every runway's approach funnel (an ordinary spruce there is a fraction of the height)
+  function giantOK(x, z) {
+    for (let i = 0; i < APS.length; i++) {
+      const A = APS[i]; if (Math.abs(x - A.x) > 7000 || Math.abs(z - A.z) > 7000) continue;
+      for (const R of A.rws) {
+        const px = x - R.cx, pz = z - R.cz, a = Math.abs(px * R.dx + pz * R.dz), c = Math.abs(px * R.bx + pz * R.bz);
+        if (a < R.half + 3800 && c < 140 + Math.max(0, a - R.half) * 0.16) return false;
+      }
+    }
+    return true;
+  }
   // towns planned on the main thread: streets and gardens stay clear of trees
   function townClear(x, z) {
     const G = DEF.townGrid; if (!G) return false;
@@ -1247,7 +1292,7 @@ function terrainModule(DEF) {
       }
     }
     const R0 = A.rws[0];
-    for (const P of A.padsW) {
+    if (!A.decked) for (const P of A.padsW) {
       const px = x - R0.cx, pz = z - R0.cz, a = px * R0.dx + pz * R0.dz, c = px * R0.bx + pz * R0.bz;
       const pb = A.padBlend, ma = 1 - sstep(0, pb, Math.max(P.a0 - a, a - P.a1, 0)), mc = 1 - sstep(0, pb, Math.max(P.c0 - c, c - P.c1, 0));
       const m = ma * mc;
@@ -1302,6 +1347,17 @@ function terrainModule(DEF) {
         const ld = Math.sqrt(((a - F.a) / F.ra) ** 2 + ((c - F.c) / F.rc) ** 2) * (1 + 0.12 * noise(x * 0.006, z * 0.006));
         const k = sstep(1.12, 0.85, ld);
         if (k > 0) { h = lerp(h, -1.4, k); o.flat *= 1 - k; o.clear = 1; if (h > -0.6 && h < 1.2) o.sand = Math.max(o.sand, 0.35); }
+      } else if (F.type === 'treehouse') {
+        // Treetops: the forest floor stays put under the trestles (only a crest is shaved below the deck), and the trees keep
+        // clear of the deck, the apron, the terminal's own trees and the first kilometre of each approach
+        const R = A.rws[0], px = x - R.cx, pz = z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz;
+        const cap = R.elev - 24, ins = (1 - sstep(R.half + 40, R.half + 160, Math.abs(a))) * (1 - sstep(60, 160, Math.abs(c)));
+        if (h > cap && ins > 0) h = lerp(h, cap, ins);
+        const ae = Math.abs(a) - R.half, T = A.terminal;
+        if (Math.abs(a) < R.half + 30 && Math.abs(c) < 64) o.clear = 1;
+        else if (ae > 0 && ae < 1100 && Math.abs(c) < 70 + ae * 0.12) o.clear = 1;
+        if (a > -360 && a < 40 && c > 40 && c < T.c + 75) o.clear = 1;
+        o.flat = 0;
       } else if (F.type === 'seaCut') {
         const R = A.rws[0], px = x - R.cx, pz = z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz;
         const region = (1 - sstep(F.a1, F.a1 + 500, a)) * (1 - sstep(F.c, F.c + 500, Math.abs(c)));
@@ -1329,8 +1385,13 @@ function terrainModule(DEF) {
   }
   const _o = {};
   function height(x, z) { return sample(x, z, _o); }
-  function forestK(x, z, bio, h) {
+  function forestK(x, z, bio, h, tg = 0) {
     const n = fbm(x * 0.00055 + 40, z * 0.00055, 3);
+    if (tg > 0.001) {   // the taiga: wall-to-wall spruce up to the tree line, broken by the odd mossy clearing
+      const tk = sstep(-0.62, -0.3, fbm(x * 0.0011 + 13, z * 0.0011 - 5, 2)) * sstep(3, 22, h) * (1 - sstep(2250, 2750, h));
+      if (tg > 0.999) return tk;
+      return lerp(forestK(x, z, bio, h, 0), tk, tg);
+    }
     if (bio === 3) return sstep(-0.45, 0.1, n) * sstep(4, 20, h);                                    // Skiathos: pine forest everywhere
     if (bio === 2) return sstep(-0.1, 0.45, n) * sstep(6, 40, h) * 0.8;                                // Caribbean scrub
     if (bio === 4) return sstep(-0.3, 0.3, n) * sstep(150, 400, h) * (1 - sstep(1450, 1700, h));      // Madeira laurel forest
@@ -1353,9 +1414,10 @@ function terrainModule(DEF) {
     lagoon: lin(0x7fe3d6), lagoonL: lin(0xd6f6ec), polyDeep: lin(0x1a8fa8), grassP: lin(0x3f9a3a), grassP2: lin(0x2f7f30), basalt: lin(0x4a4a42),
     grassJ: lin(0x6a9a4c), grassJ2: lin(0x4c7c3a), forestJ: lin(0x2c4e2e), paddy: lin(0x9cc95e), paddy2: lin(0x7fb04a), tea: lin(0x2f6a2e), teaRow: lin(0x5f9a45),
     scoria: lin(0x6a5048), scoriaD: lin(0x4a3a36), sandJ: lin(0xbdb4a3), sandK: lin(0x45413e),
+    podzol: lin(0x5d4a31), podzolR: lin(0x74583a), moss: lin(0x4a6530), forestS: lin(0x223f27),
   };
   const mix3 = (o, a, b, t) => { o[0] = a[0] + (b[0] - a[0]) * t; o[1] = a[1] + (b[1] - a[1]) * t; o[2] = a[2] + (b[2] - a[2]) * t; return o; };
-  const T1 = [0, 0, 0], T2 = [0, 0, 0];
+  const T1 = [0, 0, 0], T2 = [0, 0, 0], T3 = [0, 0, 0];
   function colorAt(x, z, s, ny, out) {
     const h = s.h, bio = s.bio;
     const v = noise(x * 0.004, z * 0.004) * 0.5 + 0.5, v2 = noise(x * 0.017 + 7, z * 0.017) * 0.5 + 0.5;
@@ -1384,10 +1446,12 @@ function terrainModule(DEF) {
     if (bio === 2) { g1 = C.grassC; g2 = C.grassC2; } else if (bio === 3) { g1 = C.grassM; g2 = C.grassM2; } else if (bio === 4) { g1 = C.grassA; g2 = C.grassA2; } else if (bio === 5) { g1 = C.grassV; g2 = C.grassC2; }
     else if (bio === 6) { g1 = C.grassP; g2 = C.grassP2; } else if (bio === 7) { g1 = C.grassJ; g2 = C.grassJ2; }
     mix3(out, g1, g2, v);
+    const tg = s.tg || 0;
+    if (tg > 0) { mix3(T2, C.podzol, C.podzolR, v2); mix3(T2, T2, C.moss, sstep(0.35, 0.75, v)); mix3(out, out, T2, tg); }   // podzol and moss under the spruces
     const big = noise(x * 0.0009 + 5, z * 0.0009 - 3) * 0.5 + 0.5;
     if (bio === 2 || bio === 3) mix3(out, out, bio === 3 ? C.dry : C.dryC, sstep(0.45, 0.85, big) * 0.55);
-    const fk = forestK(x, z, bio, h);
-    if (bio === 1 && h < 260 && (s.city || 0) < 0.2 && ny > 0.965 && fk < 0.5) {   // farmland patchwork on the plains
+    const fk = forestK(x, z, bio, h, tg);
+    if (bio === 1 && h < 260 && (s.city || 0) < 0.2 && ny > 0.965 && fk < 0.5 && tg < 0.5) {   // farmland patchwork on the plains
       const u = (x * 0.8 + z * 0.6) / 240, w = (-x * 0.6 + z * 0.8) / 170, fh = hash2(Math.floor(u), Math.floor(w));
       const fc = fh < 0.28 ? C.wheat : fh < 0.52 ? C.fresh : fh < 0.7 ? C.plowed : fh < 0.86 ? C.pasture : C.orchard;
       mix3(out, out, fc, sstep(-0.1, 0.35, noise(x * 0.00032 + 3, z * 0.00032)) * (1 - fk) * 0.72);
@@ -1396,7 +1460,9 @@ function terrainModule(DEF) {
       const u = (x * 0.94 + z * 0.34) / 46, w = (-x * 0.34 + z * 0.94) / 30, ph = hash2(Math.floor(u), Math.floor(w)), fu = u - Math.floor(u), fw = w - Math.floor(w);
       mix3(out, out, ph < 0.55 ? C.paddy : C.paddy2, 0.8 * (1 - sstep(40, 70, h)) * sstep(0.03, 0.08, Math.min(fu, 1 - fu, fw, 1 - fw)));
     }
-    mix3(out, out, bio === 3 ? C.forestM : bio === 7 ? C.forestJ : C.forest, fk * 0.75);
+    mix3(T3, bio === 3 ? C.forestM : bio === 7 ? C.forestJ : C.forest, C.forestS, tg);
+    if (tg > 0) { mix3(T2, T3, C.podzol, 0.3 + 0.2 * v2); mix3(T3, T3, T2, tg); }   // needles and podzol show between the spruces
+    mix3(out, out, T3, fk * (0.75 + 0.07 * tg));
     if (bio === 7) {   // Fuji: red-black scoria above the trees, snow on the top, streaking down the gullies
       mix3(T2, C.scoria, C.scoriaD, v2); mix3(out, out, T2, sstep(1450, 1850, h + v * 120));
       mix3(out, out, C.snow, sstep(2050, 2300, h + v * 160 + 140 * noise(x * 0.004, z * 0.004)) * sstep(0.45, 0.7, ny));
@@ -1420,12 +1486,12 @@ function terrainModule(DEF) {
   function buildTile(x0, z0, size, n, treeSpacing) {
     const N1 = n + 1, G = n + 3, cell = size / n;
     const GG = G * G, H = new Float32Array(GG), FL = new Uint8Array(GG), BI = new Uint8Array(GG);
-    const SA = new Float32Array(GG), FT = new Float32Array(GG), CT = new Float32Array(GG), SU = new Uint8Array(GG), RD = new Uint8Array(GG), BE = new Uint8Array(GG);
+    const SA = new Float32Array(GG), FT = new Float32Array(GG), CT = new Float32Array(GG), SU = new Uint8Array(GG), RD = new Uint8Array(GG), BE = new Uint8Array(GG), TGA = new Float32Array(GG);
     const S = {};
     for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
       const x = x0 + (i - 1) * cell, z = z0 + (j - 1) * cell;
       const h = sample(x, z, S), k = j * G + i;
-      H[k] = h; BI[k] = S.bio; SA[k] = S.sand; FT[k] = S.flat; CT[k] = S.city || 0; SU[k] = S.surf; RD[k] = S.road ? 1 : 0; BE[k] = S.beach === 'gold' ? 1 : S.beach === 'white' ? 2 : S.beach === 'rock' ? 3 : S.beach === 'black' ? 4 : 0;
+      H[k] = h; BI[k] = S.bio; TGA[k] = S.tg || 0; SA[k] = S.sand; FT[k] = S.flat; CT[k] = S.city || 0; SU[k] = S.surf; RD[k] = S.road ? 1 : 0; BE[k] = S.beach === 'gold' ? 1 : S.beach === 'white' ? 2 : S.beach === 'rock' ? 3 : S.beach === 'black' ? 4 : 0;
       FL[k] = (S.flat > 0.02 ? 1 : 0) | (S.sand > 0.3 ? 2 : 0) | (S.road ? 4 : 0) | ((S.city || 0) > 0.4 ? 8 : 0) | (S.surf ? 16 : 0) | (S.flat > 0.5 ? 32 : 0) | (S.clear ? 64 : 0);
     }
     const skirt = 4 * n, vc = N1 * N1 + skirt;
@@ -1438,7 +1504,7 @@ function terrainModule(DEF) {
       let nx = H[k - 1] - H[k + 1], nz = H[k - G] - H[k + G], ny = 2 * cell;
       const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
       nrm[vi * 3] = nx; nrm[vi * 3 + 1] = ny; nrm[vi * 3 + 2] = nz;
-      S.h = h; S.bio = BI[k]; S.sand = SA[k]; S.flat = FT[k]; S.city = CT[k]; S.surf = SU[k]; S.road = RD[k]; S.beach = BE[k] === 1 ? 'gold' : BE[k] === 2 ? 'white' : BE[k] === 3 ? 'rock' : BE[k] === 4 ? 'black' : '';
+      S.h = h; S.bio = BI[k]; S.tg = TGA[k]; S.sand = SA[k]; S.flat = FT[k]; S.city = CT[k]; S.surf = SU[k]; S.road = RD[k]; S.beach = BE[k] === 1 ? 'gold' : BE[k] === 2 ? 'white' : BE[k] === 3 ? 'rock' : BE[k] === 4 ? 'black' : '';
       colorAt(x, z, S, ny, out);
       col[vi * 3] = out[0]; col[vi * 3 + 1] = out[1]; col[vi * 3 + 2] = out[2];
     }
@@ -1472,8 +1538,8 @@ function terrainModule(DEF) {
         if (h < 1.2) continue;
         const sl = Math.abs(H[k + 1] - H[k]) + Math.abs(H[k + G] - H[k]);
         if (sl > cell * 0.9) continue;
-        const bio = BI[k];
-        let dens = forestK(x, z, bio, h), type = 0;
+        const bio = BI[k], tg = TGA[k];
+        let dens = forestK(x, z, bio, h, tg), type = 0;
         // the Caribbean and the tropics are palm country, with broadleaf trees mixed in higher up
         if (bio === 2) { type = h < 220 ? (r3 < 0.86 ? 3 : 0) : (r3 < 0.5 ? 3 : 0); if (h < 30) dens = Math.max(dens, 0.34); }
         else if (bio === 3) type = r3 < 0.85 ? 1 : 0;
@@ -1484,6 +1550,14 @@ function terrainModule(DEF) {
           const bam = noise(x * 0.004 + 31, z * 0.004 - 7);   // bamboo grows in groves
           type = h > 1100 ? 2 : bam > 0.32 && h < 600 ? 5 : h < 220 && r3 < 0.1 ? 6 : r3 < 0.62 ? 4 : r3 < 0.85 ? 2 : 0;
           if (type === 5) dens = Math.max(dens, 0.5);
+        }
+        else if (tg > 0 && hash2(seedX + ti + 501, seedZ + tj - 77) < tg) {
+          // the taiga: giant spruces over a younger understorey, and mossy boulders on the forest floor
+          // (tiles a kilometre and more across are seen from afar: the lighter spruce, and no boulders)
+          // big trees stand well apart: about half the cells hold one
+          if (hash2(seedX + ti - 913, seedZ + tj + 4409) > 0.955) { if (size >= 1024) continue; type = 8; dens = 1; }
+          else if (size >= 2048) { type = 9; dens *= 0.32; if (h > 1900 || !giantOK(x, z)) continue; }
+          else { type = h < 1900 && r3 < 0.42 ? (size >= 1024 ? 9 : 7) : 2; dens *= size >= 1024 ? 0.5 : 0.6; if (type !== 2 && !giantOK(x, z)) type = 2; }
         }
         else type = h > 1300 ? 2 : r3 < 0.35 ? 2 : 0;
         if (bio === 1 && h > 3300) continue;
@@ -1508,7 +1582,7 @@ function terrainModule(DEF) {
       if (h < 0) { const t = clamp(-h / 60, 0, 1); r = lerp(62, 14, t); g = lerp(160, 44, t); b = lerp(170, 78, t); a = 200; }
       else if (S.sand > 0.3) { r = 214; g = 204; b = 170; }
       else if (h > 3600) { r = 236; g = 240; b = 245; }
-      else { const t = clamp(h / 3000, 0, 1); r = lerp(104, 150, t); g = lerp(150, 140, t); b = lerp(96, 128, t); if (S.city > 0.4) { r = 150; g = 150; b = 146; } }
+      else { const t = clamp(h / 3000, 0, 1); r = lerp(104, 150, t); g = lerp(150, 140, t); b = lerp(96, 128, t); if (S.city > 0.4) { r = 150; g = 150; b = 146; } if (S.tg > 0.05 && h < 2300) { const k = S.tg * 0.8; r = lerp(r, 44, k); g = lerp(g, 92, k); b = lerp(b, 58, k); } }
       img[k] = r; img[k + 1] = g; img[k + 2] = b; img[k + 3] = a;
     }
     return { img, sea };
@@ -1535,8 +1609,9 @@ function terrainWorkerMain() {
 const WORLD_DEF = {
   seed: 20260927,
   islands: ISLAND_DEFS.map(({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon, jag, reef, cones, spires, bays, beach, shore }) => ({ key, x, z, ang, rx, rz, type, peak, biome, seed, lagoon, jag, reef, cones, spires, bays, beach, shore })),
-  airports: AIRPORT_DEFS,
+  airports: AIRPORT_DEFS.filter(A => !A.ship),   // the carrier floats: nothing is carved into the sea for it
   city: CITY,
+  taiga: TAIGA,
 };
 const TM = terrainModule(WORLD_DEF);
 // mainland airports sit on whatever ground is there
@@ -1660,17 +1735,25 @@ function groundInfo(x, z, o) {
   const h = TM.sample(x, z, o);
   o.water = h < 0;
   let g = Math.max(h, 0) + (o.pave ? o.pave + 0.03 : 0);
-  o.deck = false;
+  o.deck = false; o.ship = null;
   for (const D of DECKS) {
     const px = x - D.cx, pz = z - D.cz, a = px * D.dx + pz * D.dz, c = px * D.bx + pz * D.bz;
-    if (a > D.a0 && a < D.a1 && c > D.c0 && c < D.c1) { const onRw = Math.abs(c) < D.rw.wid / 2 + 3; g = D.elev; o.deck = true; o.water = false; o.surf = onRw ? 1 : 5; o.rw = onRw ? D.rw : null; o.pave = 0.3; break; }
+    if (a > D.a0 && a < D.a1 && c > D.c0 && c < D.c1) { const onRw = !!D.rw && Math.abs(c) < D.rw.wid / 2 + 3; g = D.elev; o.deck = true; o.water = false; o.surf = onRw ? 1 : 5; o.rw = onRw ? D.rw : null; o.pave = 0.3; o.flat = 1; o.ship = D.ship || null; break; }
   }
   o.g = g;
   return g;
 }
 function groundAt(x, z) { return groundInfo(x, z, _S); }
 const DECKS = [];
-for (const A of AIRPORT_DEFS) for (const R of A.rws) if (R.deck) DECKS.push({ cx: R.cx, cz: R.cz, dx: R.dx, dz: R.dz, bx: R.bx, bz: R.bz, a0: R.deck[0] - 20, a1: R.deck[1], c0: R.deckC ? R.deckC[0] : -(R.wid / 2 + 12), c1: R.deckC ? R.deckC[1] : R.wid / 2 + 12, elev: R.elev + 0.03, rw: R });
+for (const A of AIRPORT_DEFS) for (const R of A.rws) if (R.deck) DECKS.push({ cx: R.cx, cz: R.cz, dx: R.dx, dz: R.dz, bx: R.bx, bz: R.bz, a0: R.deck[0] - (A.decked ? 0 : 20), a1: R.deck[1], c0: R.deckC ? R.deckC[0] : -(R.wid / 2 + 12), c1: R.deckC ? R.deckC[1] : R.wid / 2 + 12, elev: R.elev + 0.03, rw: R });
+// the carrier: the angled landing area first (it counts as the runway), then the rest of the flight deck
+for (const A of AIRPORT_DEFS) if (A.ship) {
+  const R = A.rws[0], E = A.elev + 0.03;
+  DECKS.push({ cx: R.cx, cz: R.cz, dx: R.dx, dz: R.dz, bx: R.bx, bz: R.bz, a0: -R.half - 2, a1: R.half + 1, c0: -16, c1: 16, elev: E, rw: R, ship: A });
+  for (const [a0, a1, c0, c1] of A.carrier.decks) DECKS.push({ cx: A.x, cz: A.z, dx: A.dx, dz: A.dz, bx: A.bx, bz: A.bz, a0, a1, c0, c1, elev: E, rw: null, ship: A });
+}
+// Treetops: the apron and the taxiway are decks too
+for (const A of AIRPORT_DEFS) if (A.decked) { const R = A.rws[0]; for (const P of A.padsW) DECKS.push({ cx: R.cx, cz: R.cz, dx: R.dx, dz: R.dz, bx: R.bx, bz: R.bz, a0: P.a0, a1: P.a1, c0: P.c0, c1: P.c1, elev: R.elev + 0.03, rw: null }); }
 
 /* =========================================================
    terrain: a quadtree of tiles that sharpens around the camera
@@ -1808,7 +1891,7 @@ function updateTerrain(cam, budgetMs = 6) {
     const old = [...tiles.values()].filter(t => t.state === 2 && !drawSet.has(t.key)).sort((a, b) => a.used - b.used);
     for (const t of old.slice(0, tiles.size - 700)) { terrainRoot.remove(t.mesh); t.mesh.geometry.dispose(); tiles.delete(t.key); }
   }
-  if (treesDirty) rebuildTrees();
+  if (treesDirty) rebuildTrees(cam);
   return queue.length + inflight;
 }
 const terrainPending = () => queue.length + inflight;
@@ -1884,7 +1967,31 @@ const TREE_GEO = (() => {
   // cherry blossom: a low, spreading crown of pink
   const sakura = mergeGeometries([trunk(0.3, 3.3, 0x4a3a33), blob(3.6, 0, 5.7, 0, 1.15, 0.66, 0xf4b5c8), blob(2.6, 2.3, 5.3, 1.0, 1, 0.72, 0xf9c9d6), blob(2.4, -2.1, 5.5, -1.0, 1, 0.68, 0xefa6bc), blob(2.0, 0.6, 6.9, -1.6, 1, 0.7, 0xfbd7e1)]);
   shadeBottom(sakura, 3.2, 7.6, 0.72);
-  return [broad, pine, conifer, palm, jpine, bamboo, sakura];
+  // the giant spruce of the old-growth taiga: a bare column of a trunk, then tier on tier of drooping boughs to a spire, 60 m tall
+  const gs = [];
+  { const fl = new THREE.CylinderGeometry(1.25, 2.1, 3.2, 5, 1, true); fl.translate(0, 1.6, 0); gs.push(vcolor(fl, 0x6a4b36, 0.06)); }
+  { const tr = new THREE.CylinderGeometry(0.32, 1.25, 56, 5, 1, true); tr.translate(0, 3.2 + 28, 0); gs.push(vcolor(tr, 0x7a5539, 0.06)); }
+  const tiers = 7, rg = mulberry32(31);
+  for (let k = 0; k < tiers; k++) {
+    const t = k / (tiers - 1), r = lerp(7.4, 1.8, Math.pow(t, 0.9)) * (0.9 + rg() * 0.2), hh = lerp(9.2, 6.4, t), y = 21 + k * 5.6;
+    const g = new THREE.ConeGeometry(r, hh, 5, 1, false); g.translate(0, y + hh / 2, 0); g.rotateY(rg() * TAU);
+    gs.push(vcolor(g, [0x23402a, 0x2a4a2d, 0x2f5232][k % 3], 0.1));
+  }
+  { const sp = new THREE.ConeGeometry(1.0, 6, 5, 1, true); sp.translate(0, 21 + tiers * 5.6 + 2.6, 0); gs.push(vcolor(sp, 0x35583a, 0.08)); }
+  const giant = mergeGeometries(gs);
+  shadeBottom(giant, 18, 58, 0.72);
+  // a mossy boulder: grey stone with moss on its shoulders
+  const bo = new THREE.DodecahedronGeometry(1.7, 0); bo.scale(1.25, 0.7, 1); bo.translate(0, 0.6, 0);
+  const boulder = vcolor(bo, 0x84857c, 0.12);
+  { const p = boulder.attributes.position, c = boulder.attributes.color, mo = new THREE.Color(0x4f6b2c), st = new THREE.Color();
+    for (let i = 0; i < p.count; i++) { const k = sstep(0.55, 1.15, p.getY(i)); st.setRGB(c.getX(i), c.getY(i), c.getZ(i)).lerp(mo, k * 0.85); c.setXYZ(i, st.r, st.g, st.b); } }
+  // the same spruce seen from a kilometre or more away: five tiers instead of nine
+  const gl = [];
+  { const tr = new THREE.CylinderGeometry(0.4, 1.5, 30, 4, 1, true); tr.translate(0, 15, 0); gl.push(vcolor(tr, 0x7a5539, 0.06)); }
+  for (let k = 0; k < 5; k++) { const t = k / 4, r = lerp(7.2, 2.0, t), hh = lerp(11, 9, t), g = new THREE.ConeGeometry(r, hh, 5, 1, true); g.translate(0, 21 + k * 8.4 + hh / 2, 0); g.rotateY(k * 1.3); gl.push(vcolor(g, [0x23402a, 0x2a4a2d, 0x2f5232][k % 3], 0.1)); }
+  const giantLo = mergeGeometries(gl);
+  shadeBottom(giantLo, 18, 58, 0.72);
+  return [broad, pine, conifer, palm, jpine, bamboo, sakura, giant, boulder, giantLo];
 })();
 const treeMats = [new THREE.MeshLambertMaterial({ vertexColors: true }), new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })];
 const TREE_CAP = isTouch ? 9000 : 18000;
@@ -1896,11 +2003,13 @@ const treePools = TREE_GEO.map((g, i) => {
   scene.add(im); return im;
 });
 const _tm = new THREE.Matrix4(), _tq = new THREE.Quaternion(), _ts = new THREE.Vector3(), _tp = new THREE.Vector3(), _tc = new THREE.Color(), _Y = new THREE.Vector3(0, 1, 0);
-function rebuildTrees() {
+function rebuildTrees(cam) {
   treesDirty = false;
   const counts = new Array(TREE_TYPES).fill(0);
-  for (const k of drawSet) {
-    const t = tiles.get(k); if (!t || !t.trees || !t.trees.length) continue;
+  // nearest tiles first, so a forest denser than the pools loses its farthest trees, never the ones beside you
+  const order = [...drawSet].map(k => tiles.get(k)).filter(t => t && t.trees && t.trees.length);
+  if (cam) order.sort((a, b) => Math.hypot(a.x0 + a.size / 2 - cam.x, a.z0 + a.size / 2 - cam.z) - Math.hypot(b.x0 + b.size / 2 - cam.x, b.z0 + b.size / 2 - cam.z));
+  for (const t of order) {
     const T = t.trees;
     for (let q = 0; q < T.length; q += 7) {
       const type = T[q + 4] | 0, im = treePools[type]; if (!im) continue;
@@ -2010,11 +2119,27 @@ const apronTex = texRep(canvasTex(256, 256, (g, w, h) => {
   for (let i = 0; i < 6000; i++) { const v = 130 + r() * 40 | 0; g.fillStyle = `rgba(${v},${v},${v + 3},.35)`; g.fillRect(r() * w, r() * h, 2, 2); }
   g.strokeStyle = 'rgba(40,40,44,.45)'; g.lineWidth = 2; for (let k = 0; k <= w; k += 64) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k, h); g.stroke(); g.beginPath(); g.moveTo(0, k); g.lineTo(w, k); g.stroke(); }
 }));
+// Treetops' deck: weathered planks laid across the runway, half a metre wide, the texture covering 8 m square
+const plankTex = texRep(canvasTex(256, 256, (g, w, h) => {
+  const r = mulberry32(17);
+  g.fillStyle = '#3a2c20'; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 16; k++) {
+    let x = 0;
+    while (x < w) {
+      const len = 60 + r() * 140, v = 118 + r() * 34 | 0, y0 = k * 16 + 1;
+      g.fillStyle = `rgb(${v + 14},${v - 6},${v - 34})`; g.fillRect(x + 1, y0, Math.min(len, w - x) - 1, 14);
+      for (let i = 0; i < 5; i++) { g.fillStyle = `rgba(60,40,24,${0.1 + r() * 0.12})`; g.fillRect(x + 1, y0 + 2 + r() * 10, Math.min(len, w - x) - 1, 1); }
+      g.fillStyle = 'rgba(40,30,22,.8)'; for (const dx of [3, len - 4]) if (x + dx < w) { g.fillRect(x + dx, y0 + 3, 1.6, 1.6); g.fillRect(x + dx, y0 + 10, 1.6, 1.6); }
+      x += len;
+    }
+  }
+}));
 const offsetMat = (m, f) => { m.polygonOffset = true; m.polygonOffsetFactor = f; m.polygonOffsetUnits = f; return m; };
 const SURF_MAT = {
   asphalt: offsetMat(new THREE.MeshLambertMaterial({ map: asphaltTex }), -2),
   concrete: offsetMat(new THREE.MeshLambertMaterial({ map: concreteTex }), -2),
   gravel: offsetMat(new THREE.MeshLambertMaterial({ map: gravelTex }), -2),
+  wood: offsetMat(new THREE.MeshLambertMaterial({ map: plankTex }), -2),
 };
 const apronMat = offsetMat(new THREE.MeshLambertMaterial({ map: apronTex }), -2);
 const markMat = offsetMat(new THREE.MeshLambertMaterial({ color: 0xeeeeee }), -4);
@@ -2069,8 +2194,8 @@ const redWhiteMat = new THREE.MeshLambertMaterial({ color: 0xd84a3a });
 const glassMat = new THREE.MeshLambertMaterial({ color: 0x26384a, emissive: 0xffc27a, emissiveIntensity: 0 });
 const OBSTACLES = [], OB_GRID = new Map(), OB_CELL = 400;   // oriented boxes the aircraft can hit, bucketed on a grid
 const obKey = (i, j) => i * 100003 + j;
-function addObstacle(cx, cy, cz, hx, hy, hz, yaw) {
-  const o = { cx, cy, cz, hx, hy, hz, c: Math.cos(yaw), s: Math.sin(yaw) }, r = Math.hypot(hx, hz) + 1;
+function addObstacle(cx, cy, cz, hx, hy, hz, yaw, what) {
+  const o = { cx, cy, cz, hx, hy, hz, c: Math.cos(yaw), s: Math.sin(yaw), what }, r = Math.hypot(hx, hz) + 1;
   OBSTACLES.push(o);
   for (let i = Math.floor((cx - r) / OB_CELL); i <= Math.floor((cx + r) / OB_CELL); i++) for (let j = Math.floor((cz - r) / OB_CELL); j <= Math.floor((cz + r) / OB_CELL); j++) {
     const k = obKey(i, j); let L = OB_GRID.get(k); if (!L) OB_GRID.set(k, L = []); L.push(o);
@@ -2081,9 +2206,9 @@ function hitObstacle(p) {
   for (const o of L) {
     const dx = p.x - o.cx, dz = p.z - o.cz;
     const lx = dx * o.c - dz * o.s, lz = dx * o.s + dz * o.c;
-    if (Math.abs(lx) < o.hx && Math.abs(lz) < o.hz && Math.abs(p.y - o.cy) < o.hy) return true;
+    if (Math.abs(lx) < o.hx && Math.abs(lz) < o.hz && Math.abs(p.y - o.cy) < o.hy) return o;
   }
-  return false;
+  return null;
 }
 
 // the runway number, with a parallel runway's letter below it (nearer the threshold)
@@ -2122,7 +2247,7 @@ function buildRunway(A, R) {
   const put = (mat, c, y, a, w, l) => { const m = new THREE.Mesh(PLANE1, mat); m.position.set(c, y, -a); m.scale.set(w, 1, l); m.receiveShadow = true; g.add(m); return m; };
   if (paved) {
     const mat = SURF_MAT[R.surface].clone(); mat.map = SURF_MAT[R.surface].map.clone(); mat.map.needsUpdate = true;
-    if (R.surface === 'concrete') mat.map.repeat.set((R.wid + 6) / 15, (L + 60) / 15); else if (R.surface === 'gravel') mat.map.repeat.set(1, (L + 60) / 40); else mat.map.repeat.set(1, (L + 60) / 90);
+    if (R.surface === 'concrete') mat.map.repeat.set((R.wid + 6) / 15, (L + 60) / 15); else if (R.surface === 'wood') mat.map.repeat.set((R.wid + 6) / 8, (L + 60) / 8); else if (R.surface === 'gravel') mat.map.repeat.set(1, (L + 60) / 40); else mat.map.repeat.set(1, (L + 60) / 90);
     put(mat, 0, 0.03 - R.idx * 0.008, 0, R.wid + (R.surface === 'gravel' ? 4 : 6), L + (R.surface === 'gravel' ? 20 : 60));
   } else {
     for (const c of [-2.2, 2.2]) put(trackMat, c, 0.04, 0, 1.3, L - 30);
@@ -2181,12 +2306,7 @@ function buildRunway(A, R) {
       for (let c = -hw + 1; c <= hw - 0.9; c += 3.6) add(c, 0.4, s * (R.half + 2), 0x3cff6c, 1.6);
       const e = s < 0 ? 0 : 1;
       const alsE = Array.isArray(R.als) ? R.als[e] : R.als && R.ils[e];
-      if (alsE) for (let k = 1; k <= 30; k++) {
-        const a = s * (R.half + k * 30), y = onGround(0, a, 1.2);
-        for (let c = -4; c <= 4; c += 2) add(c, y, a, 0xfff2da, 1.0);
-        add(0, y + 0.6, a, 0xffffff, 1.7, 1, 1 - k / 30 * 0.8);
-        if (k === 10) for (let c = -15; c <= 15; c += 2.5) add(c, y, a, 0xfff2da, 1.3);
-      }
+      if (alsE) approachLights(R, g, s, ALS_TYPES[alsE] || ALS_TYPES.alsf2, add, onGround);
     }
     const wantPapi = !!A.runways[R.idx].papi; R.papi = [];
     if (wantPapi) for (let e = 0; e < 2; e++) {
@@ -2202,6 +2322,104 @@ function buildRunway(A, R) {
     const thr = new THREE.Vector3(R.cx + R.dx * s * R.half, R.elev + R.slope * s * R.half, R.cz + R.dz * s * R.half);
     return { rw: R, A, e, hdg, dir: new THREE.Vector3(Math.sin(t), 0, -Math.cos(t)), thr, id: R.ids[e], ils: !!R.ils[e], uphill: R.slope * (e === 0 ? 1 : -1), igs: e === 0 && R.igsPts ? R.igsPts : null };
   });
+}
+/* ---------- approach lighting systems: rows of lights on orange-and-white masts out from the threshold, over land or sea ----------
+   alsf2: the US category II system, 720 m, red side rows inside 300 m, a sequenced flasher (the rabbit) beyond
+   calvert: the ICAO category I system used across Europe and Japan, 900 m of centreline with five crossbars
+   malsr: 420 m of barrettes then sequenced flashers out to 720 m; ssals: 420 m, no flashers; odals: seven strobes */
+const ALS_TYPES = {
+  alsf2: { len: 720, step: 30, bars: [[150, 12], [300, 30]], side: 300, flash: [330, 720] },
+  calvert: { len: 900, step: 30, bars: [[150, 9], [300, 16], [450, 22], [600, 28], [750, 34]], flash: [330, 900] },
+  calvertS: { len: 900, step: 30, bars: [[150, 9], [300, 16], [450, 22], [600, 28], [750, 34]] },
+  malsr: { len: 720, step: 60, inner: 420, bars: [[300, 20]], flash: [480, 720] },
+  ssals: { len: 420, step: 60, bars: [[300, 20]] },
+  odals: { len: 450, step: 90, odals: true },
+  // the real ones, from each country's AIP: Gibraltar's simple systems run 300 m out into the sea at both ends, a buoy marks 09's line
+  gib09: { len: 300, step: 60, single: true, bars: [[300, 30]], buoy: 1372 },
+  gib27: { len: 300, step: 60, single: true, bars: [[300, 30]] },
+  // Madeira 05: a reduced simple system, then 17 sequenced flashers on poles along the shore from 2,034 m to 3,617 m out
+  fnc05: { len: 150, step: 30, shore: [2034, 3617, 17] },
+  // Kai Tak: 31's line of lights on piles out into the harbour with a crossbar on pylons; 13's straight final, its crossbars at
+  // 1,000 and 2,000 ft and strobes, then the lead-in lights round the IGS curve on Kowloon's rooftops
+  kt31: { len: 610, step: 61, bars: [[122, 24]], noWalk: true },
+  kt13: { len: 850, step: 61, bars: [[305, 24], [610, 30]], flash: [61, 850], curve: [1100, 133] },
+};
+const ALS_PARTS = { mast: [], arm: [], walk: [], buoy: [] };
+function approachLights(R, g, s, T, add, onGround) {
+  let prev = null;
+  for (let d = T.step; d <= T.len + 0.1; d += T.step) {
+    // the light plane climbs gently away from the threshold (real ones may rise 2 in 100), so the far rows stand on taller masts
+    const a = s * (R.half + d), y = onGround(0, a, 1.2 + d * 0.006), bar = T.bars && T.bars.find(b => b[0] === d), w = bar ? bar[1] : T.odals ? 0 : 9;
+    if (T.odals) add(0, y + 0.4, a, 0xffffff, 1.9, 1, 1 - d / T.len * 0.8);
+    else if (T.single) add(0, y, a, 0xfff2da, 1.4);
+    else if (!T.inner || d <= T.inner) for (let c = -4; c <= 4; c += 2) add(c, y, a, 0xfff2da, 1.0);
+    if (T.flash && d >= T.flash[0] - 0.1) add(0, y + 0.6, a, 0xffffff, 1.7, 1, 1 - (d - T.flash[0]) / (T.flash[1] - T.flash[0] + 1) * 0.8);
+    if (bar) for (let c = -w / 2; c <= w / 2 + 0.1; c += 2.5) if (Math.abs(c) > 4.5) add(c, y, a, 0xfff2da, 1.3);
+    if (T.side && d <= T.side) for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) add(sd * (10.5 + k * 1.5), y, a, 0xff2a18, 1.1);
+    // the masts and crossarms, and over water a catwalk joining each row to the one before it
+    const top = localToWorld(g, 0, y - 0.25, -a), gnd = TM.height(top.x, top.z), wet = gnd < 0.3, base = wet ? -3 : gnd - 0.3;
+    const span = Math.max(T.single && !bar ? 1.5 : w, T.side && d <= T.side ? 26 : 0), yaw = -R.hdg * D2R;
+    const posts = span > 12 ? [-span / 2 + 1, 0, span / 2 - 1] : [0];
+    for (const c of posts) { const p = localToWorld(g, c, y - 0.25, -a), gb = wet ? -3 : TM.height(p.x, p.z) - 0.3, h = p.y - gb; if (h > 0.3) ALS_PARTS.mast.push([p.x, (p.y + gb) / 2, p.z, h > 12 ? 0.55 : 0.32, h, 0]); }
+    if (span > 0.5) ALS_PARTS.arm.push([top.x, top.y + 0.05, top.z, span + 0.6, 0.32, 0.36, yaw]);
+    // over water, or where the ground falls far away (Shizuoka's plateau), a catwalk joins each row to the last: a bridge of lights
+    const tall = top.y - gnd > 9;
+    if (!T.noWalk && (wet || tall) && prev && (prev.wet || prev.tall)) ALS_PARTS.walk.push([(top.x + prev.x) / 2, (top.y + prev.y) / 2 - 0.9, (top.z + prev.z) / 2, 1.1, 0.2, Math.hypot(top.x - prev.x, top.z - prev.z), yaw]);
+    prev = { x: top.x, y: top.y, z: top.z, wet, tall };
+  }
+  // lights beyond the system proper, placed in the world and brought into the runway's frame
+  const loc = new THREE.Vector3(), put = (x, y, z, col, sz, kind, ph, pole) => {
+    loc.set(x, y, z); g.worldToLocal(loc); add(loc.x, loc.y, -loc.z, col, sz, kind, ph);
+    if (pole) { const gb = Math.max(TM.height(x, z), -3) - 0.3; if (y - gb > 0.3) ALS_PARTS.mast.push([x, (y + gb) / 2, z, 0.3, y - gb - 0.3, 0]); }
+  };
+  const thr = localToWorld(g, 0, 0, -s * R.half), out = { x: s * R.dx, z: s * R.dz }, side = { x: R.bx, z: R.bz };
+  if (T.buoy) {   // a yellow marker buoy with a flashing yellow light on the extended centreline
+    const bx = thr.x + out.x * T.buoy, bz = thr.z + out.z * T.buoy;
+    put(bx, 2.2, bz, 0xffc21a, 2.2, 3, 0.4, false);
+    ALS_PARTS.buoy.push([bx, 0.4, bz]);
+  }
+  if (T.shore) {   // Madeira: flashers on poles along the coast, sequenced towards the runway
+    const [d0, d1, n] = T.shore;
+    for (let i = 0; i < n; i++) {
+      const d = lerp(d1, d0, i / (n - 1)); let best = null;
+      for (let c = 0; c <= 900 && !best; c += 15) for (const sg of [-1, 1]) { const x = thr.x + out.x * d + side.x * c * sg, z = thr.z + out.z * d + side.z * c * sg, h = TM.height(x, z); if (h > 2 && h < 40 && TM.height(x + side.x * sg * 30, z + side.z * sg * 30) < 0.5) { best = [x, h, z]; break; } }
+      if (!best) best = [thr.x + out.x * d, Math.max(0, TM.height(thr.x + out.x * d, thr.z + out.z * d)), thr.z + out.z * d];
+      put(best[0], best[1] + 7, best[2], 0xffffff, 2.2, 1, 0.2 + i / n * 0.75, true);
+    }
+  }
+  if (T.curve && R.igsPts) {   // Kai Tak 13: round the IGS curve over the rooftops of Kowloon City
+    const P = R.igsPts, s0 = R.igs.aim + R.igs.fin, near = {};
+    const at = sAt => { let k = 0; while (k < P.length - 2 && P[k + 1][2] < sAt) k++; const t = clamp((sAt - P[k][2]) / Math.max(1, P[k + 1][2] - P[k][2]), 0, 1); return [lerp(P[k][0], P[k + 1][0], t), lerp(P[k][1], P[k + 1][1], t)]; };
+    for (let sAt = s0 + T.curve[1]; sAt < s0 + T.curve[0]; sAt += T.curve[1]) {
+      const [x, z] = at(sAt), gy = Math.max(0, TM.height(x, z)) + 24;
+      put(x, gy, z, 0xfff2da, 1.6, 0, 0, true); put(x, gy + 0.6, z, 0xffffff, 1.8, 1, 0.1 + (s0 + T.curve[0] - sAt) / T.curve[0] * 0.5, false);
+    }
+  }
+}
+// three instanced batches for every approach light in the world; the masts are banded orange and white in world height
+function buildApproachMasts() {
+  const mastMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  mastMat.onBeforeCompile = sh => {
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vWY;').replace('#include <begin_vertex>', `#include <begin_vertex>
+      vec4 wq = vec4(transformed, 1.0);
+      #ifdef USE_INSTANCING
+        wq = instanceMatrix * wq;
+      #endif
+      vWY = (modelMatrix * wq).y;`);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vWY;').replace('#include <color_fragment>', `#include <color_fragment>
+      diffuseColor.rgb = mod(vWY + 0.3, 3.0) < 1.5 ? vec3(1.0, 0.17, 0.012) : vec3(0.86, 0.86, 0.84);`);
+  };
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0);
+  const batch = (list, geo, mat) => {
+    if (!list.length) return;
+    const im = new THREE.InstancedMesh(geo, mat, list.length);
+    list.forEach(([x, y, z, sx, sy, sz, yaw], i) => { m4.compose(v.set(x, y, z), q.setFromAxisAngle(Y, yaw), sc.set(sx, sy, sz ?? sx)); im.setMatrixAt(i, m4); });
+    im.castShadow = true; im.receiveShadow = true; scene.add(im);
+  };
+  batch(ALS_PARTS.mast.map(([x, y, z, r, h]) => [x, y, z, r * 2, h, r * 2, 0]), new THREE.CylinderGeometry(0.5, 0.5, 1, 6), mastMat);
+  batch(ALS_PARTS.arm, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: 0xe0571c }));
+  batch(ALS_PARTS.walk, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: 0x8a8f94 }));
+  batch(ALS_PARTS.buoy.map(([x, y, z]) => [x, y, z, 1.6, 2.4, 1.6, 0]), new THREE.CylinderGeometry(0.4, 0.5, 1, 8), new THREE.MeshLambertMaterial({ color: 0xf2c21a }));
 }
 const PAPI_W = new THREE.Color(0xffffff), PAPI_R = new THREE.Color(0xff2a18);
 function updatePapi(R, p) {
@@ -2224,8 +2442,9 @@ function buildGround(A) {
     let g = P.slope ? tilt : A.group;
     if (P.level !== undefined) { const lg = new THREE.Group(); lg.position.y = R0.slope * P.level; A.group.add(lg); g = lg; }
     const w = P.c1 - P.c0, l = P.a1 - P.a0;
-    const mat = P.taxi ? SURF_MAT.asphalt : apronMat.clone();
-    if (!P.taxi) { mat.map = apronTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 40, l / 40); }
+    const mat = A.decked ? SURF_MAT.wood.clone() : P.taxi ? SURF_MAT.asphalt : apronMat.clone();
+    if (A.decked) { mat.map = plankTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 8, l / 8); }
+    else if (!P.taxi) { mat.map = apronTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 40, l / 40); }
     const m = new THREE.Mesh(PLANE1, mat); m.position.set((P.c0 + P.c1) / 2, 0.02, -(P.a0 + P.a1) / 2); m.scale.set(w, 1, l); m.receiveShadow = true; g.add(m);
     if (P.taxi && P.taxi !== 4) {   // yellow centreline and blue edge lights (turning pads are plain pavement)
       const along = P.taxi === 1, cl = new THREE.Mesh(PLANE1, yellowMat);
@@ -2315,6 +2534,7 @@ function buildTerminal(A) {
     box(g, 60, 12, 150, concreteGray, T.c + side * 95, 6, -(T.a0 + 90));
     const Lp = []; for (let a = T.a0; a <= T.a1; a += 90) Lp.push({ p: [T.c - side * (depth / 2 + 150), 22, -a], c: 0xffd9a0, s: 3.2 });
     g.add(glowPoints(Lp));
+  } else if (T.kind === 'tree') { treeTerminal(A, g);
   } else if (T.kind === 'regional') {
     const depth = 36;
     const main = box(g, depth, 13, len, glassBldMat, T.c, 6.5, -am); obstacleFromMesh(A, main);
@@ -2357,7 +2577,8 @@ function buildTerminal(A) {
     for (let k = 0; k < 3; k++) { const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 10), new THREE.MeshLambertMaterial({ color: k ? 0x2f6fb0 : 0xc0392b })); drum.position.set(T.c + side * 5, 0.45, -(am + 2 + k * 0.8)); g.add(drum); }
   } else if (T.kind === 'lukla') buildLukla(A, g);
   else if (T.kind === 'poly') polyTerminal(A, g);
-  // windsock at every field
+  // windsock at every field (Treetops hangs its own off the apron rail)
+  if (A.decked) return;
   const ws = new THREE.Group(), R = A.rws[0], wa = -R.half + Math.min(350, R.len * 0.3), wc = -(R.wid / 2 + 45);
   const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 7, 5), metalGray); pole.position.y = 3.5; ws.add(pole);
   const sock = new THREE.Mesh(new THREE.ConeGeometry(0.7, 4.5, 8, 1, true), redWhiteMat); sock.rotation.z = Math.PI / 2; sock.position.set(2.2, 6.6, 0); ws.add(sock);
@@ -2443,7 +2664,7 @@ function buildFeatures(A) {
     else if (F.type === 'rock') buildRock(A, F);
   }
   // Madeira: the runway and its parallel taxiway on one deck, 180 pillars
-  for (const Rw of A.rws) if (Rw.deck) {
+  for (const Rw of A.rws) if (Rw.deck && !A.decked) {
     const g = rwGroup(Rw); g.updateMatrixWorld(true);
     const a0 = Rw.deck[0] - 20, a1 = Rw.deck[1] + 30;
     const c0 = Rw.deckC ? Rw.deckC[0] - 4 : -Rw.wid / 2 - 12, c1 = Rw.deckC ? Rw.deckC[1] + 4 : Rw.wid / 2 + 12, w = c1 - c0, cm = (c0 + c1) / 2;
@@ -3692,12 +3913,587 @@ function buildTropics() {
   buildBeachProps();
 }
 
-/* ---------- build every field ---------- */
-AIRPORT_DEFS.forEach(A => { A.rws.forEach(R => buildRunway(A, R)); buildGround(A); buildTerminal(A); buildFeatures(A); });
+/* =========================================================
+   the taiga: Treetops, a plank runway on log trestles hung from the giant spruces,
+   its terminal up in the trees: platforms round the trunks, rope bridges, and a spiral stair down to the forest floor
+   ========================================================= */
+const logMat = new THREE.MeshLambertMaterial({ color: 0x7b5a3d });
+const deckMat = new THREE.MeshLambertMaterial({ color: 0x8d6d4c });
+const ropeMat = new THREE.MeshLambertMaterial({ color: 0xc2a878 });
+const cableMat = new THREE.MeshLambertMaterial({ color: 0x45474a });
+const shingleMat = new THREE.MeshLambertMaterial({ color: 0x56623f, side: THREE.DoubleSide });
+const cabinMat = new THREE.MeshLambertMaterial({ color: 0xa47a4e });
+const H_SPRUCE = 65.8;   // the giant spruce model's height at scale 1
+// a spruce that holds something up: a bare trunk of radius r0 to the crown at `base`, tiers of boughs to the top (heights from its foot)
+function spruceGeo(base, top, r0, seed) {
+  const parts = [], rg = mulberry32(seed), crown = top - base, tiers = Math.max(3, Math.round(crown / 6.2));
+  { const fl = new THREE.CylinderGeometry(r0, r0 * 1.7, 3.2, 6, 1, true); fl.translate(0, 1.6, 0); parts.push(vcolor(fl, 0x6a4b36, 0.06)); }
+  { const tr = new THREE.CylinderGeometry(r0 * 0.28, r0, top - 6, 6, 1, true); tr.translate(0, (top - 6) / 2, 0); parts.push(vcolor(tr, 0x7a5539, 0.06)); }
+  const rMax = clamp(crown * 0.2, 5, 11);
+  for (let k = 0; k < tiers; k++) {
+    const t = k / (tiers - 1), r = lerp(rMax, rMax * 0.24, Math.pow(t, 0.9)) * (0.9 + rg() * 0.2), hh = crown / tiers * 1.55, y = base + k * (crown - 4) / tiers;
+    const g = new THREE.ConeGeometry(r, hh, 6, 1, false); g.translate(0, y + hh / 2, 0); g.rotateY(rg() * TAU);
+    parts.push(vcolor(g, [0x23402a, 0x2a4a2d, 0x2f5232][k % 3], 0.1));
+  }
+  { const sp = new THREE.ConeGeometry(rMax * 0.14, 6, 5, 1, true); sp.translate(0, top - 3, 0); parts.push(vcolor(sp, 0x35583a, 0.08)); }
+  const g = mergeGeometries(parts); shadeBottom(g, base - 2, top - 4, 0.72); return g;
+}
+
+// a log or a beam from p to q (world points); a unit cylinder or box stood up along the line
+function beam(K, mat, p, q, r, square) {
+  const dx = q[0] - p[0], dy = q[1] - p[1], dz = q[2] - p[2], L = Math.hypot(dx, dy, dz); if (L < 0.01) return;
+  K.add(mat, square ? UBOX : UCYL5, (p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2, Math.atan2(dx, dz), r * 2, L, r * 2, Math.acos(clamp(dy / L, -1, 1)));
+}
+// a sagging rope bridge between two points: planks on a catenary with rope handrails
+function ropeBridge(K, p, q, sag, lanterns) {
+  const L = Math.hypot(q[0] - p[0], q[2] - p[2]), n = Math.max(4, Math.round(L / 0.55)), ux = (q[0] - p[0]) / L, uz = (q[2] - p[2]) / L, yaw = Math.atan2(q[0] - p[0], q[2] - p[2]);
+  const at = t => [lerp(p[0], q[0], t), lerp(p[1], q[1], t) - sag * 4 * t * (1 - t), lerp(p[2], q[2], t)];
+  for (let i = 0; i <= n; i++) { const [x, y, z] = at(i / n); K.add(deckMat, UBOX, x, y - 0.05, z, yaw, 1.8, 0.09, 0.4); }
+  for (const s of [-1, 1]) {
+    let prev = null;
+    for (let i = 0; i <= n; i += 3) {
+      const [x, y, z] = at(i / n), hx = x + uz * s * 0.95, hz = z - ux * s * 0.95, top = [hx, y + 1.1 - sag * 0.15 * 4 * (i / n) * (1 - i / n), hz];
+      beam(K, ropeMat, [hx, y, hz], top, 0.03);
+      if (prev) beam(K, ropeMat, prev, top, 0.04);
+      prev = top;
+      if (lanterns && i % 24 === 0 && s > 0) lanterns.push({ p: [top[0], top[1] + 0.25, top[2]], c: 0xffc27a, s: 1.3 });
+    }
+  }
+}
+// a spiral stair round a trunk from y0 up to y1
+function spiralStair(K, x, z, r, y0, y1) {
+  const n = Math.max(6, Math.round((y1 - y0) / 0.22)), turn = 0.2;
+  for (let i = 0; i <= n; i++) {
+    const t = i * turn, y = y0 + (y1 - y0) * i / n, cx = x + Math.cos(t) * (r + 0.8), cz = z + Math.sin(t) * (r + 0.8);
+    K.add(deckMat, UBOX, cx, y, cz, -t, 1.7, 0.1, 0.55);
+    if (i % 4 === 0) { const ox = x + Math.cos(t) * (r + 1.65), oz = z + Math.sin(t) * (r + 1.65); beam(K, logMat, [ox, y, oz], [ox, y + 1.05, oz], 0.05); }
+    if (i % 12 === 0 && i < n - 4) { const ix = x + Math.cos(t) * (r + 0.05), iz = z + Math.sin(t) * (r + 0.05); beam(K, logMat, [cx, y - 0.05, cz], [ix, y - 1.4, iz], 0.08); }
+  }
+}
+// a railing of posts and two rails along a straight line at height y
+function railing(K, p, q, y, lanterns) {
+  const L = Math.hypot(q[0] - p[0], q[1] - p[1]), n = Math.max(1, Math.round(L / 2.4));
+  for (let i = 0; i <= n; i++) { const x = lerp(p[0], q[0], i / n), z = lerp(p[1], q[1], i / n); K.add(logMat, UBOX, x, y + 0.55, z, 0, 0.13, 1.1, 0.13); if (lanterns && i % 6 === 3) lanterns.push({ p: [x, y + 1.3, z], c: 0xffc27a, s: 1.15 }); }
+  for (const h of [0.55, 1.08]) beam(K, logMat, [p[0], y + h, p[1]], [q[0], y + h, q[1]], 0.06, true);
+}
+// a log cabin with a steep shingle roof, the trunk of its tree rising through it
+function cabin(K, x, y, z, yaw, w, d, h, glow) {
+  K.add(cabinMat, UBOX, x, y + h / 2, z, yaw, w, h, d);
+  K.add(shingleMat, HIP, x, y + h, z, yaw, w + 1.6, h * 0.95, d + 1.6);
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  for (const s of [-1, 1]) for (let k = -1; k <= 1; k++) {
+    const lx = k * w * 0.3, lz = s * (d / 2 + 0.06);
+    K.add(glassMat, UBOX, x + lx * cy + lz * sy, y + h * 0.55, z - lx * sy + lz * cy, yaw, w * 0.18, h * 0.32, 0.12);
+    if (glow && k === 0) glow.push({ p: [x + lz * 1.05 * sy, y + h * 0.55, z + lz * 1.05 * cy], c: 0xffcf8a, s: 1.6 });
+  }
+}
+
+/* ---------- the terminal: three great spruces, each with a platform and a cabin, joined by rope bridges ---------- */
+function treeTerminal(A, g) {
+  const R = A.rws[0], T = A.terminal, E = R.elev, yaw = -R.hdg * D2R, rnd = mulberry32(777);
+  const W = (a, c) => [R.cx + a * R.dx + c * R.bx, R.cz + a * R.dz + c * R.bz];
+  const K = kit(), KT = kit(), lights = [];
+  const trees = [[T.a0 + 35, T.c + 4], [(T.a0 + T.a1) / 2, T.c + 12], [T.a1 - 35, T.c - 2]];
+  trees.forEach(([a, c], i) => {
+    const [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, top = E - gy + 58, base = E - gy + (i === 1 ? 24 : 15), r0 = 2.3;
+    KT.add(treeMats[0], spruceGeo(base, top, r0, 90 + i), x, gy, z, rnd() * TAU);
+    addObstacle(x, gy + top / 2, z, r0 + 0.5, top / 2, r0 + 0.5, 0, 'hit a giant spruce');
+    addObstacle(x, gy + (base + top) / 2, z, 7, (top - base) / 2, 7, 0, 'hit a giant spruce');
+    const sc = r0 / 1.25;
+    // the platform, its railing, and the cabin wrapped round the trunk
+    K.add(deckMat, UCYL, x, E - 0.45, z, 0, 27, 0.9, 27);
+    const gaps = [Math.atan2(-R.bz, -R.bx)];
+    if (i < 2) { const [a2, c2] = trees[i + 1], [x2, z2] = W(a2, c2); gaps.push(Math.atan2(z2 - z, x2 - x)); }
+    if (i > 0) { const [a2, c2] = trees[i - 1], [x2, z2] = W(a2, c2); gaps.push(Math.atan2(z2 - z, x2 - x)); }
+    for (let k = 0; k < 16; k++) { const t0 = k / 16 * TAU, t1 = (k + 1) / 16 * TAU, r = 13.3; if (gaps.some(gp => Math.cos((t0 + t1) / 2 - gp) > 0.97)) continue; railing(K, [x + Math.cos(t0) * r, z + Math.sin(t0) * r], [x + Math.cos(t1) * r, z + Math.sin(t1) * r], E, k % 2 ? lights : null); }
+    for (let k = 0; k < 6; k++) { const t = k / 6 * TAU; beam(K, logMat, [x + Math.cos(t) * 12.5, E - 0.9, z + Math.sin(t) * 12.5], [x + Math.cos(t) * 1.6 * sc, E - 9, z + Math.sin(t) * 1.6 * sc], 0.28); }
+    cabin(K, x, E, z, yaw, 12, 9, 4.6, lights);
+    addObstacle(x, E + 4, z, 8, 5, 8, yaw, 'hit a treehouse');
+    for (let k = 0; k < 7; k++) { const t = rnd() * TAU, r = 9 + rnd() * 3; person(x + Math.cos(t) * r, E, z + Math.sin(t) * r, ...W(0, 0), rnd() < 0.5 ? 1 : 0, rnd); }
+    if (i === 1) {   // the lookout café a storey higher, up a spiral stair
+      K.add(deckMat, UCYL, x, E + 12 - 0.4, z, 0, 18, 0.8, 18);
+      for (let k = 0; k < 8; k++) { const t0 = k / 8 * TAU, t1 = (k + 1) / 8 * TAU, r = 8.8; railing(K, [x + Math.cos(t0) * r, z + Math.sin(t0) * r], [x + Math.cos(t1) * r, z + Math.sin(t1) * r], E + 12, lights); }
+      cabin(K, x, E + 12, z, yaw + 0.4, 7, 6, 3.4, lights);
+      spiralStair(K, x, z, 1.4 * sc, E, E + 12);
+      for (let k = 0; k < 5; k++) { const t = rnd() * TAU; person(x + Math.cos(t) * 7.5, E + 12, z + Math.sin(t) * 7.5, ...W(0, 0), 1, rnd); }
+    }
+    if (i === 2) spiralStair(K, x, z, 1.25 * sc, gy + 0.6, E);   // and all the way down to the forest floor
+    // a rope bridge from the apron to the platform
+    const [ax, az] = W(a, 150), [px, pz] = W(a, c - 13.5);
+    ropeBridge(K, [ax, E, az], [px, E, pz], 1.2, lights);
+    for (let k = 0; k < 2; k++) { const t = 0.3 + rnd() * 0.4; person(lerp(ax, px, t), E - 1.2 * 4 * t * (1 - t), lerp(az, pz, t), px, pz, 0, rnd); }
+  });
+  // bridges between the platforms
+  for (let i = 0; i < 2; i++) {
+    const [a0, c0] = trees[i], [a1, c1] = trees[i + 1], L = Math.hypot(a1 - a0, c1 - c0), ua = (a1 - a0) / L, uc = (c1 - c0) / L;
+    const [x0, z0] = W(a0 + ua * 13.5, c0 + uc * 13.5), [x1, z1] = W(a1 - ua * 13.5, c1 - uc * 13.5);
+    ropeBridge(K, [x0, E, z0], [x1, E, z1], 3, lights);
+  }
+  // the sign over the apron rail, facing the runway
+  {
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(22, 3.6), new THREE.MeshLambertMaterial({ map: canvasTex(512, 84, (c2, w, h) => {
+      c2.fillStyle = '#6b4a2e'; c2.fillRect(0, 0, w, h); c2.strokeStyle = '#3e2a18'; c2.lineWidth = 5; c2.strokeRect(3, 3, w - 6, h - 6);
+      c2.font = 'bold 58px Georgia, serif'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillStyle = '#2c1d10'; c2.fillText('TREETOPS', w / 2 + 2, h / 2 + 4); c2.fillStyle = '#f2d38a'; c2.fillText('TREETOPS', w / 2, h / 2 + 2);
+    }) }));
+    const [sx, sz] = W((T.a0 + T.a1) / 2, 151); sign.position.set(sx, E + 4.6, sz); sign.rotation.y = Math.atan2(-R.bx, -R.bz); scene.add(sign);
+    { const [bx, bz] = W((T.a0 + T.a1) / 2, 151.15); K.add(logMat, UBOX, bx, E + 4.6, bz, yaw, 0.2, 3.7, 22.2); }   // the board's back
+    for (const d of [-9, 9]) { const [px, pz] = W((T.a0 + T.a1) / 2 + d, 151.2); K.add(logMat, UCYL5, px, E + 2.5, pz, 0, 0.35, 5, 0.35); }
+  }
+  // stands on the apron: the forest's own aircraft, noses to the runway
+  for (const [a, id] of [[-312, 'c172'], [-266, 'otter'], [-160, 'c172'], [-112, 'atr72']]) STANDS.push({ A, g, wall: [147, a], out: [-1, 0], cls: 'small', bridge: false, id });
+  K.done(); KT.done();
+  scene.add(glowPoints(lights));
+}
+
+/* ---------- the runway trestle, the trees that hold it up, the apron's stilts and the tower in a spruce ---------- */
+function buildForest() {
+  const A = AIRPORT_DEFS.find(a => a.id === 'TTP'); if (!A) return;
+  const R = A.rws[0], E = R.elev, yaw = -R.hdg * D2R, rnd = mulberry32(4242);
+  const W = (a, c) => [R.cx + a * R.dx + c * R.bx, R.cz + a * R.dz + c * R.bz];
+  const gAt = (a, c) => { const [x, z] = W(a, c); return TM.height(x, z); };
+  const K = kit(), KT = kit(), lights = [];
+  const B = (mat, a0, c0, y0, a1, c1, y1, r, sq) => { const [x0, z0] = W(a0, c0), [x1, z1] = W(a1, c1); beam(K, mat, [x0, y0, z0], [x1, y1, z1], r, sq); };
+  const slab = (a0, a1, c0, c1, t = 1.0) => { const [x, z] = W((a0 + a1) / 2, (c0 + c1) / 2); K.add(deckMat, UBOX, x, E - 0.02 - t / 2, z, yaw, c1 - c0, t, a1 - a0); };
+  // a trestle bent: posts at the given c offsets from the deck down to the ground, tied and cross-braced every 14 m
+  const bent = (a, cs, top) => {
+    const gs = cs.map(c => gAt(a, c) - 1);
+    cs.forEach((c, i) => { const h = top - gs[i]; if (h < 0.5) return; const [x, z] = W(a, c); K.add(logMat, UCYL5, x, (top + gs[i]) / 2, z, 0, h > 40 ? 1.2 : 0.95, h, h > 40 ? 1.2 : 0.95); });
+    const lo = Math.max(...gs);
+    for (let y = top - 14, k = 0; y > lo + 2; y -= 14, k++) {
+      B(logMat, a, cs[0], y, a, cs[cs.length - 1], y, 0.25, true);
+      if (y - 14 > lo + 2) for (let i = 0; i < cs.length - 1; i++) B(logMat, a, cs[i], (k % 2 ? y : y - 14), a, cs[i + 1], (k % 2 ? y - 14 : y), 0.18);
+    }
+    return lo;
+  };
+  // the runway: planks on three girders and cross beams, a bent every 20 m
+  slab(-R.half - 30, R.half + 30, -22, 22);
+  for (const c of [-14, 0, 14]) { const [x, z] = W(0, c); K.add(logMat, UBOX, x, E - 2.3, z, yaw, 1.0, 2.5, R.len + 60); }
+  for (let a = -R.half - 25; a <= R.half + 25; a += 10) { const [x, z] = W(a, 0); K.add(logMat, UBOX, x, E - 1.25, z, yaw, 44, 0.45, 0.45); }
+  let prevLo = null;
+  for (let a = -R.half - 20; a <= R.half + 20.1; a += 20) {
+    const lo = bent(a, [-14, 0, 14], E - 3.5);
+    // ties along the runway between bents on the outer lines
+    if (prevLo !== null) for (const c of [-14, 14]) for (let y = E - 17.5; y > Math.max(lo, prevLo) + 2; y -= 14) B(logMat, a - 20, c, y, a, c, y, 0.2, true);
+    prevLo = lo;
+  }
+  // PAPI balconies off the deck edge
+  for (const e of [0, 1]) {
+    const s = e ? 1 : -1, side = e ? 1 : -1, a = s * (R.half - Math.min(300, R.len * 0.2));
+    slab(a - 5, a + 5, side > 0 ? 22 : -62, side > 0 ? 62 : -22, 0.6);
+    for (const d of [-4, 4]) B(logMat, a + d, side * 58, E - 0.7, a + d, side * 22, E - 12, 0.25);
+    railing(K, W(a - 5, side * 62), W(a + 5, side * 62), E);
+  }
+  // the giant spruces either side, each holding the deck on two cables and a log brace
+  const papiA = [-(R.half - Math.min(300, R.len * 0.2)), R.half - Math.min(300, R.len * 0.2)];
+  for (const side of [-1, 1]) for (let a = -R.half + 18; a <= R.half - 10; a += 46 + rnd() * 8) {
+    if (side < 0 && Math.abs(a - papiA[0]) < 26) continue;
+    if (side > 0 && (Math.abs(a - papiA[1]) < 26 || (a > -350 && a < -70))) continue;
+    const c = side * (39 + rnd() * 4), [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, deckH = E - gy;
+    const base = deckH + 17 + rnd() * 5, H = base + 34 + rnd() * 14, r0 = clamp(1.1 + deckH * 0.012, 1.2, 2.1);
+    KT.add(treeMats[0], spruceGeo(base, H, r0, 200 + Math.round(a) * 3 + side), x, gy, z, rnd() * TAU);
+    addObstacle(x, gy + H / 2, z, r0 + 0.4, H / 2, r0 + 0.4, 0, 'hit a giant spruce');
+    addObstacle(x, gy + (base + H) / 2, z, 6.5, (H - base) / 2, 6.5, 0, 'hit a giant spruce');
+    const tr = Math.abs(c) - r0 * 0.75;
+    for (const d of [-13, 13]) B(cableMat, a, side * tr, E + 15, a + d, side * 22, E - 0.6, 0.07);
+    B(logMat, a, side * tr, E - 12, a, side * 22, E - 2.6, 0.32);
+  }
+  // the taxiway and apron: planks on stilts like the runway, with railings and lanterns
+  const P = A.padsW;
+  for (const p of P) {
+    slab(p.a0, p.a1, p.c0, p.c1);
+    for (let a = p.a0 + 5; a <= p.a1 - 4.9; a += p.a1 - p.a0 > 40 ? 20 : p.a1 - p.a0 - 10) {
+      const cs = []; for (let c = Math.max(p.c0, 26) + 4; c <= p.c1 - 4; c += 18) cs.push(c);
+      if (cs.length) bent(a, cs, E - 2.4);
+    }
+    for (let c = Math.max(p.c0, 26); c <= p.c1; c += 12) { const [x, z] = W((p.a0 + p.a1) / 2, c); K.add(logMat, UBOX, x, E - 1.4, z, yaw, 0.9, 1.6, p.a1 - p.a0); }
+  }
+  const ap = A.pads[0], link = P.find(p => p.taxi === 3);
+  const railAC = (a0, c0, a1, c1) => railing(K, W(a0, c0), W(a1, c1), E, lights);
+  railAC(ap.a0, ap.c0, ap.a0, ap.c1); railAC(ap.a1, ap.c0, ap.a1, 109.5); railAC(ap.a1, 114.5, ap.a1, ap.c1);
+  railAC(ap.a0, ap.c0, link.a0, ap.c0); railAC(link.a1, ap.c0, ap.a1, ap.c0);
+  railAC(link.a0, 24, link.a0, ap.c0); railAC(link.a1, 24, link.a1, ap.c0);
+  for (const [a0, a1] of [[ap.a0, -306], [-294, -216], [-204, -126], [-114, ap.a1]]) railAC(a0, ap.c1, a1, ap.c1);
+  // windsock on the apron corner
+  { const [x, z] = W(ap.a0 + 3, ap.c1 - 3); K.add(metalGray, UCYL5, x, E + 3.5, z, 0, 0.22, 7, 0.22); const s = new THREE.Mesh(new THREE.ConeGeometry(0.7, 4.5, 8, 1, true), redWhiteMat); s.rotation.z = Math.PI / 2; s.position.set(x + 2.2, E + 6.6, z); scene.add(s); }
+  // the tower: a glass cab high in a spruce at the end of the apron, a walkway across to it
+  {
+    const a = ap.a1 + 26, c = 112, [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, cabY = E + 22, top = cabY - gy + 40, base = cabY - gy + 9, r0 = 2.2, sc = r0 / 1.25;
+    KT.add(treeMats[0], spruceGeo(base, top, r0, 77), x, gy, z, 0.7);
+    addObstacle(x, gy + top / 2, z, r0 + 0.5, top / 2, r0 + 0.5, 0, 'hit a giant spruce');
+    K.add(deckMat, UCYL, x, E - 0.45, z, 0, 16, 0.9, 16);
+    slab(ap.a1 - 2, a - 7, c - 2.5, c + 2.5, 0.6);
+    railAC(ap.a1, c - 2.5, a - 7, c - 2.5); railAC(ap.a1, c + 2.5, a - 7, c + 2.5);
+    spiralStair(K, x, z, 1.3 * sc, E, cabY);
+    K.add(deckMat, UCYL, x, cabY - 0.35, z, 0, 15, 0.7, 15);
+    K.add(glassMat, UCYL, x, cabY + 1.7, z, 0, 10.5, 3.2, 10.5);
+    K.add(shingleMat, CONE8, x, cabY + 4.6, z, 0, 14, 2.8, 14);
+    for (let k = 0; k < 8; k++) { const t0 = k / 8 * TAU, t1 = (k + 1) / 8 * TAU, r = 7.3; railing(K, [x + Math.cos(t0) * r, z + Math.sin(t0) * r], [x + Math.cos(t1) * r, z + Math.sin(t1) * r], cabY); }
+    addObstacle(x, cabY + 2, z, 7, 4, 7, 0, 'hit the control tower');
+    lights.push({ p: [x, cabY + 6.4, z], c: 0x3cff6c, s: 2.6, k: 3, ph: 0 }, { p: [x, cabY + 6.6, z], c: 0xffffff, s: 2.6, k: 3, ph: 0.5 });
+  }
+  // a few cabins hidden in the forest round the field, each on its own platform with a ladder
+  for (let i = 0; i < 9; i++) {
+    const a = -R.half + 120 + rnd() * (R.len - 240), c = (rnd() < 0.5 ? -1 : 1) * (95 + rnd() * 200);
+    if (c > 40 && a > -400 && a < 60) continue;
+    const [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, py = gy + 14 + rnd() * 10;
+    KT.add(treeMats[0], spruceGeo(py - gy + 8, py - gy + 46 + rnd() * 10, 1.4, 300 + i), x, gy, z, rnd() * TAU);
+    K.add(deckMat, UCYL, x, py - 0.35, z, 0, 12, 0.7, 12);
+    cabin(K, x, py, z, rnd() * TAU, 6, 5, 3.2, lights);
+    beam(K, logMat, [x + 6, gy, z], [x + 6, py, z], 0.12);
+    for (let y = gy + 0.5; y < py; y += 0.45) K.add(logMat, UBOX, x + 6, y, z, 0, 0.08, 0.08, 0.9);
+  }
+  K.done(); KT.done();
+  scene.add(glowPoints(lights));
+}
+/* =========================================================
+   the aircraft carrier: a Nimitz-class flat-top on station in the open sea. Two catapults on the bow and two in the waist,
+   four arresting wires across the angled deck, the meatball on the port side, an escort destroyer off the starboard bow
+   ========================================================= */
+const hullGrey = new THREE.MeshLambertMaterial({ color: 0x6d757d });
+const hullDark = new THREE.MeshLambertMaterial({ color: 0x23262a });
+const islandGrey = new THREE.MeshLambertMaterial({ color: 0x8a929a });
+const deckEdgeMat = new THREE.MeshLambertMaterial({ color: 0x4a4e53 });
+const jbdMat = new THREE.MeshLambertMaterial({ color: 0x7c8187 });
+const wireMat = new THREE.MeshLambertMaterial({ color: 0x9aa0a6 });
+const yellowDeck = new THREE.MeshLambertMaterial({ color: 0xe0b830 });
+const CARRIER = { A: null, wires: [], vWire: null, jbd: [], ball: null, wave: null, lso: {}, steamT: 0 };
+const CVN = AIRPORT_DEFS.find(a => a.ship) || null;
+// ship frame (a forward from amidships, c to starboard) to world x, z; and the landing area's frame (along the angled deck, across it)
+const shipXZ = (A, a, c) => [A.x + a * A.dx + c * A.bx, A.z + a * A.dz + c * A.bz];
+const landXZ = (R, ap, cp) => [R.cx + ap * R.dx + cp * R.bx, R.cz + ap * R.dz + cp * R.bz];
+const landToShip = (A, R, ap, cp) => { const [x, z] = landXZ(R, ap, cp), px = x - A.x, pz = z - A.z; return [px * A.dx + pz * A.dz, px * A.bx + pz * A.bz]; };
+
+// the flight deck's paint: non-skid grey, the landing area's lines, the catapult tracks, the wires and the hull number on the bow
+function carrierDeckTex(A, box) {
+  const C = A.carrier, R = A.rws[0], W = 512, H = 2048;
+  const kc = W / (box.c1 - box.c0), ka = H / (box.a1 - box.a0), X = c => (c - box.c0) * kc, Y = a => (box.a1 - a) * ka;
+  return canvasTex(W, H, (g) => {
+    const r = mulberry32(71);
+    g.fillStyle = '#3d4044'; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 26000; i++) { const v = 52 + r() * 26 | 0; g.fillStyle = `rgba(${v},${v + 2},${v + 5},.45)`; g.fillRect(r() * W, r() * H, 1 + r(), 1 + r()); }
+    const L = (ap, cp) => { const [a, c] = landToShip(A, R, ap, cp); return [X(c), Y(a)]; };
+    const line = (pts, col, wpx, dash) => { g.strokeStyle = col; g.lineWidth = wpx; g.setLineDash(dash || []); g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.setLineDash([]); };
+    // rubber from a thousand traps down the middle of the landing area
+    for (let i = 0; i < 90; i++) { const ap = -R.half + 40 + r() * 140, cp = (r() - 0.5) * 8; line([L(ap, cp), L(ap + 10 + r() * 30, cp + (r() - 0.5))], `rgba(20,20,22,${0.15 + r() * 0.2})`, 2 + r() * 3); }
+    // the deck edge
+    g.strokeStyle = 'rgba(235,235,230,.85)'; g.lineWidth = 2.4; g.beginPath(); C.outline.forEach(([a, c], i) => i ? g.lineTo(X(c), Y(a)) : g.moveTo(X(c), Y(a))); g.closePath(); g.stroke();
+    // the landing area: white edges, a dashed centreline, the red and white foul line to starboard
+    for (const cp of [-R.wid / 2, R.wid / 2]) line([L(-R.half, cp), L(R.half, cp)], '#ecebe6', 3);
+    line([L(-R.half + 4, 0), L(R.half, 0)], '#ecebe6', 2.4, [26, 22]);
+    for (let ap = -R.half; ap < R.half; ap += 6) line([L(ap, R.wid / 2 + 3), L(ap + 3, R.wid / 2 + 3)], (ap / 6 | 0) % 2 ? '#d0302a' : '#ecebe6', 3);
+    // the ramp: red and white bars across the stern
+    for (let k = -6; k < 6; k++) { const [x0, y0] = L(-R.half + 0.5, k * 2.4), [x1, y1] = L(-R.half + 0.5, k * 2.4 + 2.2); line([[x0, y0], [x1, y1]], k % 2 ? '#d0302a' : '#ecebe6', 9); }
+    // where the wires lie, a short white tick at each end
+    for (const s of C.wires) { const ap = s - R.half; line([L(ap, -15), L(ap, 15)], 'rgba(18,18,20,.8)', 2); for (const e of [-15, 15]) line([L(ap - 1, e), L(ap + 1, e)], '#ecebe6', 3); }
+    // the catapults: a dark slot with a yellow lead-in line and the cat's number painted at its start
+    g.font = 'bold 34px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const k of C.cats) {
+      line([[X(k.c0), Y(k.a0)], [X(k.c1), Y(k.a1)]], '#141518', 3);
+      const ux = (k.a1 - k.a0), uc = (k.c1 - k.c0), ul = Math.hypot(ux, uc);
+      line([[X(k.c0 - uc / ul * 40), Y(k.a0 - ux / ul * 40)], [X(k.c0), Y(k.a0)]], '#e0b830', 2.4);
+      g.fillStyle = '#ecebe6'; g.fillText(String(k.n), X(k.c0 - uc / ul * 8 + 4), Y(k.a0 - ux / ul * 8));
+    }
+    // the elevators' outlines at the deck edge
+    for (const [a0, a1, c0, c1] of [[70, 92, 22, 38], [32, 54, 22, 38], [-78, -56, 22, 38], [-128, -106, -29, -14]]) { g.strokeStyle = 'rgba(235,235,230,.7)'; g.lineWidth = 2; g.setLineDash([10, 8]); g.strokeRect(X(c0), Y(a1), X(c1) - X(c0), Y(a0) - Y(a1)); g.setLineDash([]); }
+    // the hull number on the bow, to be read from the stern
+    g.save(); g.translate(X(3), Y(128)); g.scale(1, ka / kc * 1.1); g.font = 'bold 120px Arial'; g.fillStyle = '#ecebe6'; g.fillText(A.hull || '71', 0, 0); g.restore();
+  });
+}
+
+// a hull as a loft between two closed rings of [x, y, z] points with the same count
+function loftGeo(rA, rB) {
+  const pos = [], n = rA.length;
+  for (let i = 0; i < n; i++) { const j = (i + 1) % n, a0 = rA[i], a1 = rA[j], b0 = rB[i], b1 = rB[j]; pos.push(...a0, ...a1, ...b0, ...a1, ...b1, ...b0); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
+}
+// the half-breadth of a hull along its length: a transom stern, parallel sides, a fine bow
+function hullRing(A, y, half, a0, a1, bowStart, sternW, n = 40) {
+  const pts = [], b = a => a < a0 + 45 ? lerp(sternW, half, (a - a0) / 45) : a > bowStart ? half * Math.sqrt(Math.max(0, 1 - ((a - bowStart) / (a1 - bowStart)) ** 2)) : half;
+  for (let i = 0; i <= n; i++) { const a = lerp(a0, a1, i / n), [x, z] = shipXZ(A, a, b(a)); pts.push([x, y, z]); }
+  for (let i = n - 1; i >= 1; i--) { const a = lerp(a0, a1, i / n), [x, z] = shipXZ(A, a, -b(a)); pts.push([x, y, z]); }
+  return pts;
+}
+
+function buildCarrier() {
+  const A = CVN; if (!A) return;
+  CARRIER.A = A;
+  const C = A.carrier, R = A.rws[0], Ed = A.elev, yaw = -A.hdg * D2R, rnd = mulberry32(1971);
+  const K = kit(), lights = [];
+  const P = (a, c) => shipXZ(A, a, c);
+  // ---- the runway: the angled landing area, landed on from the stern ----
+  R.ids = ['CVN', 'CVN']; R.airport = A; R.carrier = true; R.papi = []; RUNWAYS.push(R);
+  R.ends = [0, 1].map(e => {
+    const s = e === 0 ? -1 : 1, hdg = e === 0 ? R.hdg : wrapDeg(R.hdg + 180), t = hdg * D2R;
+    const thr = new THREE.Vector3(R.cx + R.dx * s * R.half, R.elev, R.cz + R.dz * s * R.half);
+    return { rw: R, A, e, hdg, dir: new THREE.Vector3(Math.sin(t), 0, -Math.cos(t)), thr, id: 'deck', ils: e === 0, uphill: 0, igs: null, gs: C.gs, aimD: C.aimD, carrier: true };
+  });
+  // ---- the hull: below the waterline up to the hangar deck, then the gallery deck out to the flight deck's edge ----
+  const ring0 = hullRing(A, -4, 19.5, -153, 160, 40, 15), ring1 = hullRing(A, 0.5, 20.5, -155, 163, 40, 16), ring2 = hullRing(A, 12.5, 23.5, -158, 165, 70, 19);
+  K.add(hullDark, loftGeo(ring0, ring1), 0, 0, 0);
+  K.add(hullGrey, loftGeo(ring1, ring2), 0, 0, 0);
+  {   // the gallery and the flight deck: the deck's outline extruded, grey sides, the painted deck on top
+    const sh = new THREE.Shape(C.outline.map(([a, c]) => new THREE.Vector2(c, a)));
+    const gal = new THREE.ExtrudeGeometry(sh, { depth: Ed - 1.4 - 12.5, bevelEnabled: false }); gal.rotateX(-Math.PI / 2);
+    const gm = new THREE.Mesh(gal, hullGrey); gm.position.set(A.x, 12.5, A.z); gm.rotation.y = yaw; gm.castShadow = true; gm.receiveShadow = true; scene.add(gm);
+    const box = { a0: Math.min(...C.outline.map(p => p[0])) - 1, a1: Math.max(...C.outline.map(p => p[0])) + 1, c0: Math.min(...C.outline.map(p => p[1])) - 1, c1: Math.max(...C.outline.map(p => p[1])) + 1 };
+    const tex = carrierDeckTex(A, box); tex.repeat.set(1 / (box.c1 - box.c0), 1 / (box.a1 - box.a0)); tex.offset.set(-box.c0 / (box.c1 - box.c0), -box.a0 / (box.a1 - box.a0)); tex.anisotropy = 8;
+    const dg = new THREE.ExtrudeGeometry(sh, { depth: 1.4, bevelEnabled: false }); dg.rotateX(-Math.PI / 2);
+    const dm = new THREE.Mesh(dg, [new THREE.MeshLambertMaterial({ map: tex }), deckEdgeMat]); dm.position.set(A.x, Ed - 1.4, A.z); dm.rotation.y = yaw; dm.receiveShadow = true; dm.castShadow = true; scene.add(dm);
+  }
+  // hangar bay openings and the ship's boats along the sides
+  for (const [a0, a1, sd] of [[30, 56, 1], [68, 94, 1], [-80, -54, 1], [-130, -104, -1]]) { const [x, z] = P((a0 + a1) / 2, sd * 23.2); K.add(hullDark, UBOX, x, 7.5, z, yaw, 0.6, 7, a1 - a0); }
+  for (let k = 0; k < 6; k++) { const [x, z] = P(-120 + k * 34, -24.2); K.add(hullDark, UBOX, x, 10.5, z, yaw, 0.6, 1.6, 9); }
+  // ---- the island: offices, the bridge, primary flight control and the mast ----
+  const I = C.island, im = (I.a0 + I.a1) / 2, ic = (I.c0 + I.c1) / 2;
+  const blk = (a0, a1, c0, c1, y0, y1, mat = islandGrey) => { const [x, z] = P((a0 + a1) / 2, (c0 + c1) / 2); K.add(mat, UBOX, x, (y0 + y1) / 2, z, yaw, c1 - c0, y1 - y0, a1 - a0); };
+  blk(I.a0, I.a1, I.c0, I.c1, Ed, Ed + 10);
+  blk(I.a0 + 4, I.a1 - 3, I.c0 + 0.6, I.c1 - 0.4, Ed + 10, Ed + 17);
+  blk(I.a0 + 7, I.a1 - 5, I.c0 - 0.6, I.c1, Ed + 17, Ed + 20.5);
+  blk(I.a0 + 7.2, I.a1 - 5.2, I.c0 - 0.7, I.c0 - 0.5, Ed + 18, Ed + 19.8, glassMat);
+  blk(I.a1 - 5.3, I.a1 - 5.1, I.c0, I.c1 - 0.5, Ed + 18, Ed + 19.8, glassMat);
+  blk(I.a0 + 3, I.a0 + 15, I.c0 - 1.2, I.c1 - 1, Ed + 20.5, Ed + 23);   // pri-fly
+  blk(I.a0 + 3.2, I.a0 + 14.8, I.c0 - 1.4, I.c0 - 1.1, Ed + 21, Ed + 22.7, glassMat);
+  for (let k = 0; k < 4; k++) blk(I.a0 + 1 + k * 10, I.a0 + 1.4 + k * 10, I.c0 - 0.15, I.c0, Ed + 2, Ed + 9, hullDark);   // doors onto the deck
+  const mx = im - 2, [mxx, mxz] = P(mx, ic);
+  K.add(islandGrey, UBOX, mxx, Ed + 29, mxz, yaw, 2.6, 12, 2.6);
+  K.add(islandGrey, UBOX, mxx, Ed + 32, mxz, yaw, 14, 0.4, 0.5);
+  { const [x, z] = P(mx + 1.8, ic); K.add(islandGrey, UBOX, x, Ed + 27, z, yaw, 5.5, 5.5, 0.5, -0.25); }   // the 3D air-search face
+  K.add(islandGrey, UCYL5, mxx, Ed + 37, mxz, 0, 0.5, 4, 0.5);
+  CARRIER.radar = new THREE.Mesh(new THREE.BoxGeometry(8, 2.6, 0.35), islandGrey); { const [x, z] = P(I.a0 + 8, ic); CARRIER.radar.position.set(x, Ed + 25.5, z); } CARRIER.radar.castShadow = true; scene.add(CARRIER.radar);
+  { const [x, z] = P(I.a0 + 8, ic); K.add(islandGrey, UCYL5, x, Ed + 24, z, 0, 0.7, 2.2, 0.7); }
+  lights.push({ p: [mxx, Ed + 39.2, mxz], c: 0xff2418, s: 2.2, k: 3, ph: 0.2 }, { p: [mxx, Ed + 35.5, mxz], c: 0xffffff, s: 1.8 });
+  addObstacle(...(([x, z]) => [x, Ed + 11.5, z])(P(im, ic)), (I.c1 - I.c0) / 2 + 0.6, 11.5, (I.a1 - I.a0) / 2 + 0.6, yaw, 'hit the island');
+  addObstacle(mxx, Ed + 31, mxz, 7, 8, 2, yaw, 'hit the island');
+  // the hull number on both sides of the island
+  for (const sd of [-1, 1]) {
+    const num = new THREE.Mesh(new THREE.PlaneGeometry(9, 6.5), new THREE.MeshLambertMaterial({ map: canvasTex(256, 180, (c2, w, h) => { c2.clearRect(0, 0, w, h); c2.font = 'bold 150px Arial'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillStyle = '#16181b'; c2.fillText(A.hull || '71', w / 2 + 6, h / 2 + 6); c2.fillStyle = '#f2f2ee'; c2.fillText(A.hull || '71', w / 2, h / 2); }), transparent: true, alphaTest: 0.3 }));
+    const [x, z] = P(im - 4, sd < 0 ? I.c0 - 0.05 : I.c1 + 0.05); num.position.set(x, Ed + 13.5, z); num.rotation.y = yaw + (sd < 0 ? -Math.PI / 2 : Math.PI / 2); scene.add(num);
+  }
+  // ---- the arresting wires, each between two sheaves, a hand's width off the deck ----
+  for (let k = 0; k < C.wires.length; k++) {
+    const ap = C.wires[k] - R.half, [x0, z0] = landXZ(R, ap, -15), [x1, z1] = landXZ(R, ap, 15);
+    const wm = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 30, 5), wireMat); wm.position.set((x0 + x1) / 2, Ed + 0.09, (z0 + z1) / 2); wm.rotation.set(0, Math.atan2(x1 - x0, z1 - z0), Math.PI / 2, 'YXZ'); scene.add(wm);
+    CARRIER.wires.push({ mesh: wm, ap, p0: new THREE.Vector3(x0, Ed + 0.09, z0), p1: new THREE.Vector3(x1, Ed + 0.09, z1) });
+    for (const e of [-15.5, 15.5]) { const [x, z] = landXZ(R, ap, e); K.add(yellowDeck, UBOX, x, Ed + 0.12, z, -R.hdg * D2R, 1.2, 0.25, 1.6); }
+  }
+  { const g = new THREE.CylinderGeometry(0.05, 0.05, 1, 5); g.translate(0, 0.5, 0); g.rotateX(Math.PI / 2); CARRIER.vWire = [0, 1].map(() => { const m = new THREE.Mesh(g, wireMat); m.visible = false; scene.add(m); return m; }); }
+  // ---- the catapults: the shuttle at each start and a blast deflector behind it that rises while a jet runs up ----
+  for (const k of C.cats) {
+    const ua = k.a1 - k.a0, uc = k.c1 - k.c0, ul = Math.hypot(ua, uc), h = Math.atan2(uc, ua);
+    k.hdg = wrapDeg(A.hdg + h * R2D); k.len = ul;
+    const [sx, sz] = P(k.a0, k.c0); K.add(hullDark, UBOX, sx, Ed + 0.12, sz, yaw - h, 0.5, 0.25, 1.2);
+    const [jx, jz] = P(k.a0 - ua / ul * 16, k.c0 - uc / ul * 16);
+    // hinged at its forward edge: flat on the deck when down, leaning back into the exhaust when up
+    const piv = new THREE.Group(); piv.position.set(jx, Ed + 0.05, jz); piv.rotation.y = yaw - h; scene.add(piv);
+    const hinge = new THREE.Group(); hinge.rotation.x = 1.55; piv.add(hinge);
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(12, 4.2, 0.35), jbdMat); panel.position.set(0, 2.1, 0); panel.castShadow = true; hinge.add(panel);
+    for (let i = 0; i < 4; i++) { const rib = new THREE.Mesh(new THREE.BoxGeometry(0.25, 4.2, 0.4), hullDark); rib.position.set(-4.5 + i * 3, 2.1, 0.3); hinge.add(rib); }
+    CARRIER.jbd.push({ cat: k, hinge, up: 0 });
+  }
+  // ---- the meatball: the lens on the port side, its green datum lights and the red wave-off lights ----
+  {
+    const ap = 125 - R.half, [x, z] = landXZ(R, ap, -21);
+    K.add(hullDark, UBOX, x, Ed + 2.2, z, -R.hdg * D2R, 1.4, 4.4, 1.0);
+    const dat = []; for (const s of [-1, 1]) for (let i = 1; i <= 5; i++) { const [dx, dz] = landXZ(R, ap - 0.6, -21 + s * (1 + i * 0.8)); dat.push({ p: [dx, Ed + 2.4, dz], c: 0x3cff6c, s: 1.5 }); }
+    scene.add(glowPoints(dat));
+    CARRIER.ball = glowPoints([{ p: [0, 0, 0], c: 0xffb43c, s: 2.4 }]); CARRIER.ball.position.set(x, Ed + 2.4, z); CARRIER.ballBase = new THREE.Vector3(x, Ed + 2.4, z);
+    CARRIER.ballCol = CARRIER.ball.geometry.attributes.color; scene.add(CARRIER.ball);
+    const wv = []; for (const s of [-1, 1]) for (let i = 0; i < 3; i++) { const [dx, dz] = landXZ(R, ap - 0.6, -21 + s * 0.9); wv.push({ p: [dx, Ed + 1.2 + i * 1.3, dz], c: 0xff2a18, s: 2.2, k: 1, ph: i * 0.1 }); }
+    CARRIER.wave = glowPoints(wv); CARRIER.wave.visible = false; scene.add(CARRIER.wave);
+  }
+  // ---- deck lights: the landing area's edges and centreline, the drop lights down the stern, the bow cats ----
+  for (let ap = -R.half + 4; ap <= R.half; ap += 14) { for (const cp of [-R.wid / 2 - 0.6, R.wid / 2 + 0.6]) { const [x, z] = landXZ(R, ap, cp); lights.push({ p: [x, Ed + 0.25, z], c: 0xfff4e0, s: 1.1 }); } const [x, z] = landXZ(R, ap, 0); lights.push({ p: [x, Ed + 0.2, z], c: 0xffffff, s: 0.9 }); }
+  { for (let i = 0; i < 5; i++) { const [x, z] = landXZ(R, -R.half - 0.6, 0); lights.push({ p: [x, Ed - 2 - i * 2.4, z], c: i % 2 ? 0xffffff : 0xff3020, s: 1.4 }); } }
+  for (const k of C.cats.slice(0, 2)) for (let t = 0; t <= 1.001; t += 0.125) { const [x, z] = P(lerp(k.a0, k.a1, t), lerp(k.c0, k.c1, t)); lights.push({ p: [x, Ed + 0.2, z], c: 0x6fa0ff, s: 0.8 }); }
+  for (const [a, c, col] of [[160, 15, 0x2aff66], [158, -11, 0xff2a22], [-161, 0, 0xffffff]]) { const [x, z] = P(a, c); lights.push({ p: [x, Ed + 1, z], c: col, s: 1.6 }); }
+  // ---- the landing signal officers' platform off the port quarter ----
+  { const ap = -R.half + 30, [x, z] = landXZ(R, ap, -20); K.add(islandGrey, UBOX, x, Ed - 0.3, z, -R.hdg * D2R, 6, 0.4, 7); for (let i = 0; i < 4; i++) { const [px, pz] = landXZ(R, ap - 2 + i * 1.3, -20.5); person(px, Ed, pz, ...landXZ(R, -R.half - 400, 0), i ? 0 : 2, rnd); const p = PEOPLE[PEOPLE.length - 1]; p.shirt = 0xf2f2ee; } }
+  // ---- the deck crew in their coloured jerseys: yellow directors, green hook-up, white safety, purple fuel, red ordnance, brown plane captains ----
+  const jerseys = [0xf2c230, 0x3f9f4a, 0xf2f2ee, 0x7a4fc0, 0xd0302a, 0x7a5230, 0x2f6fb0];
+  for (const k of C.cats.slice(0, 2)) for (let i = 0; i < 5; i++) { const [px, pz] = P(k.a0 - 10 + rnd() * 16, k.c0 + (rnd() < 0.5 ? -1 : 1) * (6 + rnd() * 5)); const [fx, fz] = P(k.a0, k.c0); person(px, Ed, pz, fx, fz, i === 0 ? 2 : 0, rnd); PEOPLE[PEOPLE.length - 1].shirt = jerseys[i % jerseys.length]; }
+  for (let i = 0; i < 16; i++) { const [px, pz] = P(-130 + rnd() * 240, 20 + rnd() * 14); const [fx, fz] = P(-60, 0); person(px, Ed, pz, fx, fz, rnd() < 0.2 ? 2 : 0, rnd); PEOPLE[PEOPLE.length - 1].shirt = jerseys[(rnd() * jerseys.length) | 0]; }
+  // ---- an escort destroyer off the starboard bow ----
+  {
+    const D = { x: 0, z: 0, dx: A.dx, dz: A.dz, bx: A.bx, bz: A.bz }; [D.x, D.z] = P(1500, 1300);
+    const rA = hullRing(D, -2, 9.5, -76, 78, 10, 7), rB = hullRing(D, 0.5, 10, -77, 79, 10, 7.5), rC = hullRing(D, 7, 10.2, -78, 80, 5, 8);
+    K.add(hullDark, loftGeo(rA, rB), 0, 0, 0); K.add(hullGrey, loftGeo(rB, rC), 0, 0, 0);
+    { const sh = new THREE.Shape(); const pts = rC.map(([x, , z]) => { const px = x - D.x, pz = z - D.z; return [px * D.bx + pz * D.bz, px * D.dx + pz * D.dz]; }); pts.forEach(([c, a], i) => i ? sh.lineTo(c, a) : sh.moveTo(c, a)); const dg = new THREE.ShapeGeometry(sh); dg.rotateX(-Math.PI / 2); const m = new THREE.Mesh(dg, deckEdgeMat); m.position.set(D.x, 7.02, D.z); m.rotation.y = yaw; scene.add(m); }
+    const db = (a0, a1, c0, c1, y0, y1, mat = islandGrey) => { const [x, z] = shipXZ(D, (a0 + a1) / 2, (c0 + c1) / 2); K.add(mat, UBOX, x, (y0 + y1) / 2, z, yaw, c1 - c0, y1 - y0, a1 - a0); };
+    db(-10, 34, -7, 7, 7, 14); db(18, 32, -6, 6, 14, 19); db(19, 31, -6.2, 6.2, 17, 18.2, glassMat); db(-6, 10, -4, 4, 14, 22);
+    db(-2, 2, -1, 1, 22, 36); db(-1, 1, -6, 6, 31, 31.5); db(-40, -12, -6, 6, 7, 11); db(44, 52, -1.6, 1.6, 7, 9); { const [x, z] = shipXZ(D, 52, 0); K.add(hullGrey, UCYL5, x, 9.6, z, 0, 0.5, 1.2, 0.5); }
+    { const [x, z] = shipXZ(D, 0, 0); lights.push({ p: [x, 36.5, z], c: 0xffffff, s: 1.8 }); const [x1, z1] = shipXZ(D, 25, 7); lights.push({ p: [x1, 19, z1], c: 0x2aff66, s: 1.4 }); const [x2, z2] = shipXZ(D, 25, -7); lights.push({ p: [x2, 19, z2], c: 0xff2a22, s: 1.4 }); }
+    for (let i = 0; i < 6; i++) { const [px, pz] = shipXZ(D, -60 + rnd() * 100, (rnd() - 0.5) * 12); person(px, 7.05, pz, px + 5, pz, 0, rnd); }
+    addObstacle(D.x, 12, D.z, 10, 12, 80, yaw, 'hit the destroyer');
+  }
+  K.done();
+  scene.add(glowPoints(lights));
+  addObstacle(A.x, 9, A.z, 22, 9.5, 158, yaw, 'flew into the ship');
+}
+
+/* ---------- the catapult: hook up at the shuttle, run up to full power, a salute, then 3.5 g down 90 m of track ---------- */
+function catHookUp(k, quiet) {
+  const A = CARRIER.A, [x, z] = shipXZ(A, k.a0, k.c0), t = k.hdg * D2R, dir = [Math.sin(t), -Math.cos(t)], nz = AC.G.noseZ;
+  S.pos.set(x + dir[0] * nz, A.elev + AC.G.mainReach + 0.02, z + dir[1] * nz);
+  S.q.setFromEuler(new THREE.Euler(0, -t, 0, 'YXZ'));
+  S.vel.set(0, 0, 0); S.rates.set(0, 0, 0); S.onGround = true;
+  S.cat = { k, phase: 'hooked', t: 0, v: 0, s: 0, dir };
+  if (!quiet) toast('hooked up to catapult ' + k.n + ' · press L to launch');
+}
+function catLaunch() {
+  if (state !== 'fly') return;
+  if (!S.cat) { toast(AC.hook ? 'taxi onto a catapult first: nose wheel to its shuttle' : 'catapults are for the Super Hornet'); return; }
+  if (S.cat.phase !== 'hooked') return;
+  S.throttle = 1; if (AC.T.perf.reheat) S.reheat = true;
+  S.cat.phase = 'tension'; S.cat.t = 0; sfx.click(); toast('full afterburner · salute · stand by');
+  sfx.say('Launch the jet.', { key: 'cat', gap: 3, prio: 3, style: 'boeing' });
+}
+// held at the shuttle until the shot; returns true while the catapult has the jet
+function catStep(dt, thrust) {
+  const c = S.cat; if (!c) return false;
+  S.onGround = true; S.airTime = 0; S.groundTime += dt; S.agl = 0;
+  S.q.setFromAxisAngle(Y_AXIS, -c.k.hdg * D2R);
+  if (c.phase !== 'shot') {
+    S.vel.set(0, 0, 0); S.rates.set(0, 0, 0);
+    if (c.phase === 'tension' && (c.t += dt) > 1.7) { c.phase = 'shot'; c.t = 0; sfx.catShot(); shake(0.9); }
+    return true;
+  }
+  const L = c.k.len - 3, need = 82 * 82 / (2 * L);
+  c.v += (need + Math.max(0, thrust) * 0.3) * dt; c.s += c.v * dt;
+  S.pos.x += c.dir[0] * c.v * dt; S.pos.z += c.dir[1] * c.v * dt;
+  S.vel.set(c.dir[0] * c.v, 0, c.dir[1] * c.v);
+  shakeAmt = Math.max(shakeAmt, 0.35);
+  if (Math.random() < 0.5) { const [x, z] = shipXZ(CARRIER.A, lerp(c.k.a0, c.k.a1, c.s / c.k.len) - 6, lerp(c.k.c0, c.k.c1, c.s / c.k.len)); smoke.spawn({ pos: new THREE.Vector3(x, CARRIER.A.elev + 0.3, z), v: new THREE.Vector3((Math.random() - 0.5) * 2, 1.5 + Math.random() * 2, (Math.random() - 0.5) * 2), size: 1.6, grow: 4, life: 2.2, a: 0.55, c0: [0.96, 0.97, 0.98], drag: 1.5, buoy: 0.6, pow: 1.4 }); }
+  if (c.s >= L) {
+    S.cat = null; S.catTrim = 2.4; takeoffCalls.v1 = takeoffCalls.vr = 1;
+    toast('off the bow at ' + Math.round(c.v * MS2KT) + ' knots · gear up (G)');
+  }
+  return true;
+}
+// after a landing, a jet that taxis its nose wheel onto a shuttle, slowly and pointing down the track, is hooked up
+function catAutoHook() {
+  if (!CARRIER.A || !AC.hook || S.cat || S.trap || !S.onGround || Math.hypot(S.vel.x, S.vel.z) > 3) return;
+  axes();
+  const nx = S.pos.x - _f.x * AC.G.noseZ, nzz = S.pos.z - _f.z * AC.G.noseZ, hdg = Math.atan2(_f.x, -_f.z) * R2D;
+  for (const k of CARRIER.A.carrier.cats) {
+    const [x, z] = shipXZ(CARRIER.A, k.a0, k.c0);
+    if (Math.hypot(nx - x, nzz - z) < 4 && Math.abs(((hdg - k.hdg + 540) % 360) - 180) < 20) { catHookUp(k); sfx.clunk(0.6); return; }
+  }
+}
+
+/* ---------- the arresting gear: the hook point crossing a wire within a hand's breadth of the deck catches it ---------- */
+function trapCheck(dt) {
+  const A = CARRIER.A; if (!A || !AC.hook) return;
+  const R = A.rws[0], C = A.carrier;
+  if (S.trap) { trapHold(dt); return; }
+  if (AC.hook.ang < 0.2) { S.hookPrev = null; return; }
+  const tip = hookTip(AC.hook.ang, _hk), px = tip.x - R.cx, pz = tip.z - R.cz, ap = px * R.dx + pz * R.dz, cp = px * R.bx + pz * R.bz, hy = tip.y - R.elev;
+  const prev = S.hookPrev; S.hookPrev = { ap, cp, hy };
+  if (!prev || Math.abs(cp) > 15.5 || hy > 0.7 || hy < -2) return;
+  const vAlong = S.vel.x * R.dx + S.vel.z * R.dz; if (vAlong < 12) return;
+  for (let k = 0; k < C.wires.length; k++) {
+    const w = C.wires[k] - R.half;
+    if (prev.ap < w && ap >= w) {
+      S.trap = { wire: k + 1, p0: (S.pos.x - R.cx) * R.dx + (S.pos.z - R.cz) * R.dz, v0: vAlong, t: 0, stop: false };
+      CARRIER.trapWire = k; sfx.trap(); shake(1.2); return;
+    }
+  }
+  // past the last wire with the wheels on the deck: a bolter
+  if (S.onGround && S.landed && S.landed.carrier && !S.landed.bolter && ap > C.wires[C.wires.length - 1] - R.half + 4) {
+    S.landed.bolter = true; showMsg('BOLTER', 'the hook skipped the wires · full power and fly off the end', '');
+    sfx.say('Bolter, bolter!', { key: 'bolter', gap: 4, prio: 6, style: 'boeing' });
+  }
+}
+// the arresting engine pays the wire out against its brake: from any speed the jet stops in about a hundred metres
+function trapHold(dt) {
+  const T = S.trap, R = CARRIER.A.rws[0];
+  T.t += dt;
+  const along = (S.pos.x - R.cx) * R.dx + (S.pos.z - R.cz) * R.dz, left = Math.max(4, 98 - (along - T.p0));
+  const vA = S.vel.x * R.dx + S.vel.z * R.dz, vC = S.vel.x * R.bx + S.vel.z * R.bz;
+  if (!T.stop) {
+    const a = Math.max(14, vA * vA / (2 * left)), nv = Math.max(0, vA - a * dt);
+    S.vel.x += (nv - vA) * R.dx - vC * R.bx * 3 * dt; S.vel.z += (nv - vA) * R.dz - vC * R.bz * 3 * dt;
+    if (nv < 0.4) { T.stop = true; T.tStop = T.t; }
+  } else { S.vel.x = 0; S.vel.z = 0; }
+  if (T.stop && !S.hookCmd) { S.trap = null; CARRIER.trapWire = -1; toast('wire clear · taxi to a catapult (nose wheel to the shuttle)'); }
+}
+function trapGrade(L) {
+  const w = S.trap ? S.trap.wire : 0;
+  if (!w) return { big: 'DECK LANDING', pts: 600, sub: 'stopped on the deck without a wire' };
+  const big = w === 3 ? 'OK 3-WIRE' : w === 2 || w === 4 ? 'FAIR ' + w + '-WIRE' : w + '-WIRE', base = w === 3 ? 2500 : w === 2 || w === 4 ? 1800 : 1200;
+  return { big, pts: base, sub: (w === 3 ? 'perfect, the target wire' : w < 3 ? 'a touch low at the ramp' : 'a touch high, long') + ' · ' + Math.round(L.fpm) + ' fpm' };
+}
+
+/* ---------- each frame: deflectors, the wire under load, the radar, the meatball and the LSO ---------- */
+const _cvT = new THREE.Vector3(), _cvA = new THREE.Vector3();
+function updateCarrier(dt) {
+  const A = CARRIER.A; if (!A) return;
+  const R = A.rws[0], C = A.carrier;
+  if (CARRIER.radar) CARRIER.radar.rotation.y += dt * 1.6;
+  for (const j of CARRIER.jbd) {
+    const want = (S.cat && S.cat.k === j.cat && state === 'fly') || AI.some(q => q.cat === j.cat && q.phase !== 'climb') ? 1 : 0;
+    j.up = clamp(j.up + (want ? dt / 2.2 : -dt / 3), 0, 1); j.hinge.rotation.x = lerp(1.55, 0.62, sstep(0, 1, j.up));
+  }
+  // the engaged wire is dragged out into a V behind the hook
+  const k = S.trap && AC.hook ? CARRIER.trapWire : -1;
+  CARRIER.wires.forEach((w, i) => { w.mesh.visible = i !== k; });
+  if (k >= 0) {
+    const tip = hookTip(AC.hook.ang, _cvT), w = CARRIER.wires[k];
+    CARRIER.vWire.forEach((m, i) => { const p = i ? w.p1 : w.p0; m.visible = true; m.position.copy(p); m.lookAt(tip); m.scale.set(1, 1, p.distanceTo(tip)); });
+  } else CARRIER.vWire.forEach(m => { m.visible = false; });
+  // the meatball: the amber ball rides above or below the green datums with the jet's glidepath
+  const e = R.ends[0], aim = _cvA.copy(e.thr).addScaledVector(e.dir, C.aimD);
+  const along = (S.pos.x - aim.x) * e.dir.x + (S.pos.z - aim.z) * e.dir.z, cross = -(S.pos.x - aim.x) * e.dir.z + (S.pos.z - aim.z) * e.dir.x;
+  const onFinal = state === 'fly' && !S.onGround && along < -150 && along > -4500 && Math.abs(cross) < 600 && S.pos.y - R.elev < 500;
+  const dev = Math.atan2(S.pos.y - R.elev, -along) * R2D - C.gs;
+  CARRIER.ball.visible = onFinal || CARRIER.lso.d === undefined;
+  CARRIER.ball.position.set(CARRIER.ballBase.x, CARRIER.ballBase.y + clamp(dev / 0.25, -4.5, 4.5) * 0.28, CARRIER.ballBase.z);
+  const low = dev < -0.8, cc = CARRIER.ballCol; cc.setXYZ(0, 1, low ? 0.16 : 0.7, low ? 0.1 : 0.24); cc.needsUpdate = true;
+  lsoCalls(dt, onFinal, -along, cross, dev);
+}
+// the landing signal officer talks the jet down: call the ball, high or low, lineup, power, and the wave-off
+function lsoCalls(dt, onFinal, d, cross, dev) {
+  const L = CARRIER.lso, say = (t, key, gap, prio = 4) => sfx.say(t, { key, gap, prio, style: 'boeing' });
+  CARRIER.wave.visible = !!L.wave && L.wave > 0;
+  if (L.wave > 0) L.wave -= dt;
+  if (!onFinal || !AC.hook) { if (d > 6000 || state !== 'fly') { L.ball = false; L.t = 0; } return; }
+  L.t = (L.t || 0) + dt;
+  const lineup = Math.atan2(cross, d) * R2D;
+  if (!L.ball && d < 1500) { L.ball = true; say('Three quarter mile, call the ball.', 'lso-ball', 20, 5); setTimeout(() => say('Roger ball.', 'lso-roger', 20, 5), 2300); L.t = -2; if (!S.hookCmd) toast('hook down for the wires (K)'); return; }
+  if (!L.ball || L.t < 2.6) return;
+  const down = gearDownLocked();
+  if (d < 650 && (dev < -1.3 || Math.abs(lineup) > 4.5 || !down)) { L.wave = 3; L.t = 0; say('Wave off, wave off!', 'lso-wave', 4, 8); toast('WAVE OFF · full power, climb, and come round again'); return; }
+  L.t = 0;
+  if (!S.hookCmd) say('Hook down!', 'lso-hook', 6, 6);
+  else if (dev < -0.9 && d < 1100) say('Power!', 'lso-power', 3, 6);
+  else if (dev < -0.45) say("You're low.", 'lso-low', 3, 5);
+  else if (dev > 0.6) say("You're high.", 'lso-high', 3, 5);
+  else if (lineup > 1.3) say('Come left.', 'lso-left', 3, 4);
+  else if (lineup < -1.3) say('Right for lineup.', 'lso-right', 3, 4);
+}
+
+/* ---------- static Super Hornets parked along the deck edge, noses inboard ---------- */
+function placeCarrierJets(statics) {
+  const A = CARRIER.A; if (!A) return;
+  const ac = FLEET.find(f => f.T.id === 'fa18'); if (!ac) return;
+  const yawS = -A.hdg * D2R, grp = new THREE.Group(); scene.add(grp);
+  for (const [a, c, h] of [[100, 30, -120], [86, 31, -120], [44, 31, -120], [28, 31, -120], [-58, 30, -60], [-72, 30, -60], [-86, 30, -60], [-104, 29, -60], [-122, 28, -60], [112, 26, -150]]) {
+    const m = statics('fa18').clone(), [x, z] = shipXZ(A, a, c);
+    m.position.set(x, A.elev + ac.G.mainReach - 0.02, z); m.rotation.y = yawS - h * D2R; grp.add(m);
+    addObstacle(x, A.elev + 2.5, z, 6.5, 2.5, 6.5, 0, 'hit a parked jet');
+  }
+  mergeStaticGroup(grp);   // ten jets in one batch per material
+}
+/* =========================================================
+   build every field: runways, aprons, terminals and features, then the towns, the resorts, the forest and the fleet at sea
+   ========================================================= */
+AIRPORT_DEFS.forEach(A => { if (A.ship) return; A.rws.forEach(R => buildRunway(A, R)); buildGround(A); buildTerminal(A); buildFeatures(A); });
 AIRPORT_DEFS.forEach(buildTownPlan);
 VILLAGES.forEach(buildTownPlan);
 buildTropics();
-AIRPORT_DEFS.forEach(buildFence);
+buildForest();
+buildCarrier();
+buildApproachMasts();
+AIRPORT_DEFS.forEach(A => { if (!A.noFence && !A.ship) buildFence(A); });
 buildHouses();
 buildPeople();
 const ALL_ENDS = RUNWAYS.flatMap(R => R.ends);
@@ -3824,7 +4620,7 @@ function cloudDensityAt(p) {
 }
 
 /* =========================================================
-   the fleet: eight real types at real dimensions
+   the fleet: ten real types at real dimensions
    body axes +X right, +Y up, -Z nose; origin on the fuselage axis near the CG
    ========================================================= */
 const TYPES = [
@@ -3960,6 +4756,42 @@ const TYPES = [
     mainDoors: [{ x: 0.18, z0: -0.4, z1: 2.25, w: 2.05, dir: 1 }],
     perf: { thrust: 5.3, lapse: 'fan', cd0: 0.000058, cdGear: 0.00013, cdFlap: 0.00025, k: 0.009, amax: 0.27, flapK: 0.8, ki: 16, pitch: 0.5, roll: 1.15, vmo: 320, mmo: 0.82, mcrit: 0.78, v1: 122, vr: 128, vref: 124 },
   },
+  {
+    id: 'c172', name: 'Cessna 172 Skyhawk', cls: 'four-seat single', blurb: 'high wing · one propeller · wheel pants · based at Treetops',
+    voice: 'garmin', sound: 'piston', minRwy: 300, paved: false, flaps: true, toFlaps: 1, fixedGear: true, noRev: true, home: 'TTP',
+    fus: { zN: -2.35, zT: 5.25, R: 0.56, H: 0.62, B: 0.6, yM: 0, sq: 0.78, nL: 1.95, tipY: -0.06, tipR: 0.2, ntFn: t => t < 0.62 ? 0.36 * (1 - (1 - t / 0.62) ** 2) : 0.36 + 0.64 * sstep(0.62, 0.98, t), nTop: 1, eTop: 1, nBot: 2.0, eBot: 0.6, nW: 1.6, eW: 0.6, tc0: 1.25, tailY: 0.22, tailR: 0.1, tTop: 0.9, tBot: 1.6 },
+    win: { style: 'cessna', rows: [], doors: [], cargo: [], titleY: 0.04, titleZ: 0.66, titleM: 0.3 },
+    liv: { accent: '#d62839', stripe: '#1d3557', text: '#1d3557', belly: '#eef0f3', tail: '#d62839', ink: '#ffffff' },
+    wing: { high: true, y: 0.68, dih: 1.7, root: { x: 0.0, z: -0.45, c: 1.63, t: 0.22 }, kink: { x: 2.55, te: 1.18, t: 0.2 }, tip: { x: 5.5, z: -0.3, c: 1.12, t: 0.15 }, canoes: 0, fairW: 1.1, fairH: 0.16, struts: { x0: 0.5, y0: -0.42, z: 0.25, x1: 2.75 } },
+    props: [{ x: 0, y: -0.02, z: -2.33, r: 0.965, blades: 2, len: 1.2, spin: 0.19, center: true }],
+    tail: { fin: { z0: 3.65, c0: 1.55, h: 1.35, sweep: 36, c1: 0.78, dorsal: 1.6 }, stab: { z0: 4.15, span: 1.72, c0: 1.05, c1: 0.62, sweep: 6, y: 0.12, dih: 0 } },
+    fair: null,
+    reach: 1.06, tilt: 0,
+    mains: [{ x: 1.27, z: 0.2, py: -0.55, kind: 'fixed', retract: 'fixed', wr: 0.3, ww: 0.15, spread: 0, root: 0.45, pants: true }],
+    nose: { z: -1.45, py: -0.5, wr: 0.25, ww: 0.13, spread: 0, ang: 0, single: true, pants: true },
+    mainDoors: [],
+    perf: { thrust: 3.0, lapse: 'prop', cd0: 0.00052, cdGear: 0, cdFlap: 0.0005, k: 0.057, amax: 0.28, flapK: 0.45, ki: 7.5, pitch: 0.65, roll: 1.4, vmo: 163, mmo: 0.3, mcrit: 0.28, v1: 50, vr: 55, vref: 65 },
+  },
+  {
+    id: 'fa18', name: 'F/A-18E Super Hornet', cls: 'carrier fighter', blurb: 'afterburners · catapult launches · tailhook traps · based on the carrier',
+    voice: 'hornet', sound: 'fighter', minRwy: 1400, paved: true, flaps: true, toFlaps: 2, noRev: true, home: 'CVN', gearSink: 7.6, sinkK: 2.2, abDefault: true, stowHide: true,
+    fus: { zN: -10.4, zT: 7.7, R: 1.3, H: 0.8, B: 0.72, yM: 0, sq: 0.82, nL: 8.8, tipY: -0.12, tipR: 0.04, nTop: 1.6, eTop: 1.0, nBot: 1.6, eBot: 1.0, nW: 1.2, eW: 1.8, tc0: 3.4, tailY: 0.0, tailR: 1.12, tailH: 0.48, tTop: 1.3, tBot: 1.1 },
+    win: { style: 'hornet', rows: [], doors: [], cargo: [], titleY: -0.05, titleZ: 0.62, titleM: 0.55 },
+    liv: { military: true, base: '#8d969f', belly: '#aab2ba', accent: '#5f676f', stripe: '#16181b', text: '#2a2e33', tail: '#8d969f', ink: '#16181b', title: 'NAVY', modex: '200', finArt: 'jolly' },
+    wing: { y: 0.05, dih: -3, root: { x: 1.1, z: -1.85, c: 5.1, t: 0.28 }, kink: { x: 4.0, te: 3.1, t: 0.16 }, tip: { x: 6.55, z: 1.25, c: 1.75, t: 0.08 }, winglet: 'rail', canoes: 0, noSpoilers: true },
+    lex: { secs: [[0.35, -6.6, -0.9], [1.0, -4.8, -0.9], [1.6, -3.4, -0.9], [2.15, -2.1, -0.9]], y: 0.1 },
+    canopy: { z: -5.2, len: 3.6, w: 0.52, h: 0.62 },
+    intakes: { x: 1.12, y: -0.4, z: -2.8, w: 0.62, h: 0.78 },
+    nozzles: { x: 0.62, y: 0.0, z: 7.55, r: 0.46 },
+    hookArm: { z: 5.4, len: 2.4, y: -0.46 },
+    tail: { fin: { z0: 3.55, c0: 3.3, h: 2.55, sweep: 36, c1: 1.15, twin: { x: 1.08, cant: 20 } }, stab: { z0: 5.0, span: 3.45, c0: 2.25, c1: 0.85, sweep: 42, y: -0.05, dih: -2 } },
+    fair: null,
+    reach: 1.95, tilt: 0,
+    mains: [{ x: 1.6, z: 0.95, py: -0.6, kind: 'single', retract: 'aft', wr: 0.43, ww: 0.24, spread: 0 }],
+    nose: { z: -6.9, py: -0.55, wr: 0.28, ww: 0.17, spread: 0.19, ang: 95, launchBar: true },
+    mainDoors: [],
+    perf: { thrust: 5.6, lapse: 'turbojet', reheat: 0.75, cd0: 0.00011, cdGear: 0.00012, cdFlap: 0.00018, k: 0.0092, amax: 0.6, flapK: 0.5, ki: 9, pitch: 1.0, roll: 3.4, vmo: 700, mmo: 1.8, mcrit: 0.92, v1: 140, vr: 150, vref: 140, supersonic: true, mWall: 1.5, gLim: 7.5 },
+  },
 ];
 
 /* ---------- fuselage shape: two half-ellipses per station, a drooped nose and an upswept tail ---------- */
@@ -3974,8 +4806,8 @@ function fusSec(F, z, o = _sec) {
     o.yM = lerp(F.tipY, F.yM, Math.pow(t, 0.8));
   } else if (z >= F.tc0) {
     const t = clamp((z - F.tc0) / (F.zT - F.tc0), 0, 1);
-    o.yT = lerp(F.H, F.tailY + F.tailR, Math.pow(t, F.tTop));
-    o.yB = lerp(-F.B, F.tailY - F.tailR, Math.pow(t, F.tBot));
+    o.yT = lerp(F.H, F.tailY + (F.tailH ?? F.tailR), Math.pow(t, F.tTop));
+    o.yB = lerp(-F.B, F.tailY - (F.tailH ?? F.tailR), Math.pow(t, F.tBot));
     o.w = lerp(F.R, F.tailR, Math.pow(t, 1.5));
     o.yM = lerp(F.yM, F.tailY, Math.pow(t, 1.25));
   } else { o.yT = F.H; o.yB = -F.B; o.w = F.R; o.yM = F.yM; }
@@ -4016,6 +4848,9 @@ const COCKPITS = {
   concorde: { ws: { x0: 0.07, x1: 0.46, y0: 0.9, y1: 1.3, slant: 0.35, zMin: 7.75, zMax: 9.3, top: true }, side: [[[8.35, 0.72], [9.05, 0.74], [9.05, 1.02], [8.35, 1.08]]] },
   otter: { ws: { x0: 0.05, x1: 0.76, y0: 0.3, y1: 0.86, slant: 0.2, zMin: 2.0, zMax: 3.3 }, side: [[[3.02, 0.08], [4.1, 0.06], [4.1, 0.8], [3.2, 0.84]], [[4.28, 0.1], [4.78, 0.1], [4.78, 0.76], [4.28, 0.76]]] },
   embraer: { ws: { x0: 0.06, x1: 0.78, y0: 0.3, y1: 0.98, slant: 0.4, zMax: 3.3, vee: 0.08 }, side: [[[2.85, 0.28], [3.55, 0.33], [3.55, 0.92], [2.85, 1.0]], [[3.7, 0.36], [4.25, 0.4], [4.2, 0.76], [3.7, 0.88]]] },
+  // the Skyhawk: a wraparound windscreen under the wing, a big door window and a rear window each side
+  cessna: { ws: { x0: 0.03, x1: 0.52, y0: 0.24, y1: 0.66, slant: 0.32, zMin: 1.3, zMax: 1.95 }, side: [[[1.98, -0.02], [2.95, -0.02], [2.95, 0.55], [2.02, 0.58]], [[3.05, 0.02], [3.75, 0.1], [3.62, 0.5], [3.05, 0.56]]], eye: [0.6, 2.3] },
+  hornet: { none: true, ws: { x0: 0, x1: 0, y0: 0, y1: 0, slant: 0, zMax: 0 }, side: [], eye: [0.98, 4.55] },
 };
 function pointInPoly(px, py, poly) {
   let inside = false;
@@ -4040,7 +4875,7 @@ function paintLivery(T) {
   const g = tex.getContext('2d'), gr = rough.getContext('2d');
   const V = z => (1 - (z - F.zN) / L) * H;                  // canvas y for a station
   const U = (z, y, side) => { const u = phiAtY(F, z, y) / TAU; return (side > 0 ? u : 1 - u) * W; };
-  g.fillStyle = '#f3f5f7'; g.fillRect(0, 0, W, H);
+  g.fillStyle = C.base || '#f3f5f7'; g.fillRect(0, 0, W, H);
   gr.fillStyle = 'rgb(84,84,84)'; gr.fillRect(0, 0, W, H);
   // belly and cheatline follow the body's real curvature
   const band = (yA, yB, col, z0 = F.zN, z1 = F.zT, side) => {
@@ -4053,7 +4888,9 @@ function paintLivery(T) {
       g.closePath(); g.fill();
     }
   };
-  if (!C.allWhite) {
+  if (C.military) {   // navy grey: a paler belly, no cheatline
+    band((z, s) => s.yB, (z, s) => s.yM - (s.yM - s.yB) * 0.3, C.belly);
+  } else if (!C.allWhite) {
     band((z, s) => s.yB, (z, s) => s.yM - (s.yM - s.yB) * 0.48, C.belly);
     // a sweep that climbs the rear fuselage into the tail colour
     const zs = F.zN + L * 0.1;
@@ -4085,17 +4922,34 @@ function paintLivery(T) {
   for (const cz of win.cargo || []) for (const side of [1, -1]) { const s = fusSec(F, cz); outline(cz, s.yM - (s.yM - s.yB) * 0.55, 2.6 * sc, 1.7 * sc, side); }
   // titles along the crown line
   g.save();
-  const tz = F.zN + L * 0.3, ty = win.titleY ?? (win.rows[win.rows.length - 1].y) + 0.75 * sc, fontM = clamp(F.R * 0.33, win.titleY ? 0.32 : 0.55, 1.3);
-  for (const side of [1, -1]) {
-    const u = U(tz, ty, side), s = fusSec(F, tz), arc = Math.max(s.w, (s.yT - s.yB) / 2) * TAU;
-    g.save(); g.translate(u, V(tz)); g.rotate(side > 0 ? Math.PI / 2 : -Math.PI / 2);
-    g.scale(pxPerM_v / (W / arc) * 1, 1);
-    g.fillStyle = C.allWhite ? '#26324a' : C.text; g.font = `300 ${Math.round(fontM * (W / arc))}px "Jost", "Avenir Next", "Helvetica Neue", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText('A L O F T', 0, 0); g.restore();
+  const tz = F.zN + L * (win.titleZ ?? 0.3), ty = win.titleY ?? (win.rows[win.rows.length - 1].y) + 0.75 * sc, fontM = win.titleM || clamp(F.R * 0.33, win.titleY ? 0.32 : 0.55, 1.3);
+  // lettering that runs along the body at station z, height y: the airline title, a navy jet's NAVY and its nose number
+  const letter = (z, y, txt, mm, col, weight) => {
+    for (const side of [1, -1]) {
+      const u = U(z, y, side), s = fusSec(F, z), arc = Math.max(s.w, (s.yT - s.yB) / 2) * TAU;
+      g.save(); g.translate(u, V(z)); g.rotate(side > 0 ? Math.PI / 2 : -Math.PI / 2);
+      g.scale(pxPerM_v / (W / arc) * 1, 1);
+      g.fillStyle = col; g.font = `${weight} ${Math.round(mm * (W / arc))}px "Jost", "Avenir Next", "Helvetica Neue", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(txt, 0, 0); g.restore();
+    }
+  };
+  letter(tz, ty, C.title || 'A L O F T', fontM, C.allWhite ? '#26324a' : C.text, C.military ? 600 : 300);
+  if (C.modex) letter(F.zN + L * 0.2, 0.05, C.modex, 0.42, '#2a2e33', 700);
+  if (C.military) {   // the low-visibility star-and-bar on each side of the rear fuselage
+    const z = F.zN + L * 0.66, s = fusSec(F, z), y = s.yM + (s.yT - s.yM) * 0.1, r = 0.42;
+    for (const side of [1, -1]) {
+      const u = U(z, y, side), cv = V(z), arc = Math.max(s.w, (s.yT - s.yB) / 2) * TAU, ku = W / arc, kv = pxPerM_v;
+      g.save(); g.translate(u, cv); g.scale(ku, kv); g.fillStyle = '#6e767e'; g.strokeStyle = '#6e767e'; g.lineWidth = 0.07;
+      g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke();
+      g.beginPath(); for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * 0.38 : r * 0.92; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath(); g.fill();
+      g.fillRect(-r * 1.9, -r * 0.18, r * 0.95, r * 0.36); g.fillRect(r * 0.95, -r * 0.18, r * 0.95, r * 0.36);
+      g.restore();
+    }
   }
   g.restore();
-  // cockpit glazing, painted texel by texel from 3D tests
+  // cockpit glazing, painted texel by texel from 3D tests (a fighter's bubble canopy is a separate piece)
   const ck = COCKPITS[win.style], P = {}, P2 = {}, P3 = {}, sck = win.ck || sc;
+  if (!ck.none) {
   const zA = F.zN + (ck.ws.zMin || 0.4) * sck - 0.2, zB = F.zN + Math.max(ck.ws.zMax, ...ck.side.flat().map(p => p[0])) * sck + 0.4;
   const vA = Math.floor(V(zB)), vB = Math.ceil(V(zA));
   const ov = document.createElement('canvas'); ov.width = W; ov.height = vB - vA;
@@ -4128,6 +4982,7 @@ function paintLivery(T) {
     }
   }
   og.putImageData(img, 0, 0); g.save(); g.filter = 'blur(0.7px)'; g.drawImage(ov, 0, vA); g.restore(); gr.putImageData(rimg, 0, vA);
+  }
   const t = new THREE.CanvasTexture(tex); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   const r = new THREE.CanvasTexture(rough); r.anisotropy = 4;
   return { map: t, rough: r };
@@ -4136,6 +4991,18 @@ function finTex(T, z0, z1, y0, y1) {
   const C = T.liv, bg = C.tail, ink = C.ink;
   const t = canvasTex(512, 512, (g, w, h) => {
     g.fillStyle = bg; g.fillRect(0, 0, w, h);
+    if (C.finArt === 'jolly') {   // a black tail with a skull and crossbones, as the Jolly Rogers fly
+      g.fillStyle = '#16181b'; g.fillRect(0, 0, w, h * 0.62); g.fillStyle = '#d9b44a'; g.fillRect(0, h * 0.62, w, h * 0.025);
+      const cx = w * 0.5, cy = h * 0.4; g.translate(cx, cy); g.scale(0.62, 0.62); g.translate(-cx, -cy);
+      g.strokeStyle = '#f2f2ee'; g.lineCap = 'round'; g.lineWidth = 22;
+      for (const a of [0.7, -0.7]) { g.beginPath(); g.moveTo(cx - Math.cos(a) * 112, cy + 40 - Math.sin(a) * 112); g.lineTo(cx + Math.cos(a) * 112, cy + 40 + Math.sin(a) * 112); g.stroke(); }
+      g.fillStyle = '#f2f2ee'; for (const a of [0.7, -0.7]) for (const s2 of [-1, 1]) for (const d of [-13, 13]) { g.beginPath(); g.arc(cx + s2 * Math.cos(a) * 112 - Math.sin(a) * d, cy + 40 + s2 * Math.sin(a) * 112 + Math.cos(a) * d, 15, 0, TAU); g.fill(); }
+      g.beginPath(); g.arc(cx, cy - 6, 62, 0, TAU); g.fill(); g.fillRect(cx - 36, cy + 30, 72, 40);
+      g.fillStyle = '#16181b'; for (const d of [-24, 24]) { g.beginPath(); g.arc(cx + d, cy - 2, 17, 0, TAU); g.fill(); }
+      g.beginPath(); g.moveTo(cx, cy + 16); g.lineTo(cx - 9, cy + 32); g.lineTo(cx + 9, cy + 32); g.closePath(); g.fill();
+      for (let k = -2; k <= 2; k++) g.fillRect(cx + k * 13 - 2, cy + 46, 4, 24);
+      return;
+    }
     if (C.allWhite) { g.fillStyle = '#df5f4b'; g.fillRect(0, h * 0.62, w, h * 0.07); g.fillStyle = '#26324a'; g.fillRect(0, h * 0.7, w, h * 0.05); }
     const cx = w * 0.62, cy = h * 0.42, s = C.allWhite ? 0.7 : 1;
     g.strokeStyle = C.allWhite ? '#26324a' : ink; g.lineWidth = 16 * s; g.beginPath(); g.arc(cx, cy, 78 * s, 0, TAU); g.stroke();
@@ -4338,6 +5205,9 @@ function buildAircraft(T) {
   const paint = new THREE.MeshPhysicalMaterial({ map: liv.map, roughnessMap: liv.rough, roughness: 1.0, metalness: 0.05, clearcoat: 0.75, clearcoatRoughness: 0.1 });
   const accent = std({ color: new THREE.Color(T.liv.accent), roughness: 0.38, metalness: 0.05 });
   planeMats.add(paint); planeMats.add(accent);
+  const wingMat = T.liv.military ? std({ color: new THREE.Color(T.liv.base), roughness: 0.62, metalness: 0.18 }) : M.wing;
+  const wingDarkMat = T.liv.military ? std({ color: new THREE.Color(T.liv.accent), roughness: 0.6, metalness: 0.2 }) : M.wingDark;
+  if (T.liv.military) { planeMats.add(wingMat); planeMats.add(wingDarkMat); }
   const dih = (W.dih || 0) * D2R;
 
   // ---- fuselage (Concorde's nose is a separate hinged piece) ----
@@ -4380,21 +5250,21 @@ function buildAircraft(T) {
     tipX = t.x; tipZ = t.z + t.c * 0.5;
     for (const side of [-1, 1]) {
       const wg = new THREE.Group(); wg.position.set(0, W.y, 0); wg.rotation.z = side * dih; root.add(wg);
-      addTo(wg, surfaceGeometry(secs, side), M.wing);
+      addTo(wg, surfaceGeometry(secs, side), wingMat);
       // hinged surfaces along the trailing edge
       const teSweep = x => { const d = 0.5; return Math.atan2(teAt(x + d) - teAt(x - d), 2 * d); };
       const surfAt = (f0, f1, chordK, list, extra = {}) => {
         const x0 = f0 * t.x, x1 = f1 * t.x, xm = (x0 + x1) / 2, sw = teSweep(xm), ch = (teAt(xm) - zLEAt(xm)) * chordK, th = thickAt(xm) * 0.42;
         const piv = new THREE.Group(); piv.position.set(side * xm, -th * 0.1, teAt(xm) - ch); piv.rotation.y = -side * sw; wg.add(piv);
         const gm = new THREE.BoxGeometry((x1 - x0) / Math.cos(sw), th, ch); gm.translate(0, 0, ch / 2);
-        list.push(Object.assign({ piv, mesh: addTo(piv, gm, M.wingDark), side, chord: ch }, extra));
+        list.push(Object.assign({ piv, mesh: addTo(piv, gm, wingDarkMat), side, chord: ch }, extra));
       };
       if (T.flaps) {
         surfAt(W.high ? 0.08 : 0.12, 0.36, 0.26, ac.surf.flaps, { slide: 1 });
         surfAt(0.39, 0.7, 0.28, ac.surf.flaps, { slide: 1 });
       }
       surfAt(0.72, 0.93, 0.24, ac.surf.ailerons);
-      if (!W.high) for (const [a0, a1] of [[0.16, 0.34], [0.4, 0.53], [0.54, 0.67]]) {
+      if (!W.high && !W.noSpoilers) for (const [a0, a1] of [[0.16, 0.34], [0.4, 0.53], [0.54, 0.67]]) {
         const x0 = a0 * t.x, x1 = a1 * t.x, xm = (x0 + x1) / 2, sw = teSweep(xm), ch = (teAt(xm) - zLEAt(xm)) * 0.17, th = thickAt(xm);
         const piv = new THREE.Group(); piv.position.set(side * xm, th * 0.5 + 0.02, teAt(xm) - (teAt(xm) - zLEAt(xm)) * 0.44); piv.rotation.y = -side * sw; wg.add(piv);
         const gm = new THREE.BoxGeometry((x1 - x0) / Math.cos(sw) - 0.1, 0.05, ch); gm.translate(0, 0, ch / 2);
@@ -4429,6 +5299,13 @@ function buildAircraft(T) {
         const f2 = surfaceGeometry([{ x: 0, y: 0, z: 0.2, c: t.c * 0.7, t: 0.1, cam: 0 }, { x: 0.8, y: 0, z: 1.1, c: 0.5, t: 0.04, cam: 0 }], 1, true, true);
         addTo(tg, f2, accent).rotation.z = Math.PI;
         tipY = 1.2;
+      } else if (W.winglet === 'rail') {   // a launch rail and a Sidewinder on each tip
+        addTo(tg, new THREE.BoxGeometry(0.12, 0.1, t.c * 1.05), wingDarkMat, side * 0.05, 0, t.c * 0.5);
+        const mg = new THREE.Group(); mg.position.set(side * 0.1, 0.02, -0.55); tg.add(mg);
+        const body = addTo(mg, new THREE.CylinderGeometry(0.064, 0.064, 2.6, 10), M.white, 0, 0, 1.3); body.rotation.x = Math.PI / 2;
+        const seeker = addTo(mg, new THREE.ConeGeometry(0.064, 0.32, 10), M.white, 0, 0, -0.16); seeker.rotation.x = -Math.PI / 2;
+        for (let k = 0; k < 4; k++) { const f = addTo(mg, new THREE.BoxGeometry(0.02, 0.32, 0.3), wingDarkMat, 0, 0, 2.35); f.rotation.z = k * Math.PI / 2 + Math.PI / 4; f.translateY(0.15); const c = addTo(mg, new THREE.BoxGeometry(0.02, 0.2, 0.16), wingDarkMat, 0, 0, 0.35); c.rotation.z = k * Math.PI / 2 + Math.PI / 4; c.translateY(0.1); }
+        tipY = 0;
       } else if (W.winglet === 'fold') {
         // 777X: the raked outer 3.5 m hinges straight up so the jet fits a normal gate
         const Fo = W.fold, fp = new THREE.Group(); tg.add(fp);
@@ -4463,7 +5340,7 @@ function buildAircraft(T) {
     wingYAt = x => W.y + x * Math.tan(dih);
   }
   ac.tips = [new THREE.Vector3(-tipX - 0.1, wingYAt(tipX), tipZ), new THREE.Vector3(tipX + 0.1, wingYAt(tipX), tipZ)];
-  if (W.high) addTo(root, new THREE.BoxGeometry(W.fairW || 2.4, 0.5, W.root.c + 0.6), M.white, 0, W.y - 0.05, W.root.z + W.root.c / 2);
+  if (W.high) addTo(root, new THREE.BoxGeometry(W.fairW || 2.4, W.fairH || 0.5, W.root.c + (W.fairH ? 0.1 : 0.6)), M.white, 0, W.y - (W.fairH ? 0.12 : 0.05), W.root.z + W.root.c / 2);
   if (W.struts) {   // the Twin Otter's wing struts, from the lower fuselage to mid-span
     const St = W.struts, up = new THREE.Vector3(0, 1, 0);
     for (const side of [-1, 1]) {
@@ -4474,27 +5351,34 @@ function buildAircraft(T) {
   }
 
   // ---- tail ----
-  const Tl = T.tail, FN = Tl.fin;
-  const finRootY = fusTopAt(F, FN.z0 + FN.c0 * 0.5) - 0.25, sweepT = Math.tan(FN.sweep * D2R);
-  const finTopZ = FN.z0 + FN.h * sweepT, finTopY = finRootY + FN.h;
+  const Tl = T.tail, FN = Tl.fin, TW = FN.twin;
+  const finRootY = TW ? (() => { const s2 = fusSec(F, FN.z0 + FN.c0 * 0.5), k = clamp(TW.x / s2.w, 0, 0.98); return s2.yM + (s2.yT - s2.yM) * Math.sqrt(1 - k * k) - 0.15; })() : fusTopAt(F, FN.z0 + FN.c0 * 0.5) - 0.25;
+  const sweepT = Math.tan(FN.sweep * D2R);
+  const finTopZ = FN.z0 + FN.h * sweepT, finTopY = finRootY + FN.h * (TW ? Math.cos(TW.cant * D2R) : 1);
   {
-    const fg = surfaceGeometry([{ x: finRootY - 0.4, y: 0, z: FN.z0 - 0.4 * sweepT, c: FN.c0, t: FN.c0 * 0.1, cam: 0 }, { x: finTopY, y: 0, z: finTopZ, c: FN.c1, t: FN.c1 * 0.09, cam: 0 }], 1, true, true);
+    // built in the fin's own frame (its root at y = 0) so a twin tail can lean out; uv = (z, height) for the tail art
+    const fg = surfaceGeometry([{ x: -0.4, y: 0, z: FN.z0 - 0.4 * sweepT, c: FN.c0, t: FN.c0 * 0.1, cam: 0 }, { x: FN.h, y: 0, z: finTopZ, c: FN.c1, t: FN.c1 * 0.09, cam: 0 }], 1, true, true);
     const p = fg.attributes.position, uv = new Float32Array(p.count * 2);
     for (let i = 0; i < p.count; i++) { uv[i * 2] = p.getZ(i); uv[i * 2 + 1] = p.getY(i); }
     fg.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
-    const finMat = new THREE.MeshPhysicalMaterial({ map: finTex(T, FN.z0 - 1, FN.z0 + FN.c0 + 2, finRootY, finTopY), roughness: 0.32, metalness: 0.05, clearcoat: 0.7, clearcoatRoughness: 0.12, emissive: 0xffffff, emissiveIntensity: 0 });
+    const finMat = new THREE.MeshPhysicalMaterial({ map: finTex(T, FN.z0 - 1, FN.z0 + FN.c0 + 2, 0, FN.h), roughness: T.liv.military ? 0.6 : 0.32, metalness: 0.05, clearcoat: T.liv.military ? 0.1 : 0.7, clearcoatRoughness: 0.12, emissive: 0xffffff, emissiveIntensity: 0 });
     finMat.emissiveMap = finMat.map; planeMats.add(finMat); ac.finMat = finMat;
-    addTo(root, fg, finMat);
+    ac.surf.rudders = [];
+    for (const fs of TW ? [-1, 1] : [0]) {
+      const fgp = new THREE.Group(); fgp.position.set(TW ? fs * TW.x : 0, finRootY, 0); if (TW) fgp.rotation.z = -fs * TW.cant * D2R; root.add(fgp);
+      addTo(fgp, fg, finMat);
+      // rudder along the trailing edge
+      const rh = FN.h * 0.86, rc = (FN.c0 + FN.c1) / 2 * 0.28;
+      const teTop = finTopZ + FN.c1, teBot = FN.z0 + FN.c0;
+      const piv = new THREE.Group(); piv.position.set(0, FN.h * 0.5, (teTop + teBot) / 2 - rc); piv.rotation.x = Math.atan2(teTop - teBot, FN.h); fgp.add(piv);
+      const rg = new THREE.BoxGeometry(FN.c0 * 0.055, rh, rc); rg.translate(0, 0, rc / 2);
+      const rud = addTo(piv, rg, T.liv.allWhite ? M.white : accent); ac.surf.rudders.push(rud); ac.surf.rudder = ac.surf.rudder || rud;
+      if (TW) { fgp.updateMatrix(); ac.strike.push({ p: new THREE.Vector3(0, FN.h - 0.2, finTopZ + 0.5).applyMatrix4(fgp.matrix), what: 'fin' }); }
+    }
     if (FN.dorsal) {
       const dg = surfaceGeometry([{ x: fusTopAt(F, FN.z0 - FN.dorsal) - 0.2, y: 0, z: FN.z0 - FN.dorsal, c: FN.dorsal + FN.c0 * 0.3, t: 0.2, cam: 0 }, { x: finRootY + 1.2, y: 0, z: FN.z0 + 1.2 * sweepT, c: FN.c0 * 0.5, t: 0.25, cam: 0 }], 1, false, true);
       addTo(root, dg, M.white);
     }
-    // rudder along the trailing edge
-    const rh = FN.h * 0.86, rc = (FN.c0 + FN.c1) / 2 * 0.28;
-    const teTop = finTopZ + FN.c1, teBot = FN.z0 + FN.c0;
-    const piv = new THREE.Group(); piv.position.set(0, finRootY + FN.h * 0.5, (teTop + teBot) / 2 - rc); piv.rotation.x = Math.atan2(teTop - teBot, FN.h); root.add(piv);
-    const rg = new THREE.BoxGeometry(FN.c0 * 0.055, rh, rc); rg.translate(0, 0, rc / 2);
-    ac.surf.rudder = addTo(piv, rg, T.liv.allWhite ? M.white : accent);
   }
   if (Tl.stab) {
     const S = Tl.stab, tt = !!FN.ttail;
@@ -4502,11 +5386,11 @@ function buildAircraft(T) {
     for (const side of [-1, 1]) {
       const sg = new THREE.Group(); sg.position.set(0, sy, 0); sg.rotation.z = side * (S.dih || 0) * D2R; root.add(sg);
       const secs = [{ x: rx, y: 0, z: z0, c: S.c0, t: S.c0 * 0.1, cam: 0 }, { x: S.span, y: 0, z: z0 + (S.span - rx) * sw, c: S.c1, t: S.c1 * 0.09, cam: 0 }];
-      addTo(sg, surfaceGeometry(secs, side), tt ? accent : M.wing);
+      addTo(sg, surfaceGeometry(secs, side), tt ? accent : wingMat);
       const xm = (rx + S.span) / 2, te0 = z0 + S.c0, te1 = z0 + (S.span - rx) * sw + S.c1, tsw = Math.atan2(te1 - te0, S.span - rx);
       const ch = (S.c0 + S.c1) / 2 * 0.3, piv = new THREE.Group(); piv.position.set(side * xm, 0, lerp(te0, te1, 0.5) - ch); piv.rotation.y = -side * tsw; sg.add(piv);
       const eg = new THREE.BoxGeometry((S.span - rx) / Math.cos(tsw) - 0.2, S.c0 * 0.04, ch); eg.translate(0, 0, ch / 2);
-      ac.surf.elevators.push({ piv, mesh: addTo(piv, eg, M.wingDark), side });
+      ac.surf.elevators.push({ piv, mesh: addTo(piv, eg, wingDarkMat), side });
     }
   }
 
@@ -4519,7 +5403,15 @@ function buildAircraft(T) {
     ac.exhausts.push(new THREE.Vector3(side * E.x, E.y, E.z + E.len * 1.5));
     ac.strike.push({ p: new THREE.Vector3(side * E.x, E.y - E.r, E.z + E.len * 0.4), what: 'engine strike' });
   }
-  for (const Pp of T.props || []) for (const side of [-1, 1]) {
+  for (const Pp of T.props || []) for (const side of Pp.center ? [1] : [-1, 1]) {
+    if (Pp.center) {   // one propeller on the nose: the spinner and blades in front of the cowling
+      const eg = new THREE.Group(); eg.position.set(0, Pp.y, Pp.z); root.add(eg);
+      const pr = propeller(Pp, accent); eg.add(pr.prop); eg.add(pr.blur);
+      ac.engines.push({ jet: false, prop: pr.prop, blur: pr.blur, side: 1, angle: 0 });
+      ac.exhausts.push(new THREE.Vector3(0.3, -0.45, Pp.z + 1.4));
+      ac.strike.push({ p: new THREE.Vector3(0, Pp.y - Pp.r, Pp.z), what: 'propeller strike' });
+      continue;
+    }
     const eg = new THREE.Group(); eg.position.set(side * Pp.x, Pp.y, Pp.z); root.add(eg);
     const nr = (Pp.nr || 0.64) / 0.64, nl = (Pp.len || 7.3) / 7.3;
     addTo(eg, lathe([[0.3, 0], [0.52, 0.35], [0.64, 1.3], [0.64, 3.6], [0.55, 5.4], [0.3, 6.8], [0.05, 7.3]].map(([r, z]) => [r * nr, z * nl]), 26), M.white);
@@ -4546,6 +5438,47 @@ function buildAircraft(T) {
     }
   }
 
+  // ---- the Hornet: leading-edge extensions, bubble canopy, intakes, twin nozzles with afterburners, and the tailhook ----
+  if (T.lex) {
+    const X = T.lex;
+    for (const side of [-1, 1]) addTo(root, surfaceGeometry(X.secs.map(([x, z0, z1], i) => ({ x, y: X.y - i * 0.01, z: z0, c: z1 - z0, t: lerp(0.18, 0.07, i / (X.secs.length - 1)), cam: 0 })), side), wingMat);
+  }
+  if (T.canopy) {
+    const Cn = T.canopy, glass = new THREE.MeshPhysicalMaterial({ color: 0x18242f, roughness: 0.04, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6 });
+    planeMats.add(glass);
+    const cg = new THREE.SphereGeometry(1, 28, 12, 0, TAU, 0, Math.PI / 2);
+    const top = fusTopAt(F, Cn.z), cm = addTo(root, cg, glass, 0, top - 0.14, Cn.z); cm.scale.set(Cn.w, Cn.h, Cn.len / 2);
+    const bow = addTo(root, new THREE.TorusGeometry(1, 0.05, 6, 24, Math.PI), wingDarkMat, 0, top - 0.14, Cn.z - Cn.len * 0.2); bow.scale.set(Cn.w * 0.98, Cn.h * 0.92, 1);
+  }
+  if (T.intakes) {
+    const I = T.intakes;
+    for (const side of [-1, 1]) {
+      addTo(root, new THREE.BoxGeometry(I.w, I.h, 3.4), wingMat, side * I.x, I.y, I.z + 1.7);
+      const mouth = addTo(root, new THREE.PlaneGeometry(I.w * 0.82, I.h * 0.8), M.dark, side * I.x, I.y, I.z - 0.02); mouth.rotation.y = Math.PI;
+      addTo(root, new THREE.BoxGeometry(I.w + 0.06, 0.06, 0.2), wingDarkMat, side * I.x, I.y + I.h / 2, I.z + 0.08);
+    }
+  }
+  if (T.nozzles) {
+    const Nz = T.nozzles;
+    for (const side of [-1, 1]) {
+      const nz = new THREE.Group(); nz.position.set(side * Nz.x, Nz.y, Nz.z); root.add(nz);
+      addTo(nz, lathe([[Nz.r * 1.08, -0.6], [Nz.r * 1.02, 0.1], [Nz.r * 0.92, 0.75]], 18), M.hot);
+      const inner = new THREE.Mesh(new THREE.CircleGeometry(Nz.r * 0.85, 18), M.dark); inner.position.z = 0.25; nz.add(inner);
+      const f = flame(0.78); f.group.position.z = 0.7; nz.add(f.group); ac.flames.push(f);
+      ac.exhausts.push(new THREE.Vector3(side * Nz.x, Nz.y, Nz.z + 1));
+      ac.engines.push({ jet: true, buried: true, side });
+      ac.strike.push({ p: new THREE.Vector3(side * Nz.x, Nz.y - Nz.r, Nz.z), what: 'tail strike' });
+    }
+  }
+  if (T.hookArm) {   // the arrester hook: stowed flat under the tail, lowered on its hinge until it rides the deck
+    const H = T.hookArm, piv = new THREE.Group(); piv.position.set(0, H.y, H.z); root.add(piv);
+    const arm = addTo(piv, new THREE.BoxGeometry(0.12, 0.12, H.len), wingDarkMat, 0, 0, H.len / 2);
+    const tip = addTo(piv, new THREE.BoxGeometry(0.22, 0.2, 0.34), M.metal, 0, -0.06, H.len); tip.rotation.x = 0.3;
+    const stripe = new THREE.MeshStandardMaterial({ color: 0xf2c230, roughness: 0.6 }); planeMats.add(stripe);
+    for (let k = 0; k < 4; k++) addTo(piv, new THREE.BoxGeometry(0.13, 0.13, 0.22), stripe, 0, 0, H.len * (0.2 + k * 0.2));
+    ac.hook = { piv, len: H.len, y: H.y, z: H.z, ang: 0 };
+  }
+
   { const J = T.jets || []; ac.revFrac = J.length ? J.filter(E => E.rev !== false).length / J.length : 1; }
 
   // ---- landing gear ----
@@ -4561,7 +5494,8 @@ function buildAircraft(T) {
       const axle = new THREE.Group(); axle.position.set(ax, ay, 0); piston.add(axle);
       addTo(axle, new THREE.CylinderGeometry(0.06, 0.06, u.ww + 0.2, 8), M.metal).rotation.z = Math.PI / 2;
       const w = makeWheel(u.wr, u.ww); axle.add(w); ac.wheels.push({ w, main: true });
-      addTo(piv, new THREE.SphereGeometry(0.24, 12, 8), M.white, rx * 0.97, ry + 0.05, 0).scale.set(1, 0.7, 1.9);
+      if (u.pants) addTo(axle, new THREE.SphereGeometry(1, 16, 10), M.white, 0, 0.04, 0.08).scale.set(u.ww * 0.95, u.wr * 1.18, u.wr * 2.3);
+      else addTo(piv, new THREE.SphereGeometry(0.24, 12, 8), M.white, rx * 0.97, ry + 0.05, 0).scale.set(1, 0.7, 1.9);
       ac.mains.push({ side, piv, piston, pBase: 0, axle, retract: 'fixed', tiltK: 0, u, shorten: 0 });
       continue;
     }
@@ -4583,10 +5517,11 @@ function buildAircraft(T) {
     }
     const axle = new THREE.Group(); axle.position.y = -pLen; piston.add(axle);
     const axZ = u.kind === 'bogie6' ? [-u.blen / 2, 0, u.blen / 2] : u.kind === 'bogie4' ? [-u.blen / 2, u.blen / 2] : [0];
+    const axX = u.kind === 'single' ? [0] : [-u.spread, u.spread];
     if (axZ.length > 1) addTo(axle, new THREE.BoxGeometry(0.26 * sc, 0.26 * sc, u.blen + 0.3), M.metal);
     for (const az of axZ) {
       addTo(axle, new THREE.CylinderGeometry(0.1 * sc, 0.1 * sc, u.spread * 2 + 0.4 * sc, 8), M.metal, 0, 0, az).rotation.z = Math.PI / 2;
-      for (const ax of [-u.spread, u.spread]) { const w = makeWheel(u.wr, u.ww); w.position.set(ax, 0, az); axle.add(w); ac.wheels.push({ w, main: true }); }
+      for (const ax of axX) { const w = makeWheel(u.wr, u.ww); w.position.set(ax, 0, az); axle.add(w); ac.wheels.push({ w, main: true }); }
     }
     ac.mains.push({ side, piv, piston, pBase: -pTop, axle, retract: u.retract, tiltK: axZ.length > 1 ? 1 : 0, u, shorten: u.shorten || 0, brace });
     if (u.noDoor) {   // 737: the wheels themselves close the well
@@ -4605,7 +5540,9 @@ function buildAircraft(T) {
     const axle = new THREE.Group(); axle.position.y = -pLen; piston.add(axle);
     addTo(axle, new THREE.CylinderGeometry(0.07 * sc, 0.07 * sc, n.spread * 2 + 0.3 * sc, 8), M.metal).rotation.z = Math.PI / 2;
     for (const ax of n.single ? [0] : [-n.spread, n.spread]) { const w = makeWheel(n.wr, n.ww); w.position.set(ax, 0, 0); axle.add(w); ac.wheels.push({ w, main: false }); }
-    if (n.single) for (const s2 of [-1, 1]) addTo(piston, new THREE.BoxGeometry(0.04, 0.5, 0.12), M.metal, s2 * (n.ww / 2 + 0.05), -pLen + 0.22, 0);
+    if (n.single && !n.pants) for (const s2 of [-1, 1]) addTo(piston, new THREE.BoxGeometry(0.04, 0.5, 0.12), M.metal, s2 * (n.ww / 2 + 0.05), -pLen + 0.22, 0);
+    if (n.pants) addTo(axle, new THREE.SphereGeometry(1, 16, 10), M.white, 0, 0.04, 0.06).scale.set(n.ww * 0.95, n.wr * 1.2, n.wr * 2.2);
+    if (n.launchBar) { const lb = addTo(axle, new THREE.BoxGeometry(0.08, 0.08, 1.1), M.metal, 0, 0.12, -0.55); lb.rotation.x = -0.32; }
     const taxi = glowPoints([{ p: [0, -len * 0.53, -0.32 * sc], c: 0xfff4e0, s: 1.3 * sc }], 'plane'); piv.add(taxi);
     ac.nose = { piv, piston, pBase: -pTop, axle, taxi, ang: n.ang * D2R };
     if (!T.fixedGear) {
@@ -4653,7 +5590,9 @@ function buildAircraft(T) {
   ac.spot.position.set(0, bellyY, F.zN + L * 0.2); root.add(ac.spot);
   const st = new THREE.Object3D(); st.position.set(0, -14, F.zN - 200); root.add(st); ac.spot.target = st;
   const ck = COCKPITS[T.win.style], sc2 = T.win.ck || T.win.scale || 1;
-  ac.cockpit = new THREE.Object3D(); ac.cockpit.position.set(0, (ck.ws.y0 + 0.3) * sc2 + (T.concorde ? -0.15 : 0), F.zN + (ck.ws.zMax + 0.8) * sc2); root.add(ac.cockpit);
+  ac.cockpit = new THREE.Object3D(); root.add(ac.cockpit);
+  if (ck.eye) ac.cockpit.position.set(0, ck.eye[0], F.zN + ck.eye[1]);
+  else ac.cockpit.position.set(0, (ck.ws.y0 + 0.3) * sc2 + (T.concorde ? -0.15 : 0), F.zN + (ck.ws.zMax + 0.8) * sc2);
   ac.gearCam = { eye: new THREE.Vector3(-F.R * 0.42, bellyY - 0.8 * F.R / 2.9, mainZ - 0.17 * L), at: new THREE.Vector3(-T.mains[0].x, -T.reach * 0.76, T.mains[0].z + 0.4) };
   ac.camDist = L * 1.35 + 10;
 
@@ -4765,7 +5704,7 @@ function toggleReheat() {
 }
 function toggleGear() {
   if (state !== 'fly') return;
-  if (AC.T.fixedGear) { toast('fixed gear · the Twin Otter keeps its wheels down'); sfx.click(); return; }
+  if (AC.T.fixedGear) { toast('fixed gear · the ' + AC.T.name.replace(/^DHC-6 /, '') + ' keeps its wheels down'); sfx.click(); return; }
   if (S.onGround && S.gearHandle) { toast('gear locked · weight on wheels'); sfx.click(); return; }
   S.gearHandle = !S.gearHandle; sfx.click();
   toast(S.gearHandle ? 'gear down' : 'gear up');
@@ -4788,6 +5727,11 @@ function physicsStep(dt) {
   // ---------- controls -> body rates ----------
   const auth = clamp((S.ias - 8) / 62, 0.08, 1) * (S.stall ? 0.55 : 1);
   let tp = inp.pitch * PF.pitch * auth, tr = -inp.roll * PF.roll * auth, ty = -inp.yaw * 0.12 * auth;
+  // the Hornet's flight controls stop a pull at 7.5 g and a push at -3
+  if (PF.gLim && !S.onGround) { const lim = PF.gLim * G / Math.max(spd, 40); tp = clamp(tp, -lim * 0.4, lim); }
+  // off the catapult the stabilators are trimmed to rotate the jet to about 11 degrees by themselves
+  if (S.catTrim > 0) { S.catTrim -= dt; if (S.pitch < 11 * D2R && inp.pitch > -0.3) tp = Math.max(tp, 0.55); }
+  if (S.cat) { tp = tr = ty = 0; S.rates.set(0, 0, 0); }   // the launch bar holds the jet straight and level
   if (!S.onGround) {
     if (Math.abs(inp.roll) < 0.05 && Math.abs(S.bank) > 33 * D2R) tr = Math.sign(S.bank) * Math.min(0.35, (Math.abs(S.bank) - 33 * D2R) * 1.5);
     if (S.stall) tp -= (S.alpha - PF.amax) * 1.6 + 0.05;
@@ -4811,7 +5755,7 @@ function physicsStep(dt) {
   S.q.normalize(); axes();
 
   // ---------- engines ----------
-  const revWanted = S.onGround && state === 'fly' && (inp.rev || (S.throttle <= 0.001 && inp.thrDn));
+  const revWanted = S.onGround && state === 'fly' && !AC.T.noRev && (inp.rev || (S.throttle <= 0.001 && inp.thrDn));
   S.rev = damp(S.rev, revWanted ? 1 : 0, 3, dt);
   if (revWanted && S.throttle > 0) S.throttle = 0;
   const n1t = S.rev > 0.5 ? 0.74 : 0.22 + 0.78 * S.throttle;
@@ -4825,6 +5769,7 @@ function physicsStep(dt) {
   S.abK = damp(S.abK, abOn ? 1 : 0, abOn ? 3 : 5, dt);
   let thrust = PF.thrust * thrustFrac(S.n1) * lapse * (1 + (PF.reheat || 0) * S.abK);
   if (S.rev > 0.5) thrust = -PF.thrust * thrustFrac(S.n1) * lapse * 0.5 * AC.revFrac;   // the A380 reverses on two engines of four
+  if (S.cat && catStep(dt, thrust)) return;   // on the catapult: held at the shuttle, then thrown down the track
 
   // ---------- forces ----------
   S.vel.addScaledVector(_f, thrust * dt);
@@ -4848,7 +5793,7 @@ function physicsStep(dt) {
       liftAcc = rate * sp;
     }
     let cw = 0;
-    if (PF.supersonic) cw = 4.5e-5 * Math.exp(-(((M - 1.08) / (M < 1.08 ? 0.14 : 0.32)) ** 2)) + 1.1e-5 * sstep(1.0, 1.5, M) + (M > 2.03 ? 5e-4 * (M - 2.03) : 0);
+    if (PF.supersonic) { const mw = PF.mWall || 2.03; cw = 4.5e-5 * Math.exp(-(((M - 1.08) / (M < 1.08 ? 0.14 : 0.32)) ** 2)) + 1.1e-5 * sstep(1.0, 1.5, M) + (M > mw ? 5e-4 * (M - mw) : 0); }
     else cw = 0.0035 * Math.max(0, M - PF.mcrit) ** 2;
     const noseDrag = AC.concorde ? (AC.concorde.nose * 2.5e-5 + AC.concorde.visorV * 3e-6) : 0;
     let drag = S.rho * (PF.cd0 + PF.cdGear * gearExt() + PF.cdFlap * S.flap + CD_SPOIL * S.spoiler + cw + noseDrag) * sp * sp;
@@ -4946,12 +5891,14 @@ function physicsStep(dt) {
       if (sp2.what === 'tail strike' && S.vel.y - gRate > -4) { tailScrape(w); S.q.multiply(_q.setFromAxisAngle(X_AXIS, -(g - w.y) / 22)); if (!S.onGround && S.vel.y < 0) S.vel.y *= 0.5; continue; }
       if (sp2.what === 'belly' && !locked) { bellyLanding(w.y < 0.5 && TM.height(w.x, w.z) < 0, w); return; }
       if (sp2.what === 'belly' && locked) continue;
-      const wet = TM.height(w.x, w.z) < 0 && !gi.deck;
-      crash(wet ? 'ditched in the sea' : sp2.what === 'belly' ? 'belly landing' : sp2.what, w, wet);
+      const wet = TM.height(w.x, w.z) < 0 && !gi.deck, ramp = !!_S.ship && !S.onGround;
+      crash(ramp ? 'ramp strike · too low over the stern' : wet ? 'ditched in the sea' : sp2.what === 'belly' ? 'belly landing' : sp2.what, w, wet);
       return;
     }
-    if (OBSTACLES.length && w.y < 700 && hitObstacle(w)) { crash('hit a building', w); return; }
+    if (OBSTACLES.length && w.y < 700) { const ob = hitObstacle(w); if (ob) { crash(ob.what || 'hit a building', w); return; } }
   }
+  // the carrier's wires, and a slow jet nosing onto a catapult shuttle
+  if (CARRIER.A && AC.hook) { trapCheck(dt); if (S.onGround) catAutoHook(); }
   // the sound barrier
   if (S.lastMach < 1 && S.mach >= 1) { sfx.sonicBoom(); shake(0.9); toast('Mach 1 · supersonic'); }
   S.lastMach = S.mach;
@@ -4965,10 +5912,11 @@ function touchdown(sink, h, flat, pm, water, surf, rw) {
   sfx.chirp(clamp(sink / 3, 0.35, 1)); tyreSmoke(clamp(sink / 2.5, 0.4, 1.2));
   shake(clamp(sink * 0.25, 0.1, 1.2));
   if (water) { crash('ditched in the sea', pm, true); return; }
-  if (sink > 4.4) { crash('hard landing · ' + Math.round(fpm) + ' fpm · gear collapsed', pm); return; }
+  if (sink > (AC.T.gearSink || 4.4)) { crash('hard landing · ' + Math.round(fpm) + ' fpm · gear collapsed', pm); return; }
   if (!rw && flat < 0.5 && surf !== 3 && surf !== 4) { crash('off-field landing', pm); return; }
   if (Math.abs(S.bank) > 12 * D2R) { crash('wing low · wingtip strike', pm); return; }
   S.autobrake = true;
+  if (rw && rw.carrier) { S.landed = { done: false, rw, carrier: true, fpm, pts: 0, big: '', sub: '', isTarget: target && rw.airport === target.A }; return; }
   const surfName = SURF_NAMES[surf] || 'terrain';
   if (!rw) { S.landed = { done: false, rw: null, pts: 150, big: 'OFF RUNWAY', sub: 'landed on ' + surfName, fpm }; return; }
   {   // where runways cross, score against the one we're lined up with
@@ -4979,7 +5927,8 @@ function touchdown(sink, h, flat, pm, water, surf, rw) {
   const vf = S.vel.x * rw.dx + S.vel.z * rw.dz;
   const fromThr = vf >= 0 ? a + rw.half : rw.half - a;
   let big, mult;
-  if (fpm < 130) { big = 'BUTTER'; mult = 2; } else if (fpm < 320) { big = 'SMOOTH'; mult = 1.5; } else if (fpm < 480) { big = 'FIRM'; mult = 1; } else { big = 'HARD'; mult = 0.45; }
+  const sk = AC.T.sinkK || 1;   // navy jets fly onto the deck without a flare: grade them on their own scale
+  if (fpm < 130 * sk) { big = 'BUTTER'; mult = 2; } else if (fpm < 320 * sk) { big = 'SMOOTH'; mult = 1.5; } else if (fpm < 480 * sk) { big = 'FIRM'; mult = 1; } else { big = 'HARD'; mult = 0.45; }
   let pts = 1000 * mult; const notes = [Math.round(fpm) + ' fpm'];
   if (Math.abs(c) < Math.max(3, rw.wid * 0.08)) { pts += 200; notes.push('on centerline'); } else notes.push(Math.abs(c).toFixed(0) + ' m off centerline');
   const tz0 = Math.min(150, rw.len * 0.1), tz1 = Math.min(750, rw.len * 0.35);
@@ -4992,10 +5941,19 @@ function touchdown(sink, h, flat, pm, water, surf, rw) {
   if (isTarget) pts += 500;
   S.landed = { done: false, rw, pts: Math.round(pts), big, sub: notes.join(' · '), fpm, isTarget };
   showMsg(big, notes.join(' · '), '');
-  if (fpm >= 480) ryanairMeme();
+  if (fpm >= 480 * sk) ryanairMeme();
 }
 function completeLanding() {
-  const L = S.landed; L.done = true;
+  const L = S.landed;
+  if (L.carrier) {
+    // a bolter flies off the end: no landing, round again
+    if (!S.onGround || L.bolter) { if (!S.onGround) { S.landed = null; toast('round again · hook down, on speed, call the ball'); } return; }
+    if (S.trap && !S.trap.stop) return;   // still in the wire
+    const g = trapGrade(L), diff = 2;
+    L.big = g.big; L.sub = g.sub + ' · ×' + diff + ' carrier'; L.pts = Math.round(g.pts * diff + (L.isTarget ? 500 : 0));
+    if (S.trap) sfx.say(S.trap.wire === 3 ? 'OK, three wire.' : 'Fair, ' + ['one', 'two', 'three', 'four'][S.trap.wire - 1] + ' wire.', { key: 'lso-grade', gap: 5, prio: 5, style: 'boeing' });
+  }
+  L.done = true;
   score += L.pts; landings++;
   if (L.rw) lastAirport = L.rw.airport;
   if (L.isTarget) {
@@ -5062,9 +6020,9 @@ function updateGear(dt) {
     d.piv.rotation.z = -d.dir * dA(g.door);
   }
   AC.root.position.y = -GS.comp - lever * 0.5;
-  n.taxi.visible = GS.nose.leg > 0.9;
+  n.taxi.visible = GS.nose.leg > 0.9 && cam.mode !== 'cockpit';   // from the seat the taxi light is out of sight below
   // once the doors have shut, the stowed gear is out of sight: nothing pokes through the belly
-  const mainStowed = GS.main.leg <= 0 && GS.main.door <= 0 && AC.T.mainDoors.length > 0;
+  const mainStowed = GS.main.leg <= 0 && GS.main.door <= 0 && (AC.T.mainDoors.length > 0 || AC.T.stowHide);
   for (const g of AC.mains) g.piv.visible = !mainStowed;
   n.piv.visible = !(GS.nose.leg <= 0 && GS.nose.door <= 0 && !AC.T.fixedGear);
   if (AC.tailWheel) AC.tailWheel.piv.visible = GS.main.leg > 0;
@@ -5081,9 +6039,9 @@ function updateSurfaces(dt) {
   for (const a of surf.ailerons) a.mesh.rotation.x = -a.side * rollIn * 16 * D2R;
   for (const e of surf.elevators) e.mesh.rotation.x = -inp.pitch * 18 * D2R;
   for (const e of surf.elevons) e.mesh.rotation.x = clamp(-inp.pitch * 16 - e.side * rollIn * (e.outer ? 14 : 9), -24, 24) * D2R;
-  if (surf.rudder) surf.rudder.rotation.y = (inp.yaw + (S.onGround ? inp.roll : 0)) * 22 * D2R;
+  for (const r of surf.rudders || []) r.rotation.y = (inp.yaw + (S.onGround ? inp.roll : 0)) * 22 * D2R;
   for (const e of AC.engines) {
-    if (e.concorde) continue;
+    if (e.concorde || e.buried) continue;
     if (e.jet) { e.angle += ((e.sleeve || S.rev < 0.5 ? S.n1 : 0.22) * 55 + 2) * dt; e.fan.rotation.z = e.angle * e.side; if (e.sleeve) e.sleeve.position.z = S.rev * 1.0; }
     else { e.angle += (S.n1 * 42 + 1.5) * dt; e.prop.rotation.z = e.angle * e.side; e.blur.material.opacity = clamp((S.n1 - 0.12) * 0.5, 0.05, 0.3); }
   }
@@ -5098,6 +6056,10 @@ function updateSurfaces(dt) {
     else if (P.visor < C.visorV && C.nose < 0.002) C.visorV = Math.max(P.visor, C.visorV - dt / 3.5);
     C.pivot.rotation.x = -C.nose;
     C.visor.position.set(0, -0.3 * C.visorV, -1.95 * C.visorV);
+    for (const b of AC.nozzleBuckets) b.pv.rotation.x = b.b * S.rev * 0.9;
+  }
+  // afterburner plumes: Concorde's reheat and the Hornet's burners
+  if (AC.flames.length) {
     const t = performance.now() / 1000;
     for (let i = 0; i < AC.flames.length; i++) {
       const f = AC.flames[i], k = S.abK * (0.55 + 0.45 * S.throttle);
@@ -5108,9 +6070,32 @@ function updateSurfaces(dt) {
       f.core.material.opacity = 0.95 * k; f.mid.material.opacity = 0.62 * k; f.outer.material.opacity = 0.28 * k; f.halo.material.opacity = 0.2 * k * fl;
       f.diamonds.forEach((d, j) => { d.material.opacity = k * (0.85 - j * 0.12) * (0.8 + 0.2 * Math.sin(t * 30 + j)); });
     }
-    for (const b of AC.nozzleBuckets) b.pv.rotation.x = b.b * S.rev * 0.9;
   }
+  updateHook(dt);
   if (AC.finMat) AC.finMat.emissiveIntensity = darkness * 0.35;
+}
+
+/* ---------- the arrester hook: stowed flat under the tail, lowered until it rides the deck on its damper ---------- */
+const HOOK_MAX = 36 * D2R, _hk = new THREE.Vector3();
+function toggleHook() {
+  if (!AC.hook) { toast('no tailhook on the ' + AC.T.name); sfx.click(); return; }
+  S.hookCmd = !S.hookCmd; sfx.clunk(0.45); toast(S.hookCmd ? 'hook down' : 'hook up');
+}
+function hookTip(ang, out) { const H = AC.hook; return bodyToWorld(out.set(0, H.y - H.len * Math.sin(ang), H.z + H.len * Math.cos(ang)), out); }
+function updateHook(dt) {
+  const H = AC.hook; if (!H) return;
+  S.hookK = clamp((S.hookK || 0) + (S.hookCmd ? dt / 1.1 : -dt / 1.6), 0, 1);
+  let ang = HOOK_MAX * sstep(0, 1, S.hookK);
+  if (ang > 0.01 && S.agl < 14) {
+    if (hookTip(ang, _hk).y < groundAt(_hk.x, _hk.z)) {
+      let lo = 0, hi = ang;
+      for (let i = 0; i < 7; i++) { const m = (lo + hi) / 2; if (hookTip(m, _hk).y < groundAt(_hk.x, _hk.z)) hi = m; else lo = m; }
+      ang = lo;
+      // dragging along the deck throws sparks
+      if (Math.hypot(S.vel.x, S.vel.z) > 12 && Math.random() < 0.5) fire.spawn({ pos: hookTip(ang, new THREE.Vector3()), v: new THREE.Vector3((Math.random() - 0.5) * 4, 1 + Math.random() * 3, (Math.random() - 0.5) * 4).addScaledVector(S.vel, 0.4), size: 0.18, grow: -0.1, life: 0.35, a: 1, c0: [1, 0.9, 0.5], c1: [1, 0.4, 0.05], drag: 1.5 });
+    }
+  }
+  H.ang = ang; H.piv.rotation.x = ang;
 }
 
 /* ---------- smoke, dust, vapour, crashes ---------- */
@@ -5255,6 +6240,7 @@ const sfx = (() => {
     airbus: { male: true, lang: 'en-GB', fav: UK_MALE },
     concorde: { male: true, lang: 'en-GB', fav: UK_MALE },
     garmin: { male: false, lang: 'en-US', fav: /Aria|Jenny|Ava|Emma|Michelle|Samantha|Allison|Zoe|Susan|Nicky|Google US English/ },
+    hornet: { male: false, lang: 'en-US', fav: /Jenny|Aria|Ava|Samantha|Allison|Susan|Zoe|Google US English/ },
   };
   let voices = [], bestFor = {}, voicePick = store.get('voice', 'auto');
   const failed = new Set();   // online voices that could not speak (no connection): skip them from then on
@@ -5305,18 +6291,21 @@ const sfx = (() => {
       const outside = camMode !== 'cockpit';
       const distAtt = outside ? clamp(AC.camDist * 0.85 / Math.max(camDist, 30), 0.03, 1.2) : 0.5;
       const on = flying ? 1 : (state === 'title' ? 0.6 : 0);
-      const jet = kind === 'prop' ? 0.25 : 1, big = kind === 'jet4' ? 1.25 : 1, pitchK = kind === 'jet4' ? 0.8 : 1;
+      const pist = kind === 'piston', fight = kind === 'fighter';
+      const jet = kind === 'prop' ? 0.25 : pist ? 0.03 : 1, big = kind === 'jet4' ? 1.25 : fight ? 1.4 : 1, pitchK = kind === 'jet4' ? 0.8 : fight ? 0.88 : 1;
       set(view.frequency, outside ? 9000 : 1400, 0.3);
       set(N.roarG.gain, on * jet * big * (0.012 + n1 * n1 * 0.16) * distAtt, 0.25);
       set(N.roarF.frequency, (240 + n1 * 1300) * pitchK, 0.4);
       set(N.rumbleG.gain, on * (0.04 + n1 * 0.22) * big * distAtt, 0.3);
       set(N.wh1.frequency, (900 + n1 * 3200) * pitchK, 0.5); set(N.wh2.frequency, (1800 + n1 * 5200) * pitchK, 0.5);
       set(N.whG.gain, on * jet * (0.004 + n1 * 0.012) * distAtt, 0.4);
-      set(N.buzz.frequency, (55 + n1 * 75) * pitchK, 0.4); set(N.buzzG.gain, on * jet * Math.max(0, n1 - 0.55) * 0.05 * distAtt, 0.4);
-      const prop = kind === 'prop' ? 1 : 0;
+      // a light single's flat-four: a low, uneven buzz that climbs with the revs
+      const bp = pist ? 36 + n1 * 50 : 88 + n1 * 22;
+      set(N.buzz.frequency, pist ? bp * 0.5 : (55 + n1 * 75) * pitchK, 0.4); set(N.buzzG.gain, pist ? on * (0.025 + n1 * 0.06) * distAtt : on * jet * Math.max(0, n1 - 0.55) * 0.05 * distAtt, 0.4);
+      const prop = kind === 'prop' || pist ? 1 : 0;
       set(N.prG.gain, on * prop * (0.03 + n1 * 0.09) * distAtt, 0.3);
-      set(N.prF.frequency, 380 + n1 * 1100, 0.4);
-      const bp = 88 + n1 * 22; set(N.pr1.frequency, bp, 0.6); set(N.pr2.frequency, bp * 1.012, 0.6); set(N.prH.frequency, bp * 2.003, 0.6);
+      set(N.prF.frequency, pist ? 260 + n1 * 700 : 380 + n1 * 1100, 0.4);
+      set(N.pr1.frequency, bp, 0.6); set(N.pr2.frequency, bp * (pist ? 1.004 : 1.012), 0.6); set(N.prH.frequency, bp * 2.003, 0.6);
       set(N.prTG.gain, on * prop * (0.003 + n1 * 0.006) * distAtt, 0.4); set(N.prT.frequency, 4200 + n1 * 2600, 0.5);
       const wsp = flying ? spd : 0;
       set(N.windG.gain, Math.min(0.14, (wsp / 150) ** 2 * 0.1) * (outside ? 0.8 : 1), 0.4);
@@ -5358,6 +6347,9 @@ const sfx = (() => {
     whoop() { if (!ctx) return; for (const d of [0, 0.42]) { tone('sawtooth', 320, 980, 0.07, 0.36, N.alerts, d, 0.02); tone('sine', 330, 1000, 0.1, 0.36, N.alerts, d, 0.02); } },
     caution(style) { if (!ctx) return; if (style === 'airbus') bell(1320, 0.1, 0.7); else for (const d of [0, 0.16]) tone('square', 1100, 1100, 0.04, 0.1, N.alerts, d); },
     cabin() { if (!ctx) return; bell(1175, 0.07, 1.4, 0); bell(932, 0.07, 1.8, 0.55); },
+    // the catapult: a thump, then the steam's roar down the track; the wire: a screech of cable and a heavy clunk
+    catShot() { if (!ctx) return; tone('sine', 75, 30, 0.85, 0.9); burst(bn, 'lowpass', 280, 0.9, 1.0, 2.2, master, 90); burst(wn, 'bandpass', 500, 0.8, 0.45, 2.4, master, 2600); },
+    trap() { if (!ctx) return; tone('sine', 95, 35, 0.9, 0.7); burst(bn, 'lowpass', 420, 1, 0.8, 0.6); tone('sawtooth', 460, 130, 0.08, 1.5); burst(wn, 'bandpass', 2400, 2, 0.32, 1.3, master, 700); },
     sonicBoom() { if (!ctx) return; for (const d of [0, 0.16]) { tone('sine', 55, 24, 0.9, 1.4, master, d); burst(bn, 'lowpass', 500, 0.8, 1.1, 1.2, master, 90, d); } },
     // a brass-ish fanfare and a cabin that claps
     fanfare() {
@@ -5409,8 +6401,13 @@ const visited = new Set();
 const crashSite = new THREE.Vector3();
 function saveBest() { if (score > best) { best = score; store.set('best', best); } }
 const maxRwy = A => Math.max(...A.rws.map(R => R.len));
-const pavedAt = A => A.rws.some(R => R.surface === 'asphalt' || R.surface === 'concrete');
-function suits(A, T = AC.T) { return maxRwy(A) >= T.minRwy && (!T.paved || pavedAt(A)) && (!A.only || A.only.includes(T.id)); }
+const pavedAt = A => A.rws.some(R => R.surface === 'asphalt' || R.surface === 'concrete' || R.surface === 'wood');
+function suits(A, T = AC.T) { return (A.ship || (maxRwy(A) >= T.minRwy && (!T.paved || pavedAt(A)))) && (!A.only || A.only.includes(T.id)); }
+// "only the F/A-18E Super Hornet flies in" / "only the ATR 72-600, DHC-6 Twin Otter and Embraer E190 fly in"
+function onlyText(A) {
+  const n = (A.only || []).map(id => FLEET.find(f => f.T.id === id)?.T.name).filter(Boolean);
+  return n.length === 1 ? 'only the ' + n[0] + ' flies in' : 'only the ' + n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] + ' fly in';
+}
 function nearAirport(x, z, r = 1500) {
   let best = null, bd = 1e18;
   for (const A of AIRPORT_DEFS) for (const R of A.rws) { const px = x - R.cx, pz = z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz; if (Math.abs(a) < R.half + r && Math.abs(c) < r) { const d = a * a + c * c; if (d < bd) { bd = d; best = A; } } }
@@ -5454,13 +6451,16 @@ function spawnAt(A, towardA) {
   S.vel.set(0, 0, 0); S.rates.set(0, 0, 0);
   S.throttle = 0; S.n1 = 0.22; S.rev = 0; S.flapIdx = AC.T.flaps ? (AC.T.toFlaps || 1) : 0; S.flap = FLAPS[S.flapIdx].v; S.flapVis = S.flap; S.spoiler = 0; S.brake = 0; S.autobrake = false;
   S.onGround = true; S.airTime = 0; S.groundTime = 0; S.gearHandle = true; S.landed = null; S.stall = false; S.sliding = false; S.tailScrape = 0;
-  S.reheat = false; S.abK = 0; S.noseSel = 2; S.lastMach = 0;
+  S.reheat = !!AC.T.abDefault; S.abK = 0; S.noseSel = 2; S.lastMach = 0; S.hookCmd = false; S.hookK = 0;
   S.tipCmd = S.tipFold = AC.T.foldTips ? 1 : 0; S.tipFoldFor = null;
   if (AC.concorde) { AC.concorde.nose = 5 * D2R; AC.concorde.visorV = 1; }
   GS.nose.leg = GS.main.leg = 1; GS.nose.door = GS.main.door = 0; GS.tilt = 0; GS.comp = 0.22; GS.compV = 0; GS.lever = 0;
   plane.visible = true;
   callIdx = 99; takeoffCalls = {}; flightFlags = {};
   lastAirport = A;
+  // the carrier: a hook-equipped jet starts hooked up to catapult 1
+  S.cat = null; S.trap = null; S.catTrim = 0; S.hookPrev = null;
+  if (A.ship && AC.hook) catHookUp(A.carrier.cats[0], true);
 }
 function startGame() {
   score = 0; landings = 0; visited.clear();
@@ -5470,7 +6470,7 @@ function startGame() {
   target.end = bestEndFor(target.A, S.pos);
   state = 'fly'; simRate = 1;
   $('titleScr').classList.remove('show'); $('endScr').classList.remove('show'); $('hud').classList.add('on');
-  toast('destination · ' + target.A.name + (touchMode ? ' · slide the throttle up' : ' · hold W for throttle'));
+  toast('destination · ' + target.A.name + (S.cat ? (touchMode ? ' · tap LAUNCH for the catapult' : ' · press L to launch off the catapult') : touchMode ? ' · slide the throttle up' : ' · hold W for throttle'));
   cam.mode = cam.mode === 'orbit' ? 'chase' : cam.mode; cam.reset = true;
 }
 function endScreen() {
@@ -5598,7 +6598,7 @@ function setWarnings(list) {
 }
 function gl(el, s) { el.className = 'gl' + (s ? ' ' + s : ''); }
 const _pv = new THREE.Vector3();
-const SURF_LABEL = { asphalt: 'asphalt', concrete: 'concrete', gravel: 'gravel', grass: 'grass' };
+const SURF_LABEL = { asphalt: 'asphalt', concrete: 'concrete', gravel: 'gravel', grass: 'grass', wood: 'planks' };
 function updateHUD(dt) {
   if (msgTimer > 0 && (msgTimer -= dt) <= 0) $('msg').classList.remove('show');
   if (toastTimer > 0 && (toastTimer -= dt) <= 0) $('toast').classList.remove('show');
@@ -5623,7 +6623,9 @@ function updateHUD(dt) {
   hud.pBrk.className = 'pill' + (S.brake > 0.8 ? ' amber' : S.brake > 0 || S.autobrake ? ' on' : '');
   hud.pBrk.textContent = S.autobrake && S.brake < 0.8 ? 'autobrake' : 'brakes';
   hud.pRev.className = 'pill' + (S.rev > 0.5 ? ' amber' : '');
-  hud.pAB.className = 'pill onlyC' + (S.abK > 0.5 ? ' fire' : S.reheat ? ' on' : '');
+  hud.pAB.className = 'pill onlyAB' + (S.abK > 0.5 ? ' fire' : S.reheat ? ' on' : '');
+  if (AC.hook) { const hv = $('hookV'); hv.textContent = S.trap ? 'WIRE ' + S.trap.wire : S.hookCmd ? 'DOWN' : 'UP'; hv.style.color = S.hookCmd ? 'var(--amber)' : ''; }
+  { const oc = !!(S.cat && S.cat.phase === 'hooked' && state === 'fly'); if (oc !== hud.onCat) { hud.onCat = oc; document.body.classList.toggle('oncat', oc); } }
   hud.score.textContent = score.toLocaleString();
   hud.land.textContent = `${landings} landing${landings === 1 ? '' : 's'} · best ${best.toLocaleString()}`;
   const hh = Math.floor(dayHour), mm = Math.floor((dayHour - hh) * 60);
@@ -5643,7 +6645,7 @@ function updateHUD(dt) {
     hud.objArrow.style.transform = `rotate(${brg - S.hdg}deg)`;
     hud.objName.textContent = target.A.name.toUpperCase();
     const slopeTxt = Math.abs(e.uphill) > 0.005 ? ` · ${(Math.abs(e.uphill) * 100).toFixed(1).replace('.0', '')}% ${e.uphill > 0 ? 'uphill' : 'downhill'}` : '';
-    hud.objSub.textContent = `rwy ${e.id} · ${R.len.toLocaleString()} m ${SURF_LABEL[R.surface]} · ${Math.round(e.thr.y * M2FT)} ft${e.igs ? ' · IGS' : e.ils ? ' · ILS' : ''}${slopeTxt}`;
+    hud.objSub.textContent = e.carrier ? `angled deck · four wires · ${e.gs}° glideslope · hook down` : `rwy ${e.id} · ${R.len.toLocaleString()} m ${SURF_LABEL[R.surface]} · ${Math.round(e.thr.y * M2FT)} ft${e.igs ? ' · IGS' : e.ils ? ' · ILS' : ''}${slopeTxt}`;
     hud.objDist.textContent = d > 9500 ? (d / 1852).toFixed(0) + ' nm' : (d / 1852).toFixed(1) + ' nm';
     if (e.igs) {
       // Kai Tak: follow the beam toward the checkerboard, then the curve onto final
@@ -5658,13 +6660,13 @@ function updateHUD(dt) {
         if (igsN.s < R.igsTurnS + 250 && igsN.s > R.igsTurnS - 150 && !flightFlags.igsTurn) { flightFlags.igsTurn = true; toast('checkerboard · turn right onto runway 13'); }
       }
     } else if (e.ils) {
-      const aim = _pv.copy(e.thr).addScaledVector(e.dir, Math.min(320, R.len * 0.2));
+      const aim = _pv.copy(e.thr).addScaledVector(e.dir, e.aimD || Math.min(320, R.len * 0.2));
       const along = (S.pos.x - aim.x) * e.dir.x + (S.pos.z - aim.z) * e.dir.z;
       const cross = -(S.pos.x - aim.x) * e.dir.z + (S.pos.z - aim.z) * e.dir.x;
       const onApp = along < -300 && along > -26000 && Math.abs(cross) < -along * 0.35 + 400 && !S.onGround && state === 'fly';
       hud.ils.style.opacity = onApp ? 1 : 0;
       if (onApp) {
-        const gsDev = Math.atan2(S.pos.y - e.thr.y, -along) * R2D - 3; gsDevNow = gsDev;
+        const gsDev = Math.atan2(S.pos.y - e.thr.y, -along) * R2D - (e.gs || 3); gsDevNow = gsDev;
         const locDev = Math.atan2(cross, -along + R.len) * R2D;
         hud.gs.style.top = (clamp(gsDev / 0.7, -1, 1) * 80 + 74) + 'px';
         hud.loc.style.left = (clamp(-locDev / 2.5, -1, 1) * 80 + 74) + 'px';
@@ -5680,6 +6682,52 @@ function updateHUD(dt) {
   alerts(dt, spd);
 }
 
+/* ---------- the Super Hornet's head-up display, drawn over the canopy in the cockpit view ---------- */
+const fhud = $('fhud'), fhudG = fhud.getContext('2d'), _hp = new THREE.Vector3(), _hq = new THREE.Vector3();
+let fhudOn = false;
+function drawFighterHud() {
+  const want = cam.mode === 'cockpit' && AC.T.liv.military && (state === 'fly' || state === 'slide');
+  if (!want) { if (fhudOn) { fhudOn = false; fhud.style.display = 'none'; } return; }
+  if (!fhudOn) { fhudOn = true; fhud.style.display = 'block'; }
+  const dpr = Math.min(devicePixelRatio || 1, 2), W = Math.round(innerWidth * dpr), H = Math.round(innerHeight * dpr);
+  if (fhud.width !== W || fhud.height !== H) { fhud.width = W; fhud.height = H; }
+  const g = fhudG, k = dpr, cx = W / 2, col = 'rgba(110,255,140,.92)';
+  g.clearRect(0, 0, W, H); g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 1.6 * k; g.font = `600 ${14 * k}px "B612", monospace`; g.textBaseline = 'middle';
+  const proj = (dir, out) => { out.copy(camera.position).addScaledVector(dir, 2000).project(camera); return out.z < 1 ? [(out.x * 0.5 + 0.5) * W, (-out.y * 0.5 + 0.5) * H] : null; };
+  // the pitch ladder: solid above the horizon, dashed below, every 5 degrees, drawn where those lines really are
+  const hd = S.hdg * D2R, rx = Math.cos(hd), rz = Math.sin(hd);
+  for (let p = -30; p <= 40; p += 5) {
+    if (Math.abs(p - S.pitch * R2D) > 26) continue;
+    const ce = Math.cos(p * D2R), se = Math.sin(p * D2R), f = _hp.set(Math.sin(hd) * ce, se, -Math.cos(hd) * ce);
+    const c0 = proj(f, _hq); if (!c0) continue;
+    const off = p === 0 ? 0.32 : 0.16, a = proj(_hp.set(f.x - rx * off, f.y, f.z - rz * off), new THREE.Vector3()), b = proj(_hp.set(f.x + rx * off, f.y, f.z + rz * off), new THREE.Vector3());
+    if (!a || !b) continue;
+    const gapK = p === 0 ? 0.1 : 0.32;
+    g.setLineDash(p < 0 ? [8 * k, 6 * k] : []);
+    g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(lerp(a[0], c0[0], 1 - gapK), lerp(a[1], c0[1], 1 - gapK)); g.moveTo(lerp(b[0], c0[0], 1 - gapK), lerp(b[1], c0[1], 1 - gapK)); g.lineTo(b[0], b[1]); g.stroke();
+    if (p) { g.textAlign = 'right'; g.fillText(String(Math.abs(p)), a[0] - 6 * k, a[1]); g.textAlign = 'left'; g.fillText(String(Math.abs(p)), b[0] + 6 * k, b[1]); }
+  }
+  g.setLineDash([]);
+  // the waterline (where the nose points) and the velocity vector (where the jet is going)
+  axes(); const wl = proj(_hp.copy(_f), _hq);
+  if (wl) { g.beginPath(); g.moveTo(wl[0] - 26 * k, wl[1]); g.lineTo(wl[0] - 12 * k, wl[1]); g.lineTo(wl[0] - 6 * k, wl[1] + 8 * k); g.lineTo(wl[0], wl[1]); g.lineTo(wl[0] + 6 * k, wl[1] + 8 * k); g.lineTo(wl[0] + 12 * k, wl[1]); g.lineTo(wl[0] + 26 * k, wl[1]); g.stroke(); }
+  if (S.vel.lengthSq() > 25) { const v = proj(_hp.copy(S.vel).normalize(), _hq); if (v) { g.beginPath(); g.arc(v[0], v[1], 7 * k, 0, TAU); g.moveTo(v[0] - 7 * k, v[1]); g.lineTo(v[0] - 20 * k, v[1]); g.moveTo(v[0] + 7 * k, v[1]); g.lineTo(v[0] + 20 * k, v[1]); g.moveTo(v[0], v[1] - 7 * k); g.lineTo(v[0], v[1] - 15 * k); g.stroke(); } }
+  // speed and altitude boxes, the heading tape, Mach and g, angle of attack
+  const by = H * 0.5, bw = 74 * k, bh = 28 * k;
+  g.strokeRect(cx - W * 0.22 - bw, by - bh / 2, bw, bh); g.strokeRect(cx + W * 0.22, by - bh / 2, bw, bh);
+  g.font = `600 ${17 * k}px "B612", monospace`; g.textAlign = 'center';
+  g.fillText(String(Math.round(S.ias * MS2KT)), cx - W * 0.22 - bw / 2, by); g.fillText(String(Math.round(S.pos.y * M2FT / 10) * 10), cx + W * 0.22 + bw / 2, by);
+  g.font = `600 ${13 * k}px "B612", monospace`;
+  const gload = S.onGround ? 1 : clamp(1 + (S.rates.x * S.vel.length()) / G * Math.cos(S.bank), -3, 9);
+  g.textAlign = 'right'; g.fillText('M ' + S.mach.toFixed(2), cx - W * 0.22, by + 30 * k); g.fillText('G ' + gload.toFixed(1), cx - W * 0.22, by + 48 * k); g.fillText('α ' + (S.alpha * R2D).toFixed(1), cx - W * 0.22, by + 66 * k);
+  g.textAlign = 'left'; g.fillText(Math.round(S.vel.y * MS2FPM) + ' fpm', cx + W * 0.22, by + 30 * k); if (S.agl * M2FT < 5000) g.fillText('R ' + Math.round(S.agl * M2FT), cx + W * 0.22, by + 48 * k);
+  if (S.abK > 0.5) { g.textAlign = 'center'; g.fillText('AB', cx - W * 0.22 - bw / 2, by - 30 * k); }
+  if (S.hookCmd) { g.textAlign = 'center'; g.fillText(S.trap ? 'WIRE ' + S.trap.wire : 'HOOK', cx + W * 0.22 + bw / 2, by - 30 * k); }
+  const ty = H * 0.14; g.textAlign = 'center';
+  for (let d = -30; d <= 30; d += 5) { const hh = Math.round(S.hdg / 5) * 5 + d, x = cx + (hh - S.hdg) * 7 * k; if (Math.abs(x - cx) > 120 * k) continue; g.beginPath(); g.moveTo(x, ty); g.lineTo(x, ty + (hh % 10 === 0 ? 10 : 5) * k); g.stroke(); if (hh % 10 === 0) g.fillText(String(Math.round(wrapDeg(hh) / 10) % 36).padStart(2, '0'), x, ty - 10 * k); }
+  g.beginPath(); g.moveTo(cx, ty + 12 * k); g.lineTo(cx - 6 * k, ty + 22 * k); g.lineTo(cx + 6 * k, ty + 22 * k); g.closePath(); g.stroke();
+}
+
 /* ---------- cockpit alerts: GPWS modes, stall, overspeed, config, callouts ---------- */
 let gsDevNow = null, callIdx = 99, takeoffCalls = {}, flightFlags = {};
 const RA_CALLS = {
@@ -5688,6 +6736,7 @@ const RA_CALLS = {
 };
 RA_CALLS.concorde = RA_CALLS.boeing;
 RA_CALLS.garmin = [[500, 'five hundred']];
+RA_CALLS.hornet = [];   // a navy jet calls nothing on the way down; Betty speaks up only when something is wrong
 function alerts(dt, spd) {
   const W = [], PF = AC.T.perf, style = AC.T.voice, boeing = style !== 'airbus';
   const agFt = S.agl * M2FT, vsF = S.vel.y * MS2FPM, kt = S.ias * MS2KT;
@@ -5832,7 +6881,11 @@ function drawWorldMap() {
     for (const R of A.rws) { const [a0, b0] = T.toPx(R.cx - R.dx * R.half * 2.2, R.cz - R.dz * R.half * 2.2), [a1, b1] = T.toPx(R.cx + R.dx * R.half * 2.2, R.cz + R.dz * R.half * 2.2); g.strokeStyle = isT ? '#ff7ce0' : ok ? '#eef3fa' : 'rgba(238,243,250,.45)'; g.lineWidth = (isT || isSel ? 4 : 2.5) * T.dpr; g.beginPath(); g.moveTo(a0, b0); g.lineTo(a1, b1); g.stroke(); }
     for (const R of A.rws) if (R.igsPts) { g.strokeStyle = 'rgba(143,220,255,.75)'; g.lineWidth = 1.5 * T.dpr; g.beginPath(); R.igsPts.forEach(([px2, pz2], i) => { const [u, v] = T.toPx(px2, pz2); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke(); }
     g.fillStyle = isSel ? '#8fdcff' : isT ? '#ff7ce0' : ok ? '#eef3fa' : 'rgba(238,243,250,.55)';
-    g.beginPath(); g.arc(px, pz, (isSel ? 6 : 4) * T.dpr, 0, TAU); g.fill();
+    if (A.ship) {   // the carrier: a little flat-top with its island, pointing the way it heads
+      g.save(); g.translate(px, pz); g.rotate(A.hdg * D2R); const s = (isSel ? 1.3 : 1) * T.dpr;
+      g.beginPath(); g.moveTo(0, -11 * s); g.lineTo(4 * s, -6 * s); g.lineTo(4 * s, 9 * s); g.lineTo(-4 * s, 9 * s); g.lineTo(-5.5 * s, 0); g.lineTo(-4 * s, -6 * s); g.closePath(); g.fill();
+      g.fillStyle = '#0a1a2c'; g.fillRect(2 * s, -1 * s, 1.6 * s, 4 * s); g.restore();
+    } else { g.beginPath(); g.arc(px, pz, (isSel ? 6 : 4) * T.dpr, 0, TAU); g.fill(); }
     g.fillText(A.name, px + 9 * T.dpr, pz - 10 * T.dpr);
   }
   if (state === 'fly' || state === 'slide') {
@@ -5851,14 +6904,14 @@ wm.cv.addEventListener('pointerdown', e => {
   if (!best || bd > 40 * T.dpr) return;
   wm.sel = best; drawWorldMap();
   const info = $('wmapInfo'), flying = state === 'fly';
-  const rws = best.rws.map(R => `RWY ${R.ids[0]}/${R.ids[1]} · ${R.len.toLocaleString()} m ${R.surface}${R.slope ? ` · ${(Math.abs(R.slope) * 100).toFixed(1).replace('.0', '')}% slope` : ''}${R.igsPts ? ' · IGS 13' : ''}`).join('<br>');
-  const onlyNames = best.only ? best.only.map(id => FLEET.find(f => f.T.id === id)?.T.name).filter(Boolean) : null;
-  const warn = suits(best) ? (onlyNames ? `<br>only the ${onlyNames.slice(0, -1).join(', ')} and ${onlyNames[onlyNames.length - 1]} fly in` : '') : onlyNames && !best.only.includes(AC.T.id) ? `<br><span style="color:var(--amber)">only the ${onlyNames.slice(0, -1).join(', ')} and ${onlyNames[onlyNames.length - 1]} fly in here</span>` : `<br><span style="color:var(--amber)">too short or too rough for the ${AC.T.name}</span>`;
+  const rws = best.ship ? 'angled deck · 238 m · four arresting wires<br>two catapults on the bow, two in the waist' : best.rws.map(R => `RWY ${R.ids[0]}/${R.ids[1]} · ${R.len.toLocaleString()} m ${R.surface}${R.slope ? ` · ${(Math.abs(R.slope) * 100).toFixed(1).replace('.0', '')}% slope` : ''}${R.igsPts ? ' · IGS 13' : ''}`).join('<br>');
+  const warn = suits(best) ? (best.only ? '<br>' + onlyText(best) : '') : best.only && !best.only.includes(AC.T.id) ? `<br><span style="color:var(--amber)">${onlyText(best)} here</span>` : `<br><span style="color:var(--amber)">too short or too rough for the ${AC.T.name}</span>`;
   info.innerHTML = `<div class="n">${best.name}</div><div class="s">${best.blurb}<br>${rws}<br>${Math.round(best.elev * M2FT).toLocaleString()} ft elevation${warn}</div><button id="wmGo">${flying ? 'fly here' : 'start here'}</button>`;
   info.hidden = false;
   $('wmGo').onclick = ev => {
     ev.stopPropagation();
     if (state === 'fly') { pickTarget(best); toast('new destination · ' + best.name); }
+    else if (!suits(best)) toast(best.only && !best.only.includes(AC.T.id) ? best.name + ': ' + onlyText(best) : best.name + ' is too short for the ' + AC.T.name);
     else { depIndex = AIRPORT_DEFS.indexOf(best); store.set('dep', depIndex); selectDeparture(depIndex); }
     openWorldMap(false);
   };
@@ -5867,17 +6920,22 @@ $('wmapClose').addEventListener('click', e => { e.stopPropagation(); openWorldMa
 $('wmap').addEventListener('pointerdown', e => { if (e.target === $('wmap')) openWorldMap(false); });
 
 /* ---------- choosing an aircraft and a departure ---------- */
+// which type-specific controls show: Concorde's nose, folding tips, afterburners, the tailhook
+function setTypeClasses() {
+  const b = document.body.classList;
+  b.toggle('concorde', !!AC.concorde); b.toggle('fixedgear', !!AC.T.fixedGear); b.toggle('foldtips', !!AC.T.foldTips);
+  b.toggle('reheat', !!AC.T.perf.reheat); b.toggle('hookjet', !!AC.hook);
+  $('pAB').textContent = AC.concorde ? 'reheat' : 'burner';
+}
 function selectAircraft(i, stay) {
   i = (i + FLEET.length) % FLEET.length;
   const changed = FLEET[i] !== AC;
   if (changed) { plane.remove(AC.root); acIndex = i; AC = FLEET[i]; plane.add(AC.root); store.set('aircraftId', AC.T.id); }
   cam.dist = AC.camDist;
-  document.body.classList.toggle('concorde', !!AC.concorde);
-  document.body.classList.toggle('fixedgear', !!AC.T.fixedGear);
-  document.body.classList.toggle('foldtips', !!AC.T.foldTips);
+  setTypeClasses();
   const home = AC.T.home ? AIRPORT_DEFS.findIndex(a => a.id === AC.T.home) : -1;
   if (!stay && changed && home >= 0 && AIRPORT_DEFS[home] !== lastAirport) { selectDeparture(home); toast(AC.T.name + ' · based at ' + AIRPORT_DEFS[home].name); return; }
-  if (!stay && changed && !suits(lastAirport)) { const from = lastAirport.name, why = lastAirport.only && !lastAirport.only.includes(AC.T.id) ? ' takes only the ATR, the Twin Otter and the Embraer' : ' is too short for the ' + AC.T.name; selectDeparture(0); toast(from + why + ' · off to ' + AIRPORT_DEFS[0].name); return; }
+  if (!stay && changed && !suits(lastAirport)) { const from = lastAirport.name, why = lastAirport.only && !lastAirport.only.includes(AC.T.id) ? ': ' + onlyText(lastAirport) : ' is too short for the ' + AC.T.name; selectDeparture(0); toast(from + why + ' · off to ' + AIRPORT_DEFS[0].name); return; }
   spawnAt(lastAirport, target ? target.A : null);
   if (state === 'end') crashSite.copy(S.pos);
   updatePicker();
@@ -5901,7 +6959,7 @@ function updatePicker() {
   $('pkDots').innerHTML = FLEET.map((f, i) => `<span class="${i === acIndex ? 'on' : ''}" style="--c:${f.T.liv.accent === '#ffffff' ? '#dfe6ee' : f.T.liv.accent}"></span>`).join('');
   const A = lastAirport, R = A.rws.reduce((a, b) => a.len > b.len ? a : b);
   $('apName').textContent = A.name;
-  $('apSub').innerHTML = `${R.len.toLocaleString()} m ${R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}` + (suits(A) ? '' : A.only && !A.only.includes(T.id) ? ` · <span style="color:var(--amber)">ATR, Twin Otter and Embraer only</span>` : ` · <span style="color:var(--amber)">tight for the ${T.name}</span>`);
+  $('apSub').innerHTML = (A.ship ? 'aircraft carrier · catapult 1 · four wires' : `${R.len.toLocaleString()} m ${SURF_LABEL[R.surface] || R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}`) + (suits(A) ? '' : A.only && !A.only.includes(T.id) ? ` · <span style="color:var(--amber)">${onlyText(A)}</span>` : ` · <span style="color:var(--amber)">tight for the ${T.name}</span>`);
 }
 
 /* ---------- aircraft parked at the gates ---------- */
@@ -5914,6 +6972,7 @@ function populateStands() {
     const kind = st.A.kind;
     let id = kind === 'hub' || kind === 'intl' ? (st.cls === 'big' ? (n % 2 ? 'b777x' : 'a380') : n % 3 === 1 ? 'b737' : 'a330') : kind === 'regional' ? (st.cls === 'small' ? (n % 2 ? 'atr72' : 'e190') : n % 3 === 2 ? 'e190' : 'b737') : (st.A.id === 'SBH' || st.A.id === 'LUA' ? 'otter' : st.A.only ? st.A.only[n % st.A.only.length] : n % 2 ? 'atr72' : 'e190');
     if (kind === 'hub' && st.cls === 'big' && st.out[1] < 0) id = 'b737';
+    if (st.id) id = FLEET.some(f => f.T.id === st.id) ? st.id : 'otter';   // a stand that names its own aircraft
     n++;
     if (Math.random() < 0.12) continue;
     const ac = FLEET.find(f => f.T.id === id), F = ac.T.fus, mesh = statics(id).clone();
@@ -5939,8 +6998,9 @@ function populateStands() {
       const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, sill, 6), bridgeMat); leg.position.set(door.x - dx / len * 4, sill / 2, door.z - dz / len * 4); st.g.add(leg);
     }
   }
+  placeCarrierJets(statics);
   // a field's static pieces (markings, pads, buildings, parked aircraft) drawn in a few batches instead of hundreds
-  for (const A of AIRPORT_DEFS) { mergeStaticGroup(A.group); for (const R of A.rws) if (R.group) mergeStaticGroup(R.group); }
+  for (const A of AIRPORT_DEFS) { if (A.ship) continue; mergeStaticGroup(A.group); for (const R of A.rws) if (R.group) mergeStaticGroup(R.group); }
 }
 function mergeStaticGroup(root) {
   if (!root) return;
@@ -5975,7 +7035,7 @@ function mergeStaticGroup(root) {
    AI traffic: airliners land and roll off the runway, line up and climb away, and cruise high overhead.
    They fly scripted paths, not the flight model, and keep off any runway the player is using.
    ========================================================= */
-const AI = [], AI_IDS = ['a330', 'b737', 'atr72', 'a380', 'b777x', 'otter', 'e190'];
+const AI = [], AI_IDS = ['a330', 'b737', 'atr72', 'a380', 'b777x', 'otter', 'e190', 'c172'];
 const aiModels = new Map();
 let aiSpawnT = 3, aiTraffic = null;
 const _aiV = new THREE.Vector3(), _aiE = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -6019,8 +7079,9 @@ function aiRunwayBusy(R) {
   if (AI.some(q => q.R === R)) return true;
   if (state === 'loading') return true;
   const p = S.pos, px = p.x - R.cx, pz = p.z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz;
-  if (Math.abs(c) < R.wid / 2 + 90 && Math.abs(a) < R.half + 400 && p.y - R.elev < 250) return true;
-  for (const e of R.ends) { const dx = p.x - e.thr.x, dz = p.z - e.thr.z, along = -(dx * e.dir.x + dz * e.dir.z), lat = Math.abs(dx * e.dir.z - dz * e.dir.x); if (along > -200 && along < 10000 && lat < 900 && p.y - R.elev < 900) return true; }
+  if (R.carrier) { if (Math.abs(c) < 24 && Math.abs(a) < R.half + 30 && p.y - R.elev < 80) return true; }   // a jet on the bow cats leaves the angled deck clear
+  else if (Math.abs(c) < R.wid / 2 + 90 && Math.abs(a) < R.half + 400 && p.y - R.elev < 250) return true;
+  for (const e of R.ends) { if (R.oneWay !== undefined && R.oneWay !== e.e) continue; const dx = p.x - e.thr.x, dz = p.z - e.thr.z, along = -(dx * e.dir.x + dz * e.dir.z), lat = Math.abs(dx * e.dir.z - dz * e.dir.x); if (along > -200 && along < 10000 && lat < 900 && p.y - R.elev < 900) return true; }
   return false;
 }
 // arrivals: a straight final (Kai Tak: the IGS beam and its turn), a flare, the rollout and off at a taxiway
@@ -6067,7 +7128,9 @@ function aiSpawn() {
   const here = S.pos, near = AIRPORT_DEFS.filter(A => Math.hypot(A.x - here.x, A.z - here.z) < 26000 && !AI.some(q => q.A === A));
   if (!AI.some(q => q.kind === 'cruise') && Math.random() < 0.3) { aiCruise(['a330', 'b737', 'a380', 'b777x', 'e190'][(Math.random() * 5) | 0]); return; }
   if (!near.length) return;
-  const A = near[(Math.random() * near.length) | 0], ids = AI_IDS.filter(id => suits(A, FLEET.find(f => f.T.id === id).T));
+  const A0 = near[(Math.random() * near.length) | 0];
+  if (A0.ship) { aiCarrier(A0); return; }
+  const A = A0, ids = AI_IDS.filter(id => suits(A, FLEET.find(f => f.T.id === id).T));
   if (!ids.length) return;
   const id = ids[(Math.random() * ids.length) | 0], arrive = Math.random() < 0.55;
   const rws = A.rws.filter(R => R.len >= FLEET.find(f => f.T.id === id).T.minRwy * 0.9 && !aiRunwayBusy(R));
@@ -6078,16 +7141,58 @@ function aiSpawn() {
   if (!arrive && camera.position.distanceTo(e.thr) < 1200) return;
   arrive ? aiArrive(A, R, e, id) : aiDepart(A, R, e, id);
 }
+// the carrier's own Super Hornets: a trap on the angled deck, or a catapult shot off the bow
+function aiCarrier(A) {
+  const R = A.rws[0], C = A.carrier;
+  if (Math.random() < 0.5) {
+    if (aiRunwayBusy(R)) return;
+    const e = R.ends[0], q = aiCreate('arr', 'fa18', A, R, e), G = q.M.G, t = Math.tan(C.gs * D2R), d = 80, y0 = R.elev + G.mainReach;
+    const tx = e.thr.x + e.dir.x * d, tz = e.thr.z + e.dir.z * d;
+    q.path = aiPath([[tx - e.dir.x * 7000, y0 + 7000 * t, tz - e.dir.z * 7000], [tx, y0, tz], [tx + e.dir.x * 140, y0, tz + e.dir.z * 140]]);
+    q.s = 0; q.v = q.T.perf.vref / MS2KT; q.phase = 'final'; q.air = true; q.carrier = true; aiGear(q, true);
+    aiAt(q.path, 0, q.pos); q.hdg = q.pos.hdg;
+    return;
+  }
+  const free = C.cats.slice(0, 2).filter(k => !(S.cat && S.cat.k === k) && !AI.some(q => q.cat === k));
+  if (!free.length) return;
+  const k = free[(Math.random() * free.length) | 0], q = aiCreate('dep', 'fa18', A, R, R.ends[0]), [x, z] = shipXZ(A, k.a0, k.c0), h = k.hdg * D2R;
+  q.cat = k; q.dir = [Math.sin(h), -Math.cos(h)];
+  q.pos.set(x + q.dir[0] * q.M.G.noseZ, A.elev + q.M.G.mainReach, z + q.dir[1] * q.M.G.noseZ);
+  q.hdg = h; q.phase = 'cathold'; q.t = -(6 + Math.random() * 6); q.v = 0; q.go = 0; aiGear(q, true);
+  q.turn = q.hdg + (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.7);
+}
 function aiStep(q, dt) {
-  const T = q.T, PF = T.perf, G = q.M.G, prop = T.sound === 'prop';
+  const T = q.T, PF = T.perf, G = q.M.G, prop = T.sound === 'prop' || T.sound === 'piston';
   q.t += dt;
+  if (q.phase === 'cathold' || q.phase === 'catshot') {
+    if (q.phase === 'cathold') { q.land.visible = true; if (q.t > 0) { q.phase = 'catshot'; q.t = 0; } return; }
+    q.v += 38 * dt; q.go += q.v * dt; q.pos.x += q.dir[0] * q.v * dt; q.pos.z += q.dir[1] * q.v * dt;
+    if (Math.random() < 0.6) smoke.spawn({ pos: q.pos.clone().setY(q.A.elev + 0.3), v: new THREE.Vector3(0, 2, 0), size: 1.5, grow: 4, life: 2, a: 0.5, c0: [0.96, 0.97, 0.98], drag: 1.5, buoy: 0.6 });
+    if (q.go >= q.cat.len - 3) { q.phase = 'climb'; q.t = 0; q.air = true; q.vy = 2; q.cat = null; }
+    return;
+  }
+  if (q.phase === 'trap') {
+    // caught by a wire: stopped in about a hundred metres, then sits on the deck a while
+    q.v = Math.max(0, q.v - q.dec * dt); q.pos.x += q.e.dir.x * q.v * dt; q.pos.z += q.e.dir.z * q.v * dt; q.pos.y = groundAt(q.pos.x, q.pos.z) + G.mainReach - 0.05;
+    q.pitch = damp(q.pitch, 0, 3, dt);
+    if (q.v <= 0) { q.phase = 'clear'; q.t = 0; q.hdg = (q.A.hdg + 55) * D2R; }
+    return;
+  }
+  if (q.phase === 'clear') {   // out of the wire and off the landing area, towards the island side of the deck
+    q.v = damp(q.v, q.t < 12 ? 4 : 0, 1.5, dt); q.pos.x += Math.sin(q.hdg) * q.v * dt; q.pos.z -= Math.cos(q.hdg) * q.v * dt; q.pos.y = groundAt(q.pos.x, q.pos.z) + G.mainReach - 0.05;
+    if (q.t > 14) { q.phase = 'off'; q.t = 0; }
+    return;
+  }
   if (q.phase === 'final' || q.phase === 'flare') {
     const vref = PF.vref / MS2KT;
     q.v = damp(q.v, vref, 0.35, dt); q.s += q.v * dt;
     const p = aiAt(q.path, q.s, _aiP), gy = groundAt(p.x, p.z) + G.mainReach;
     const dh = q.hdg !== undefined ? ((p.hdg - q.hdg + 3 * Math.PI) % TAU) - Math.PI : 0;
     q.bank = damp(q.bank, clamp(Math.atan2(q.v * (dh / Math.max(dt, 1e-3)), 9.81), -0.45, 0.45), 2.5, dt); q.hdg = p.hdg;
-    if (q.phase === 'final') {
+    if (q.phase === 'final' && q.carrier) {   // no flare for a carrier jet: onto the deck at the glideslope's sink rate
+      q.pos.copy(p); q.pitch = damp(q.pitch, p.gam + 8 * D2R, 2, dt);
+      if (q.pos.y - gy < 0.2 && q.s > 50) { q.phase = 'trap'; q.air = false; q.bank = 0; q.hdg = Math.atan2(q.e.dir.x, -q.e.dir.z); q.dec = q.v * q.v / (2 * 92); smoke.spawn({ pos: q.pos.clone().setY(gy - G.mainReach + 0.3), v: new THREE.Vector3(0, 1, 0), size: 2, grow: 4, life: 2, a: 0.5, c0: [0.92, 0.92, 0.9], drag: 2, buoy: 0.5 }); }
+    } else if (q.phase === 'final') {
       q.pos.copy(p); q.pitch = damp(q.pitch, p.gam + (prop ? 4 : 5.2) * D2R, 2, dt);
       if (q.pos.y - gy < (prop ? 3 : 6) && q.s > 50) { q.phase = 'flare'; q.vy = p.gam * q.v; }
     } else {
@@ -6114,7 +7219,7 @@ function aiStep(q, dt) {
       let dh = ((q.exitH - q.hdg + 3 * Math.PI) % TAU) - Math.PI; q.hdg += clamp(dh, -0.42 * dt, 0.42 * dt);
       q.v = damp(q.v, 7, 1, dt); q.pos.x += Math.sin(q.hdg) * q.v * dt; q.pos.z -= Math.cos(q.hdg) * q.v * dt; q.c0 += q.v * dt;
       q.pitch = damp(q.pitch, 0, 2, dt);
-      if (q.c0 > q.exit.far + 40) { q.phase = 'off'; q.t = 0; }
+      if (q.c0 > q.exit.far + (q.A.decked ? -45 : 40)) { q.phase = 'off'; q.t = 0; }   // Treetops: stop on the apron, not off the end of the deck
     } else if (q.phase === 'hold') {
       q.land.visible = true;
       if (q.t > 0) { q.phase = 'takeoff'; q.t = 0; }
@@ -6160,7 +7265,7 @@ function aiStep(q, dt) {
 }
 function aiPlayerOn(R) {
   const p = S.pos, px = p.x - R.cx, pz = p.z - R.cz, a = px * R.dx + pz * R.dz, c = px * R.bx + pz * R.bz;
-  return Math.abs(c) < R.wid / 2 + 60 && Math.abs(a) < R.half + 200 && p.y - R.elev < 120;
+  return Math.abs(c) < (R.carrier ? 24 : R.wid / 2 + 60) && Math.abs(a) < R.half + 200 && p.y - R.elev < 120;
 }
 function updateAI(dt) {
   if (state === 'loading') return;
@@ -6210,7 +7315,7 @@ function setGfx(key) {
   updateSettings();
   if (hot) $('gfxSub').textContent += ' · fully applies next time the game loads';
 }
-const VOICE_SAMPLE = { boeing: 'minimums, minimums', airbus: 'retard, retard', concorde: 'V one. Rotate.', garmin: 'five hundred' };
+const VOICE_SAMPLE = { boeing: 'minimums, minimums', airbus: 'retard, retard', concorde: 'V one. Rotate.', garmin: 'five hundred', hornet: 'altitude, altitude' };
 function sampleVoice() { sfx.init(); sfx.say(VOICE_SAMPLE[AC.T.voice] || 'V one', { key: 'sample', gap: 0, prio: 9, force: true }); }
 function cycleVoice(d) {
   const names = ['auto', ...sfx.voiceList.map(v => v.name)], i = Math.max(0, names.indexOf(sfx.voicePick));
@@ -6269,6 +7374,8 @@ addEventListener('keydown', e => {
   else if (c === 'KeyR') setFlaps(S.flapIdx - 1);
   else if (c === 'KeyN') { if (AC.T.foldTips) toggleTips(); else cycleNose(1); }
   else if (c === 'KeyQ') toggleReheat();
+  else if (c === 'KeyK') toggleHook();
+  else if (c === 'KeyL') catLaunch();
   else if (c === 'KeyZ') cycleSimRate();
   else if (c === 'KeyT') lineUp();
   else if (/^Digit\d$/.test(c)) { S.throttle = +c.slice(5) / 9; }
@@ -6331,6 +7438,8 @@ tb('tFlapU', () => state === 'fly' && setFlaps(S.flapIdx - 1));
 tb('tBrk', () => { touchBrake = true; }, () => { touchBrake = false; });
 tb('tRev', () => { touchRev = true; }, () => { touchRev = false; });
 tb('tAB', () => state === 'fly' && toggleReheat());
+tb('tHook', () => state === 'fly' && toggleHook());
+tb('tLaunch', () => state === 'fly' && catLaunch());
 tb('tNose', () => state === 'fly' && cycleNose(1));
 tb('tTips', () => state === 'fly' && toggleTips());
 tb('tPause', () => togglePause(true));
@@ -6405,7 +7514,7 @@ function updateEnvironment(dt) {
   for (const n of NIGHT_MATS) n.m.emissiveIntensity = n.k * darkness;
   for (const L of lighthouses) { L.beams.rotation.y += dt * 0.8; L.mat.opacity = 0.16 * Math.pow(darkness, 1.2); }
   const lights = GS.main.leg > 0.9 && (state === 'fly' || state === 'title');
-  AC.landingGlow.visible = lights;
+  AC.landingGlow.visible = lights && cam.mode !== 'cockpit';
   AC.spot.intensity = lights ? 380 * darkness : 0;
   if (useBloom()) { bloom.strength = lerp(0.3, 0.62, darkness) + S.abK * 0.15; bloom.threshold = lerp(1.9, 0.85, darkness); }
   if ((envBakeT -= dt) <= 0) { envBakeT = GQ.env; bakeSkyEnv(); }
@@ -6461,11 +7570,12 @@ function frame(now) {
   water.position.set(camera.position.x, 0, camera.position.z);
   updateTerrain(camera.position, state === 'loading' ? 40 : 6);
   updateClouds(camera.position);
-  smoke.update(dt); fire.update(dt); updateTraffic(dt); updateAI(dt); updateGates(dt);
+  smoke.update(dt); fire.update(dt); updateTraffic(dt); updateAI(dt); updateGates(dt); updateCarrier(dt);
   const cd = cloudDensityAt(camera.position);
   cloudVeil.style.opacity = Math.min(0.9, cd * 1.8).toFixed(3);
   if (cd > 0) cloudVeil.style.background = '#' + cloudLit.clone().convertLinearToSRGB().getHexString();
   if (state === 'fly' || state === 'slide') { updateHUD(dt); if (frameN % 3 === 0) drawMap(); }
+  drawFighterHud();
   if (wm.open && frameN % 20 === 0) drawWorldMap();
   if (frameN % 6 === 0) updateDock();
   // airports more than 18 km away are a few pixels: skip their buildings, markings and parked aircraft
@@ -6484,6 +7594,8 @@ function updateDock() {
   $('dBrk').textContent = S.brake > 0.8 ? 'on' : S.autobrake ? 'auto' : S.spoiler > 0.3 ? 'spoilers' : '';
   $('dRev').textContent = S.rev > 0.5 ? 'on' : '';
   $('dAB').textContent = S.abK > 0.5 ? 'lit' : S.reheat ? 'armed' : 'off';
+  $('dHook').textContent = S.trap ? (S.trap.stop ? 'in the wire' : 'caught!') : S.hookCmd ? 'down' : 'up';
+  $('dCat').textContent = S.cat ? (S.cat.phase === 'hooked' ? 'ready · cat ' + S.cat.k.n : 'firing') : '';
   $('dNose').textContent = S.noseSel === 0 ? 'up' : S.noseSel === 1 ? 'visor' : NOSE_POS[S.noseSel].nose + '°';
   $('dTips').textContent = S.tipFold >= 1 ? 'folded' : S.tipFold <= 0 ? 'extended' : 'moving';
   $('dSim').textContent = simRate + '×';
@@ -6492,9 +7604,7 @@ function updateDock() {
 }
 
 /* ---------- boot: build the world around the departure field, then show the title ---------- */
-document.body.classList.toggle('concorde', !!AC.concorde);
-document.body.classList.toggle('fixedgear', !!AC.T.fixedGear);
-document.body.classList.toggle('foldtips', !!AC.T.foldTips);
+setTypeClasses();
 spawnAt(lastAirport, null);
 updatePicker();
 updateClouds(camera.position, true);
