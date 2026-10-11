@@ -1,7 +1,7 @@
 {
   "name": "Aloft Island Hopper",
   "short_name": "Aloft",
-  "description": "Fly between islands: a carrier with catapults and arresting wires for the Super Hornet, a treehouse runway in a giant spruce forest, Bora Bora's lagoon, Mt Fuji, Kai Tak, Lukla, St Barth, a Cessna 172 and Concorde.",
+  "description": "Fly between islands: hover an F-35B or a V-22 Osprey onto a carrier, sweep an F-14's wings back, take an SR-71 to Mach 3, land a 737 or Concorde on a treehouse runway among giant spruces, Kai Tak, Lukla and Mt Fuji.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
