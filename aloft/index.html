@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="description" content="Fly between islands: hover an F-35B or a V-22 Osprey onto a carrier, sweep an F-14's wings back, take an SR-71 to Mach 3, land a 737 or Concorde on a treehouse runway among giant spruces, Kai Tak, Lukla and Mt Fuji.">
+<meta name="description" content="Fly between islands: hover an F-35B or a V-22 Osprey onto a carrier, sweep an F-14's wings back, take an SR-71 to Mach 3, land on a treehouse runway among giant spruces, Kai Tak, Lukla and Mt Fuji.">
 <meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
@@ -934,11 +934,9 @@ AIRPORT_DEFS.push(
     pads: [{ a0: -330, a1: 30, c0: -250, c1: -105 }], terminal: { kind: 'small', a0: -280, a1: -20, c: -200 }, taxi: { side: -1, off: 95 },
     town: { n: 80 }, townStyle: 'jp' },
   // the taiga: Treetops, a plank runway on log trestles among the giant spruces, hung from them by cables, its terminal up in the trees.
-  // Nothing is carved into the hillside: the deck, apron and taxiway all stand on stilts, 25 m above the forest floor on the
-  // ridge and 120 m over the valleys at the ends, where the deck runs level with the treetops. Long enough for Concorde;
-  // anything wider than 40 m would put its wingtips into the spruces
-  { id: 'TTP', name: 'Treetops', region: 'taiga', x: -35000, z: -32000, hdg: 110, elev: 330, kind: 'small', maxSpan: 40, blurb: '2,800 m of planks on log stilts among the giant spruces · big enough for a 737 or Concorde', town: false, noFence: true, decked: true,
-    runways: [{ a: 0, c: 0, hdg: 110, len: 2800, wid: 40, surface: 'wood', lights: true, ils: [1, 1], papi: true, als: ['malsr', 'malsr'], pad: [0, 0], blend: [1, 1], deck: [-1430, 1430], deckC: [-27, 27], corr: false }],
+  // Nothing is carved into the hillside: the deck, apron and taxiway all stand on stilts, 30 to 85 m above the forest floor
+  { id: 'TTP', name: 'Treetops', region: 'taiga', x: -35000, z: -32000, hdg: 110, elev: 330, kind: 'small', blurb: '1,500 m of planks on log stilts, hung from the giant spruces', town: false, noFence: true, decked: true,
+    runways: [{ a: 0, c: 0, hdg: 110, len: 1500, wid: 30, surface: 'wood', lights: true, ils: [0, 0], papi: true, pad: [0, 0], blend: [1, 1], deck: [-780, 780], deckC: [-22, 22], corr: false }],
     pads: [{ a0: -335, a1: -85, c0: 70, c1: 150 }], terminal: { kind: 'tree', a0: -335, a1: -85, c: 196 }, taxi: { side: 1, short: true, links: [-210] },
     features: [{ type: 'treehouse' }] },
   // the aircraft carrier: a Nimitz-class flat-top holding station in the open sea, 19.5 m from the water to the flight deck.
@@ -4054,7 +4052,7 @@ function treeTerminal(A, g) {
     for (const d of [-9, 9]) { const [px, pz] = W((T.a0 + T.a1) / 2 + d, 151.2); K.add(logMat, UCYL5, px, E + 2.5, pz, 0, 0.35, 5, 0.35); }
   }
   // stands on the apron: the forest's own aircraft, noses to the runway
-  for (const [a, id] of [[-312, 'c172'], [-268, 'otter'], [-205, 'b737'], [-148, 'c172'], [-108, 'atr72']]) STANDS.push({ A, g, wall: [147, a], out: [-1, 0], cls: 'small', bridge: false, id });
+  for (const [a, id] of [[-312, 'c172'], [-266, 'otter'], [-160, 'c172'], [-112, 'atr72']]) STANDS.push({ A, g, wall: [147, a], out: [-1, 0], cls: 'small', bridge: false, id });
   K.done(); KT.done();
   scene.add(glowPoints(lights));
 }
@@ -4068,56 +4066,48 @@ function buildForest() {
   const K = kit(), KT = kit(), lights = [];
   const B = (mat, a0, c0, y0, a1, c1, y1, r, sq) => { const [x0, z0] = W(a0, c0), [x1, z1] = W(a1, c1); beam(K, mat, [x0, y0, z0], [x1, y1, z1], r, sq); };
   const slab = (a0, a1, c0, c1, t = 1.0) => { const [x, z] = W((a0 + a1) / 2, (c0 + c1) / 2); K.add(deckMat, UBOX, x, E - 0.02 - t / 2, z, yaw, c1 - c0, t, a1 - a0); };
-  // a trestle bent: posts at the given c offsets from the deck down to the ground, tied and cross-braced every 14 m. Tall bents
-  // splay their outer posts like a railway trestle's (a post's foot moves out 1 m for every 8 it drops); returns the posts' lines
+  // a trestle bent: posts at the given c offsets from the deck down to the ground, tied and cross-braced every 14 m
   const bent = (a, cs, top) => {
-    const cMax = Math.max(...cs.map(Math.abs)), tall = top - gAt(a, 0) > 50;
-    const posts = cs.map(c => {
-      const g0 = gAt(a, c) - 1, h0 = top - g0, cb = tall ? c + Math.sign(c) * (Math.abs(c) / cMax) * h0 / 8 : c, gb = tall ? gAt(a, cb) - 1 : g0;
-      return { c, cb, gb, at: y => lerp(c, cb, (top - y) / Math.max(1, top - gb)) };
-    });
-    for (const P of posts) { const h = top - P.gb; if (h < 0.5) continue; B(logMat, a, P.c, top, a, P.cb, P.gb, h > 40 ? 0.6 : 0.48); }
-    const lo = Math.max(...posts.map(P => P.gb)), L = posts[0], Rt = posts[posts.length - 1];
+    const gs = cs.map(c => gAt(a, c) - 1);
+    cs.forEach((c, i) => { const h = top - gs[i]; if (h < 0.5) return; const [x, z] = W(a, c); K.add(logMat, UCYL5, x, (top + gs[i]) / 2, z, 0, h > 40 ? 1.2 : 0.95, h, h > 40 ? 1.2 : 0.95); });
+    const lo = Math.max(...gs);
     for (let y = top - 14, k = 0; y > lo + 2; y -= 14, k++) {
-      B(logMat, a, L.at(y), y, a, Rt.at(y), y, 0.25, true);
-      if (y - 14 > lo + 2) for (let i = 0; i < posts.length - 1; i++) { const P = posts[i], Q = posts[i + 1], ya = k % 2 ? y : y - 14, yb = k % 2 ? y - 14 : y; B(logMat, a, P.at(ya), ya, a, Q.at(yb), yb, 0.18); }
+      B(logMat, a, cs[0], y, a, cs[cs.length - 1], y, 0.25, true);
+      if (y - 14 > lo + 2) for (let i = 0; i < cs.length - 1; i++) B(logMat, a, cs[i], (k % 2 ? y : y - 14), a, cs[i + 1], (k % 2 ? y - 14 : y), 0.18);
     }
-    return { lo, posts };
+    return lo;
   };
-  // the runway: planks on four girders and cross beams, a bent every 20 m
-  const DW = R.deckC ? R.deckC[1] : 22, GC = [-18, -6, 6, 18];
-  slab(-R.half - 30, R.half + 30, -DW, DW);
-  for (const c of GC) { const [x, z] = W(0, c); K.add(logMat, UBOX, x, E - 2.3, z, yaw, 1.0, 2.5, R.len + 60); }
-  for (let a = -R.half - 25; a <= R.half + 25; a += 10) { const [x, z] = W(a, 0); K.add(logMat, UBOX, x, E - 1.25, z, yaw, DW * 2, 0.45, 0.45); }
-  let prev = null;
+  // the runway: planks on three girders and cross beams, a bent every 20 m
+  slab(-R.half - 30, R.half + 30, -22, 22);
+  for (const c of [-14, 0, 14]) { const [x, z] = W(0, c); K.add(logMat, UBOX, x, E - 2.3, z, yaw, 1.0, 2.5, R.len + 60); }
+  for (let a = -R.half - 25; a <= R.half + 25; a += 10) { const [x, z] = W(a, 0); K.add(logMat, UBOX, x, E - 1.25, z, yaw, 44, 0.45, 0.45); }
+  let prevLo = null;
   for (let a = -R.half - 20; a <= R.half + 20.1; a += 20) {
-    const bt = bent(a, GC, E - 3.5);
+    const lo = bent(a, [-14, 0, 14], E - 3.5);
     // ties along the runway between bents on the outer lines
-    if (prev) for (const i of [0, GC.length - 1]) for (let y = E - 17.5; y > Math.max(bt.lo, prev.lo) + 2; y -= 14) B(logMat, a - 20, prev.posts[i].at(y), y, a, bt.posts[i].at(y), y, 0.2, true);
-    prev = bt;
+    if (prevLo !== null) for (const c of [-14, 14]) for (let y = E - 17.5; y > Math.max(lo, prevLo) + 2; y -= 14) B(logMat, a - 20, c, y, a, c, y, 0.2, true);
+    prevLo = lo;
   }
   // PAPI balconies off the deck edge
   for (const e of [0, 1]) {
     const s = e ? 1 : -1, side = e ? 1 : -1, a = s * (R.half - Math.min(300, R.len * 0.2));
-    slab(a - 5, a + 5, side > 0 ? DW : -DW - 40, side > 0 ? DW + 40 : -DW, 0.6);
-    for (const d of [-4, 4]) B(logMat, a + d, side * (DW + 36), E - 0.7, a + d, side * DW, E - 12, 0.25);
-    railing(K, W(a - 5, side * (DW + 40)), W(a + 5, side * (DW + 40)), E);
+    slab(a - 5, a + 5, side > 0 ? 22 : -62, side > 0 ? 62 : -22, 0.6);
+    for (const d of [-4, 4]) B(logMat, a + d, side * 58, E - 0.7, a + d, side * 22, E - 12, 0.25);
+    railing(K, W(a - 5, side * 62), W(a + 5, side * 62), E);
   }
-  // the giant spruces either side, each holding the deck on two cables and a log brace. Out over the valleys, where the deck
-  // stands 90 m and more above the forest floor, the trestle carries it alone, level with the treetops
+  // the giant spruces either side, each holding the deck on two cables and a log brace
   const papiA = [-(R.half - Math.min(300, R.len * 0.2)), R.half - Math.min(300, R.len * 0.2)];
   for (const side of [-1, 1]) for (let a = -R.half + 18; a <= R.half - 10; a += 46 + rnd() * 8) {
     if (side < 0 && Math.abs(a - papiA[0]) < 26) continue;
     if (side > 0 && (Math.abs(a - papiA[1]) < 26 || (a > -350 && a < -70))) continue;
-    const c = side * (DW + 17 + rnd() * 4), [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, deckH = E - gy;
-    if (deckH > 90) continue;
+    const c = side * (39 + rnd() * 4), [x, z] = W(a, c), gy = TM.height(x, z) - 0.6, deckH = E - gy;
     const base = deckH + 17 + rnd() * 5, H = base + 34 + rnd() * 14, r0 = clamp(1.1 + deckH * 0.012, 1.2, 2.1);
     KT.add(treeMats[0], spruceGeo(base, H, r0, 200 + Math.round(a) * 3 + side), x, gy, z, rnd() * TAU);
     addObstacle(x, gy + H / 2, z, r0 + 0.4, H / 2, r0 + 0.4, 0, 'hit a giant spruce');
     addObstacle(x, gy + (base + H) / 2, z, 6.5, (H - base) / 2, 6.5, 0, 'hit a giant spruce');
     const tr = Math.abs(c) - r0 * 0.75;
-    for (const d of [-13, 13]) B(cableMat, a, side * tr, E + 15, a + d, side * DW, E - 0.6, 0.07);
-    B(logMat, a, side * tr, E - 12, a, side * DW, E - 2.6, 0.32);
+    for (const d of [-13, 13]) B(cableMat, a, side * tr, E + 15, a + d, side * 22, E - 0.6, 0.07);
+    B(logMat, a, side * tr, E - 12, a, side * 22, E - 2.6, 0.32);
   }
   // the taxiway and apron: planks on stilts like the runway, with railings and lanterns
   const P = A.padsW;
@@ -4133,7 +4123,7 @@ function buildForest() {
   const railAC = (a0, c0, a1, c1) => railing(K, W(a0, c0), W(a1, c1), E, lights);
   railAC(ap.a0, ap.c0, ap.a0, ap.c1); railAC(ap.a1, ap.c0, ap.a1, 109.5); railAC(ap.a1, 114.5, ap.a1, ap.c1);
   railAC(ap.a0, ap.c0, link.a0, ap.c0); railAC(link.a1, ap.c0, ap.a1, ap.c0);
-  railAC(link.a0, DW + 2, link.a0, ap.c0); railAC(link.a1, DW + 2, link.a1, ap.c0);
+  railAC(link.a0, 24, link.a0, ap.c0); railAC(link.a1, 24, link.a1, ap.c0);
   for (const [a0, a1] of [[ap.a0, -306], [-294, -216], [-204, -126], [-114, ap.a1]]) railAC(a0, ap.c1, a1, ap.c1);
   // windsock on the apron corner
   { const [x, z] = W(ap.a0 + 3, ap.c1 - 3); K.add(metalGray, UCYL5, x, E + 3.5, z, 0, 0.22, 7, 0.22); const s = new THREE.Mesh(new THREE.ConeGeometry(0.7, 4.5, 8, 1, true), redWhiteMat); s.rotation.z = Math.PI / 2; s.position.set(x + 2.2, E + 6.6, z); scene.add(s); }
@@ -5783,8 +5773,9 @@ function buildAircraft(T) {
     const g = new THREE.Group(); g.position.set(0, fusTopAt(F, F.zT - 6) - 0.1, F.zT - 6); root.add(g); g.visible = false;
     const cm = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, map: canvasTex(256, 64, (c2, w, h) => { for (let i = 0; i < 16; i++) { c2.fillStyle = i % 2 ? '#f2f2ee' : '#e8692a'; c2.fillRect(i * w / 16, 0, w / 16 + 1, h); } c2.fillStyle = 'rgba(0,0,0,.25)'; for (let j = 1; j < 4; j++) c2.fillRect(0, j * h / 4, w, 2); }) });
     planeMats.add(cm);
-    const can = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 8, 0, TAU, 0, Math.PI * 0.42), cm); can.rotation.x = -Math.PI / 2; can.scale.set(4.2, 4.2, 3.0); can.position.z = 26; g.add(can);
-    const lines = []; for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; lines.push(0, 0, 0, Math.cos(a) * 3.9, Math.sin(a) * 3.9, 26 - 1.6); }
+    // the canopy: open mouth toward the jet, its crown trailing behind; the risers meet the skirt
+    const can = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 8, 0, TAU, 0, Math.PI * 0.42), cm); can.rotation.x = Math.PI / 2; can.scale.set(4.2, 3.0, 4.2); can.position.z = 24.25; g.add(can);
+    const lines = []; for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; lines.push(0, 0, 0, Math.cos(a) * 4.05, Math.sin(a) * 4.05, 25); }
     const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
     g.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: 0xd8d4c8 })));
     ac.chute = { g, can };
@@ -6613,12 +6604,12 @@ function setSweep(ac, deg) {
   for (const q of W.strikes) q.p.set(Math.sign(q.p.x) * tx, W.y - 0.3, tz);
 }
 
-/* ---------- the Blackbird's drag chute: out as the mains touch, let go below 40 knots ---------- */
+/* ---------- the Blackbird's drag chute: out as the mains touch, streaming a little above the runway, let go below 40 knots ---------- */
 function updateChute(dt) {
   const C = AC.chute; if (!C) return;
   const K = S.chute;
   C.g.visible = !!K && !K.gone && state === 'fly';
-  if (C.g.visible) { const e = sstep(0, 1, K.k), t = performance.now() / 1000; C.g.scale.set(e, e, 0.2 + 0.8 * e); C.g.rotation.set(0.03 * Math.sin(t * 2.1), 0.05 * Math.sin(t * 1.3), 0); C.can.scale.set(4.2 * (0.97 + 0.03 * Math.sin(t * 9)), 4.2, 3.0); }
+  if (C.g.visible) { const e = sstep(0, 1, K.k), t = performance.now() / 1000; C.g.scale.set(e, e, 0.2 + 0.8 * e); C.g.rotation.set(-0.09 + 0.03 * Math.sin(t * 2.1), 0.05 * Math.sin(t * 1.3), 0); C.can.scale.set(4.2 * (0.97 + 0.03 * Math.sin(t * 9)), 3.0, 4.2); }
 }
 
 /* ---------- smoke, dust, vapour, crashes ---------- */
@@ -6673,7 +6664,7 @@ function updateSlide(dt) {
 }
 let vaporT = 0, trailT = 0;
 const vaporCone = (() => {
-  const g = new THREE.CylinderGeometry(1, 2.2, 1, 40, 6, true); g.rotateX(Math.PI / 2);
+  const g = new THREE.CylinderGeometry(1, 2.2, 1, 40, 6, true); g.rotateX(-Math.PI / 2);   // narrow end forward, flaring out behind
   const p = g.attributes.position, col = new Float32Array(p.count * 3);
   for (let i = 0; i < p.count; i++) { const t = p.getZ(i) + 0.5, v = Math.sin(Math.PI * t) * (0.6 + 0.4 * Math.random()); col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = v; }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
