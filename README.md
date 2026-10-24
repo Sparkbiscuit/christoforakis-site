@@ -49,6 +49,9 @@ Lukas's medical and family updates have moved out of the landing page and into a
 | `/nicholas/` | Nicholas, with doorways to Filuma and Meds Ahead | `nicholas/index.html` |
 | `/projects/meds-ahead/` | Meds Ahead builder story; product pages live on sparkbiscuit.me | `projects/meds-ahead/index.html` |
 | `/projects/filuma/` | Filuma builder story; product pages live on sparkbiscuit.me | `projects/filuma/index.html` |
+| `/lagoonair/` | Lagoon Air holding page: one line and two links | `lagoonair/index.html` |
+| `/lagoonair/privacy/` | Lagoon Air privacy policy, the App Store Privacy Policy URL | `lagoonair/privacy/index.html` |
+| `/lagoonair/support/` | Lagoon Air support, the App Store Support URL | `lagoonair/support/index.html` |
 | `/andreas/` | Andreas and cross-country | `andreas/index.html`, `assets/js/course.js` |
 | `/lukas/` | Lukas's interests and link to family updates | `lukas/index.html`, `assets/js/flight.js` |
 | `/oksana/` | Oksana's notebook and photograph feed | `oksana/index.html`, `blog-posts.json` |
