@@ -281,6 +281,7 @@
     #gearPanel{bottom:calc(16px + env(safe-area-inset-bottom,0px));right:90px;transform:scale(.85);transform-origin:bottom right}
     #pkName{font-size:22px}
     #dock{max-height:calc(100% - 200px)}
+    body.paused #dock,body.paused #dockBtn{display:none}
   }
   @media (prefers-reduced-motion:reduce){.hint{animation:none}.w{animation:none}#meme.show .m1{animation:none}}
 </style>
