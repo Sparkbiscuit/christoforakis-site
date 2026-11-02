@@ -136,7 +136,7 @@
   #meme.show .m1{animation:wobble .5s ease-in-out 3}
   @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(3deg) scale(1.04)}75%{transform:rotate(-3deg) scale(1.04)}}
 
-  #toast{position:absolute;left:50%;bottom:calc(120px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:7px 14px;opacity:0;transition:opacity .35s;white-space:nowrap}
+  #toast{position:absolute;left:50%;bottom:calc(120px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:7px 14px;opacity:0;transition:opacity .35s;width:max-content;max-width:min(92vw,760px);text-align:center;line-height:1.5}
   #toast.show{opacity:1}
   #cloudVeil{position:fixed;inset:0;pointer-events:none;background:#fff;opacity:0}
   #fadeVeil{position:fixed;inset:0;pointer-events:none;background:#0b1020;opacity:0;transition:opacity .45s ease;z-index:6}
@@ -189,6 +189,19 @@
   .pkRow{display:flex;align-items:center;gap:14px}
   #picker button{all:unset;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;color:var(--ink);border:1px solid var(--glass-edge);background:var(--glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);flex:none}
   #picker button.sm{width:32px;height:32px;font-size:18px}
+  #picker button#misBtn,#misBtnP,#misRetry{all:unset;cursor:pointer;display:inline-block;margin-top:2px;padding:9px 20px;border-radius:999px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#06121c;background:var(--cyan);text-shadow:none;pointer-events:auto}
+  #misRetry[hidden]{display:none}
+  #misBtnP{margin-top:12px}#misRetry{margin:0 0 14px}
+  #misScr{position:fixed;inset:0;z-index:7;display:none;align-items:center;justify-content:center;background:rgba(4,8,18,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:auto;cursor:default;text-shadow:none}
+  #misScr.show{display:flex}
+  #misBox{position:relative;width:min(92vw,640px);max-height:86vh;overflow-y:auto;padding:16px 16px 18px}
+  #misHead{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin:2px 2px 12px}
+  #misClose{all:unset;position:absolute;right:14px;top:12px;cursor:pointer;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);padding:4px 8px}
+  #misList{display:flex;flex-direction:column;gap:8px}
+  .misCard{all:unset;cursor:pointer;display:block;padding:11px 14px;border-radius:10px;border:1px solid var(--glass-edge);background:rgba(143,220,255,.06)}
+  .misCard:hover{background:rgba(143,220,255,.16)}.misCard:focus-visible,#misBtn:focus-visible,#misBtnP:focus-visible,#misRetry:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .misCard span{display:block}.misCard .n{font-size:15px;letter-spacing:.06em;color:var(--ink)}.misCard .n i{font-style:normal;color:var(--cyan);margin-right:8px}
+  .misCard .s{font-size:12.5px;line-height:1.45;color:var(--ink);opacity:.86;margin-top:3px}.misCard .r{font-size:11px;color:var(--ink-dim);margin-top:4px;letter-spacing:.04em}
   #picker button:hover{background:rgba(143,220,255,.18)}
   #picker button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
   #pkBody{width:min(320px,62vw);text-align:center;text-shadow:0 2px 16px rgba(0,0,30,.45)}
@@ -258,6 +271,7 @@
     #simRate{top:calc(130px + env(safe-area-inset-top,0px));width:96px;font-size:10px}
     #obj{top:auto;bottom:calc(210px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px)}
     #objSub{display:none}
+    #toast{bottom:auto;top:calc(184px + env(safe-area-inset-top,0px));font-size:11px;letter-spacing:.1em}
     #inst{padding:8px 10px;gap:4px 12px}
     #inst .v{font-size:16px}
     #eng{display:none}
@@ -367,6 +381,7 @@
         <div id="apBody"><div class="lbl">departing from</div><div id="apName">—</div><div id="apSub"></div></div>
         <button class="sm" id="apNext" aria-label="Next departure airport">›</button>
       </div>
+      <button id="misBtn">missions</button>
     </div>
   </div>
   <div class="hint" id="titleHint">← → aircraft · ↑ ↓ airport · space or tap to fly</div>
@@ -380,6 +395,7 @@
   <div class="endBig num" id="endScore">0</div>
   <div class="endWhy" id="endWhy"></div>
   <div class="endStats" id="endStats"></div>
+  <button id="misRetry" hidden></button>
   <div id="endPick"></div>
   <div class="hint">space or tap to fly again</div>
 </div>
@@ -387,6 +403,7 @@
 <div id="pauseScr" class="screen">
   <div class="endBig">PAUSED</div>
   <div class="hint" id="pauseHint">click anywhere to fly on · P</div>
+  <button id="misBtnP">missions</button>
   <div id="settings" class="glass" role="group" aria-label="Settings">
     <div class="stRow"><span class="lbl">graphics</span><div class="seg" id="gfxSeg"><button data-q="saver">battery saver</button><button data-q="balanced">balanced</button><button data-q="max">max</button></div></div>
     <div class="stSub" id="gfxSub"></div>
@@ -394,6 +411,8 @@
     <div class="stSub" id="vcSub"></div>
   </div>
 </div>
+
+<div id="misScr"><div id="misBox" class="glass" role="dialog" aria-label="Missions"><div id="misHead">missions</div><button id="misClose">close</button><div id="misList"></div></div></div>
 
 <div id="loadScr" class="screen show">
   <h1>ALOFT</h1>
@@ -837,6 +856,8 @@ const ISLAND_DEFS = [
     cones: [{ u: 4200, v: -600, r: 6300, h: 2950, crater: 110 }] },
   { key: 'hachijo', x: 55000, z: 34500, ang: 135, rx: 5200, rz: 2700, type: 'hilly', peak: 90, biome: 'jp', seed: 2.6, beach: 'black',
     cones: [{ u: -2700, v: -150, r: 2400, h: 854, crater: 55 }, { u: 2650, v: 250, r: 3100, h: 701, rough: 0.4 }] },
+  // Farm Island: one enormous farm, flat from shore to shore, joined to the mainland by the highway and its bridge
+  { key: 'farm', x: -9000, z: -600, ang: 82, rx: 6300, rz: 3700, type: 'farm', peak: 0, biome: 'farm', seed: 4.6, beach: 'gold' },
 ];
 const ISL = {}; ISLAND_DEFS.forEach(I => { if (I.key) ISL[I.key] = I; });
 // island-local → world
@@ -952,10 +973,37 @@ AIRPORT_DEFS.push(
       cats: [{ n: 1, a0: 66, c0: 12, a1: 158, c1: 12 }, { n: 2, a0: 62, c0: -7, a1: 152, c1: -7 }, { n: 3, a0: -12, c0: -20, a1: 76, c1: -32 }, { n: 4, a0: -30, c0: -29, a1: 56, c1: -41 }],
       island: { a0: -38, a1: 2, c0: 27, c1: 37 },
     } },
+  // Lukas's Awesome Farm: a dirt strip in the middle of the wheat, a little hangar, a big house. Built for the Cessna; the Twin Otter
+  // can get in too, but there's no point
+  { id: 'LUK', name: "Lukas's Awesome Farm", region: 'farm', isl: 'farm', u: -700, v: 420, hdg: 82, elev: 8, kind: 'strip', only: ['c172', 'otter'], noPoint: ['otter'], noAI: true, dirt: true, town: false, noFence: true,
+    blurb: '760 m of dirt · a little hangar · a big house · wheat in every direction',
+    runways: [{ a: 0, c: 0, hdg: 82, len: 760, wid: 18, surface: 'dirt', lights: false, ils: [0, 0], papi: false, pad: [50, 50], blend: [200, 200], padC: 40, blendC: 160, corr: false }],
+    pads: [{ a0: -100, a1: 0, c0: -76, c1: -24 }], padBlend: 30, terminal: { kind: 'farm', a0: -90, a1: 0, c: -100 }, taxi: { side: -1, short: true, links: [-50] } },
 );
 const CITY = { x: 4800, z: -31800, hdg: 80, hw: 2300, hd: 1500 };
 // the old-growth spruce taiga: giant spruces over podzol and moss, from the western plain up the flanks of the mountains
 const TAIGA = { x: -36000, z: -35000, rx: 21000, rz: 12000 };
+// Farm Island's fields: a grid of forty-acre squares (a quarter of a mile a side) laid along the island's axis. u runs along the
+// island, v across it. Crops: 0 wheat, 1 sunflowers, 2 grapes, 3 cut stubble, 4 plowed, 5 young green wheat
+const FARM = (() => {
+  const I = ISL.farm, t = I.ang * D2R, cell = 402.336, nu = 42, nv = 28, rnd = mulberry32(6061);
+  const F = { cx: I.x, cz: I.z, sa: Math.sin(t), ca: Math.cos(t), ang: I.ang, cell, nu, nv, hu: cell * nu / 2, hv: cell * nv / 2, crop: [], shade: [], dir: [] };
+  // where the combines are working: [i0, j0, i1, j1) in cells, kept as standing wheat
+  F.jobs = [[15, 15, 18, 17], [23, 10, 26, 12], [11, 9, 14, 11], [20, 19, 23, 21], [27, 16, 30, 18]];
+  F.tracts = [[6, 18, 8, 20], [30, 11, 32, 13]];   // tractors plowing
+  const inJob = (i, j) => F.jobs.some(J => i >= J[0] && i < J[2] && j >= J[1] && j < J[3]);
+  const inRect = (r, i, j) => i >= r[0] && i < r[2] && j >= r[1] && j < r[3];
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+    const u = (i + 0.5) * cell - F.hu, v = (j + 0.5) * cell - F.hv, r = rnd();
+    let c = 0;
+    if (!inJob(i, j)) c = r < 0.07 ? 3 : r < 0.1 ? 5 : 0;
+    if (u > -5300 && u < -2500 && v > -2300 && v < -500) c = 1;     // the sunflowers: northwest
+    if (u > 2950 && u < 5100 && v > -1250 && v < 900) c = 2;        // the vineyard: east of the highway
+    if (F.tracts.some(r2 => inRect(r2, i, j))) c = 4;
+    F.crop.push(c); F.shade.push(Math.round(rnd() * 255)); F.dir.push(rnd() < 0.5 ? 0 : 1);
+  }
+  return F;
+})();
 
 // resolve positions: every runway gets a world centre, direction and right-hand vector
 function resolveAirport(A) {
@@ -1037,7 +1085,13 @@ function terrainModule(DEF) {
   const ridged = (x, y, oct) => { let a = 1, f = 1, s = 0, n = 0; for (let i = 0; i < oct; i++) { let v = 1 - Math.abs(noise(x * f + 17.3 * i, y * f - 9.1 * i)); v *= v; s += a * v; n += a; a *= 0.5; f *= 2.1; } return s / n; };
   const hash2 = (x, y) => { let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
-  const BIOME = { ocean: 0, mainland: 1, carib: 2, med: 3, atl: 4, trop: 5, poly: 6, jp: 7 };
+  const BIOME = { ocean: 0, mainland: 1, carib: 2, med: 3, atl: 4, trop: 5, poly: 6, jp: 7, farm: 8 };
+  // which crop grows at a point on Farm Island
+  const FM = DEF.farm;
+  function farmCrop(x, z) {
+    const dx = x - FM.cx, dz = z - FM.cz, i = Math.floor((dx * FM.sa - dz * FM.ca + FM.hu) / FM.cell), j = Math.floor((dx * FM.ca + dz * FM.sa + FM.hv) / FM.cell);
+    return i < 0 || j < 0 || i >= FM.nu || j >= FM.nv ? 0 : FM.crop[j * FM.nu + i];
+  }
   // the old-growth spruce taiga in the northwest: how deep into it a point is, 0 outside to 1 well inside, with a ragged edge
   const TG = DEF.taiga;
   const taigaK = (x, z) => TG ? sstep(1.04, 0.78, Math.hypot((x - TG.x) / TG.rx, (z - TG.z) / TG.rz) * (1 + 0.16 * noise(x * 0.00011 + 7.3, z * 0.00011 - 2.9) + 0.05 * noise(x * 0.0007, z * 0.0007))) : 0;
@@ -1134,6 +1188,10 @@ function terrainModule(DEF) {
       const water = dd < 0.8 ? lerp(-9, -1.5, sstep(0.35, 0.74, dd)) : lerp(-1.5, -80, sstep(0.86, 1.3, dd));
       h = lerp(water, 2.2 + 1.3 * noise(x * 0.004, z * 0.004), ring);
       if (h > -0.5 && h < 2.4) o.sand = Math.max(o.sand, 0.85);
+    } else if (I.type === 'farm') {
+      // a low bank above a narrow beach, then miles of nearly level ground rolling a few metres
+      h = lerp(-80, -2.5, sstep(1.4, 1.03, dd)) + 6 * sstep(1.03, 0.975, dd) + 2.5 * sstep(0.975, 0.8, dd) + sstep(0.95, 0.75, dd) * (2 + 2.2 * noise(x * 0.00042 + I.seed, z * 0.00042));
+      if (h > -1 && h < 3 && dd > 0.9) o.sand = Math.max(o.sand, sstep(3, 1.6, h));
     } else if (I.type === 'flat') {
       h = lerp(-80, -1.5, sstep(1.45, 1.0, dd)) + 4.5 * sstep(1.0, 0.72, dd) + 1.2 * noise(x * 0.003, z * 0.003) * sstep(0.9, 0.6, dd);
       if (h < 2.2) o.sand = Math.max(o.sand, sstep(2.4, 1.0, h));
@@ -1300,7 +1358,7 @@ function terrainModule(DEF) {
         const tgt = R.elev + R.slope * (R.runOut && R.runOut[a < 0 ? 0 : 1] ? a : clamp(a, -R.half - pad, R.half + pad));
         h = lerp(h, tgt - R.sink, m);
         if (m > o.flat) o.flat = m;
-        if (Math.abs(a) < R.half + 30 && Math.abs(c) < R.wid / 2 + 3) { o.surf = R.surface === 'grass' ? 4 : R.surface === 'gravel' ? 3 : R.surface === 'concrete' ? 2 : 1; o.pave = R.sink; o.rw = R; }
+        if (Math.abs(a) < R.half + 30 && Math.abs(c) < R.wid / 2 + 3) { o.surf = R.surface === 'grass' ? 4 : R.surface === 'gravel' || R.surface === 'dirt' ? 3 : R.surface === 'concrete' ? 2 : 1; o.pave = R.sink; o.rw = R; }
       }
     }
     const R0 = A.rws[0];
@@ -1312,7 +1370,7 @@ function terrainModule(DEF) {
         const sink = P.grass ? 0 : 0.3, tgt = R0.elev + (P.slope ? R0.slope * clamp(a, -R0.half, R0.half) : P.level !== undefined ? R0.slope * P.level : 0);
         h = lerp(h, tgt - sink, m);
         if (m > o.flat) o.flat = m;
-        if (!P.grass && a > P.a0 && a < P.a1 && c > P.c0 && c < P.c1) { o.surf = 5; o.pave = 0.3; }
+        if (!P.grass && a > P.a0 && a < P.a1 && c > P.c0 && c < P.c1) { o.surf = A.dirt ? 3 : 5; o.pave = 0.3; }
       }
     }
     if (A.features) for (const F of A.features) {
@@ -1384,6 +1442,20 @@ function terrainModule(DEF) {
     }
     return h;
   }
+  // the highway: a graded corridor cut and filled through the hills, skipped over the bridge. Planned once the terrain exists, so it is read late
+  const HN = {};
+  function highway(x, z, h, o) {
+    const P = DEF.highway;
+    if (!P || x < P.x0 || x > P.x1 || z < P.z0 || z > P.z1) return h;
+    pathNear(P.pts, x, z, HN);
+    if (HN.d > 330 || (HN.s > P.s0 && HN.s < P.s1)) return h;
+    const a = P.pts[HN.k], b = P.pts[HN.k + 1], y = a[3] + (b[3] - a[3]) * (HN.s - a[2]) / (b[2] - a[2]), d = HN.d;
+    const m = 1 - sstep(25, 36 + Math.min(280, Math.abs(h - y) * 3.2), d);
+    if (m > 0) { h = lerp(h, y - 0.16, m); const v = sstep(70, 34, d); if (v > o.flat) o.flat = v; }
+    if (d < 60) o.clear = 1;
+    if (d < 20.5) { o.surf = 12; o.pave = 0.16; o.flat = 1; o.sand = 0; }
+    return h;
+  }
   // full sample: height plus the flags used for colours, trees and physics
   function sample(x, z, o) {
     o.flat = 0; o.surf = 0; o.pave = 0; o.road = 0; o.rw = null; o.beach = ''; o.clear = 0;
@@ -1392,12 +1464,15 @@ function terrainModule(DEF) {
       const A = APS[i], dx = x - A.x, dz = z - A.z;
       if (dx * dx + dz * dz < A.radius * A.radius) h = applyAirport(A, x, z, h, o);
     }
+    h = highway(x, z, h, o);
+    if (o.bio === 8 && !o.surf && h > 2.6) o.surf = 6 + farmCrop(x, z);   // what the wheels roll through out in the fields
     o.h = h;
     return h;
   }
   const _o = {};
   function height(x, z) { return sample(x, z, _o); }
   function forestK(x, z, bio, h, tg = 0) {
+    if (bio === 8) return 0;   // not a tree on the farm but the ones planted round the house
     const n = fbm(x * 0.00055 + 40, z * 0.00055, 3);
     if (tg > 0.001) {   // the taiga: wall-to-wall spruce up to the tree line, broken by the odd mossy clearing
       const tk = sstep(-0.62, -0.3, fbm(x * 0.0011 + 13, z * 0.0011 - 5, 2)) * sstep(3, 22, h) * (1 - sstep(2250, 2750, h));
@@ -1427,6 +1502,7 @@ function terrainModule(DEF) {
     grassJ: lin(0x6a9a4c), grassJ2: lin(0x4c7c3a), forestJ: lin(0x2c4e2e), paddy: lin(0x9cc95e), paddy2: lin(0x7fb04a), tea: lin(0x2f6a2e), teaRow: lin(0x5f9a45),
     scoria: lin(0x6a5048), scoriaD: lin(0x4a3a36), sandJ: lin(0xbdb4a3), sandK: lin(0x45413e),
     podzol: lin(0x5d4a31), podzolR: lin(0x74583a), moss: lin(0x4a6530), forestS: lin(0x223f27),
+    wheatR: lin(0xdcc272), wheatD: lin(0xc9a957), sunfl: lin(0xeeb91c), sunflD: lin(0xd9a012), vine: lin(0x4f7b3c), vineD: lin(0x41683a), stubble: lin(0xd8c88f),
   };
   const mix3 = (o, a, b, t) => { o[0] = a[0] + (b[0] - a[0]) * t; o[1] = a[1] + (b[1] - a[1]) * t; o[2] = a[2] + (b[2] - a[2]) * t; return o; };
   const T1 = [0, 0, 0], T2 = [0, 0, 0], T3 = [0, 0, 0];
@@ -1457,6 +1533,7 @@ function terrainModule(DEF) {
     let g1 = C.grassT, g2 = C.grassT2;
     if (bio === 2) { g1 = C.grassC; g2 = C.grassC2; } else if (bio === 3) { g1 = C.grassM; g2 = C.grassM2; } else if (bio === 4) { g1 = C.grassA; g2 = C.grassA2; } else if (bio === 5) { g1 = C.grassV; g2 = C.grassC2; }
     else if (bio === 6) { g1 = C.grassP; g2 = C.grassP2; } else if (bio === 7) { g1 = C.grassJ; g2 = C.grassJ2; }
+    else if (bio === 8) { const c = farmCrop(x, z); if (c === 1) { g1 = C.sunfl; g2 = C.sunflD; } else if (c === 2) { g1 = C.vine; g2 = C.vineD; } else if (c === 3) { g1 = C.stubble; g2 = C.stubble; } else if (c === 4) { g1 = C.plowed; g2 = C.plowed; } else if (c === 5) { g1 = C.fresh; g2 = C.fresh; } else { g1 = C.wheatR; g2 = C.wheatD; } }
     mix3(out, g1, g2, v);
     const tg = s.tg || 0;
     if (tg > 0) { mix3(T2, C.podzol, C.podzolR, v2); mix3(T2, T2, C.moss, sstep(0.35, 0.75, v)); mix3(out, out, T2, tg); }   // podzol and moss under the spruces
@@ -1594,12 +1671,12 @@ function terrainModule(DEF) {
       if (h < 0) { const t = clamp(-h / 60, 0, 1); r = lerp(62, 14, t); g = lerp(160, 44, t); b = lerp(170, 78, t); a = 200; }
       else if (S.sand > 0.3) { r = 214; g = 204; b = 170; }
       else if (h > 3600) { r = 236; g = 240; b = 245; }
-      else { const t = clamp(h / 3000, 0, 1); r = lerp(104, 150, t); g = lerp(150, 140, t); b = lerp(96, 128, t); if (S.city > 0.4) { r = 150; g = 150; b = 146; } if (S.tg > 0.05 && h < 2300) { const k = S.tg * 0.8; r = lerp(r, 44, k); g = lerp(g, 92, k); b = lerp(b, 58, k); } }
+      else { const t = clamp(h / 3000, 0, 1); r = lerp(104, 150, t); g = lerp(150, 140, t); b = lerp(96, 128, t); if (S.city > 0.4) { r = 150; g = 150; b = 146; } if (S.tg > 0.05 && h < 2300) { const k = S.tg * 0.8; r = lerp(r, 44, k); g = lerp(g, 92, k); b = lerp(b, 58, k); } if (S.bio === 8 && h > 2.2) { const c = farmCrop(x, z); r = c === 1 ? 236 : c === 2 ? 92 : c === 4 ? 128 : 214; g = c === 1 ? 190 : c === 2 ? 128 : c === 4 ? 100 : 186; b = c === 1 ? 40 : c === 2 ? 70 : c === 4 ? 74 : 104; } }
       img[k] = r; img[k + 1] = g; img[k + 2] = b; img[k + 3] = a;
     }
     return { img, sea };
   }
-  return { sample, height, base, buildTile, mapImage, noise, fbm, forestK, cityMask, mainlandL, pathNear };
+  return { sample, height, base, buildTile, mapImage, noise, fbm, forestK, cityMask, mainlandL, pathNear, farmCrop };
 }
 
 /* ---------- the worker that builds tiles off the main thread ---------- */
@@ -1624,6 +1701,7 @@ const WORLD_DEF = {
   airports: AIRPORT_DEFS.filter(A => !A.ship),   // the carrier floats: nothing is carved into the sea for it
   city: CITY,
   taiga: TAIGA,
+  farm: FARM,
 };
 const TM = terrainModule(WORLD_DEF);
 // mainland airports sit on whatever ground is there
@@ -1631,6 +1709,54 @@ for (const A of AIRPORT_DEFS) {
   if (A.elev === null) { const s = {}; A.elev = Math.max(4, Math.round(TM.base(A.x, A.z, s)) + 1); }
   for (const R of A.rws) R.elev = A.elev + (R.slope ? 0 : 0);
 }
+
+/* ---------- the highway: from the west edge of Aloft City down through the hills to the coast, over the bridge to Farm Island
+   and down the length of the farm to the grain terminal on its south shore ---------- */
+const HW = (() => {
+  const route = [[2850, -31900], [800, -31500], [-1000, -29800], [-2500, -27000], [-3100, -23500], [-2900, -19500], [-3300, -15500], [-3100, -12400], [-3400, -10300], [-4300, -8700], [-5900, -6500], [-7300, -4700], [-7450, -3600], [-7200, -1800], [-7000, 0], [-6800, 1500], [-6650, 2500]];
+  // the mainland leg picks its own way through the hills: each stretch may slide up to 2 km sideways, and the cheapest line is the one
+  // that climbs least
+  const head = route.slice(0, 8), base = [], SS = {};
+  for (let i = 0; i < head.length - 1; i++) { const [x0, z0] = head[i], [x1, z1] = head[i + 1], m = Math.max(1, Math.round(Math.hypot(x1 - x0, z1 - z0) / 240)); for (let k = 0; k < m; k++) base.push([lerp(x0, x1, k / m), lerp(z0, z1, k / m)]); }
+  base.push(head[head.length - 1]);
+  const K = 10, N = base.length, nm = base.map((p, i) => { const a = base[Math.max(0, i - 1)], b = base[Math.min(N - 1, i + 1)], l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [-(b[1] - a[1]) / l, (b[0] - a[0]) / l]; });
+  const hAt = (i, k) => TM.base(base[i][0] + nm[i][0] * k * 200, base[i][1] + nm[i][1] * k * 200, SS), cost = [], from = [];
+  for (let i = 0; i < N; i++) { cost.push(new Float64Array(2 * K + 1).fill(1e15)); from.push(new Int8Array(2 * K + 1)); }
+  cost[0][K] = 0; let hPrev = []; for (let k = -K; k <= K; k++) hPrev.push(hAt(0, k));
+  for (let i = 1; i < N; i++) {
+    const hNow = []; for (let k = -K; k <= K; k++) hNow.push(hAt(i, k));
+    for (let c = 0; c <= 2 * K; c++) for (let d = -1; d <= 1; d++) { const q = c + d; if (q < 0 || q > 2 * K) continue; const dh = hNow[c] - hPrev[q], w = cost[i - 1][q] + dh * dh + Math.max(0, hNow[c] - 120) * 0.6 + d * d * 240; if (w < cost[i][c]) { cost[i][c] = w; from[i][c] = q; } }
+    hPrev = hNow;
+  }
+  const line0 = new Array(N); for (let i = N - 1, c = K; i >= 0; i--) { line0[i] = [base[i][0] + nm[i][0] * (c - K) * 200, base[i][1] + nm[i][1] * (c - K) * 200]; c = from[i][c]; }
+  let pts = line0.filter((p, i) => i % 3 === 0 || i === N - 1).concat(route.slice(8));
+  for (let p = 0; p < 3; p++) { const o = [pts[0]]; for (let i = 0; i < pts.length - 1; i++) { const [a, b] = pts[i], [c, d] = pts[i + 1]; o.push([a * 0.75 + c * 0.25, b * 0.75 + d * 0.25], [a * 0.25 + c * 0.75, b * 0.25 + d * 0.75]); } o.push(pts[pts.length - 1]); pts = o; }
+  // stations every 40 m along the smoothed line
+  const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const L = cum[cum.length - 1], step = 40, n = Math.round(L / step), st = [], at = s => { let k = 0; while (k < pts.length - 2 && cum[k + 1] < s) k++; const t = (s - cum[k]) / (cum[k + 1] - cum[k]); return [lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)]; };
+  for (let i = 0; i <= n; i++) { const s = L * i / n, [x, z] = at(s), [x0, z0] = at(Math.max(0, s - 20)), [x1, z1] = at(Math.min(L, s + 20)), l = Math.hypot(x1 - x0, z1 - z0); st.push({ s, x, z, tx: (x1 - x0) / l, tz: (z1 - z0) / l, y: 0 }); }
+  const S = {};
+  // the bridge is the longest run of open water under the line, carried a little way onto the land at each end
+  let i0 = -1, i1 = -1, best = 0, a = -1;
+  st.forEach((q, i) => { const wet = TM.base(q.x, q.z, S) < 1.5; if (wet && a < 0) a = i; if ((!wet || i === n) && a >= 0) { if (i - a > best) { best = i - a; i0 = a; i1 = i; } a = -1; } });
+  i0 -= 4; i1 += 4;
+  // road level on land: the ground smoothed along the line, never steeper than 5%, a few metres above the shore
+  const y = st.map(q => Math.max(6, (TM.base(q.x, q.z, S) + TM.base(q.x - q.tz * 20, q.z + q.tx * 20, S) + TM.base(q.x + q.tz * 20, q.z - q.tx * 20, S)) / 3));
+  for (let i = i0; i <= i1; i++) y[i] = 7;
+  for (let p = 0; p < 3; p++) { const c = y.slice(); for (let i = 0; i <= n; i++) { if (i >= i0 && i <= i1) continue; let t = 0, w = 0; for (let k = -6; k <= 6; k++) { const q = c[clamp(i + k, 0, n)]; t += q; w++; } y[i] = t / w; } }
+  const g = 0.05 * step;
+  for (let i = 1; i <= n; i++) if (i < i0 || i > i1) y[i] = clamp(y[i], y[i - 1] - g, y[i - 1] + g);
+  for (let i = n - 1; i >= 0; i--) if (i < i0 || i > i1) y[i] = clamp(y[i], y[i + 1] - g, y[i + 1] + g);
+  const yA = y[i0], yB = y[i1], D = { s0: st[i0].s, s1: st[i1].s, top: 62, towers: 430 };
+  // over the water the deck climbs to the high main span in the middle, room for a ship (or a Cessna) underneath
+  for (let i = i0; i <= i1; i++) { const t = (i - i0) / (i1 - i0), bmp = sstep(0.03, 0.4, t) * (1 - sstep(0.6, 0.97, t)); y[i] = lerp(yA, yB, t) + (D.top - lerp(yA, yB, t)) * bmp; }
+  st.forEach((q, i) => { q.y = y[i]; });
+  // the terrain worker gets the line every 160 m
+  const line = st.filter((q, i) => i % 4 === 0 || i === n).map(q => [Math.round(q.x * 10) / 10, Math.round(q.z * 10) / 10, Math.round(q.s * 10) / 10, Math.round(q.y * 100) / 100]);
+  const xs = st.map(q => q.x), zs = st.map(q => q.z);
+  WORLD_DEF.highway = { pts: line, s0: D.s0, s1: D.s1, x0: Math.min(...xs) - 340, x1: Math.max(...xs) + 340, z0: Math.min(...zs) - 340, z1: Math.max(...zs) + 340 };
+  return { st, step, L, i0, i1, bridge: D };
+})();
 
 /* ---------- towns: every field serves somewhere, so each gets a road from the terminal to a little grid of streets ----------
    planned here, before the terrain worker starts, so the worker can keep trees off the streets and gardens */
@@ -1791,19 +1917,69 @@ const TILE_INDEX = (() => {
   return new THREE.BufferAttribute(new Uint16Array(idx), 1);
 })();
 
+// Farm Island's fields are drawn in the terrain shader, so they stay crisp from any height: a painted map of the island says what is
+// crop, lawn or dirt, a texel per field says which crop, and the rows, tramlines and furrows are worked out per pixel.
+// uCut holds the rectangles the combines have cut so far
+const FARM_CUTS = 10;
+const FARM_U = { uFarmMask: { value: null }, uFarmCells: { value: null }, uFarmT: { value: new THREE.Vector4(FARM.ca, FARM.sa, FARM.cx, FARM.cz) }, uFarmH: { value: new THREE.Vector4(FARM.hu, FARM.hv, FARM.cell, 0) }, uFarmN: { value: new THREE.Vector2(FARM.nu, FARM.nv) }, uCut: { value: Array.from({ length: FARM_CUTS }, () => new THREE.Vector4(0, 0, 0, 0)) } };
 const terrainMat = new THREE.MeshLambertMaterial({ vertexColors: true });
 terrainMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, FARM_U);
   sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;')
     .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
 varying vec3 vWP;
 float th(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float tvn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
-  return mix(mix(th(i), th(i+vec2(1.0,0.0)), f.x), mix(th(i+vec2(0.0,1.0)), th(i+vec2(1.0,1.0)), f.x), f.y); }`)
+  return mix(mix(th(i), th(i+vec2(1.0,0.0)), f.x), mix(th(i+vec2(0.0,1.0)), th(i+vec2(1.0,1.0)), f.x), f.y); }
+uniform sampler2D uFarmMask, uFarmCells; uniform vec4 uFarmT, uFarmH, uCut[${FARM_CUTS}]; uniform vec2 uFarmN;
+vec3 farmCrop(float crop, float shade, vec2 xz, float w, float fw) {
+  float big = tvn(xz * 0.0035) * 0.6 + tvn(xz * 0.013) * 0.4, fine = tvn(xz * 0.23), near = 1.0 - smoothstep(0.12, 0.8, fw);
+  if (crop < 0.5) {   // wheat: gold, a shade different field to field, the tramlines of the sprayer every 24 m
+    vec3 c = mix(vec3(0.72, 0.51, 0.13), vec3(0.47, 0.29, 0.07), clamp(shade * 0.95 + big * 0.7 - 0.5, 0.0, 1.0));
+    float lw = max(1.3, fw * 1.2), tram = 1.0 - smoothstep(lw * 0.6, lw, abs(fract(w / 24.0) - 0.5) * 24.0);
+    c *= 1.0 - 0.13 * tram * (1.3 / lw) * (1.0 - smoothstep(6.0, 14.0, fw));
+    return c * (0.92 + 0.16 * fine) * (1.0 + 0.05 * sin(w * 5.0) * near);
+  }
+  if (crop < 1.5) {   // sunflowers: bright yellow, the dark centres showing up close
+    vec3 c = mix(vec3(0.92, 0.58, 0.03), vec3(0.78, 0.42, 0.02), big);
+    return mix(c, vec3(0.2, 0.11, 0.04), 0.5 * smoothstep(0.6, 0.72, tvn(xz * 1.25)) * near) * (0.94 + 0.12 * fine);
+  }
+  if (crop < 2.5) {   // grapes: green rows 3 m apart over bare soil
+    float can = 1.0 - smoothstep(0.75, 1.1, abs(fract(w / 3.0) - 0.5) * 3.0), k = 1.0 - smoothstep(0.35, 1.3, fw);
+    return mix(vec3(0.13, 0.22, 0.08), mix(vec3(0.3, 0.22, 0.13), vec3(0.15, 0.3, 0.09), can), k) * (0.92 + 0.16 * big);
+  }
+  if (crop < 3.5) {   // stubble, with the windrows of straw
+    float rw = 1.0 - smoothstep(0.8, 2.0, abs(fract(w / 9.0) - 0.5) * 9.0);
+    return vec3(0.6, 0.47, 0.22) * (0.9 + 0.12 * fine + 0.14 * rw * (1.0 - smoothstep(3.0, 7.0, fw)));
+  }
+  if (crop < 4.5) {   // plowed: brown furrows
+    return vec3(0.21, 0.13, 0.075) * (0.9 + 0.3 * big + 0.16 * sin(w * 2.6) * near);
+  }
+  return vec3(0.3, 0.5, 0.13) * (0.9 + 0.2 * big);   // young wheat
+}`)
     .replace('#include <color_fragment>', `#include <color_fragment>
     { float dd = length(vWP - cameraPosition);
       float det = tvn(vWP.xz * 0.09) * 0.55 + tvn(vWP.xz * 0.37) * 0.3 + tvn(vWP.xz * 1.3) * 0.15;
-      diffuseColor.rgb *= mix(1.0, 0.84 + 0.3 * det, 1.0 - smoothstep(400.0, 2600.0, dd)); }`);
+      diffuseColor.rgb *= mix(1.0, 0.84 + 0.3 * det, 1.0 - smoothstep(400.0, 2600.0, dd)); }
+    { vec2 fq = vWP.xz - uFarmT.zw, fuv = vec2(fq.x * uFarmT.y - fq.y * uFarmT.x, fq.x * uFarmT.x + fq.y * uFarmT.y);
+      if (abs(fuv.x) < uFarmH.x && abs(fuv.y) < uFarmH.y && vWP.y > 1.0) {
+        vec3 m = texture2D(uFarmMask, fuv / (2.0 * uFarmH.xy) + 0.5).rgb * smoothstep(2.2, 3.3, vWP.y);
+        float sum = m.r + m.g + m.b;
+        if (sum > 0.003) {
+          vec2 gp = (fuv + uFarmH.xy) / uFarmH.z, ci = floor(gp);
+          vec4 cl = texture2D(uFarmCells, (ci + 0.5) / uFarmN);
+          float crop = floor(cl.r * 255.0 / 40.0 + 0.5), fw = max(fwidth(fuv.x), fwidth(fuv.y));
+          float w = crop > 1.5 && crop < 2.5 ? fuv.x : cl.b > 0.5 ? fuv.x : fuv.y;
+          if (crop < 0.5) { for (int i = 0; i < ${FARM_CUTS}; i++) { vec4 c = uCut[i]; if (fuv.x > c.x && fuv.x < c.z && fuv.y > c.y && fuv.y < c.w) { crop = 3.0; w = fuv.y; break; } } }
+          vec3 c = farmCrop(crop, cl.g, vWP.xz, w, fw);
+          vec2 ef = abs(fract(gp) - 0.5);
+          c *= 1.0 - 0.2 * (1.0 - smoothstep(1.0, 2.0 + fw, (0.5 - max(ef.x, ef.y)) * uFarmH.z)) * (1.0 - smoothstep(5.0, 22.0, fw));
+          vec3 lawn = mix(vec3(0.19, 0.36, 0.1), vec3(0.13, 0.28, 0.08), tvn(vWP.xz * 0.05));
+          vec3 dirt = mix(vec3(0.38, 0.27, 0.16), vec3(0.29, 0.2, 0.12), tvn(vWP.xz * 0.2));
+          diffuseColor.rgb = diffuseColor.rgb * (1.0 - min(sum, 1.0)) + c * m.r + lawn * m.g + dirt * m.b;
+        }
+      } }`);
 };
 const terrainRoot = new THREE.Group(); scene.add(terrainRoot);
 
@@ -2093,7 +2269,7 @@ function requestMap() {
   const groups = new Map();
   for (let k = 0, tries = 0; k < (isTouch ? 1400 : 2600) && tries < 60000; tries++) {
     const x = MAP.cx + (r() * 2 - 1) * MAP.half, z = MAP.cz + (r() * 2 - 1) * MAP.half;
-    const h = TM.sample(x, z, S); if (h < 2 || h > 180 || S.flat > 0.01 || S.sand > 0.2) continue;
+    const h = TM.sample(x, z, S); if (h < 2 || h > 180 || S.flat > 0.01 || S.sand > 0.2 || S.bio === 8) continue;
     if (noise(x * 0.0009 + 90, z * 0.0009) < 0.28) continue;
     const cellKey = Math.floor(x / 20000) + ':' + Math.floor(z / 20000);
     if (!groups.has(cellKey)) groups.set(cellKey, []);
@@ -2126,6 +2302,12 @@ const gravelTex = texRep(canvasTex(256, 256, (g, w, h) => {
   for (let i = 0; i < 16000; i++) { const v = 90 + r() * 90 | 0; g.fillStyle = `rgba(${v + 8},${v},${v - 12},.55)`; g.fillRect(r() * w, r() * h, 1 + r() * 2.5, 1 + r() * 2.5); }
   g.fillStyle = 'rgba(70,62,52,.18)'; g.fillRect(w * 0.3, 0, w * 0.1, h); g.fillRect(w * 0.6, 0, w * 0.1, h);
 }));
+// Lukas's strip: packed dirt with two wheel ruts down the middle
+const dirtTex = texRep(canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#9b7c55'; g.fillRect(0, 0, w, h); const r = mulberry32(21);
+  for (let i = 0; i < 12000; i++) { const v = 110 + r() * 70 | 0; g.fillStyle = `rgba(${v + 22},${v},${v - 36},.5)`; g.fillRect(r() * w, r() * h, 1 + r() * 3, 1 + r() * 3); }
+  g.fillStyle = 'rgba(70,50,32,.28)'; g.fillRect(w * 0.36, 0, w * 0.06, h); g.fillRect(w * 0.58, 0, w * 0.06, h);
+}));
 const apronTex = texRep(canvasTex(256, 256, (g, w, h) => {
   g.fillStyle = '#9a9c98'; g.fillRect(0, 0, w, h); const r = mulberry32(5);
   for (let i = 0; i < 6000; i++) { const v = 130 + r() * 40 | 0; g.fillStyle = `rgba(${v},${v},${v + 3},.35)`; g.fillRect(r() * w, r() * h, 2, 2); }
@@ -2151,6 +2333,7 @@ const SURF_MAT = {
   asphalt: offsetMat(new THREE.MeshLambertMaterial({ map: asphaltTex }), -2),
   concrete: offsetMat(new THREE.MeshLambertMaterial({ map: concreteTex }), -2),
   gravel: offsetMat(new THREE.MeshLambertMaterial({ map: gravelTex }), -2),
+  dirt: offsetMat(new THREE.MeshLambertMaterial({ map: dirtTex }), -2),
   wood: offsetMat(new THREE.MeshLambertMaterial({ map: plankTex }), -2),
 };
 const apronMat = offsetMat(new THREE.MeshLambertMaterial({ map: apronTex }), -2);
@@ -2205,6 +2388,7 @@ const metalGray = new THREE.MeshLambertMaterial({ color: 0x8e949c });
 const redWhiteMat = new THREE.MeshLambertMaterial({ color: 0xd84a3a });
 const glassMat = new THREE.MeshLambertMaterial({ color: 0x26384a, emissive: 0xffc27a, emissiveIntensity: 0 });
 const OBSTACLES = [], OB_GRID = new Map(), OB_CELL = 400;   // oriented boxes the aircraft can hit, bucketed on a grid
+const MOVERS = [];   // the farm machines, wherever they have got to
 const obKey = (i, j) => i * 100003 + j;
 function addObstacle(cx, cy, cz, hx, hy, hz, yaw, what) {
   const o = { cx, cy, cz, hx, hy, hz, c: Math.cos(yaw), s: Math.sin(yaw), what }, r = Math.hypot(hx, hz) + 1;
@@ -2214,6 +2398,7 @@ function addObstacle(cx, cy, cz, hx, hy, hz, yaw, what) {
   }
 }
 function hitObstacle(p) {
+  for (const m of MOVERS) if (Math.abs(p.x - m.x) < m.r && Math.abs(p.z - m.z) < m.r && p.y < m.y + m.h) return m;
   const L = OB_GRID.get(obKey(Math.floor(p.x / OB_CELL), Math.floor(p.z / OB_CELL))); if (!L) return false;
   for (const o of L) {
     const dx = p.x - o.cx, dz = p.z - o.cz;
@@ -2255,12 +2440,12 @@ function insideRunway(R, x, z, margin = 0) { const px = x - R.cx, pz = z - R.cz,
 function buildRunway(A, R) {
   R.ids = ids2(R.hdg, R.lr, R.num); R.airport = A; RUNWAYS.push(R);
   const g = rwGroup(R); g.updateMatrixWorld(true); R.group = g;
-  const L = R.len, paved = R.surface !== 'grass';
+  const L = R.len, paved = R.surface !== 'grass', rough = R.surface === 'gravel' || R.surface === 'dirt';
   const put = (mat, c, y, a, w, l) => { const m = new THREE.Mesh(PLANE1, mat); m.position.set(c, y, -a); m.scale.set(w, 1, l); m.receiveShadow = true; g.add(m); return m; };
   if (paved) {
     const mat = SURF_MAT[R.surface].clone(); mat.map = SURF_MAT[R.surface].map.clone(); mat.map.needsUpdate = true;
-    if (R.surface === 'concrete') mat.map.repeat.set((R.wid + 6) / 15, (L + 60) / 15); else if (R.surface === 'wood') mat.map.repeat.set((R.wid + 6) / 8, (L + 60) / 8); else if (R.surface === 'gravel') mat.map.repeat.set(1, (L + 60) / 40); else mat.map.repeat.set(1, (L + 60) / 90);
-    put(mat, 0, 0.03 - R.idx * 0.008, 0, R.wid + (R.surface === 'gravel' ? 4 : 6), L + (R.surface === 'gravel' ? 20 : 60));
+    if (R.surface === 'concrete') mat.map.repeat.set((R.wid + 6) / 15, (L + 60) / 15); else if (R.surface === 'wood') mat.map.repeat.set((R.wid + 6) / 8, (L + 60) / 8); else if (rough) mat.map.repeat.set(1, (L + 60) / 40); else mat.map.repeat.set(1, (L + 60) / 90);
+    put(mat, 0, 0.03 - R.idx * 0.008, 0, R.wid + (rough ? 4 : 6), L + (rough ? 20 : 60));
   } else {
     for (const c of [-2.2, 2.2]) put(trackMat, c, 0.04, 0, 1.3, L - 30);
   }
@@ -2270,7 +2455,7 @@ function buildRunway(A, R) {
   const marks = [];
   const M = (c, a, w, l) => { if (!crosses(c, a)) marks.push([c, a, w, l]); };
   const W = R.wid, hw = W / 2;
-  if (paved && R.surface !== 'gravel') {
+  if (paved && !rough) {
     for (let a = -R.half; a < R.half; a += 30) { M(-hw + 0.9, a + 15, 0.9, 30); M(hw - 0.9, a + 15, 0.9, 30); }
     for (let a = -R.half + 150; a < R.half - 150; a += 55) M(0, a, 0.9, 30);
     const nb = W >= 55 ? 8 : W >= 44 ? 6 : 4, gap = (hw - 3) / nb;
@@ -2289,7 +2474,7 @@ function buildRunway(A, R) {
     marks.forEach(([c, a, w, l], i) => { m4.makeScale(w, 1, l); m4.setPosition(c, 0.07, -a); im.setMatrixAt(i, m4); });
     im.receiveShadow = true; g.add(im);
   }
-  if (paved && R.surface !== 'gravel') R.ids.forEach((id, k) => {
+  if (paved && !rough) R.ids.forEach((id, k) => {
     if (R.oneWay !== undefined && R.oneWay !== k) return;
     const s = k === 0 ? -1 : 1;
     const num = id.replace(/[LRC]$/, ''), letter = id.slice(num.length);
@@ -2299,7 +2484,7 @@ function buildRunway(A, R) {
     if (k === 1) mesh.rotation.y = Math.PI;
     g.add(mesh);
   });
-  if (!paved || R.surface === 'gravel') {   // strip markers: white boards along the edges, orange at the ends
+  if (!paved || rough) {   // strip markers: white boards along the edges, orange at the ends
     const boards = [];
     for (let a = -R.half; a <= R.half + 0.1; a += 75) boards.push([-hw - 2, a, 0xf2f2f2], [hw + 2, a, 0xf2f2f2]);
     for (const s of [-1, 1]) for (const c of [-hw - 2, -hw * 0.5, hw * 0.5, hw + 2]) boards.push([c, s * (R.half + 3), 0xff7a2e]);
@@ -2454,11 +2639,12 @@ function buildGround(A) {
     let g = P.slope ? tilt : A.group;
     if (P.level !== undefined) { const lg = new THREE.Group(); lg.position.y = R0.slope * P.level; A.group.add(lg); g = lg; }
     const w = P.c1 - P.c0, l = P.a1 - P.a0;
-    const mat = A.decked ? SURF_MAT.wood.clone() : P.taxi ? SURF_MAT.asphalt : apronMat.clone();
+    const mat = A.decked ? SURF_MAT.wood.clone() : A.dirt ? SURF_MAT.dirt.clone() : P.taxi ? SURF_MAT.asphalt : apronMat.clone();
     if (A.decked) { mat.map = plankTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 8, l / 8); }
+    else if (A.dirt) { mat.map = dirtTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 30, l / 30); }
     else if (!P.taxi) { mat.map = apronTex.clone(); mat.map.needsUpdate = true; mat.map.repeat.set(w / 40, l / 40); }
     const m = new THREE.Mesh(PLANE1, mat); m.position.set((P.c0 + P.c1) / 2, 0.02, -(P.a0 + P.a1) / 2); m.scale.set(w, 1, l); m.receiveShadow = true; g.add(m);
-    if (P.taxi && P.taxi !== 4) {   // yellow centreline and blue edge lights (turning pads are plain pavement)
+    if (P.taxi && P.taxi !== 4 && !A.dirt) {   // yellow centreline and blue edge lights (turning pads are plain pavement)
       const along = P.taxi === 1, cl = new THREE.Mesh(PLANE1, yellowMat);
       if (along) { cl.position.set((P.c0 + P.c1) / 2, 0.06, -(P.a0 + P.a1) / 2); cl.scale.set(0.5, 1, l); }
       else { cl.position.set((P.c0 + P.c1) / 2, 0.06, -(P.a0 + P.a1) / 2); cl.scale.set(w, 1, 0.5); }
@@ -2589,6 +2775,7 @@ function buildTerminal(A) {
     for (let k = 0; k < 3; k++) { const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.9, 10), new THREE.MeshLambertMaterial({ color: k ? 0x2f6fb0 : 0xc0392b })); drum.position.set(T.c + side * 5, 0.45, -(am + 2 + k * 0.8)); g.add(drum); }
   } else if (T.kind === 'lukla') buildLukla(A, g);
   else if (T.kind === 'poly') polyTerminal(A, g);
+  else if (T.kind === 'farm') farmstead(A, g);
   // windsock at every field (Treetops hangs its own off the apron rail)
   if (A.decked) return;
   const ws = new THREE.Group(), R = A.rws[0], wa = -R.half + Math.min(350, R.len * 0.3), wc = -(R.wid / 2 + 45);
@@ -2801,7 +2988,7 @@ function ribbonGeo(pts, width, lift = 0.16) {
 }
 
 /* ---------- traffic: cars that drive their roads, on the right ---------- */
-const TRAFFIC = [], CAR_MAX = 200;
+const TRAFFIC = [], CAR_MAX = 260;
 const carBodies = new THREE.InstancedMesh((() => { const b = new THREE.BoxGeometry(4.3, 1.05, 1.8); b.translate(0, 0.72, 0); return b; })(), new THREE.MeshLambertMaterial({ color: 0xffffff }), CAR_MAX);
 const carCabs = new THREE.InstancedMesh((() => { const b = new THREE.BoxGeometry(2.3, 0.75, 1.62); b.translate(-0.25, 1.6, 0); return b; })(), new THREE.MeshLambertMaterial({ color: 0x1f2a36 }), CAR_MAX);
 carBodies.count = carCabs.count = 0; carBodies.frustumCulled = carCabs.frustumCulled = false; carBodies.castShadow = carCabs.castShadow = true;
@@ -2810,15 +2997,15 @@ const CAR_COLS = [0xd23b3b, 0xf2f2f2, 0x2f6fb0, 0x333333, 0xe0b030, 0x3f8f4a, 0x
 const _trP = new THREE.Vector3(), _trQ = new THREE.Quaternion(), _trM = new THREE.Matrix4(), _trOne = new THREE.Vector3(1, 1, 1), _trY = new THREE.Vector3(0, 1, 0);
 function addTraffic(pts, n, speed, opts = {}) {
   if (!pts || pts.length < 2) return { cars: [], P: [], cum: [0], len: 0 };
-  pts = densify(pts, 6);
-  const P = pts.map(([x, z]) => new THREE.Vector3(x, Math.max(0, TM.height(x, z)) + 0.16, z));
+  if (!opts.raw) pts = densify(pts, 6);   // raw paths bring their own [x, z, y]: the highway's, up on the bridge deck
+  const P = pts.map(([x, z, y]) => new THREE.Vector3(x, opts.raw ? y : Math.max(0, TM.height(x, z)) + 0.16, z));
   const cum = [0]; for (let i = 1; i < P.length; i++) cum.push(cum[i - 1] + P[i].distanceTo(P[i - 1]));
   let cx = 0, cz = 0; for (const p of P) { cx += p.x; cz += p.z; }
-  const T = { P, cum, len: cum[cum.length - 1], loop: !!opts.loop, lane: opts.lane ?? 1.7, cars: [], cx: cx / P.length, cz: cz / P.length };
+  const T = { P, cum, len: cum[cum.length - 1], loop: !!opts.loop, lane: opts.lane ?? 1.7, cars: [], cx: cx / P.length, cz: cz / P.length, far: opts.far || 9000, vk: opts.vk || null, sc: opts.sc || null };
   const r = mulberry32(TRAFFIC.length * 71 + 3), col = new THREE.Color();
   for (let k = 0; k < n && carBodies.count < CAR_MAX; k++) {
     const i = carBodies.count++; carCabs.count = carBodies.count;
-    carBodies.setColorAt(i, col.setHex(CAR_COLS[(r() * CAR_COLS.length) | 0]));
+    const pal = opts.cols || CAR_COLS; carBodies.setColorAt(i, col.setHex(pal[(r() * pal.length) | 0]));
     T.cars.push({ s: T.len * (k + r() * 0.6) / n, v: speed * (0.8 + r() * 0.4) * (T.loop || k % 2 === 0 ? 1 : -1), i });
   }
   TRAFFIC.push(T); moveCars(T, 0);
@@ -2838,25 +3025,26 @@ function moveCars(T, dt) {
     }
   }
   for (const car of T.cars) {
-    car.s += T.gate && T.gate.closed ? car.v2 : car.v * dt;
+    car.s += T.gate && T.gate.closed ? car.v2 : car.v * dt * (T.vk ? T.vk[car.lo || 0] : 1);
     if (T.loop) car.s = ((car.s % T.len) + T.len) % T.len;
     else if (car.s > T.len) { car.s = T.len; car.v = -Math.abs(car.v); } else if (car.s < 0) { car.s = 0; car.v = Math.abs(car.v); }
     let lo = 0, hi = T.cum.length - 1;
     while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (T.cum[mid] <= car.s) lo = mid; else hi = mid; }
+    car.lo = lo;
     const p0 = T.P[lo], p1 = T.P[hi], seg = T.cum[hi] - T.cum[lo];
     let dx = p1.x - p0.x, dz = p1.z - p0.z; const l = Math.hypot(dx, dz);
     if (l < 1e-3 || seg < 1e-3) continue;
     const t = (car.s - T.cum[lo]) / seg, dir = car.v >= 0 ? 1 : -1; dx = dx / l * dir; dz = dz / l * dir;
     _trP.set(p0.x + (p1.x - p0.x) * t - dz * T.lane, p0.y + (p1.y - p0.y) * t, p0.z + (p1.z - p0.z) * t + dx * T.lane);
     _trQ.setFromAxisAngle(_trY, Math.atan2(-dz, dx));
-    _trM.compose(_trP, _trQ, _trOne);
+    _trM.compose(_trP, _trQ, T.sc || _trOne);
     carBodies.setMatrixAt(car.i, _trM); carCabs.setMatrixAt(car.i, _trM);
   }
 }
 function updateTraffic(dt) {
   if (!carBodies.count) return;
   const cp = camera.position; let any = false;
-  for (const T of TRAFFIC) { if (Math.abs(cp.x - T.cx) > 9000 || Math.abs(cp.z - T.cz) > 9000) continue; moveCars(T, dt); any = true; }
+  for (const T of TRAFFIC) { if (Math.abs(cp.x - T.cx) > T.far || Math.abs(cp.z - T.cz) > T.far) continue; moveCars(T, dt); any = true; }
   if (any) carBodies.instanceMatrix.needsUpdate = carCabs.instanceMatrix.needsUpdate = true;
 }
 /* ---------- people: small figures with legs, arms, a head and hair; spotters hold phones and cameras up to the sky ----------
@@ -4581,6 +4769,610 @@ function placeCarrierJets(statics) {
   mergeStaticGroup(grp);   // ten aircraft in a few batches per material
 }
 /* =========================================================
+   Farm Island: the highway and its bridge, the fields, Lukas's farm, the combines
+   ========================================================= */
+const farmUV = (x, z) => { const dx = x - FARM.cx, dz = z - FARM.cz; return [dx * FARM.sa - dz * FARM.ca, dx * FARM.ca + dz * FARM.sa]; };
+const farmXZ = (u, v) => [FARM.cx + u * FARM.sa + v * FARM.ca, FARM.cz - u * FARM.ca + v * FARM.sa];
+const farmIdx = (u, v) => { const i = Math.floor((u + FARM.hu) / FARM.cell), j = Math.floor((v + FARM.hv) / FARM.cell); return i < 0 || j < 0 || i >= FARM.nu || j >= FARM.nv ? -1 : j * FARM.nu + i; };
+// the road's line: s along it from the city, lat to the right of a southbound driver
+function hwAt(s) {
+  const n = HW.st.length - 1, f = clamp(s / HW.L, 0, 1) * n, i = Math.min(n - 1, Math.floor(f)), t = f - i, a = HW.st[i], b = HW.st[i + 1];
+  return { s, x: lerp(a.x, b.x, t), z: lerp(a.z, b.z, t), y: lerp(a.y, b.y, t), tx: a.tx, tz: a.tz };
+}
+const hwPt = (s, lat, up = 0) => { const q = hwAt(s); return [q.x - q.tz * lat, q.y + up, q.z + q.tx * lat]; };
+const hwXZ = (s, lat) => { const q = hwAt(s); return [q.x - q.tz * lat, q.z + q.tx * lat]; };
+const hwYaw = q => -Math.atan2(q.tx, -q.tz);   // what addObstacle wants for a box along the road
+
+const FI = { movers: [], fans: [] };
+const brickMat = new THREE.MeshLambertMaterial({ color: 0x8f4a3a });
+const barnRed = new THREE.MeshLambertMaterial({ color: 0xa5302a });
+const trimWhite = new THREE.MeshLambertMaterial({ color: 0xf7f5ee });
+const houseRoof = new THREE.MeshLambertMaterial({ color: 0x4d535c, side: THREE.DoubleSide });
+const barnRoof = new THREE.MeshLambertMaterial({ color: 0x5b5f64, side: THREE.DoubleSide });
+const steelMat = new THREE.MeshLambertMaterial({ color: 0xc3c8cd });
+const shutterMat = new THREE.MeshLambertMaterial({ color: 0x2f4a3a });
+const doorMat = new THREE.MeshLambertMaterial({ color: 0x9c2b24 });
+const signGreen = new THREE.MeshLambertMaterial({ color: 0x0c6a3c });
+const bridgeWhite = new THREE.MeshLambertMaterial({ color: 0xd9d6cc });
+const stayMat = new THREE.MeshLambertMaterial({ color: 0xe9e6dc });
+const dirtRoadMat = offsetMat(new THREE.MeshLambertMaterial({ color: 0x9c7f5a, side: THREE.DoubleSide }), -2);
+const FRIDGE = hipRoofGeo(1);   // a plain gable roof: ridge along x, the full length of the footprint
+const FGAMBREL = (() => { const g = new THREE.ExtrudeGeometry(new THREE.Shape([[-0.5, 0], [0.5, 0], [0.37, 0.6], [0, 1], [-0.37, 0.6]].map(([x, y]) => new THREE.Vector2(x, y))), { depth: 1, bevelEnabled: false }); g.translate(0, 0, -0.5); return g; })();
+const FDOME = new THREE.SphereGeometry(0.5, 12, 6, 0, TAU, 0, Math.PI / 2), FCONE = new THREE.ConeGeometry(0.5, 1, 12), FCYL = new THREE.CylinderGeometry(0.5, 0.5, 1, 14);
+
+/* ---------- the road ---------- */
+const laneTex = texRep(canvasTex(128, 512, (g, w, h) => {
+  g.fillStyle = '#4c4f55'; g.fillRect(0, 0, w, h);
+  const r = mulberry32(44);
+  for (let i = 0; i < 5000; i++) { const v = 62 + r() * 36 | 0; g.fillStyle = `rgba(${v},${v + 2},${v + 5},.5)`; g.fillRect(r() * w, r() * h, 1 + r() * 2, 1 + r() * 2); }
+  g.fillStyle = '#f0ece0'; g.fillRect(4, 0, 3, h); g.fillRect(w - 7, 0, 3, h);
+  g.fillStyle = '#f0ece0'; g.fillRect(w / 2 - 1.5, 0, 3, h * 0.42);
+}));
+laneTex.anisotropy = 8;
+const laneMat = offsetMat(new THREE.MeshLambertMaterial({ map: laneTex }), -2);
+function hwStrip(i0, i1, lat0, lat1, lift) {
+  const pos = [], uv = [], idx = [];
+  for (let i = i0; i <= i1; i++) {
+    const q = HW.st[i], b = (i - i0) * 2;
+    pos.push(q.x - q.tz * lat0, q.y + lift, q.z + q.tx * lat0, q.x - q.tz * lat1, q.y + lift, q.z + q.tx * lat1);
+    uv.push(0, q.s / 24, 1, q.s / 24);
+    if (i < i1) idx.push(b, b + 1, b + 2, b + 1, b + 3, b + 2);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+// a solid swept along the road: profile is a closed list of [lat, height above the road]
+function hwLoft(i0, i1, profile) {
+  const pos = [], m = profile.length, P = i => { const q = HW.st[i]; return profile.map(([lat, up]) => [q.x - q.tz * lat, q.y + up, q.z + q.tx * lat]); };
+  let a = P(i0);
+  for (let i = i0 + 1; i <= i1; i++) {
+    const b = P(i);
+    for (let k = 0; k < m; k++) { const k2 = (k + 1) % m; pos.push(...a[k], ...b[k], ...a[k2], ...a[k2], ...b[k], ...b[k2]); }
+    a = b;
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+  return g;
+}
+function buildBridge() {
+  const K = kit(), B = HW.bridge, { i0, i1 } = HW, mid = (B.s0 + B.s1) / 2, glow = [];
+  // the deck, its barriers and railings
+  K.add(concreteGray, hwLoft(i0, i1, [[17.2, -0.02], [-17.2, -0.02], [-15.5, -2.8], [15.5, -2.8]]), 0, 0, 0);
+  K.add(bridgeWhite, hwLoft(i0, i1, [[0.5, 0], [-0.5, 0], [-0.22, 1.05], [0.22, 1.05]]), 0, 0, 0);
+  for (const sd of [-1, 1]) {
+    K.add(bridgeWhite, hwLoft(i0, i1, [[sd * 16.4, 0], [sd * 17.2, 0], [sd * 17.2, 1.15], [sd * 16.7, 1.15]]), 0, 0, 0);
+    K.add(metalGray, hwLoft(i0, i1, [[sd * 16.8, 1.35], [sd * 17.1, 1.35], [sd * 17.1, 1.5], [sd * 16.8, 1.5]]), 0, 0, 0);
+  }
+  // obstacles for the deck, piers every 80 m on the approaches, none in the main span
+  for (let s = B.s0 + 40; s < B.s1; s += 80) { const q = hwAt(s); addObstacle(q.x, q.y - 0.8, q.z, 17.5, 2.4, 44, hwYaw(q), 'hit the bridge'); }
+  for (let s = B.s0 + 30; s < B.s1 - 20; s += 80) {
+    if (Math.abs(s - mid) < B.towers + 20) continue;
+    const q = hwAt(s), g0 = Math.max(TM.height(q.x, q.z), -3), hh = q.y - 3 - g0, yaw = hwYaw(q);
+    for (const lat of [-11, 11]) { const [x, y, z] = hwPt(s, lat); K.add(concreteGray, UBOX, x, g0 + hh / 2, z, yaw, 3.4, hh, 4.8); void y; }
+    K.add(concreteGray, UBOX, q.x, q.y - 3.7, q.z, yaw, 33, 1.8, 5.4);
+    addObstacle(q.x, g0 + hh / 2, q.z, 16, hh / 2, 3.2, yaw, 'hit a bridge pier');
+  }
+  // the two towers and their fans of stays
+  const towerH = 124, nStay = 14;
+  for (const sg of [-1, 1]) {
+    const sT = mid + sg * B.towers, q = hwAt(sT), y0 = q.y, yaw = hwYaw(q);
+    for (const lat of [-21, 21]) {
+      const foot = hwPt(sT, lat * 1.5, 0), top = hwPt(sT, lat * 0.32, towerH);
+      foot[1] = -3; beam(K, bridgeWhite, foot, top, 3.6, true);
+      addObstacle((foot[0] + top[0]) / 2, (y0 + towerH - 3) / 2, (foot[2] + top[2]) / 2, Math.abs(lat * 0.6) + 6, (y0 + towerH + 3) / 2, 7, yaw, 'hit the bridge tower');
+    }
+    K.add(concreteGray, UBOX, q.x, 2, q.z, yaw, 76, 10, 22);
+    for (const yy of [-7, 88, 118]) K.add(bridgeWhite, UBOX, ...hwPt(sT, 0, yy), yaw, yy > 100 ? 18 : yy > 0 ? 22 : 44, 5, 6);
+    for (const lat of [-18.3, 18.3]) for (const dir of [-1, 1]) for (let k = 1; k <= nStay; k++) {
+      const d = k * 29, aPt = hwPt(sT + dir * d, lat, 0.5), bPt = hwPt(sT + dir * 2, lat * 0.45, 42 + k * 5.2);
+      beam(K, stayMat, aPt, bPt, 0.22);
+    }
+    // the fans as thin walls the aircraft can hit; the lane between them, over the deck, stays clear
+    for (const lat of [-18.3, 18.3]) for (const dir of [-1, 1]) for (const [d0, d1] of [[6, 120], [120, 240], [240, 420]]) {
+      const [x, , z] = hwPt(sT + dir * (d0 + d1) / 2, lat), topY = 42 + (nStay + 1 - d0 / 29 * 0.9) * 2.4 + (1 - d1 / 420) * 40;
+      addObstacle(x, q.y + topY / 2, z, 2.5, topY / 2, (d1 - d0) / 2, yaw, 'flew into the bridge cables');
+    }
+    glow.push({ p: hwPt(sT, 0, towerH + 3), c: 0xff2418, s: 3.2, k: 3, ph: sg > 0 ? 0.4 : 0 });
+    for (const lat of [-7, 7]) glow.push({ p: hwPt(sT, lat, towerH + 1), c: 0xff2418, s: 2.4, k: 3, ph: 0.2 });
+  }
+  // lamps along the deck
+  for (let s = B.s0; s < B.s1; s += 120) for (const lat of [-16.8, 16.8]) { const p = hwPt(s, lat, 9); glow.push({ p, c: 0xffd9a0, s: 2 }); K.add(metalGray, UCYL5, p[0], p[1] - 4.5, p[2], 0, 0.16, 9, 0.16); }
+  scene.add(glowPoints(glow, 'town'));
+  K.done(scene, false);
+}
+/* a green sign hung over the road on a gantry: spans from lat0 to lat1 at station s */
+function highwaySign(lines, opts = {}) {
+  const W = 640, H = 300;
+  const map = canvasTex(W, H, (g) => {
+    g.fillStyle = '#0c6a3c'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = '#f4f4ee'; g.lineWidth = 7; g.beginPath(); g.roundRect ? g.roundRect(9, 9, W - 18, H - 18, 18) : g.rect(9, 9, W - 18, H - 18); g.stroke();
+    g.fillStyle = '#f4f4ee'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const tx = opts.arrow ? W / 2 - 46 : W / 2;
+    for (const [t, y, sz] of lines) { g.font = `bold ${sz}px "Overpass", "Helvetica Neue", Arial, sans-serif`; let s2 = sz; while (g.measureText(t).width > W - (opts.arrow ? 150 : 60) && s2 > 20) { s2 -= 2; g.font = `bold ${s2}px "Helvetica Neue", Arial, sans-serif`; } g.fillText(t, tx, y); }
+    if (opts.arrow) { g.save(); g.translate(W - 74, H / 2 + 8); g.rotate(opts.arrow); g.fillRect(-11, -46, 22, 72); g.beginPath(); g.moveTo(-36, -24); g.lineTo(0, -74); g.lineTo(36, -24); g.closePath(); g.fill(); g.restore(); }
+  });
+  return new THREE.MeshLambertMaterial({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.62 });   // retroreflective, readable with the sun behind it
+}
+function gantry(K, s, lat0, lat1, mat, sw = 17, sh = 8) {
+  const q = hwAt(s), latM = (lat0 + lat1) / 2, yaw = Math.atan2(-q.tx, -q.tz), clr = 7.4, [px, py, pz] = hwPt(s, latM, clr + sh / 2 + 0.6);
+  for (const lat of [lat0, lat1]) { const [x, y, z] = hwPt(s, lat); K.add(metalGray, UCYL5, x, y + (clr + sh + 1.4) / 2, z, 0, 0.7, clr + sh + 1.4, 0.7); K.add(concreteGray, UBOX, x, y + 0.5, z, 0, 1.6, 1, 1.6); }
+  for (const dy of [clr + 1.1, clr + sh + 0.2]) { const a = hwPt(s, lat0, dy), b = hwPt(s, lat1, dy); beam(K, metalGray, a, b, 0.32); }
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), mat); m.position.set(px, py, pz); m.rotation.y = yaw; scene.add(m);
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), mat); back.position.set(px + q.tx * 0.2, py, pz + q.tz * 0.2); back.rotation.y = yaw + Math.PI; scene.add(back);
+  addObstacle(px, py, pz, Math.abs(lat1 - lat0) / 2 + 1, sh / 2 + 1.2, 1.5, hwYaw(q), 'hit the highway sign');
+  for (const lat of [lat0, lat1]) { const [x, y, z] = hwPt(s, lat); addObstacle(x, y + 8, z, 1, 8, 1, 0, 'hit the highway sign'); }
+}
+function buildHighway() {
+  const last = HW.st.length - 1, K = kit();
+  const road = new THREE.Mesh(mergeGeometries([hwStrip(0, last, 3, 14, 0.03), hwStrip(0, last, -14, -3, 0.03)]), laneMat); road.receiveShadow = true; scene.add(road);
+  // shoulders, and the bridge's median
+  const shG = [hwStrip(0, last, 14, 16.5, 0.02), hwStrip(0, last, -16.5, -14, 0.02), hwStrip(HW.i0, HW.i1, -3, 3, 0.02)];
+  for (const g of shG) g.deleteAttribute('uv');
+  const sh = new THREE.Mesh(mergeGeometries(shG), roadMat); sh.receiveShadow = true; scene.add(sh);
+  buildBridge();
+  // the exit: on the right of the southbound carriageway, level with the house. Find the station abreast of the northern edge of the yard
+  let sExit = 0; for (const q of HW.st) { const [, v] = farmUV(q.x, q.z); if (q.s > HW.bridge.s1 && v > -360) { sExit = q.s; break; } }
+  FI.sExit = sExit;
+  const off = [[0, 14.5], [130, 16], [230, 22], [310, 40], [370, 72], [410, 120], [430, 170]].map(([d, lat]) => hwXZ(sExit + d, lat));
+  const on = [[430, 170], [470, 120], [530, 74], [610, 42], [720, 22], [840, 15.5], [950, 14.5]].map(([d, lat]) => hwXZ(sExit + d, lat));
+  const offS = densify(smoothPath(off, 3), 8), onS = densify(smoothPath(on, 3), 8);
+  roadRibbon(offS, 7); roadRibbon(onS, 7);
+  // the one little dirt road: from the top of the ramp, across the wheat, to the house
+  const A = AIRPORT_DEFS.find(a => a.id === 'LUK'), R = A.rws[0], W = (a, c) => [R.cx + a * R.dx + c * R.bx, R.cz + a * R.dz + c * R.bz];
+  FI.W = W;
+  const [ju, jv] = farmUV(...off[off.length - 1]), [eu, ev] = farmUV(...W(250, -262)), dirt = [];
+  for (let t = 0; t <= 1.0001; t += 0.05) { const b = Math.sin(t * Math.PI); dirt.push(farmXZ(lerp(ju, eu, t), lerp(jv, ev, t) + b * (46 * Math.sin(t * 7.3) + 26 * TM.noise(t * 4 + 8, 2.2)))); }
+  const dirtS = densify(smoothPath(dirt, 2), 8), loop = [];
+  for (let k = 0; k <= 24; k++) { const a = k / 24 * TAU; loop.push(W(205 + Math.cos(a + Math.PI * 0.1) * 45, -262 + Math.sin(a + Math.PI * 0.1) * 30)); }
+  const loopS = densify(loop, 6);
+  roadRibbon(dirtS, 4.4, dirtRoadMat, 0.2); roadRibbon(loopS, 4.4, dirtRoadMat, 0.2);
+  FI.dirt = dirtS; FI.off = offS; FI.on = onS; FI.loop = loopS;
+  // signs over the highway
+  const signMain = highwaySign([["TO LUKAS'S", 74, 74], ['AWESOME FARM', 160, 74], ['EXIT 1 · NEXT RIGHT', 252, 34]], { arrow: 0.72 });
+  gantry(K, sExit - 620, -1, 18.5, signMain, 17.5, 8.2);
+  const sign2 = highwaySign([["LUKAS'S AWESOME", 92, 60], ['FARM', 166, 60], ['2 MILES', 244, 44]]);
+  gantry(K, sExit - 3200, -1, 18.5, sign2, 17.5, 8.2);
+  const sign3 = highwaySign([['FARM ISLAND', 104, 70], ['WHEAT · SUNFLOWERS · GRAPES', 208, 34]]);
+  gantry(K, HW.bridge.s0 - 900, -1, 18.5, sign3, 17.5, 8.2);
+  const sign4 = highwaySign([['ALOFT CITY', 104, 66], ['AIRPORT · ALL ROUTES', 208, 34]]);
+  gantry(K, 2400, -18.5, 1, sign4, 17.5, 8.2);
+  // a small green sign where the ramp leaves, a stop sign and a mailbox at the top of it
+  const exitPlate = highwaySign([['EXIT 1', 150, 110]]);
+  { const [x, z] = hwXZ(sExit + 100, 24), y = TM.height(x, z), q = hwAt(sExit), m = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 2.6), exitPlate); m.position.set(x, y + 4, z); m.rotation.y = Math.atan2(-q.tx, -q.tz); scene.add(m); K.add(metalGray, UCYL5, x - 1.8 * q.tx - q.tz * 2, y + 1.6, z, 0, 0.16, 3.2, 0.16); K.add(metalGray, UCYL5, x, y + 1.6, z, 0, 0.16, 3.2, 0.16); }
+  { const [x, z] = off[off.length - 1], o = [x + 7, z - 6], y = TM.height(o[0], o[1]);
+    K.add(metalGray, UCYL5, o[0], y + 1.2, o[1], 0, 0.1, 2.4, 0.1); K.add(redWhiteMat, UCYL5, o[0], y + 2.5, o[1], 0, 0.8, 0.06, 0.8, Math.PI / 2);
+    K.add(woodDark, UCYL5, x - 9, y + 0.6, z + 5, 0, 0.14, 1.2, 0.14); K.add(metalGray, UBOX, x - 9, y + 1.3, z + 5, 0, 0.3, 0.3, 0.6); }
+  // a farm sign in wood where the dirt road starts
+  { const [x, z] = dirtS[6], y = TM.height(x, z), t = Math.atan2(dirtS[7][0] - x, dirtS[7][1] - z), sx = Math.cos(t), sz = -Math.sin(t), px = x + sx * 8, pz = z + sz * 8;
+    const mat = new THREE.MeshLambertMaterial({ map: canvasTex(512, 192, (g, w, h) => { g.fillStyle = '#8a6a44'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgba(60,40,20,.5)'; g.lineWidth = 3; for (let k = 28; k < h; k += 34) { g.beginPath(); g.moveTo(0, k); g.lineTo(w, k); g.stroke(); } g.fillStyle = '#fbf3df'; g.textAlign = 'center'; g.font = 'bold 54px Georgia, serif'; g.fillText("Lukas's", w / 2, 70); g.fillText('Awesome Farm', w / 2, 136); g.font = '26px Georgia, serif'; g.fillText('one road · no exit', w / 2, 174); }) });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 2), mat); m.position.set(px, y + 2.5, pz); m.rotation.y = t + Math.PI; scene.add(m);
+    const b = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 2), mat); b.position.set(px, y + 2.5, pz); b.rotation.y = t; scene.add(b);
+    for (const sd of [-1, 1]) K.add(woodDark, UBOX, px + sd * 2.5 * Math.cos(t + Math.PI), y + 1.7, pz - sd * 2.5 * Math.sin(t + Math.PI), 0, 0.22, 3.4, 0.22); }
+  K.done(scene, false);
+  // traffic. Cars keep right, two lanes each way, the length of the road
+  const lanePts = (a, b, lat, step = 30) => { const P = [], n = Math.ceil(Math.abs(b - a) / step); for (let k = 0; k <= n; k++) { const [x, y, z] = hwPt(lerp(a, b, k / n), lat, 0.05); P.push([x, z, y]); } return P; };
+  const thru = lanePts(50, HW.L - 40, 0), both = thru.concat(thru.slice().reverse());
+  addTraffic(both, 20, 26, { raw: true, loop: true, lane: 5.75, far: 45000 });
+  addTraffic(both, 12, 31, { raw: true, loop: true, lane: 11.25, far: 45000 });
+  addTraffic(both, 7, 23, { raw: true, loop: true, lane: 11.25, far: 45000, sc: new THREE.Vector3(2.8, 1.75, 1.4), cols: [0xf2f2f2, 0xc23b2b, 0x2f6fb0, 0xe0b030] });
+  // pickups that take the exit: down the highway, off the ramp, along the dirt road to the house, back up to the highway, and round again
+  const onLand = (P, up) => P.map(([x, z]) => [x, z, TM.height(x, z) + up]), rightOf = (P, d) => P.map((p, i) => { const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)], l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [p[0] - (b[1] - a[1]) / l * d, p[1] + (b[0] - a[0]) / l * d]; });
+  const legs = [[lanePts(HW.bridge.s0 - 500, sExit, 11.25), 1], [onLand(offS, 0.25), 0.62], [onLand(rightOf(dirtS, 1.05), 0.3), 0.5], [onLand(loopS, 0.3), 0.3], [onLand(rightOf(dirtS.slice().reverse(), 1.05), 0.3), 0.5], [onLand(onS, 0.25), 0.62], [lanePts(sExit + 950, HW.L - 40, 11.25), 1], [lanePts(HW.L - 40, HW.bridge.s0 - 500, -11.25), 1]];
+  const P = [], vk = []; for (const [L, k] of legs) for (const p of L) { P.push(p); vk.push(k); }
+  addTraffic(P, 4, 24, { raw: true, loop: true, lane: 0, far: 30000, vk, cols: [0xb5352c, 0x2d5a8c, 0xe9e7df, 0x355e3b] });
+}
+
+/* ---------- the farm: a big white house, a red barn, silos, a windmill, a little hangar ---------- */
+function farmstead(A, g) {
+  const K = kit(), rnd = mulberry32(419), glow = [];
+  const put = (m, a, c, y, sa, sh, sc, ry = 0) => K.add(m, UBOX, c, y, -a, ry, sc, sh, sa);     // box by runway-frame a and c: sa long, sc wide
+  const GY = 0;
+  // --- the house: three bays of white clapboard under a slate roof, a tall cross gable, a porch all along the front, facing the runway
+  const ha = 110, hc = -226, hl = 40, hd = 15, h2 = 9.4;
+  put(concreteGray, ha, hc, GY + 0.4, hl + 0.8, 1.4, hd + 0.8);
+  put(trimWhite, ha, hc, GY + 1 + h2 / 2, hl, h2, hd);
+  K.add(houseRoof, FRIDGE, hc, GY + 1 + h2, -ha, Math.PI / 2, hl + 1.8, 6.4, hd + 2);
+  // the cross gable over the door, and a wing at the east end
+  put(trimWhite, ha, hc + 4, GY + 1 + h2 / 2, 12, h2, hd);
+  K.add(houseRoof, FRIDGE, hc + 3.5, GY + 1 + h2, -ha, 0, hd + 3.4, 7.6, 13.4);
+  put(trimWhite, ha + 26, hc - 2, GY + 3.4, 16, 6.4, 12);
+  K.add(houseRoof, FRIDGE, hc - 2, GY + 6.6, -(ha + 26), 0, 13, 4, 17);
+  for (const [a, c, h] of [[ha - 12, hc, 19.5], [ha + 12, hc, 19.5], [ha + 28, hc - 2, 12.5]]) { put(brickMat, a, c, GY + h / 2, 1.6, h, 2.4); put(concreteGray, a, c, GY + h + 0.1, 2, 0.3, 2.8); }
+  // windows on both floors, with shutters, on the front and back
+  const win = (a, c, y, front) => {
+    const sgn = front ? 1 : -1;
+    put(trimWhite, a, c, y, 1.9, 2.5, 0.18); put(glassMat, a, c + sgn * 0.1, y, 1.5, 2.1, 0.12);
+    for (const s2 of [-1, 1]) put(shutterMat, a + s2 * 1.4, c + sgn * 0.08, y, 0.7, 2.3, 0.12);
+    if (rnd() < 0.5) glow.push({ p: [c + sgn * 0.5, y, -a], c: 0xffcf8a, s: 1.5 });
+  };
+  for (const y of [3.4, 7.6]) for (let a = ha - 17; a <= ha + 17; a += 4.4) {
+    if (Math.abs(a - ha) > 6.6) win(a, hc + hd / 2 + 0.1, GY + y, true);
+    win(a, hc - hd / 2 - 0.1, GY + y, false);
+  }
+  for (const a of [ha - 3.6, ha, ha + 3.6]) win(a, hc + 11.6, GY + 7.6, true);
+  win(ha, hc + 11.6, GY + 13.2, true);
+  for (const y of [3.4, 7.6]) for (const c of [hc - 3.5, hc + 3.5]) { put(trimWhite, ha - hl / 2 - 0.1, c, GY + y, 0.18, 2.5, 1.9); put(glassMat, ha - hl / 2 - 0.2, c, GY + y, 0.12, 2.1, 1.5); }
+  put(doorMat, ha, hc + 11.62, GY + 2.5, 2, 3, 0.16); put(trimWhite, ha, hc + 11.58, GY + 2.5, 2.7, 3.4, 0.1);
+  // the porch: a deck and a roof on white posts, wrapping the front
+  const pc = hc + 14.6;
+  put(woodDark, ha, pc, GY + 0.75, hl + 6, 0.5, 6.4);
+  put(houseRoof, ha, pc, GY + 5.3, hl + 7, 0.5, 7.2);
+  for (let a = ha - hl / 2 - 2; a <= ha + hl / 2 + 2.1; a += 4.8) { put(trimWhite, a, pc + 2.8, GY + 3.1, 0.34, 4.2, 0.34); put(trimWhite, a + 2.4, pc + 2.8, GY + 1.75, 4.4, 0.16, 0.16); }
+  for (let k = 0; k < 4; k++) put(woodDark, ha, pc + 3.6 + k * 0.5, GY + 0.75 - k * 0.2, 4, 0.2, 0.55);
+  FI.door = [ha, pc + 6];
+  addObstacle(...localToWorld(g, hc + 3, 8, -ha).toArray(), hd / 2 + 8, 10, hl / 2 + 3, -A.rws[0].hdg * D2R, 'hit the house');
+  // --- the barn: long, red, a gambrel roof with the name on it, white trim
+  const ba = -150, bc = -246, bl = 48, bw = 24, bh = 8;
+  put(barnRed, ba, bc, GY + bh / 2, bl, bh, bw);
+  K.add(barnRoof, FGAMBREL, bc, GY + bh, -ba, 0, bw + 1.6, 10, bl + 1.6);
+  for (const a of [ba - bl / 2 - 0.08, ba + bl / 2 + 0.08]) K.add(barnRed, FGAMBREL, bc, GY + bh, -a, 0, bw, 9.6, 0.14);
+  for (const a of [ba - 12, ba + 12]) { put(trimWhite, a, bc + bw / 2 + 0.1, GY + 2.8, 7, 5.6, 0.14); put(barnRed, a, bc + bw / 2 + 0.2, GY + 2.8, 6.2, 4.9, 0.1); beamX(a, bc + bw / 2 + 0.26); }
+  function beamX(a, c) { for (const sd of [-1, 1]) K.add(trimWhite, UBOX, c, GY + 2.8, -a, 0, 0.06, 0.24, 7.9, sd * 0.67, 0); }
+  addObstacle(...localToWorld(g, bc, 9, -ba).toArray(), bw / 2 + 1, 10, bl / 2 + 1, -A.rws[0].hdg * D2R, 'hit the barn');
+  const roofName = new THREE.Mesh(new THREE.PlaneGeometry(40, 7.2), new THREE.MeshLambertMaterial({ map: canvasTex(1024, 186, (c2, w, h) => { c2.clearRect(0, 0, w, h); c2.fillStyle = '#f7f2e4'; c2.font = 'bold 128px "Helvetica Neue", Arial, sans-serif'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText("LUKAS'S FARM", w / 2, h / 2 + 8); }), transparent: true, alphaTest: 0.3, side: THREE.DoubleSide }));
+  // on the lower south slope of the roof, reading from the south
+  { const slope = Math.atan2(6, 0.13 * (bw + 1.6)); roofName.position.set(bc + (bw + 1.6) * 0.435 + 0.12, GY + bh + 3.15, -ba); roofName.rotation.set(0, Math.PI / 2, 0, 'YXZ'); roofName.rotateX(-(Math.PI / 2 - slope)); g.add(roofName); }
+  // --- silos, grain bins, a windmill
+  for (const [a, c, d, h] of [[-204, -232, 11, 27], [-204, -256, 9.6, 23]]) { K.add(concreteGray, FCYL, c, GY + h / 2, -a, 0, d, h, d); K.add(steelMat, FDOME, c, GY + h, -a, 0, d, d * 0.9, d); addObstacle(...localToWorld(g, c, h / 2, -a).toArray(), d / 2, h / 2 + 3, d / 2, 0, 'hit a silo'); }
+  for (let k = 0; k < 3; k++) { const a = -238 - k * 17, c = -212; K.add(steelMat, FCYL, c, GY + 4.5, -a, 0, 13, 9, 13); K.add(steelMat, FCONE, c, GY + 11, -a, 0, 14, 4, 14); addObstacle(...localToWorld(g, c, 6, -a).toArray(), 6.5, 7, 6.5, 0, 'hit a grain bin'); }
+  { const a = 214, c = -176, H = 19;
+    for (const [da, dc] of [[-2.6, -2.6], [2.6, -2.6], [-2.6, 2.6], [2.6, 2.6]]) { const p = [c + dc, 0, -(a + da)], q = [c + dc * 0.2, H, -(a + da * 0.2)]; beam(K, metalGray, p, q, 0.13); }
+    for (const t of [0.3, 0.55, 0.8]) put(metalGray, a, c, H * t, 5.2 * (1 - t * 0.8), 0.12, 5.2 * (1 - t * 0.8));
+    const fan = new THREE.Group(), bl2 = new THREE.BoxGeometry(0.62, 3, 0.05), blades = [];
+    for (let k = 0; k < 16; k++) { const b = bl2.clone(); b.translate(0, 2.2, 0); b.rotateY(0.3); b.rotateZ(k / 16 * TAU); blades.push(b); }
+    const mf = new THREE.Mesh(mergeGeometries(blades), steelMat); mf.position.z = 0.8; fan.add(mf);
+    fan.position.set(c, H + 0.6, -a); fan.rotation.y = -0.8; g.add(fan); FI.fans.push(mf);
+    K.add(steelMat, UBOX, c, H + 0.6, -a, -0.8, 0.3, 0.3, 3.6);
+    addObstacle(...localToWorld(g, c, H / 2, -a).toArray(), 3.4, H / 2 + 3, 3.4, 0, 'hit the windmill');
+  }
+  // --- the little hangar: corrugated steel, big door open to the strip, the Cessna inside, LUKAS AIR over the door
+  { const a = -50, W = 20, D = 18, H = 5.6, c0 = -100, c1 = c0 + D, wt = 0.3;
+    put(steelMat, a, c0, GY + H / 2, W, H, wt); for (const s2 of [-1, 1]) put(steelMat, a + s2 * W / 2, c0 + D / 2, GY + H / 2, wt, H, D);
+    put(steelMat, a, c1, GY + H - 0.7, W, 1.4, wt);
+    K.add(steelMat, FRIDGE, c0 + D / 2, GY + H, -a, 0, D + 1.4, 1.8, W + 1.4);
+    put(new THREE.MeshLambertMaterial({ color: 0x4a4e52 }), a, c0 + D / 2, GY + 0.08, W - 0.5, 0.08, D - 0.5);
+    STANDS.push({ A, g, wall: [c0 + 0.5, a], out: [1, 0], cls: 'small', bridge: false, gap: 20, id: 'c172', always: true });
+    addObstacle(...localToWorld(g, c0 + D / 2, 4, -a).toArray(), D / 2, 4.6, W / 2, -A.rws[0].hdg * D2R, 'hit the hangar');
+    const nm = new THREE.Mesh(new THREE.PlaneGeometry(13, 1.2), new THREE.MeshLambertMaterial({ map: canvasTex(512, 48, (c2, w, h) => { c2.fillStyle = '#b3232a'; c2.fillRect(0, 0, w, h); c2.fillStyle = '#fff'; c2.font = 'bold 38px "Helvetica Neue", Arial, sans-serif'; c2.textAlign = 'center'; c2.textBaseline = 'middle'; c2.fillText('LUKAS AIR', w / 2, h / 2 + 2); }) }));
+    nm.position.set(c1 + 0.2, GY + H - 0.72, -a); nm.rotation.y = Math.PI / 2; g.add(nm);
+    // two barrels of avgas and a little pump
+    for (let k = 0; k < 2; k++) { K.add(k ? redWhiteMat : metalGray, FCYL, c1 + 4, GY + 0.5, -(a + 13 + k * 1), 0, 0.72, 1, 0.72); }
+    put(redWhiteMat, a + 16, c1 + 3.5, GY + 0.95, 0.7, 1.9, 0.5);
+  }
+  // a parked tractor and a hay stack by the barn
+  for (let k = 0; k < 12; k++) K.add(new THREE.MeshLambertMaterial({ color: 0xcfb15a }), FCYL, bc + 24 + (k % 4) * 3.2, GY + 1 + 1.9 * (k >> 2 & 1), -(ba + 6 + (k >> 2) * 2.6 - 3), 0, 1.9, 2.4, 1.9, Math.PI / 2);
+  K.done(g);
+  // shelter belt north of the yard, shade trees round the house
+  const hw = (a, c) => { const w = FI.W ? FI.W(a, c) : [A.rws[0].cx + a * A.rws[0].dx + c * A.rws[0].bx, A.rws[0].cz + a * A.rws[0].dz + c * A.rws[0].bz]; return [w[0], TM.height(w[0], w[1]), w[1]]; };
+  for (let a = -290; a <= 330; a += 15) { const [x, y, z] = hw(a + rnd() * 6, -336 + rnd() * 10); GARDEN_TREES.push([x, y, z, 2, 1.5 + rnd() * 0.6, rnd() * 6]); }
+  for (const [a, c] of [[60, -190], [160, -186], [36, -226], [190, -214], [98, -280], [150, -285], [70, -176], [-100, -200], [-214, -190], [262, -228], [268, -296]]) { const [x, y, z] = hw(a, c); GARDEN_TREES.push([x, y, z, 0, 1.25 + rnd() * 0.5, rnd() * 6]); addObstacle(x, y + 7, z, 3, 8, 3, 0, 'hit a tree'); }
+  // the people of the farm: someone on the porch watching the strip, two by the barn
+  { const [x, y, z] = hw(ha + 11, pc); person(x, y + 1, z, hw(ha, 0)[0], hw(ha, 0)[2], 3, rnd); const [x2, y2, z2] = hw(ba + 8, bc + 18), [x3, y3, z3] = hw(ba + 11, bc + 19); person(x2, y2, z2, x3, z3, 0, rnd); person(x3, y3, z3, x2, z2, 3, rnd); }
+  scene.add(g); g.add(glowPoints(glow, 'town'));
+}
+
+/* ---------- machines: combines cutting the wheat, tractors plowing, a grain truck waiting at each field ---------- */
+function solid(geo, hex, x, y, z, sx = 1, sy = 1, sz = 1, ry = 0, rx = 0, rz = 0) {
+  let g = vcolor(geo.clone(), hex); const m = new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz, 'YXZ')), new THREE.Vector3(sx, sy, sz));
+  g.applyMatrix4(m); return g;
+}
+const FWHEEL = new THREE.CylinderGeometry(0.5, 0.5, 1, 14); FWHEEL.rotateX(Math.PI / 2);
+function combineGeo() {   // forward is +x; body in white so each machine can take its own colour
+  const b = [solid(UBOX, 0xffffff, -0.6, 2.5, 0, 6.6, 2.7, 3.1), solid(UBOX, 0xffffff, -3.2, 3.2, 0, 2.8, 2.2, 3.1), solid(UBOX, 0xffffff, 0.2, 4.4, 0, 3.8, 1.3, 3.4), solid(UBOX, 0xffffff, 1.8, 1.7, 0, 2.6, 1.3, 1.5)];
+  const d = [solid(FWHEEL, 0x1c1d20, 1.3, 1, 1.9, 2.1, 2.1, 0.8), solid(FWHEEL, 0x1c1d20, 1.3, 1, -1.9, 2.1, 2.1, 0.8), solid(FWHEEL, 0x1c1d20, -3.4, 0.65, 1.6, 1.3, 1.3, 0.5), solid(FWHEEL, 0x1c1d20, -3.4, 0.65, -1.6, 1.3, 1.3, 0.5),
+    solid(UBOX, 0x26384a, 2.6, 3.8, 0, 1.8, 1.7, 2.1), solid(UBOX, 0xe8e6de, 2.6, 4.75, 0, 2.3, 0.18, 2.5), solid(UBOX, 0xe0b030, 4.1, 0.75, 0, 2.2, 0.9, 9.2), solid(UBOX, 0x3a3c40, 4.9, 0.45, 0, 0.9, 0.2, 9.4), solid(UBOX, 0xe0b030, 4.1, 1.0, 4.65, 2.3, 1.3, 0.14), solid(UBOX, 0xe0b030, 4.1, 1.0, -4.65, 2.3, 1.3, 0.14),
+    solid(FCYL, 0x8e949c, -1, 4.6, -3, 0.42, 5.4, 0.42, 0, 0, Math.PI / 2 - 0.25), solid(UBOX, 0x3a3c40, -4.6, 2, 0, 0.5, 1.6, 2.6)];
+  const reel = [];
+  for (let k = 0; k < 6; k++) { const a = k / 6 * TAU; reel.push(solid(UBOX, 0xd9d6cc, Math.cos(a) * 0.72, Math.sin(a) * 0.72, 0, 0.1, 0.1, 8.8)); reel.push(solid(UBOX, 0xd9d6cc, Math.cos(a) * 0.36, Math.sin(a) * 0.36, -4.3, 0.06, 0.06, 0.06, 0, 0, a)); reel.push(solid(UBOX, 0xe0b030, Math.cos(a) * 0.36, Math.sin(a) * 0.36, 0, 0.72, 0.07, 0.07, 0, 0, a)); }
+  return { b: mergeGeometries(b), d: mergeGeometries(d), reel: mergeGeometries(reel) };
+}
+function tractorGeo() {
+  const b = [solid(UBOX, 0xffffff, 0.5, 1.6, 0, 2.8, 1.1, 1.1), solid(UBOX, 0xffffff, -0.9, 1.3, 0, 1.3, 0.8, 1.4)];
+  const d = [solid(FWHEEL, 0x1c1d20, -0.9, 1, 1, 2, 2, 0.6), solid(FWHEEL, 0x1c1d20, -0.9, 1, -1, 2, 2, 0.6), solid(FWHEEL, 0x1c1d20, 1.3, 0.6, 0.85, 1.2, 1.2, 0.4), solid(FWHEEL, 0x1c1d20, 1.3, 0.6, -0.85, 1.2, 1.2, 0.4), solid(UBOX, 0x26384a, -0.8, 2.4, 0, 1.3, 1.4, 1.3), solid(UBOX, 0xe8e6de, -0.8, 3.15, 0, 1.6, 0.1, 1.6), solid(UBOX, 0x8e949c, -3.2, 0.5, 0, 2, 0.5, 5)];
+  return { b: mergeGeometries(b), d: mergeGeometries(d) };
+}
+function buildMachines() {
+  const CG = combineGeo(), TG = tractorGeo(), nC = FARM.jobs.length, nT = FARM.tracts.length;
+  const whiteV = new THREE.MeshLambertMaterial({ color: 0xffffff }), darkV = new THREE.MeshLambertMaterial({ vertexColors: true });
+  const bodyC = new THREE.InstancedMesh(CG.b, new THREE.MeshLambertMaterial({ vertexColors: true }), nC), darkC = new THREE.InstancedMesh(CG.d, darkV, nC), reel = new THREE.InstancedMesh(CG.reel, darkV, nC);
+  const bodyT = new THREE.InstancedMesh(TG.b, new THREE.MeshLambertMaterial({ vertexColors: true }), nT), darkT = new THREE.InstancedMesh(TG.d, darkV, nT);
+  void whiteV;
+  for (const m of [bodyC, darkC, reel, bodyT, darkT]) { m.frustumCulled = false; m.castShadow = true; scene.add(m); }
+  const COMBC = [0x2f7a3a, 0xb32d27, 0x2f7a3a, 0xc9a227, 0xb32d27], c = new THREE.Color(), rnd = mulberry32(2026);
+  const mk = (J, swath, k0, speed, kind, idx) => {
+    const u0 = -FARM.hu + J[0] * FARM.cell, v0 = -FARM.hv + J[1] * FARM.cell, u1 = -FARM.hu + J[2] * FARM.cell, v1 = -FARM.hv + J[3] * FARM.cell;
+    return { u0, v0, u1, v1, sw: swath, k: k0, n: Math.floor((v1 - v0) / swath), dir: 1, p: u0 + 6, turn: 0, speed, kind, idx, x: 0, y: 0, z: 0, r: kind ? 5 : 8, h: kind ? 4 : 6, what: kind ? 'hit a tractor' : 'hit a combine harvester', roll: rnd() * 6, dustT: 0, fu: 1, fv: 0 };
+  };
+  FARM.jobs.forEach((J, i) => { bodyC.setColorAt(i, c.setHex(COMBC[i % COMBC.length])); FI.movers.push(mk(J, 9, 6 + Math.floor(rnd() * 24), 5.2, 0, i)); });
+  FARM.tracts.forEach((J, i) => { bodyT.setColorAt(i, c.setHex(i ? 0x2f5f9c : 0xc4561f)); FI.movers.push(mk(J, 6, Math.floor(rnd() * 30), 4, 1, i)); });
+  FI.bodyC = bodyC; FI.darkC = darkC; FI.reel = reel; FI.bodyT = bodyT; FI.darkT = darkT;
+  MOVERS.push(...FI.movers);
+  // a grain truck waiting at the edge of each field the combines are in
+  const K = kit();
+  for (const J of FARM.jobs) {
+    const u = -FARM.hu + (J[0] + 0.5) * FARM.cell, v = -FARM.hv + J[1] * FARM.cell - 16, [x, z] = farmXZ(u, v), y = farmY(x, z), yaw = (90 - FARM.ang) * D2R, cu = Math.cos(yaw), su = Math.sin(yaw);
+    K.add(redWhiteMat, UBOX, x + cu * 3.6, y + 1.7, z - su * 3.6, yaw, 2.2, 2.2, 2.4);
+    K.add(new THREE.MeshLambertMaterial({ color: 0xe0dccb }), UBOX, x - cu * 1.6, y + 2, z + su * 1.6, yaw, 7.4, 2.2, 2.5);
+    K.add(metalGray, UBOX, x, y + 0.75, z, yaw, 10, 0.5, 2);
+  }
+  K.done(scene);
+  // round bales on the cut fields
+  const bales = [], r2 = mulberry32(88);
+  for (let j = 0; j < FARM.nv; j++) for (let i = 0; i < FARM.nu; i++) if (FARM.crop[j * FARM.nu + i] === 3) for (let k = 0; k < 14; k++) {
+    const u = -FARM.hu + (i + 0.08 + r2() * 0.84) * FARM.cell, v = -FARM.hv + (j + 0.08 + r2() * 0.84) * FARM.cell, [x, z] = farmXZ(u, v), y = farmY(x, z);
+    if (y > 3.4) bales.push([x, y, z, r2() * TAU]);
+  }
+  const bg = new THREE.CylinderGeometry(0.85, 0.85, 1.5, 10); bg.rotateZ(Math.PI / 2);
+  const im = new THREE.InstancedMesh(bg, new THREE.MeshLambertMaterial({ color: 0xcdb064 }), bales.length), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v3 = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
+  bales.forEach(([x, y, z, a], k) => { m4.compose(v3.set(x, y + 0.82, z), q.setFromAxisAngle(_trY, a), one); im.setMatrixAt(k, m4); });
+  im.frustumCulled = false; im.castShadow = true; scene.add(im);
+}
+const _fQ = new THREE.Quaternion(), _fP = new THREE.Vector3(), _fM = new THREE.Matrix4(), _fOne = new THREE.Vector3(1, 1, 1), _fZ = new THREE.Vector3(0, 0, 1), _fQ2 = new THREE.Quaternion(), _fO = new THREE.Vector3();
+function moveMachine(M, dt) {
+  const R = 11;
+  let u, v, fu, fv;
+  const vk = M.v0 + (M.k + 0.5) * M.sw;
+  if (M.turn > 0) {   // round the headland onto the next pass
+    M.turn += dt * M.speed / (R * 2.2);
+    const a = Math.min(M.turn, Math.PI);
+    u = M.p + M.dir * Math.sin(a) * R; v = vk + (1 - Math.cos(a)) * M.sw / 2; fu = M.dir * Math.cos(a); fv = Math.sin(a);
+    if (M.turn >= Math.PI) { M.turn = 0; M.k++; M.dir = -M.dir; if (M.k >= M.n) { M.k = 0; } }
+  } else {
+    M.p += M.dir * M.speed * dt; u = M.p; v = vk; fu = M.dir; fv = 0;
+    const end = M.dir > 0 ? M.u1 - 8 : M.u0 + 8;
+    if ((end - M.p) * M.dir <= 0) { M.p = end; M.turn = 1e-4; }
+  }
+  const [x, z] = farmXZ(u, v), y = farmY(x, z), wx = fu * FARM.sa + fv * FARM.ca, wz = -fu * FARM.ca + fv * FARM.sa;
+  M.x = x; M.y = y; M.z = z; M.wx = wx; M.wz = wz;
+  _fQ.setFromAxisAngle(_trY, Math.atan2(-wz, wx));
+  _fM.compose(_fP.set(x, y, z), _fQ, _fOne);
+  if (M.kind === 0) {
+    FI.bodyC.setMatrixAt(M.idx, _fM); FI.darkC.setMatrixAt(M.idx, _fM);
+    M.roll -= dt * 3.2;
+    _fQ2.copy(_fQ).multiply(new THREE.Quaternion().setFromAxisAngle(_fZ, M.roll));
+    _fO.set(4.6, 2.1, 0).applyQuaternion(_fQ).add(_fP);
+    _fM.compose(_fO, _fQ2, _fOne); FI.reel.setMatrixAt(M.idx, _fM);
+    // the cut so far: every finished pass, and the one under way
+    const c0 = FARM_U.uCut.value[M.idx * 2], c1 = FARM_U.uCut.value[M.idx * 2 + 1];
+    c0.set(M.u0, M.v0, M.u1, M.v0 + M.k * M.sw);
+    const front = M.turn > 0 ? M.p : M.p + M.dir * 5;
+    if (M.dir > 0) c1.set(M.u0, vk - M.sw / 2, front, vk + M.sw / 2); else c1.set(front, vk - M.sw / 2, M.u1, vk + M.sw / 2);
+  } else { FI.bodyT.setMatrixAt(M.idx, _fM); FI.darkT.setMatrixAt(M.idx, _fM); }
+}
+
+/* ---------- height of the island, cached on a coarse grid: the crops and machines ask for it thousands of times ---------- */
+const FY = { step: 60, nx: Math.ceil(FARM.hu * 2 / 60) + 2, nz: Math.ceil(FARM.hv * 2 / 60) + 2, h: null };
+FY.h = new Float32Array(FY.nx * FY.nz).fill(NaN);
+function fyAt(i, j) { const k = j * FY.nx + i; let h = FY.h[k]; if (h !== h) { const [x, z] = farmXZ(i * FY.step - FARM.hu, j * FY.step - FARM.hv); h = FY.h[k] = TM.height(x, z); } return h; }
+function farmYuv(u, v) {
+  const fx = clamp((u + FARM.hu) / FY.step, 0, FY.nx - 2.001), fz = clamp((v + FARM.hv) / FY.step, 0, FY.nz - 2.001), i = fx | 0, j = fz | 0, a = fx - i, b = fz - j;
+  return lerp(lerp(fyAt(i, j), fyAt(i + 1, j), a), lerp(fyAt(i, j + 1), fyAt(i + 1, j + 1), a), b);
+}
+const farmY = (x, z) => { const [u, v] = farmUV(x, z); return farmYuv(u, v); };
+
+/* ---------- the map of what grows where: red crop, green lawn, blue bare dirt, black anything else. The terrain shader reads it, and so do the crops ---------- */
+function paintFarmMask() {
+  const W = 2048, H = Math.round(W * FARM.nv / FARM.nu), c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d', { willReadFrequently: true }), k = W / (FARM.hu * 2);
+  g.fillStyle = '#ff0000'; g.fillRect(0, 0, W, H);
+  const px = (x, z) => { const [u, v] = farmUV(x, z); return [(u + FARM.hu) * k, (v + FARM.hv) * k]; };
+  const stroke = (P, w, col) => { g.strokeStyle = col; g.lineWidth = Math.max(1, w * k); g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); P.forEach((p, i) => { const [a, b] = px(p[0], p[1]); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.stroke(); };
+  const poly = (P, col) => { g.fillStyle = col; g.beginPath(); P.forEach((p, i) => { const [a, b] = px(p[0], p[1]); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.closePath(); g.fill(); };
+  const line = []; for (let i = HW.i1 - 8; i < HW.st.length; i += 3) line.push([HW.st[i].x, HW.st[i].z]);
+  line.push([HW.st[HW.st.length - 1].x, HW.st[HW.st.length - 1].z]);
+  stroke(line, 64, '#00ff00');
+  stroke(FI.off, 26, '#00ff00'); stroke(FI.on, 26, '#00ff00');
+  stroke(FI.dirt, 22, '#00ff00'); stroke(FI.dirt, 7, '#0000ff');
+  const W2 = FI.W, ell = (a, c2, ra, rc) => { const P = []; for (let q = 0; q < 40; q++) { const t = q / 40 * TAU; P.push(W2(a + Math.cos(t) * ra, c2 + Math.sin(t) * rc)); } return P; };
+  poly(ell(40, -220, 350, 130), '#00ff00');      // the yard
+  poly(ell(-180, -240, 118, 62), '#0000ff');     // the barnyard
+  stroke(FI.loop, 12, '#0000ff');
+  stroke([W2(-430, 0), W2(430, 0)], 60, '#00ff00');   // grass along the strip
+  poly([W2(-108, -92), W2(8, -92), W2(8, -18), W2(-108, -18)], '#00ff00');
+  stroke([W2(-50, -80), W2(-50, -130), W2(100, -196)], 6, '#0000ff');   // the path to the porch
+  // the grain terminal's yard at the end of the highway
+  const end = HW.st[HW.st.length - 1]; { const [x, z] = [end.x, end.z]; g.fillStyle = '#000000'; const [a, b] = px(x, z); g.beginPath(); g.arc(a, b, 170 * k, 0, TAU); g.fill(); }
+  const data = g.getImageData(0, 0, W, H).data, R = new Uint8Array(W * H);
+  for (let i = 0; i < W * H; i++) R[i] = data[i * 4];
+  FI.mask = R; FI.maskW = W; FI.maskH = H; FI.maskK = k;
+  const t = new THREE.CanvasTexture(c); t.flipY = false; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = 4; FARM_U.uFarmMask.value = t;
+  // one texel per field: crop, shade, row direction
+  const D = new Uint8Array(FARM.nu * FARM.nv * 4);
+  for (let i = 0; i < FARM.nu * FARM.nv; i++) { D[i * 4] = FARM.crop[i] * 40; D[i * 4 + 1] = FARM.shade[i]; D[i * 4 + 2] = FARM.dir[i] * 255; D[i * 4 + 3] = 255; }
+  const ct = new THREE.DataTexture(D, FARM.nu, FARM.nv, THREE.RGBAFormat); ct.magFilter = ct.minFilter = THREE.NearestFilter; ct.needsUpdate = true; FARM_U.uFarmCells.value = ct;
+}
+
+/* ---------- the crops near the camera: real stalks, heads and vines, a few hundred metres around you, snapped to a 12 m grid along the island ---------- */
+const CROP = { size: 12, im: [], last: '', cap: 4200, on: false };
+const CROP_U = { uWind: { value: 0 }, uFade: { value: 200 }, uLow: { value: 1 } };
+function cropMat(map, sway, crop) {
+  const m = new THREE.MeshLambertMaterial({ map, vertexColors: true, side: THREE.DoubleSide, alphaTest: 0.42 });
+  m.customProgramCacheKey = () => 'crop' + crop;   // the three share source text but not their closures
+  m.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, FARM_U, CROP_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>
+uniform float uWind, uFade, uLow; varying vec3 vCW;`).replace('#include <begin_vertex>', `#include <begin_vertex>
+{ vec4 wp0 = instanceMatrix * vec4(position, 1.0);
+  transformed.y *= (1.0 - smoothstep(uFade * 0.7, uFade, distance(wp0.xz, cameraPosition.xz))) * uLow;
+  float gust = sin(uWind + wp0.x * 0.05 + wp0.z * 0.037) + 0.5 * sin(uWind * 1.7 + wp0.x * 0.19 - wp0.z * 0.13);
+  transformed.xz += vec2(0.8, 0.5) * gust * ${sway.toFixed(3)} * position.y;
+  vCW = wp0.xyz; }`);
+    // the crop lights like the field under it: the same normal on both faces. It stops where the painted field stops, and where a combine has been
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+uniform sampler2D uFarmMask, uFarmCells; uniform vec4 uFarmT, uFarmH, uCut[${FARM_CUTS}]; uniform vec2 uFarmN; varying vec3 vCW;`).replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
+{ vec2 fq = vCW.xz - uFarmT.zw, fuv = vec2(fq.x * uFarmT.y - fq.y * uFarmT.x, fq.x * uFarmT.x + fq.y * uFarmT.y);
+  if (texture2D(uFarmMask, fuv / (2.0 * uFarmH.xy) + 0.5).r < 0.55) discard;
+  if (abs(texture2D(uFarmCells, (floor((fuv + uFarmH.xy) / uFarmH.z) + 0.5) / uFarmN).r * 6.375 - ${crop.toFixed(1)}) > 0.5) discard;
+  ${crop === 0 ? `for (int i = 0; i < ${FARM_CUTS}; i++) { vec4 c = uCut[i]; if (fuv.x > c.x && fuv.x < c.z && fuv.y > c.y && fuv.y < c.w) discard; }` : ''} }`).replace('#include <normal_fragment_begin>', 'vec3 normal = normalize(vNormal); vec3 nonPerturbedNormal = normal;');
+  };
+  return m;
+}
+// a cut-out texture: what the canvas draws, with the colour carried out under the transparent edges so the mipmaps don't go dark
+function cutoutTex(w, h, bg, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true }); draw(g, w, h);
+  const d = g.getImageData(0, 0, w, h).data;
+  for (let i = 0; i < d.length; i += 4) if (d[i + 3] < 10) { d[i] = bg[0]; d[i + 1] = bg[1]; d[i + 2] = bg[2]; d[i + 3] = 0; }
+  const t = new THREE.DataTexture(new Uint8Array(d), w, h, THREE.RGBAFormat); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = 4; t.needsUpdate = true;
+  return t;
+}
+function cropTextures() {
+  const r = mulberry32(61);
+  const wheat = cutoutTex(1024, 128, [205, 165, 80], (g, w, h) => {
+    for (let k = 0; k < 170; k++) {   // row 0 of the data is the bottom of the plant
+      const x = r() * w, top = h * (0.72 + r() * 0.26), lean = (r() - 0.5) * 14, sh = 0.72 + r() * 0.34, c = `rgb(${232 * sh | 0},${190 * sh | 0},${98 * sh | 0})`;
+      for (const dx of [0, w, -w]) {
+        g.strokeStyle = c; g.lineWidth = 2.4; g.beginPath(); g.moveTo(x + dx, 0); g.lineTo(x + dx + lean, top); g.stroke();
+        g.fillStyle = c; g.beginPath(); g.ellipse(x + dx + lean, top - 9, 3.6, 13, lean * 0.012, 0, TAU); g.fill();
+        g.strokeStyle = `rgba(245,214,140,.8)`; g.lineWidth = 1; for (const a of [-5, 5]) { g.beginPath(); g.moveTo(x + dx + lean, top); g.lineTo(x + dx + lean + a, Math.min(h - 1, top + 13)); g.stroke(); }
+      }
+    }
+  });
+  const sun = cutoutTex(256, 256, [240, 180, 20], (g, w) => {
+    const c = w / 2;
+    g.save(); g.translate(c, c);
+    for (let k = 0; k < 2; k++) for (let i = 0; i < 17; i++) { g.save(); g.rotate((i + k * 0.5) / 17 * TAU); g.fillStyle = k ? '#ffc61e' : '#f19f09'; g.beginPath(); g.ellipse(0, 86, 15, 40, 0, 0, TAU); g.fill(); g.restore(); }
+    g.fillStyle = '#3c2412'; g.beginPath(); g.arc(0, 0, 58, 0, TAU); g.fill();
+    g.fillStyle = '#5e3a18'; for (let i = 0; i < 140; i++) { const a = i * 2.4, q = Math.sqrt(i / 140) * 54; g.fillRect(Math.cos(a) * q - 1.5, Math.sin(a) * q - 1.5, 3, 3); }
+    g.restore(); g.fillStyle = '#ffffff'; g.fillRect(0, 0, 14, 14);
+  });
+  const vine = cutoutTex(1024, 256, [52, 92, 34], (g, w, h) => {
+    const ring = (x, y, rad, col) => { g.fillStyle = col; for (const dx of [0, w, -w]) { g.beginPath(); g.arc(x + dx, y, rad, 0, TAU); g.fill(); } };
+    for (let k = 0; k < 2400; k++) { const y = r() * h * 0.78 + h * 0.02, v = 0.55 + r() * 0.75; ring(r() * w, y + h * 0.16, 5 + r() * 6, `rgb(${70 * v | 0},${108 * v | 0},${44 * v | 0})`); }
+    for (let k = 0; k < 42; k++) {   // bunches hang low on the wire
+      const x = r() * w, y = h * (0.2 + r() * 0.22);
+      for (let q = 0; q < 26; q++) { const t = r(), bx = x + (r() - 0.5) * 22 * (t + 0.2), by = y - 14 + t * 42; ring(bx, by, 5.2, r() < 0.5 ? '#3a1a58' : '#57307c'); }
+    }
+  });
+  return { wheat, sun, vine };
+}
+function buildCropGeo() {
+  const finish = (P, U, C, I) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(U, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(C, 3)); const N = new Float32Array(P.length); for (let i = 1; i < N.length; i += 3) N[i] = 1; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); g.setIndex(I); return g; };
+  const S = CROP.size / 2, r = mulberry32(31);
+  // wheat: sheets of stalks criss-crossing the cell every 1.5 m
+  const wheat = (() => { const P = [], U = [], C = [], I = [], seg = 3, lo = [0.62, 0.56, 0.5], hi = [1, 1, 1];
+    for (let dir = 0; dir < 2; dir++) for (let q = 0; q < 8; q++) {
+      const off = -S + (q + 0.5) * 1.5 + (r() - 0.5) * 0.5, u0 = r() * 4, b = P.length / 3;
+      for (let i = 0; i <= seg; i++) {
+        const t = -S + i / seg * S * 2, u = u0 + t / 4, h = 1.08;
+        const [ax, az] = dir ? [off, t] : [t, off];
+        P.push(ax, 0, az, ax, h, az); U.push(u, 0, u, 1); C.push(...lo, ...hi);
+        if (i < seg) { const k = b + i * 2; I.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+      }
+    }
+    return finish(P, U, C, I); })();
+  // sunflowers: a stem, a leaf, and a big head turned to the morning
+  const sun = (() => { const P = [], U = [], C = [], I = [], st = [0.05, 0.13, 0.03], st2 = [0.08, 0.19, 0.04], w0 = 7 / 256, wh = [1, 1, 1], p0 = [0, 0];
+    const tri = (a, b, c, ca, cb, cc) => { const k = P.length / 3; P.push(...a, ...b, ...c); U.push(w0, w0, w0, w0, w0, w0); C.push(...ca, ...cb, ...cc); I.push(k, k + 1, k + 2); };
+    for (let k = 0; k < 52; k++) {
+      const x = (r() * 2 - 1) * S, z = (r() * 2 - 1) * S, h = 1.7 + r() * 0.5, R = 0.36 + r() * 0.08;
+      tri([x - 0.05, 0, z], [x + 0.05, 0, z], [x, h, z], st, st, st2);
+      tri([x - 0.42, h * 0.58, z + 0.14], [x + 0.42, h * 0.58, z - 0.14], [x, h * 0.74, z], st, st, st2);
+      const dy = Math.cos(0.42) * R, dz = Math.sin(0.42) * R, b = P.length / 3;
+      P.push(x - R, h - dy, z + dz, x + R, h - dy, z + dz, x - R, h + dy, z - dz, x + R, h + dy, z - dz); U.push(0.08, 0.08, 1, 0.08, 0.08, 1, 1, 1); for (let q = 0; q < 4; q++) C.push(...wh); I.push(b, b + 1, b + 2, b + 1, b + 3, b + 2);
+      void p0;
+    }
+    return finish(P, U, C, I); })();
+  // vines: four rows on their wires, leafy tents hung with purple bunches
+  const vine = (() => { const P = [], U = [], C = [], I = [], lo = [0.28, 0.3, 0.26], hi = [1.05, 1.05, 1.0];
+    for (const rz of [-4.5, -1.5, 1.5, 4.5]) for (const sd of [-1, 1]) {
+      const b = P.length / 3, u0 = r() * 3, seg = 2;
+      for (let i = 0; i <= seg; i++) { const t = -S + i / seg * S * 2, u = u0 + t / 4; P.push(t, 0.1, rz + sd * 0.5, t, 1.6, rz + sd * 0.07); U.push(u, 0, u, 1); C.push(...lo, ...hi); if (i < seg) { const k = b + i * 2; I.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); } }
+    }
+    return finish(P, U, C, I); })();
+  return [wheat, sun, vine];
+}
+function buildCrops() {
+  const G = buildCropGeo(), T = cropTextures(), mats = [cropMat(T.wheat, 0.1, 0), cropMat(T.sun, 0.022, 1), cropMat(T.vine, 0.012, 2)];
+  G.forEach((g, i) => {
+    const im = new THREE.InstancedMesh(g, mats[i], CROP.cap); im.count = 0; im.frustumCulled = false; im.visible = false;
+    im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    if (i === 0) { im.setColorAt(0, new THREE.Color(1, 1, 1)); im.instanceColor.setUsage(THREE.DynamicDrawUsage); }
+    scene.add(im); CROP.im.push(im);
+  });
+}
+const _cropDir = new THREE.Vector3();
+function updateCrops(dt) {
+  CROP_U.uWind.value += dt * 1.5;
+  const cp = camera.position, [cu, cv] = farmUV(cp.x, cp.z), near = Math.abs(cu) < FARM.hu + 200 && Math.abs(cv) < FARM.hv + 200;
+  const alt = near ? cp.y - farmYuv(cu, cv) : 1e9;
+  const low = alt < 230 && near;
+  if (low !== CROP.on) { CROP.on = low; for (const im of CROP.im) im.visible = low; CROP.last = ''; }
+  if (!low) return;
+  CROP_U.uLow.value = 1 - sstep(130, 225, alt);
+  const n = gfxKey === 'saver' ? 13 : gfxKey === 'max' ? 28 : 19, Rr = n * CROP.size;   // cells each way
+  CROP_U.uFade.value = Rr * 0.96;
+  camera.getWorldDirection(_cropDir);
+  const hl = Math.hypot(_cropDir.x, _cropDir.z), fu = hl > 0.25 ? (_cropDir.x * FARM.sa - _cropDir.z * FARM.ca) / hl : 0, fv = hl > 0.25 ? (_cropDir.x * FARM.ca + _cropDir.z * FARM.sa) / hl : 0;
+  const ci = Math.round(cu / CROP.size), cj = Math.round(cv / CROP.size), key = ci + ':' + cj + ':' + Math.round(fu * 7) + ':' + Math.round(fv * 7) + ':' + n;
+  if (key === CROP.last) return;
+  CROP.last = key;
+  const [wh, su, vi] = CROP.im, ma = wh.instanceMatrix.array, ca = wh.instanceColor.array, mb = su.instanceMatrix.array, mc = vi.instanceMatrix.array;
+  let a = 0, b = 0, c = 0;
+  const t = -FARM.ang * D2R, ROT = [0, 1, 2, 3].map(q => [Math.cos(t + q * Math.PI / 2), Math.sin(t + q * Math.PI / 2)]), r0 = ROT[0];
+  const pk = FI.maskK, M = FI.mask, W = FI.maskW, Hh = FI.maskH;
+  for (let dj = -n; dj <= n; dj++) for (let di = -n; di <= n; di++) {
+    const du = di * CROP.size, dv = dj * CROP.size, d2 = du * du + dv * dv;
+    if (d2 > Rr * Rr || (du + (ci * CROP.size - cu)) * fu + (dv + (cj * CROP.size - cv)) * fv < -30) continue;
+    const u = (ci + di) * CROP.size, v = (cj + dj) * CROP.size, idx = farmIdx(u, v); if (idx < 0) continue;
+    const crop = FARM.crop[idx]; if (crop > 2) continue;
+    const mx = (u + FARM.hu) * pk | 0, mz = (v + FARM.hv) * pk | 0; if (mx < 0 || mz < 0 || mx >= W || mz >= Hh || M[mz * W + mx] < 200) continue;
+    const y = farmYuv(u, v); if (y < 3.3) continue;
+    const x = FARM.cx + u * FARM.sa + v * FARM.ca, z = FARM.cz - u * FARM.ca + v * FARM.sa;
+    const h = ((ci + di) * 7 ^ (cj + dj) * 13) & 3, rr = crop === 0 ? ROT[h] : r0, m = crop === 0 ? ma : crop === 1 ? mb : mc, o = (crop === 0 ? a++ : crop === 1 ? b++ : c++) * 16;
+    m[o] = rr[0]; m[o + 1] = 0; m[o + 2] = -rr[1]; m[o + 3] = 0; m[o + 4] = 0; m[o + 5] = 1; m[o + 6] = 0; m[o + 7] = 0; m[o + 8] = rr[1]; m[o + 9] = 0; m[o + 10] = rr[0]; m[o + 11] = 0; m[o + 12] = x; m[o + 13] = y - 0.05; m[o + 14] = z; m[o + 15] = 1;
+    if (crop === 0) { const k = 0.86 + FARM.shade[idx] / 255 * 0.26, q = (a - 1) * 3; ca[q] = k; ca[q + 1] = k * (0.94 + 0.06 * FARM.shade[idx] / 255); ca[q + 2] = k * 0.9; }
+  }
+  wh.count = a; su.count = b; vi.count = c;
+  wh.instanceMatrix.needsUpdate = su.instanceMatrix.needsUpdate = vi.instanceMatrix.needsUpdate = true; wh.instanceColor.needsUpdate = true;
+}
+
+/* ---------- the grain terminal where the highway ends: silos, a conveyor out along a pier, a bulk ship loading wheat ---------- */
+function buildGrainTerminal() {
+  const K = kit(), end = HW.st[HW.st.length - 1], tx = end.tx, tz = end.tz, nx = -tz, nz = tx, y0 = TM.height(end.x, end.z);
+  const P = (s, l) => [end.x + tx * s + nx * l, end.z + tz * s + nz * l];
+  for (let i = 0; i < 2; i++) for (let k = 0; k < 7; k++) { const [x, z] = P(60 + i * 17, -66 + k * 22); K.add(concreteGray, FCYL, x, y0 + 19, z, 0, 16, 38, 16); K.add(concreteGray, UCYL, x, y0 + 38.5, z, 0, 16.6, 1, 16.6); }
+  { const [x, z] = P(68, 0); addObstacle(x, y0 + 20, z, 76, 21, 26, hwYaw(end), 'hit the grain elevator'); K.add(steelMat, UBOX, x, y0 + 41, z, hwYaw(end), 154, 5, 30); }
+  const [hx, hz] = P(68, -92); K.add(concreteGray, UBOX, hx, y0 + 28, hz, 0, 16, 56, 16); addObstacle(hx, y0 + 28, hz, 8, 29, 8, 0, 'hit the grain elevator');
+  const sh = shoreFrom(end.x, end.z, tx, tz, 1400);
+  if (sh) {
+    const [sx, sz] = sh, len = 240, ex = sx + tx * len, ez = sz + tz * len, cp = P(84, 0), yaw = Math.atan2(tx, tz);
+    K.add(concreteGray, UBOX, (sx + ex) / 2, 4.2, (sz + ez) / 2, yaw, 16, 1.4, len + 30);
+    for (let t = 0; t <= len; t += 30) for (const sd of [-1, 1]) K.add(concreteGray, UCYL5, sx + tx * t + nx * sd * 6, 1.2, sz + tz * t + nz * sd * 6, 0, 1.2, 8, 1.2);
+    beam(K, steelMat, [cp[0], y0 + 34, cp[1]], [ex, 24, ez], 1.6, true);
+    addObstacle((sx + ex) / 2, 8, (sz + ez) / 2, 9, 9, (len + 30) / 2, -Math.atan2(tx, -tz), 'hit the pier');
+    // the ship alongside
+    const bx = ex - nx * 26, bz = ez - nz * 26, shipYaw = Math.atan2(-nx, -nz) + Math.PI / 2, hull = new THREE.MeshLambertMaterial({ color: 0x8c2c24 }), deck = new THREE.MeshLambertMaterial({ color: 0x2c3a46 });
+    K.add(hull, UBOX, bx, 5, bz, shipYaw, 24, 11, 170); K.add(deck, UBOX, bx, 11.4, bz, shipYaw, 22.5, 1.2, 168);
+    for (let k = -3; k <= 2; k++) K.add(steelMat, UBOX, bx + tx * 0 + Math.sin(shipYaw) * k * 22, 12.6, bz + Math.cos(shipYaw) * k * 22, shipYaw, 15, 1.4, 16);
+    K.add(whiteWall, UBOX, bx + Math.sin(shipYaw) * 70, 19, bz + Math.cos(shipYaw) * 70, shipYaw, 20, 15, 14);
+    addObstacle(bx, 12, bz, 13, 14, 86, -shipYaw, 'hit the grain ship');
+  }
+  K.done(scene);
+}
+
+function buildFarm() {
+  buildHighway();
+  buildMachines();
+  buildGrainTerminal();
+  paintFarmMask();
+  buildCrops();
+  for (const M of FI.movers) moveMachine(M, 0);
+}
+function updateFarm(dt) {
+  const cp = camera.position, dist = Math.hypot(cp.x - FARM.cx, cp.z - FARM.cz);
+  updateCrops(dt);
+  if (dist > 34000) return;
+  for (const f of FI.fans) f.rotation.z -= dt * 2.4;
+  for (const M of FI.movers) {
+    moveMachine(M, dt);
+    if (Math.abs(M.x - cp.x) + Math.abs(M.z - cp.z) < 3500 && (M.dustT -= dt) <= 0) {
+      M.dustT = M.kind ? 0.5 : 0.22;
+      const back = M.kind ? 5 : 6;
+      smoke.spawn({ pos: new THREE.Vector3(M.x - M.wx * back + (Math.random() - 0.5) * 3, M.y + (M.kind ? 0.7 : 2.6), M.z - M.wz * back + (Math.random() - 0.5) * 3), v: new THREE.Vector3((Math.random() - 0.5) * 1.4, 0.8 + Math.random(), (Math.random() - 0.5) * 1.4), size: 2.4, grow: 3.2, life: 4, a: 0.3, c0: M.kind ? [0.5, 0.42, 0.32] : [0.86, 0.76, 0.52], drag: 0.6, buoy: 0.25, pow: 1.4 });
+    }
+  }
+  for (const m of [FI.bodyC, FI.darkC, FI.reel, FI.bodyT, FI.darkT]) m.instanceMatrix.needsUpdate = true;
+}
+/* =========================================================
    build every field: runways, aprons, terminals and features, then the towns, the resorts, the forest and the fleet at sea
    ========================================================= */
 AIRPORT_DEFS.forEach(A => { if (A.ship) return; A.rws.forEach(R => buildRunway(A, R)); buildGround(A); buildTerminal(A); buildFeatures(A); });
@@ -4589,6 +5381,7 @@ VILLAGES.forEach(buildTownPlan);
 buildTropics();
 buildForest();
 buildCarrier();
+buildFarm();
 buildApproachMasts();
 AIRPORT_DEFS.forEach(A => { if (!A.noFence && !A.ship) buildFence(A); });
 buildHouses();
@@ -6025,7 +6818,7 @@ function axes() { _f.set(0, 0, -1).applyQuaternion(S.q); _u.set(0, 1, 0).applyQu
 function bodyToWorld(v, out) { return out.copy(v).applyQuaternion(S.q).add(S.pos); }
 const thrustFrac = n1 => clamp((n1 - 0.22) / 0.78, 0, 1);
 const vmoMS = PF => (PF.vmo + (PF.supersonic ? clamp((S.pos.y - 5000) / 12000, 0, 1) * 130 : 0)) / MS2KT;
-const SURF_NAMES = ['terrain', 'asphalt', 'concrete', 'gravel', 'grass', 'apron'];
+const SURF_NAMES = ['terrain', 'asphalt', 'concrete', 'gravel', 'grass', 'apron', 'wheat', 'sunflowers', 'grapes', 'stubble', 'plowed ground', 'young wheat', 'the highway'];
 
 function setFlaps(i) {
   if (!AC.T.flaps) { toast('Concorde has no flaps · N moves the nose'); return; }
@@ -6225,7 +7018,7 @@ function physicsStep(dt) {
     // slope: rolling uphill slows you, downhill speeds you up (hello, Lukla)
     const ahead = groundAt(S.pos.x + _t.x * 4, S.pos.z + _t.z * 4), behind = groundAt(S.pos.x - _t.x * 4, S.pos.z - _t.z * 4);
     vf -= G * clamp((ahead - behind) / 8, -0.3, 0.3) * dt;
-    const surfK = surf === 4 ? { roll: 0.7, brake: 1.9, bump: 0.9 } : surf === 3 ? { roll: 0.45, brake: 2.3, bump: 0.6 } : onPave ? { roll: 0.12, brake: 3.4, bump: 0.05 } : { roll: 1.2, brake: 1.5, bump: 1.2 };
+    const surfK = surf === 4 ? { roll: 0.7, brake: 1.9, bump: 0.9 } : surf >= 6 && surf < 12 ? { roll: 1.1, brake: 1.7, bump: 0.8 } : surf === 3 ? { roll: 0.45, brake: 2.3, bump: 0.6 } : onPave ? { roll: 0.12, brake: 3.4, bump: 0.05 } : { roll: 1.2, brake: 1.5, bump: 1.2 };
     const autob = S.autobrake && S.throttle < 0.1 ? 0.45 : 0;
     S.brake = inp.brake ? 1 : autob;
     const K = S.chute;
@@ -6234,8 +7027,8 @@ function physicsStep(dt) {
     vf = Math.max(0, Math.abs(vf) - decel * dt) * Math.sign(vf);
     S.vel.set(_t.x * vf, vy, _t.z * vf);
     if (Math.abs(vf) > 6 && surfK.bump > 0.2) { GS.compV += (Math.random() - 0.5) * surfK.bump * Math.min(1, Math.abs(vf) / 40) * 1.4; if (Math.random() < 0.3) shake(surfK.bump * 0.05 * Math.min(1, Math.abs(vf) / 40)); }
-    if (Math.abs(vf) > 10 && (surf === 3 || surf === 4 || !onPave) && Math.random() < 0.35) dust(pm, surf === 4 ? [0.62, 0.6, 0.45] : [0.6, 0.53, 0.44]);
-    if (!onPave && surf !== 3 && surf !== 4 && Math.abs(vf) > 22 && flatM < 0.5) crash(water ? 'ran into the sea' : 'overran into rough ground', pm);
+    if (Math.abs(vf) > 10 && (surf === 3 || surf === 4 || !onPave) && Math.random() < 0.35) dust(pm, surf === 4 ? [0.62, 0.6, 0.45] : surf >= 6 ? [0.8, 0.7, 0.45] : [0.6, 0.53, 0.44]);
+    if (!onPave && surf !== 3 && surf !== 4 && surf < 6 && Math.abs(vf) > 22 && flatM < 0.5) crash(water ? 'ran into the sea' : 'overran into rough ground', pm);
     if (water && !gi.deck && state === 'fly') crash('rolled into the sea', pm);
     const armed = S.throttle < 0.15;
     S.spoiler = damp(S.spoiler, (armed && Math.abs(vf) > 12 && S.groundTime < 120) || inp.brake && Math.abs(vf) > 12 ? 1 : 0, 6, dt);
@@ -6290,7 +7083,7 @@ function touchdown(sink, h, flat, pm, water, surf, rw) {
   // hover mode: straight down onto anything firm and level enough, a field, a pad, a deck
   const vertical = S.vtol && Math.hypot(S.vel.x, S.vel.z) < 18, ship = gi.ship, deck = gi.deck;
   if (vertical && !deck && !rw && slopeAt(pm.x, pm.z) > 0.2) { crash('set down on a slope · it toppled over', pm); return; }
-  if (!vertical && !rw && flat < 0.5 && surf !== 3 && surf !== 4) { crash('off-field landing', pm); return; }
+  if (!vertical && !rw && flat < 0.5 && surf !== 3 && surf !== 4 && surf < 6) { crash('off-field landing', pm); return; }
   if (Math.abs(S.bank) > 12 * D2R) { crash('wing low · wingtip strike', pm); return; }
   S.autobrake = true;
   if (AC.chute && !S.chute) { S.chute = { k: 0, gone: false }; toast('drag chute'); }
@@ -6313,7 +7106,7 @@ function touchdown(sink, h, flat, pm, water, surf, rw) {
   const tz0 = Math.min(150, rw.len * 0.1), tz1 = Math.min(750, rw.len * 0.35);
   if (fromThr > tz0 && fromThr < tz1) { pts += 200; notes.push('in the touchdown zone'); } else if (fromThr >= tz1) notes.push('long landing'); else notes.push('short');
   if (Math.abs(S.bank) > 5 * D2R) { pts -= 150; notes.push('wing low'); }
-  const A = rw.airport, diff = A.id === 'KTK' ? (rw.igsPts && vf > 0 ? 1.8 : 1.1) : { LUA: 2.5, SBH: 2.2, FNC: 1.5, SXM: 1.3, JSI: 1.3 }[A.id] || (rw.surface === 'grass' ? 1.4 : rw.surface === 'gravel' ? 1.3 : 1);
+  const A = rw.airport, diff = A.id === 'KTK' ? (rw.igsPts && vf > 0 ? 1.8 : 1.1) : { LUA: 2.5, SBH: 2.2, FNC: 1.5, SXM: 1.3, JSI: 1.3, LUK: 1.3 }[A.id] || (rw.surface === 'grass' ? 1.4 : rw.surface === 'gravel' ? 1.3 : 1);
   if (diff > 1) notes.push('×' + diff + ' ' + A.name);
   pts *= diff;
   const isTarget = target && rw.airport === target.A;
@@ -6356,7 +7149,8 @@ function completeLanding() {
   if (L.rw) lastAirport = L.rw.airport;
   if (L.isTarget) {
     showMsg(L.big, 'welcome to ' + L.rw.airport.name.toLowerCase() + ' · ' + L.sub, '+' + L.pts.toLocaleString());
-    setTimeout(() => { if (state === 'fly') { pickTarget(); toast('next stop · ' + target.A.name); } }, 2600);
+    if (noPoint(L.rw.airport)) toast(noPointText(), 5);
+    if (!mission) setTimeout(() => { if (state === 'fly' && !mission) { pickTarget(); toast('next stop · ' + target.A.name + (noPoint(target.A) ? ' · ' + noPointText() : '')); } }, 2600);
   } else showMsg(L.big, (L.rw ? L.rw.airport.name.toLowerCase() + ' · ' : '') + L.sub, '+' + L.pts.toLocaleString());
   saveBest();
 }
@@ -6996,16 +7790,17 @@ function spawnAt(A, towardA) {
 function startGame() {
   score = 0; landings = 0; visited.clear();
   visited.add(lastAirport.id);
-  pickTarget();
+  const missionTo = beginMission();
+  pickTarget(missionTo);
   spawnAt(lastAirport, target.A);
   target.end = bestEndFor(target.A, S.pos);
   state = 'fly'; simRate = 1;
   $('titleScr').classList.remove('show'); $('endScr').classList.remove('show'); $('hud').classList.add('on');
-  toast('destination · ' + target.A.name + (S.cat ? (touchMode ? ' · tap LAUNCH for the catapult' : ' · press L to launch off the catapult') : S.vtol ? (touchMode ? ' · hover mode: pull back to lift off' : ' · hover mode: hold ↓ to lift off') : touchMode ? ' · slide the throttle up' : ' · hold W for throttle'));
+  if (!mission) toast('destination · ' + target.A.name + (noPoint(target.A) ? ' · ' + noPointText() : '') + (S.cat ? (touchMode ? ' · tap LAUNCH for the catapult' : ' · press L to launch off the catapult') : S.vtol ? (touchMode ? ' · hover mode: pull back to lift off' : ' · hover mode: hold ↓ to lift off') : touchMode ? ' · slide the throttle up' : ' · hold W for throttle'));
   cam.mode = cam.mode === 'orbit' ? 'chase' : cam.mode; cam.reset = true;
 }
 function endScreen() {
-  state = 'end'; saveBest();
+  state = 'end'; saveBest(); missionFailed();
   $('endScore').textContent = score.toLocaleString();
   $('endWhy').textContent = crashReason;
   $('endStats').innerHTML = `${landings} landing${landings === 1 ? '' : 's'} · best ${best.toLocaleString()}`;
@@ -7117,7 +7912,7 @@ for (const [sel, n, vert] of [['#ils .gs .dots', 5, true], ['#ils .loc .dots', 5
 let msgTimer = 0, toastTimer = 0, memeTimer = 0;
 const igsN = {};
 function showMsg(big, sub, pts) { $('msgBig').textContent = big; $('msgSub').textContent = sub; $('msgPts').textContent = pts; $('msg').classList.add('show'); msgTimer = 5; }
-function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); toastTimer = 2.6; }
+function toast(t, secs = 2.6) { const el = $('toast'); el.textContent = t; el.classList.add('show'); toastTimer = secs; }
 function ryanairMeme() {
   $('meme').classList.add('show'); memeTimer = 3.6;
   sfx.fanfare(); setTimeout(() => sfx.applause(), 400);
@@ -7129,7 +7924,7 @@ function setWarnings(list) {
 }
 function gl(el, s) { el.className = 'gl' + (s ? ' ' + s : ''); }
 const _pv = new THREE.Vector3();
-const SURF_LABEL = { asphalt: 'asphalt', concrete: 'concrete', gravel: 'gravel', grass: 'grass', wood: 'planks' };
+const SURF_LABEL = { asphalt: 'asphalt', concrete: 'concrete', gravel: 'gravel', grass: 'grass', wood: 'planks', dirt: 'dirt' };
 function updateHUD(dt) {
   if (msgTimer > 0 && (msgTimer -= dt) <= 0) $('msg').classList.remove('show');
   if (toastTimer > 0 && (toastTimer -= dt) <= 0) $('toast').classList.remove('show');
@@ -7362,6 +8157,7 @@ function drawMap() {
   const px = (S.pos.x - MAP.cx) / mpp + MAP.size / 2, pz = (S.pos.z - MAP.cz) / mpp + MAP.size / 2;
   mapG.imageSmoothingEnabled = true;
   if (mapReady) mapG.drawImage(mapBase, -px * mpp * s, -pz * mpp * s, MAP.size * mpp * s, MAP.size * mpp * s);
+  mapG.strokeStyle = 'rgba(240,226,190,.8)'; mapG.lineWidth = 2; mapG.beginPath(); WORLD_DEF.highway.pts.forEach((p, i) => { const x = (p[0] - S.pos.x) * s, z = (p[1] - S.pos.z) * s; i ? mapG.lineTo(x, z) : mapG.moveTo(x, z); }); mapG.stroke();
   for (const Rw of RUNWAYS) {
     const x = (Rw.cx - S.pos.x) * s, z = (Rw.cz - S.pos.z) * s, isT = target && Rw.airport === target.A;
     mapG.strokeStyle = isT ? '#ff7ce0' : 'rgba(238,243,250,.85)';
@@ -7410,6 +8206,7 @@ function drawWorldMap() {
   const T = wm.view = wmTransform(), g = wm.cv.getContext('2d'), c = wm.cv;
   g.fillStyle = '#0a1a2c'; g.fillRect(0, 0, c.width, c.height);
   if (mapReady) { const mpp = MAP.half * 2 / MAP.size, [x0, z0] = T.toPx(MAP.cx - MAP.half, MAP.cz - MAP.half); g.imageSmoothingEnabled = true; g.drawImage(mapBase, x0, z0, MAP.size * mpp * T.s, MAP.size * mpp * T.s); }
+  g.strokeStyle = 'rgba(240,226,190,.8)'; g.lineWidth = 2 * T.dpr; g.beginPath(); WORLD_DEF.highway.pts.forEach((p, i) => { const [u, v] = T.toPx(p[0], p[1]); i ? g.lineTo(u, v) : g.moveTo(u, v); }); g.stroke();
   g.font = `${Math.round(12 * T.dpr)}px "B612", sans-serif`; g.textAlign = 'left'; g.textBaseline = 'middle';
   for (const A of AIRPORT_DEFS) {
     const [px, pz] = T.toPx(A.x, A.z), isT = target && target.A === A, isSel = wm.sel === A, ok = suits(A);
@@ -7440,7 +8237,7 @@ wm.cv.addEventListener('pointerdown', e => {
   wm.sel = best; drawWorldMap();
   const info = $('wmapInfo'), flying = state === 'fly';
   const rws = best.ship ? 'angled deck · 238 m · four arresting wires<br>two catapults on the bow, two in the waist' : best.rws.map(R => `RWY ${R.ids[0]}/${R.ids[1]} · ${R.len.toLocaleString()} m ${R.surface}${R.slope ? ` · ${(Math.abs(R.slope) * 100).toFixed(1).replace('.0', '')}% slope` : ''}${R.igsPts ? ' · IGS 13' : ''}`).join('<br>');
-  const warn = suits(best) ? (best.only ? '<br>' + onlyText(best) : '') : `<br><span style="color:var(--amber)">${whyNot(best)}</span>`;
+  const warn = suits(best) ? (best.only ? '<br>' + (noPoint(best) ? noPointText() : onlyText(best)) : '') : `<br><span style="color:var(--amber)">${whyNot(best)}</span>`;
   info.innerHTML = `<div class="n">${best.name}</div><div class="s">${best.blurb}<br>${rws}<br>${Math.round(best.elev * M2FT).toLocaleString()} ft elevation${warn}</div><button id="wmGo">${flying ? 'fly here' : 'start here'}</button>`;
   info.hidden = false;
   $('wmGo').onclick = ev => {
@@ -7495,7 +8292,7 @@ function updatePicker() {
   $('pkDots').innerHTML = FLEET.map((f, i) => `<span class="${i === acIndex ? 'on' : ''}" style="--c:${f.T.liv.accent === '#ffffff' ? '#dfe6ee' : f.T.liv.accent}"></span>`).join('');
   const A = lastAirport, R = A.rws.reduce((a, b) => a.len > b.len ? a : b);
   $('apName').textContent = A.name;
-  $('apSub').innerHTML = (A.ship ? (AC.hook ? 'aircraft carrier · catapult 1 · four wires' : 'aircraft carrier · a spot forward of the island') : `${R.len.toLocaleString()} m ${SURF_LABEL[R.surface] || R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}`) + (suits(A) ? '' : ` · <span style="color:var(--amber)">${A.only && !A.only.includes(T.id) ? onlyText(A) : A.maxSpan && T.span > A.maxSpan ? 'too wide for the spruces' : 'tight for the ' + T.name}</span>`);
+  $('apSub').innerHTML = (A.ship ? (AC.hook ? 'aircraft carrier · catapult 1 · four wires' : 'aircraft carrier · a spot forward of the island') : `${R.len.toLocaleString()} m ${SURF_LABEL[R.surface] || R.surface}${A.rws.length > 2 ? ' · ' + A.rws.length + ' crossing runways' : A.rws.length > 1 ? ' · crossed runways' : ''}`) + (suits(A) ? '' : ` · <span style="color:var(--amber)">${A.only && !A.only.includes(T.id) ? onlyText(A) : A.maxSpan && T.span > A.maxSpan ? 'too wide for the spruces' : 'tight for the ' + T.name}</span>`) + (noPoint(A) ? '<br>' + noPointText() : '');
 }
 
 /* ---------- aircraft parked at the gates ---------- */
@@ -7510,7 +8307,7 @@ function populateStands() {
     if (kind === 'hub' && st.cls === 'big' && st.out[1] < 0) id = 'b737';
     if (st.id) id = FLEET.some(f => f.T.id === st.id) ? st.id : 'otter';   // a stand that names its own aircraft
     n++;
-    if (Math.random() < 0.12) continue;
+    if (Math.random() < 0.12 && !st.always) continue;
     const ac = FLEET.find(f => f.T.id === id), F = ac.T.fus, mesh = statics(id).clone();
     const [wc, wa] = st.wall, [dc, da] = st.out, noseGap = 6, d = noseGap - F.zN;
     const cx = wc + dc * d, ca = wa + da * d, gy = st.gy ?? (st.slope || st.A.padsW[0].slope ? st.A.rws[0].slope * ca : 0);
@@ -7661,7 +8458,7 @@ function aiCruise(id) {
 }
 function aiSpawn() {
   if (AI.length >= aiMax()) return;
-  const here = S.pos, near = AIRPORT_DEFS.filter(A => Math.hypot(A.x - here.x, A.z - here.z) < 26000 && !AI.some(q => q.A === A));
+  const here = S.pos, near = AIRPORT_DEFS.filter(A => !A.noAI && Math.hypot(A.x - here.x, A.z - here.z) < 26000 && !AI.some(q => q.A === A));
   if (!AI.some(q => q.kind === 'cruise') && Math.random() < 0.3) { aiCruise(['a330', 'b737', 'a380', 'b777x', 'e190'][(Math.random() * 5) | 0]); return; }
   if (!near.length) return;
   const A0 = near[(Math.random() * near.length) | 0];
@@ -7818,6 +8615,164 @@ function updateAI(dt) {
   }
 }
 /* =========================================================
+   Missions: Lukas's list of jobs around the farm
+   ========================================================= */
+// each flies one aeroplane between two fields. Waypoints come first, the landing last. `say` lines fire on time (t) or on distance to the farm (d)
+const MISSIONS = [
+  { id: 'dinner', name: 'Home for dinner', ac: 'c172', from: 'ALI', to: 'LUK', goal: 'Fly Lukas, his friend and his mother home to the farm.', walk: true, win: 'HOME FOR DINNER', winSub: 'everybody made it to the porch',
+    say: [[{ t: 7 }, "Lukas: can we fly over the bridge?"], [{ t: 34 }, "Lukas's mother: dinner's in the oven. No loops, please."], [{ t: 80 }, "Lukas's friend: is it true you have a runway?"], [{ d: 9000 }, 'Lukas: see the gold island? All of that is the farm.'], [{ d: 3000 }, 'Lukas: the big white house! Land next to it!']] },
+  { id: 'combine', name: 'Combine down', ac: 'c172', from: 'HBF', to: 'LUK', goal: 'A combine has broken down. Bring the spare part from Harbor Field.', win: 'PART DELIVERED', winSub: 'the combine is cutting again',
+    say: [[{ t: 7 }, 'Farmhand on the radio: it threw a belt in the middle of the wheat.'], [{ d: 7000 }, "Farmhand on the radio: we can see you. Don't land on the wheat."]] },
+  { id: 'survey', name: 'Sunflower survey', ac: 'c172', from: 'LUK', to: 'LUK', goal: 'Check the sunflowers, the grapes and the combines from the air, then land back at the farm.', win: 'SURVEY DONE', winSub: 'the crops look great',
+    rings: [{ uv: [-3900, -1400], up: 130, name: 'THE SUNFLOWERS', say: 'Sunflowers: looking good.' }, { uv: [4000, -200], up: 130, name: 'THE GRAPES', say: 'Grapes: nearly ready.' }, { job: 1, up: 130, name: 'THE COMBINE', say: 'Combine: still cutting.' }], say: [] },
+  { id: 'grapes', name: 'Grapes to Skiathos', ac: 'c172', from: 'LUK', to: 'JSI', goal: 'Fly a crate of grapes to Skiathos. It is a short runway, so come in slowly.', win: 'GRAPES DELIVERED', winSub: 'not one squashed',
+    say: [[{ t: 7 }, 'Lukas: if you drop them it is just wine.']] },
+  { id: 'bridge', name: 'Under the bridge', ac: 'c172', from: 'LUK', to: 'LUK', goal: 'Fly under the main span of the bridge, between the two towers, then land back at the farm.', win: 'UNDER AND HOME', winSub: 'do not tell Lukas\'s mother',
+    rings: [{ bridge: true, name: 'UNDER THE BRIDGE', say: 'You went under the bridge.' }], say: [[{ t: 7 }, 'Lukas: stay low. The cables are behind you if you go high.']] },
+  { id: 'nopoint', name: 'No point', ac: 'otter', from: 'ALI', to: 'LUK', goal: "There's no point flying the Twin Otter to the farm. Do it anyway.", win: 'THERE WAS NO POINT', winSub: 'but you did it', pts: 1,
+    say: [[{ t: 7 }, 'Tower: why are you taking a Twin Otter there?'], [{ d: 4000 }, "Lukas: there's no point in this."]] },
+];
+let mission = null, pendingMission = null, missionDone = new Set(store.get('missions', [])), retryMission = null;
+const noPoint = (A, T = AC.T) => !!(A.noPoint && A.noPoint.includes(T.id));
+const noPointText = (T = AC.T) => `there's no point flying the ${T.name.replace(/^DHC-6 /, '')} here`;
+
+/* ---------- the ring you fly through ---------- */
+const ringMesh = new THREE.Mesh(new THREE.TorusGeometry(46, 3.4, 10, 40), new THREE.MeshBasicMaterial({ color: 0xff7ce0, fog: false }));
+ringMesh.visible = false; scene.add(ringMesh);
+function placeRing(r) {
+  if (r.bridge) {
+    const mid = (HW.bridge.s0 + HW.bridge.s1) / 2, q = hwAt(mid);
+    r.p = new THREE.Vector3(q.x, q.y * 0.46, q.z); r.road = [q.tx, q.tz]; r.mid = mid; r.deck = q.y - 3.4;
+    ringMesh.scale.setScalar(0.5); ringMesh.rotation.set(0, Math.atan2(-q.tz, q.tx), 0);
+  } else {
+    const [u, v] = r.uv || (() => { const M = FI.movers[r.job]; return farmUV(M.x, M.z); })(), [x, z] = farmXZ(u, v);
+    r.p = new THREE.Vector3(x, farmYuv(u, v) + r.up, z); ringMesh.scale.setScalar(1);
+  }
+  ringMesh.position.copy(r.p); ringMesh.visible = true;
+}
+function ringPassed(r) {
+  const p = S.pos, dx = p.x - r.p.x, dz = p.z - r.p.z;
+  if (r.bridge) { const along = dx * r.road[0] + dz * r.road[1], lat = -dx * r.road[1] + dz * r.road[0]; return Math.abs(lat) < 24 && Math.abs(along) < HW.bridge.towers - 12 && p.y < r.deck; }
+  return Math.hypot(dx, dz) < 90 && Math.abs(p.y - r.p.y) < 110;
+}
+
+/* ---------- the three of them walking up to the porch at the end of "Home for dinner" ---------- */
+const WALKERS = [];
+function makeWalker(shirt, pants, s) {
+  const G = new THREE.Group(), m = (g, c) => { const o = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: c })); G.add(o); return o; };
+  m(PEOPLE_GEO.legs, pants); m(PEOPLE_GEO.shirt[0], shirt); m(PEOPLE_GEO.skin[0], 0xe7c0a0); m(PEOPLE_GEO.hair, 0x4a3320);
+  G.scale.setScalar(s); G.visible = false; scene.add(G); return G;
+}
+function startWalk() {
+  if (!WALKERS.length) WALKERS.push(makeWalker(0xd03a2f, 0x2d3a55, 0.74), makeWalker(0x2f7ad0, 0x3a3a40, 0.76), makeWalker(0x35805a, 0x5a4a3a, 1));
+  const [da, dc] = FI.door, W = FI.W, dx = W(da, 0)[0] - W(da, 40)[0], dz = W(da, 0)[1] - W(da, 40)[1], l = 40;
+  const s = cam.mode, m = mission;
+  m.walk = { t: 0, back: s, from: W(da + 1, dc + 30), to: W(da, dc - 1), dir: [dx / l, dz / l] };
+  WALKERS.forEach(w => { w.visible = true; });
+  const C = W(da + 15, dc + 26), L = W(da, dc - 4), y = TM.height(C[0], C[1]);
+  cam.mode = 'free'; cam.fpos.set(C[0], y + 2.2, C[1]); cam.flook.set(L[0], y + 3, L[1]); cam.ffov = 44; cam.reset = true;
+}
+function updateWalk(dt) {
+  const w = mission.walk; w.t += dt;
+  const k = clamp(w.t / 7.5, 0, 1), o = [[-2.2, 0], [1.8, 0.9], [0, -1.2]];
+  WALKERS.forEach((G, i) => {
+    const q = clamp(k * 1.06 - i * 0.03, 0, 1), x = lerp(w.from[0], w.to[0], q), z = lerp(w.from[1], w.to[1], q), side = o[i][0] * (1 - q), back = o[i][1];
+    const y = TM.height(x, z) + (q > 0.97 ? 0.9 : 0) + Math.abs(Math.sin(w.t * 7 + i)) * 0.05 * (1 - q);
+    G.position.set(x + w.dir[1] * side - w.dir[0] * back, y, z - w.dir[0] * side - w.dir[1] * back);
+    G.rotation.y = Math.atan2(-w.dir[0], -w.dir[1]);
+  });
+  if (w.t > 9) { WALKERS.forEach(G => { G.visible = false; }); cam.mode = w.back === 'free' ? 'chase' : w.back; cam.reset = true; mission.walk = null; finishMission(); }
+}
+
+/* ---------- start, run, finish ---------- */
+function startMission(M) {
+  openMissions(false);
+  if (paused) togglePause(false);
+  $('titleScr').classList.remove('show'); $('endScr').classList.remove('show');
+  fadeTeleport(() => {
+    pendingMission = M;
+    selectAircraft(FLEET.findIndex(f => f.T.id === M.ac), true);
+    lastAirport = AIRPORT_DEFS.find(a => a.id === M.from);
+    depIndex = AIRPORT_DEFS.indexOf(lastAirport);
+    updatePicker();
+    startGame();
+  });
+}
+// called by startGame: a normal flight clears whatever mission was running
+function beginMission() {
+  retryMission = null; ringMesh.visible = false;
+  mission = pendingMission ? { M: pendingMission, t: 0, ring: 0, said: new Set(), air: false, over: false, wet: 0 } : null;
+  pendingMission = null;
+  if (mission) { const m = mission; m.rings = (m.M.rings || []).map(r => ({ ...r })); if (m.rings[0]) placeRing(m.rings[0]); toast(m.M.name + ' · ' + m.M.goal, 7); }
+  return mission ? AIRPORT_DEFS.find(a => a.id === mission.M.to) : undefined;
+}
+function missionFailed() { if (mission) { retryMission = mission.M; if (mission.walk) WALKERS.forEach(G => { G.visible = false; }); mission = null; ringMesh.visible = false; } $('misRetry').hidden = !retryMission; if (retryMission) $('misRetry').textContent = 'try again · ' + retryMission.name; }
+function finishMission() {
+  const M = mission.M;
+  mission = null; ringMesh.visible = false;
+  const first = !missionDone.has(M.id);
+  missionDone.add(M.id); store.set('missions', [...missionDone]);
+  const pts = M.pts ?? 2000;
+  score += pts; saveBest();
+  showMsg(M.win, M.winSub, '+' + pts.toLocaleString());
+  sfx.say(M.win.toLowerCase() + '.', { key: 'mission', gap: 5, prio: 5, style: 'boeing' });
+  setTimeout(() => { if (state === 'fly' && !mission) { const left = MISSIONS.length - missionDone.size; toast(first && left === 0 ? 'every mission done · Lukas is impressed' : left ? left + ' more mission' + (left === 1 ? '' : 's') + ' in the missions menu' : 'free flight · the missions menu is in pause', 4); lastAirport = nearAirport(S.pos.x, S.pos.z, 1500) || lastAirport; pickTarget(); } }, 4200);
+}
+function updateMission(dt) {
+  const m = mission; if (!m || state !== 'fly') return;
+  if (m.walk) { updateWalk(dt); return; }
+  m.t += dt;
+  const To = target.A, far = Math.hypot(S.pos.x - To.x, S.pos.z - To.z), speed = Math.hypot(S.vel.x, S.vel.z);
+  if (!S.onGround && S.pos.y - groundAt(S.pos.x, S.pos.z) > 15) m.air = true;
+  for (const [w, line] of m.M.say) {
+    if (m.said.has(line)) continue;
+    if ((w.t !== undefined && m.t > w.t) || (w.d !== undefined && m.air && far < w.d)) { m.said.add(line); toast(line, 5); break; }
+  }
+  const r = m.rings[m.ring];
+  if (r) {
+    if (!r.bridge) ringMesh.rotation.y = Math.atan2(S.pos.x - r.p.x, S.pos.z - r.p.z);
+    if (r.job !== undefined && m.t > 0) { const M = FI.movers[r.job]; if (Math.hypot(M.x - r.p.x, M.z - r.p.z) > 60) { const [u, v] = farmUV(M.x, M.z); r.p.x = M.x; r.p.z = M.z; r.p.y = farmYuv(u, v) + r.up; ringMesh.position.copy(r.p); } }
+    if (ringPassed(r)) {
+      toast(r.say, 4); sfx.say('Check.', { key: 'mission-ring', gap: 1, prio: 3, style: 'boeing' }); score += 300;
+      m.ring++; if (m.rings[m.ring]) placeRing(m.rings[m.ring]); else { ringMesh.visible = false; toast(r.say + ' · now land at ' + To.name, 5); }
+    }
+    return;
+  }
+  if (m.air && S.onGround && speed < 3 && !m.over) {
+    if (nearAirport(S.pos.x, S.pos.z, 260) === To) { m.over = true; if (m.M.walk) startWalk(); else finishMission(); }
+    else if ((m.wet -= dt) <= 0) { m.wet = 8; toast('this is not ' + To.name + ' · take off and try again', 4); }
+  }
+}
+// the arrow and the top line of the HUD: the next ring if there is one
+function missionHud() {
+  const m = mission; if (!m) return;
+  const r = m.rings[m.ring];
+  if (!r) { hud.objSub.textContent = m.M.name; return; }
+  const dx = r.p.x - S.pos.x, dz = r.p.z - S.pos.z, d = Math.hypot(dx, dz);
+  hud.objArrow.style.transform = `rotate(${wrapDeg(Math.atan2(dx, -dz) * R2D) - S.hdg}deg)`;
+  hud.objName.textContent = r.name; hud.objSub.textContent = m.M.name + ' · stay low';
+  hud.objDist.textContent = (d / 1852).toFixed(1) + ' nm';
+}
+
+/* ---------- the missions menu ---------- */
+function openMissions(v) {
+  const el = $('misScr'); if (v === undefined) v = !el.classList.contains('show');
+  if (v) {
+    $('misList').replaceChildren(...MISSIONS.map(M => {
+      const b = document.createElement('button'), T = FLEET.find(f => f.T.id === M.ac).T;
+      b.className = 'misCard'; b.innerHTML = `<span class="n">${missionDone.has(M.id) ? '<i>✓</i>' : ''}${M.name}</span><span class="s">${M.goal}</span><span class="r">${T.name} · ${AIRPORT_DEFS.find(a => a.id === M.from).name} → ${AIRPORT_DEFS.find(a => a.id === M.to).name}</span>`;
+      b.addEventListener('click', e => { e.stopPropagation(); startMission(M); });
+      return b;
+    }));
+  }
+  el.classList.toggle('show', v);
+}
+for (const id of ['misBtn', 'misBtnP']) $(id).addEventListener('click', e => { e.stopPropagation(); openMissions(true); });
+$('misClose').addEventListener('click', e => { e.stopPropagation(); openMissions(false); });
+$('misScr').addEventListener('click', e => { e.stopPropagation(); if (e.target === $('misScr')) openMissions(false); });
+$('misRetry').addEventListener('click', e => { e.stopPropagation(); if (retryMission) startMission(retryMission); });
+for (const id of ['misBtn', 'misBtnP', 'misScr', 'misRetry']) $(id).addEventListener('pointerdown', e => e.stopPropagation());
+/* =========================================================
    input
    ========================================================= */
 const keys = {};
@@ -7837,7 +8792,7 @@ function togglePause(force) {
   sfx.pause(paused);
 }
 // a click or tap anywhere on the pause screen (outside the settings) flies on
-$('pauseScr').addEventListener('click', e => { if (paused && !e.target.closest('#settings')) togglePause(false); });
+$('pauseScr').addEventListener('click', e => { if (paused && !e.target.closest('#settings') && !e.target.closest('#misScr')) togglePause(false); });
 
 /* ---------- settings: graphics preset and callout voice ---------- */
 function setGfx(key) {
@@ -7881,7 +8836,7 @@ $('setBtn').addEventListener('click', e => {
 if (!/(^|\.)christoforakis\.com$/.test(location.hostname)) $('homeNote').hidden = false;
 function tryStart() {
   sfx.init();
-  if (wm.open) return;
+  if (wm.open || $('misScr').classList.contains('show')) return;
   if (state === 'title') startGame();
   else if (state === 'end' && endAge > 0.8) startGame();
 }
@@ -7895,6 +8850,7 @@ addEventListener('keydown', e => {
   sfx.init();
   if (c === 'Tab') { if (state !== 'loading') openWorldMap(); return; }
   if (c === 'Escape' && wm.open) { openWorldMap(false); return; }
+  if (c === 'Escape' && $('misScr').classList.contains('show')) { openMissions(false); return; }
   if (c === 'Space' || c === 'Enter') { if (state === 'title' || state === 'end') { tryStart(); return; } }
   if (c === 'KeyP' || c === 'Escape') { togglePause(); return; }
   if (c === 'KeyM') { toast(sfx.toggleMute() ? 'sound off' : 'sound on'); return; }
@@ -8110,11 +9066,11 @@ function frame(now) {
   water.position.set(camera.position.x, 0, camera.position.z);
   updateTerrain(camera.position, state === 'loading' ? 40 : 6);
   updateClouds(camera.position);
-  smoke.update(dt); fire.update(dt); updateTraffic(dt); updateAI(dt); updateGates(dt); updateCarrier(dt);
+  smoke.update(dt); fire.update(dt); updateTraffic(dt); updateAI(dt); updateGates(dt); updateCarrier(dt); updateFarm(dt); updateMission(dt);
   const cd = cloudDensityAt(camera.position);
   cloudVeil.style.opacity = Math.min(0.9, cd * 1.8).toFixed(3);
   if (cd > 0) cloudVeil.style.background = '#' + cloudLit.clone().convertLinearToSRGB().getHexString();
-  if (state === 'fly' || state === 'slide') { updateHUD(dt); if (frameN % 3 === 0) drawMap(); }
+  if (state === 'fly' || state === 'slide') { updateHUD(dt); missionHud(); if (frameN % 3 === 0) drawMap(); }
   drawFighterHud();
   if (wm.open && frameN % 20 === 0) drawWorldMap();
   if (frameN % 6 === 0) updateDock();
@@ -8169,7 +9125,7 @@ function bootTick() {
 }
 setTimeout(bootTick, 200);
 requestAnimationFrame(t => { last = t; frame(t); });
-window.__aloft = { S, GS, get state() { return state; }, set state(v) { state = v; }, startGame, toggleGear, setFlaps, keys, cam, AIRPORT_DEFS, get target() { return target; }, spawnAt, physicsStep, inp, updateGear, updateSurfaces, get AC() { return AC; }, selectAircraft, selectDeparture, FLEET, TM, groundAt, groundInfo, get score() { return score; }, get hour() { return dayHour; }, set hour(v) { dayHour = v; }, get why() { return crashReason; }, get landings() { return landings; }, pickTarget, cycleNose, toggleReheat, get pending() { return terrainPending(); }, tiles, openWorldMap, RUNWAYS, get simRate() { return simRate; }, set simRate(v) { simRate = v; }, scene, water, terrainRoot, camera, renderer, get drawSet() { return drawSet; }, TRAFFIC, OBSTACLES, STANDS, ISL, get pxScale() { return pxScale; }, AI, aiArrive, aiDepart, aiCruise, aiSpawn, TOWN_GRID, PEOPLE, HOUSES, PIERS, VILLAGES };
+window.__aloft = { HW, FI, FARM, MISSIONS, startMission, get mission() { return mission; }, S, GS, get state() { return state; }, set state(v) { state = v; }, startGame, toggleGear, setFlaps, keys, cam, AIRPORT_DEFS, get target() { return target; }, spawnAt, physicsStep, inp, updateGear, updateSurfaces, get AC() { return AC; }, selectAircraft, selectDeparture, FLEET, TM, groundAt, groundInfo, get score() { return score; }, get hour() { return dayHour; }, set hour(v) { dayHour = v; }, get why() { return crashReason; }, get landings() { return landings; }, pickTarget, cycleNose, toggleReheat, get pending() { return terrainPending(); }, tiles, openWorldMap, RUNWAYS, get simRate() { return simRate; }, set simRate(v) { simRate = v; }, scene, water, terrainRoot, camera, renderer, get drawSet() { return drawSet; }, TRAFFIC, OBSTACLES, STANDS, ISL, get pxScale() { return pxScale; }, AI, aiArrive, aiDepart, aiCruise, aiSpawn, TOWN_GRID, PEOPLE, HOUSES, PIERS, VILLAGES };
 </script>
 
 <script>
