@@ -32,6 +32,8 @@ button { font: inherit; color: inherit; }
   color: var(--chrome-ink, #f6f1e4); text-shadow: var(--chrome-shadow, 0 1px 12px rgba(8, 12, 24, 0.55));
 }
 .isl-chrome > * { pointer-events: auto; }
+.isl-chrome { transition: background-color 0.3s ease, -webkit-backdrop-filter 0.3s ease, backdrop-filter 0.3s ease; }
+.isl-chrome.is-scrolled { background: var(--chrome-bg, rgba(12, 10, 8, 0.72)); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); padding-top: 6px; padding-bottom: 6px; }
 .isl-chrome--static { position: absolute; }
 .isl-mark { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; text-decoration: none; }
 .isl-blob {

@@ -41,6 +41,12 @@
     document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !menu.hidden) setOpen(false, true); });
   }
 
+  if (chrome) {
+    const onScroll = () => chrome.classList.toggle("is-scrolled", window.scrollY > 40);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
   const footer = document.querySelector("[data-isl-footer]");
   if (footer) {
     footer.classList.add("isl-footer");
