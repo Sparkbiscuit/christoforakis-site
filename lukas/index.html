@@ -4,78 +4,149 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Lukas · christoforakis.com</title>
-  <meta name="description" content="Lukas Christoforakis: fourth grader, lung transplant miracle kid, and fan of airliners, military jets, and Formula 1." />
-  <meta name="theme-color" content="#f8f7ed" />
+  <meta name="description" content="Lukas Christoforakis: airliners, military jets, and Formula 1. A fourth grader and a lung transplant miracle kid, with an extra birthday every March 25." />
+  <meta name="theme-color" content="#0b2a5c" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/lukas/" />
   <meta property="og:title" content="Lukas" />
-  <meta property="og:description" content="Lukas Christoforakis: fourth grader, lung transplant miracle kid, and fan of airliners, military jets, and Formula 1." />
+  <meta property="og:description" content="Airliners, military jets, and Formula 1. A fourth grader and a lung transplant miracle kid, with an extra birthday every March 25." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/lukas/" />
   <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/lukas-og.jpg?v=20260904-family2" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
-  <script src="/assets/js/site.js?v=20260911" defer></script>
-  <script src="/assets/js/motion.js?v=20260911" defer></script>
-  <script src="/assets/js/flight.js?v=20260911" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=B612+Mono:wght@400;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261113" />
+  <script src="/assets/js/islands.js?v=20261113" defer></script>
+  <script type="module" src="/assets/js/lukas.js?v=20261113"></script>
+  <style>
+    :root { --page-bg: #0b2a5c; --page-ink: #f4f7fb; --chrome-bg: rgba(8, 22, 48, 0.55); --wide: "Archivo", "Helvetica Neue", Arial, sans-serif; --pfd: "B612 Mono", ui-monospace, monospace; }
+    body { background: linear-gradient(#071a3d, #2c6fc0 30%, #a9cdee 62%, #d9e7f2 78%, #6d7f5c); font-family: var(--wide); }
+
+    .sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+    .descent { position: relative; z-index: 1; }
+
+    /* 60,000 ft */
+    .top { min-height: 100vh; min-height: 100svh; display: grid; align-content: start; padding: max(120px, 17vh) clamp(16px, 6vw, 96px) 80px; }
+    .top h1 {
+      margin: 0; font-size: clamp(84px, 19vw, 300px); font-weight: 800; font-stretch: 125%; line-height: 0.8; letter-spacing: -0.045em;
+      color: #f8fbff; text-shadow: 0 2px 40px rgba(4, 16, 40, 0.35);
+    }
+    .top p { max-width: 560px; margin: 26px 0 0; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.5; font-weight: 450; font-stretch: 100%; color: rgba(244, 247, 251, 0.92); text-shadow: 0 1px 16px rgba(4, 16, 40, 0.5); }
+    .top a { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; font-size: 16px; font-weight: 700; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.5); padding-bottom: 3px; }
+    .top a:hover { border-bottom-color: #fff; }
+
+    /* The stops on the way down */
+    .stop { position: relative; min-height: 120vh; display: grid; align-items: center; padding: 10vh clamp(16px, 6vw, 96px); }
+    .stop--right { justify-items: end; padding-right: calc(clamp(12px, 2.4vw, 36px) + 136px); }
+    .card { position: relative; width: min(940px, 100%, calc((100svh - 330px) * 1.5)); min-width: min(100%, 560px); perspective: 1400px; }
+    .card__frame {
+      position: relative; aspect-ratio: 3 / 2; border-radius: 6px; overflow: hidden; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+      box-shadow: 0 2px 4px rgba(6, 18, 40, 0.18), 0 40px 80px -30px rgba(6, 18, 40, 0.55); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      background: #8fb2d6;
+    }
+    .card.is-tilting .card__frame { transition: transform 0.12s linear; }
+    .card__frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card__frame::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--glare, 0); transition: opacity 0.4s ease;
+      background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.28), transparent 45%);
+      mix-blend-mode: soft-light;
+    }
+    .card h2 {
+      position: relative; z-index: 2; margin: -0.52em 0 0 -0.04em; font-size: clamp(46px, 8.4vw, 124px); font-weight: 800; font-stretch: 125%; line-height: 0.86;
+      letter-spacing: -0.04em; color: #fff; text-shadow: 0 2px 30px rgba(6, 18, 40, 0.35);
+    }
+    .stop--right .card h2 { text-align: right; margin-right: -0.04em; }
+    .card__text { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 40px; align-items: baseline; margin-top: 18px; color: rgba(255, 255, 255, 0.94); text-shadow: 0 1px 14px rgba(6, 18, 40, 0.45); }
+    .card__text p { margin: 0; max-width: 520px; font-size: 19px; line-height: 1.5; font-weight: 450; font-stretch: 100%; }
+    .card__plate { font-family: var(--pfd); font-size: 13px; line-height: 1.5; color: rgba(255, 255, 255, 0.82); text-align: right; }
+    .card sup a { color: inherit; font-size: 12px; text-decoration: none; opacity: 0.8; margin-left: 2px; }
+
+    /* Below the clouds */
+    .ground-copy { padding: 0 clamp(16px, 6vw, 96px) 10vh; color: #fff; text-shadow: 0 1px 14px rgba(6, 18, 30, 0.5); }
+    .ground-copy a { font-size: 18px; font-weight: 700; color: #fff; }
+    .credits { margin: 0; padding: 22px clamp(16px, 6vw, 96px) 0; font-size: 13px; line-height: 1.6; color: rgba(255, 255, 255, 0.82); background: linear-gradient(transparent, rgba(10, 16, 10, 0.55) 40%); }
+    .credits ol { margin: 0; padding-left: 18px; max-width: 900px; }
+    .credits p { margin: 10px 0 0; max-width: 900px; }
+    .credits a { color: inherit; }
+    .after { position: relative; z-index: 1; background: rgba(10, 16, 10, 0.55); }
+
+    /* The altimeter */
+    .alt { position: fixed; right: clamp(12px, 2.4vw, 36px); top: 50%; z-index: 5; width: 104px; height: 380px; margin-top: -190px; border-radius: 6px; overflow: hidden; pointer-events: none;
+      background: rgba(7, 18, 40, 0.38); -webkit-backdrop-filter: blur(10px) saturate(1.3); backdrop-filter: blur(10px) saturate(1.3); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+    .alt canvas { width: 100%; height: 100%; display: block; }
+    html:not(.js) .alt { display: none; }
+
+    @media (max-width: 760px) {
+      .stop { min-height: 100vh; padding: 12vh 16px; }
+      .card__text { grid-template-columns: 1fr; }
+      .card__plate { text-align: left; }
+      .stop--right .card h2 { text-align: left; margin-right: 0; }
+      .alt { top: auto; bottom: 16px; right: 12px; width: 76px; height: 168px; margin-top: 0; }
+      .top { padding-right: 96px; }
+    }
+  </style>
 </head>
 <body>
-  <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="isl-chrome" data-isl-chrome></div>
+  <canvas class="sky" data-sky aria-hidden="true"></canvas>
+  <div class="alt" data-alt-instrument aria-hidden="true"><canvas></canvas></div>
 
-  <main id="main">
-    <section class="sky" data-sky aria-labelledby="lukas-title">
-      <div class="sky__clouds" aria-hidden="true"></div>
-      <svg class="sky__flight" aria-hidden="true"></svg>
-      <div class="sky__copy">
-        <h1 class="display-title" id="lukas-title">Lukas</h1>
-        <p class="lead">Airliners, military jets, and Formula 1. A fourth grader and a lung transplant miracle kid, with an extra birthday every March 25.</p>
-        <div class="actions">
-          <a class="btn btn--coral" href="/updates/">Read Lukas’s updates</a>
+  <main id="main" class="descent" data-descent>
+    <header class="top" data-alt="60000">
+      <h1>Lukas</h1>
+      <p>Airliners, military jets, and Formula 1. A fourth grader and a lung transplant miracle kid, with an extra birthday every March 25.</p>
+      <a href="/updates/">Read Lukas’s updates</a>
+    </header>
+
+    <section class="stop" data-alt="50000" aria-labelledby="jets-title">
+      <article class="card" data-card>
+        <div class="card__frame"><img src="/assets/interests/f22-raptor.jpg" alt="A U.S. Air Force F-22 Raptor wrapped in a condensation cloud" width="2000" height="1331" decoding="async" /></div>
+        <h2 id="jets-title">U.S. military jets</h2>
+        <div class="card__text">
+          <p>Shapes built for speed, from the flight line to the edge of a vapor cloud.<sup><a href="#note-jet" id="ref-jet" aria-label="Photo credit 1">1</a></sup></p>
+          <span class="card__plate">F-22 Raptor<br />Ceiling above 50,000 ft</span>
         </div>
-      </div>
+      </article>
     </section>
 
-    <section class="flight-board shell" id="flight-board" aria-labelledby="board-title">
-      <h2 class="section-title" id="board-title" data-reveal>The current flight board.</h2>
-      <div class="interests">
-        <article class="interest" data-parallax="12">
-          <figure class="interest__photo"><img src="/assets/interests/airliner.jpg" alt="An Airbus A380 silhouetted against a gold sunset" width="2000" height="1324" loading="lazy" decoding="async" data-parallax="-16" /></figure>
-          <div class="interest__board">
-            <h3 data-flaps>Airliners</h3>
-            <p>The aircraft, the routes, the cabins, and everything happening at the gate.<sup><a href="#note-airliner" id="ref-airliner" aria-label="Photo credit 1">1</a></sup></p>
-          </div>
-        </article>
-        <article class="interest" data-parallax="22">
-          <figure class="interest__photo"><img src="/assets/interests/f22-raptor.jpg" alt="A U.S. Air Force F-22 Raptor wrapped in a condensation cloud" width="2000" height="1331" loading="lazy" decoding="async" data-parallax="-16" /></figure>
-          <div class="interest__board">
-            <h3 data-flaps>U.S. military jets</h3>
-            <p>Shapes built for speed, from the flight line to the edge of a vapor cloud.<sup><a href="#note-jet" id="ref-jet" aria-label="Photo credit 2">2</a></sup></p>
-          </div>
-        </article>
-        <article class="interest" data-parallax="32">
-          <figure class="interest__photo"><img src="/assets/interests/formula-one.jpg" alt="Carlos Sainz’s Ferrari Formula 1 car at speed during the 2024 Dutch Grand Prix" width="2000" height="1124" loading="lazy" decoding="async" data-parallax="-16" /></figure>
-          <div class="interest__board">
-            <h3 data-flaps>Formula 1</h3>
-            <p>Cars, circuits, liveries, and the blur between lights out and the flag.<sup><a href="#note-f1" id="ref-f1" aria-label="Photo credit 3">3</a></sup></p>
-          </div>
-        </article>
-      </div>
+    <section class="stop stop--right" data-alt="43000" aria-labelledby="air-title">
+      <article class="card" data-card>
+        <div class="card__frame"><img src="/assets/interests/airliner.jpg" alt="An Airbus A380 silhouetted against a gold sunset" width="2000" height="1324" loading="lazy" decoding="async" /></div>
+        <h2 id="air-title">Airliners</h2>
+        <div class="card__text">
+          <p>The aircraft, the routes, the cabins, and everything happening at the gate.<sup><a href="#note-airliner" id="ref-airliner" aria-label="Photo credit 2">2</a></sup></p>
+          <span class="card__plate">Airbus A380<br />Certified to about 43,000 ft</span>
+        </div>
+      </article>
     </section>
 
-    <aside class="footnotes shell" aria-label="Photo credits">
+    <div class="passage" data-alt="11000" style="height: 150vh" aria-hidden="true"></div>
+
+    <section class="stop" data-alt="0" aria-labelledby="f1-title">
+      <article class="card" data-card>
+        <div class="card__frame"><img src="/assets/interests/formula-one.jpg" alt="Carlos Sainz’s Ferrari Formula 1 car at speed during the 2024 Dutch Grand Prix" width="2000" height="1124" loading="lazy" decoding="async" /></div>
+        <h2 id="f1-title">Formula 1</h2>
+        <div class="card__text">
+          <p>Cars, circuits, liveries, and the blur between lights out and the flag.<sup><a href="#note-f1" id="ref-f1" aria-label="Photo credit 3">3</a></sup></p>
+          <span class="card__plate">Ferrari, Carlos Sainz<br />Zandvoort, 2024</span>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="after">
+    <aside class="credits" aria-label="Photo credits">
       <ol>
-        <li id="note-airliner"><a href="https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg">A380 at sunset</a> by Chad Ajamian, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>, also used on the family map. <a href="#ref-airliner" aria-label="Back to Airliners">↩</a></li>
         <li id="note-jet"><a href="https://commons.wikimedia.org/wiki/File:U.S._Air_Force_F-22_Raptor.jpg">F-22 Raptor</a> by Trevor Cokley, U.S. Air Force, public domain. <a href="#ref-jet" aria-label="Back to U.S. military jets">↩</a></li>
+        <li id="note-airliner"><a href="https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg">A380 at sunset</a> by Chad Ajamian, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. <a href="#ref-airliner" aria-label="Back to Airliners">↩</a></li>
         <li id="note-f1"><a href="https://commons.wikimedia.org/wiki/File:2024-08-25_Motorsport,_Formel_1,_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3895_by_Stepro.jpg">Formula 1</a> by Steffen Prößdorf, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. <a href="#ref-f1" aria-label="Back to Formula 1">↩</a></li>
       </ol>
       <p>Photographs are resized and cropped for presentation. Full details are in <a href="/IMAGE-CREDITS.md">IMAGE-CREDITS.md</a>.</p>
     </aside>
-  </main>
-
-  <div data-site-footer></div>
+    <div data-isl-footer></div>
+  </div>
 </body>
 </html>
