@@ -1,5 +1,5 @@
 // Kiriakos: a box on the counter that opens with a little steam, and a letterboard menu.
-import { reducedMotion, seeded } from "./gl.js";
+import { reducedMotion, seeded } from "./gl.js?v=20261115";
 
 const box = document.querySelector("[data-box]");
 const steamCanvas = document.querySelector("[data-steam]");

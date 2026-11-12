@@ -12,16 +12,16 @@
   <meta property="og:description" content="Dad, and the owner-operator of Mr. Pizza House in Hartford, Connecticut." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/kiriakos/" />
-  <meta property="og:image" content="https://christoforakis.com/assets/og/kiriakos.jpg?v=20261114" />
+  <meta property="og:image" content="https://christoforakis.com/assets/og/kiriakos.jpg?v=20261115" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&amp;family=Archivo+Narrow:wght@500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/islands.css?v=20261114" />
-  <script src="/assets/js/islands.js?v=20261114" defer></script>
-  <script type="module" src="/assets/js/kiriakos.js?v=20261114"></script>
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261115" />
+  <script src="/assets/js/islands.js?v=20261115" defer></script>
+  <script type="module" src="/assets/js/kiriakos.js?v=20261115"></script>
   <style>
     :root { --page-bg: #2a2b2d; --page-ink: #f4efe6; --chrome-bg: rgba(30, 31, 33, 0.78); --red: #cf3a24; --slab: "Alfa Slab One", Rockwell, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, monospace; --peek: clamp(76px, 11vh, 118px); }
     body { background: #2a2b2d; }
@@ -67,7 +67,9 @@
     /* The box */
     .stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; perspective: 1700px; perspective-origin: 60% 0%; }
     .stage__box { position: relative; flex: 0 1 auto; display: grid; place-items: center; }
-    .box { --w: min(400px, 31vw, 43svh); --h: calc(var(--w) * 0.1); position: relative; width: var(--w); height: var(--w); transform-style: preserve-3d; transform: translateY(36%) rotateX(52deg) rotateZ(-13deg); cursor: pointer; }
+    .box { --w: min(400px, 31vw, 43svh); --h: calc(var(--w) * 0.1); position: relative; width: var(--w); height: var(--w); transform-style: preserve-3d; transform: translateY(36%) rotateX(52deg) rotateZ(-13deg); cursor: pointer; transition: transform 1.15s cubic-bezier(0.3, 1.12, 0.4, 1); }
+    /* opened, the box tips toward you, so you look down into it the way the pizza was photographed */
+    .box.is-open { transform: translateY(26%) rotateX(24deg) rotateZ(-5deg); }
     .box * { transform-style: preserve-3d; }
     .box__shadow { position: absolute; inset: -4%; transform: translateZ(-1px); background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent); filter: blur(14px); }
     .box__floor { position: absolute; inset: 0; background: #e9e1d2; }
@@ -142,8 +144,10 @@
     @media (max-width: 900px), (max-aspect-ratio: 1/1) {
       .counter { height: auto; min-height: 0; grid-template-columns: 1fr; padding-top: 96px; padding-bottom: 48px; gap: 10px; }
       .stage { flex-direction: column-reverse; height: auto; gap: 8px; }
-      .stage__box { height: min(46svh, 400px); width: 100%; margin-top: -24px; }
+      .stage { perspective-origin: 50% 20%; }
+      .stage__box { height: min(62svh, 520px); width: 100%; margin-top: -24px; }
       .box { --w: min(400px, 70vw, 40svh); }
+      .box.is-open { transform: translateY(40%) rotateX(32deg) rotateZ(-4deg) scale(0.74); --open: 100deg; }
       .ticket { margin: 0 auto; font-size: 12px; transform: rotate(-2deg); }
       .menu { padding-top: 12vh; }
       .menu__inner > div:last-child { padding-top: 0; }
@@ -155,7 +159,7 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <div class="isl-chrome" data-isl-chrome></div>
-  <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
+  <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
 
   <main id="main">
     <header class="counter">
