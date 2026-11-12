@@ -65,6 +65,13 @@ button { font: inherit; color: inherit; }
 .isl-family__menu a:hover, .isl-family__menu a:focus-visible { background: rgba(20, 24, 31, 0.07); }
 .isl-family__menu a[aria-current="page"] { background: #14181f; color: #f6f1e4; }
 .isl-family__menu small { font-size: 12px; font-weight: 500; opacity: 0.6; }
+.isl-reach {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; margin: 8px 4px 2px; border-radius: 999px;
+  background: #14181f; color: #f6f1e4; font-size: 15px; font-weight: 700; text-decoration: none; transition: background-color 0.2s ease;
+}
+.isl-reach svg { width: 14px; height: 14px; transition: transform 0.2s ease; }
+.isl-reach:hover svg, .isl-reach:focus-visible svg { transform: translateX(3px); }
+.isl-reach:hover { background: #2a3550; }
 .isl-family__menu hr { height: 1px; margin: 6px 4px; border: 0; background: rgba(20, 24, 31, 0.12); }
 
 .isl-footer {
