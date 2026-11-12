@@ -3,63 +3,232 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Kiriakos · christoforakis.com</title>
-  <meta name="description" content="Kiriakos Christoforakis: dad and owner-operator of Mr. Pizza House in Hartford, Connecticut." />
-  <meta name="theme-color" content="#f8f7ed" />
+  <title>Kiriakos · Mr. Pizza House</title>
+  <meta name="description" content="Kiriakos Christoforakis: Dad, and the owner-operator of Mr. Pizza House on Blue Hills Avenue in Hartford, Connecticut." />
+  <meta name="theme-color" content="#2a2b2d" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/kiriakos/" />
-  <meta property="og:title" content="Kiriakos" />
-  <meta property="og:description" content="Kiriakos Christoforakis: dad and owner-operator of Mr. Pizza House in Hartford, Connecticut." />
+  <meta property="og:title" content="Kiriakos · Mr. Pizza House" />
+  <meta property="og:description" content="Dad, and the owner-operator of Mr. Pizza House in Hartford, Connecticut." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/kiriakos/" />
   <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/kiriakos-og.jpg?v=20260904-family2" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
-  <script src="/assets/js/site.js?v=20260911" defer></script>
-  <script src="/assets/js/motion.js?v=20260911" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&amp;family=Archivo+Narrow:wght@500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261113" />
+  <script src="/assets/js/islands.js?v=20261113" defer></script>
+  <script type="module" src="/assets/js/kiriakos.js?v=20261113"></script>
+  <style>
+    :root { --page-bg: #2a2b2d; --page-ink: #f4efe6; --chrome-bg: rgba(30, 31, 33, 0.78); --red: #cf3a24; --slab: "Alfa Slab One", Rockwell, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, monospace; }
+    body { background: #2a2b2d; }
+
+    /* The counter: brushed stainless steel */
+    .counter {
+      position: relative; min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr); align-items: center; gap: clamp(24px, 4vw, 64px);
+      padding: 110px clamp(16px, 5vw, 80px) 70px; overflow: hidden;
+      background:
+        radial-gradient(ellipse 55% 45% at 72% 30%, rgba(255, 255, 255, 0.16), transparent 70%),
+        radial-gradient(ellipse 80% 60% at 20% 90%, rgba(0, 0, 0, 0.35), transparent 70%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px, rgba(0, 0, 0, 0.04) 3px 4px, transparent 4px 7px),
+        linear-gradient(100deg, #6c6f73, #9a9da1 30%, #74777b 52%, #a6a9ad 74%, #66696d);
+    }
+    .counter::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(20, 21, 23, 0.55), transparent 22%, transparent 70%, rgba(20, 21, 23, 0.5)); }
+    .counter__copy { position: relative; z-index: 3; color: #fff; text-shadow: 0 1px 18px rgba(20, 21, 23, 0.45); }
+    .counter h1 { margin: 0; font: 400 clamp(62px, 8vw, 118px) / 0.9 var(--slab); letter-spacing: -0.01em; }
+    .counter__copy > p { margin: 22px 0 0; max-width: 400px; font-size: 19px; line-height: 1.55; font-weight: 500; }
+
+    .ticket {
+      position: relative; width: 300px; margin-top: 34px; padding: 18px 18px 26px; transform: rotate(-2.2deg); color: #262626; text-shadow: none;
+      background: #fbfaf6; font: 500 12.5px / 1.55 var(--mono); letter-spacing: 0.02em; text-transform: uppercase;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 18px 30px -12px rgba(0, 0, 0, 0.5);
+      -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
+              mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
+    }
+    .ticket::before { content: ""; position: absolute; left: 50%; top: -10px; width: 92px; height: 22px; margin-left: -46px; transform: rotate(3deg); background: rgba(236, 228, 200, 0.75); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+    .ticket b { display: block; font-weight: 600; font-size: 14px; letter-spacing: 0.06em; }
+    .ticket hr { margin: 9px 0; border: 0; border-top: 1px dashed #8a8a8a; }
+    .ticket .row { display: flex; gap: 6px; }
+    .ticket .row span:nth-child(2) { flex: 1; overflow: hidden; white-space: nowrap; color: #9a9a9a; }
+    .ticket .row span:nth-child(2)::before { content: "................................................"; }
+    .ticket a { color: inherit; text-decoration: none; }
+    .ticket a:hover { text-decoration: underline; }
+    .orders { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; }
+    .orders a { font-size: 16px; font-weight: 700; color: #fff; text-decoration: none; border-bottom: 2px solid var(--red); padding-bottom: 2px; }
+    .orders a:hover { border-bottom-color: #fff; }
+
+    /* The box */
+    .stage { position: relative; z-index: 2; display: grid; place-items: center; height: min(84svh, 800px); perspective: 1700px; perspective-origin: 50% 0%; }
+    .box { --w: min(460px, 70vw, 49svh); --h: calc(var(--w) * 0.1); position: relative; width: var(--w); height: var(--w); transform-style: preserve-3d; transform: translateY(36%) rotateX(52deg) rotateZ(-13deg); cursor: pointer; }
+    .box * { transform-style: preserve-3d; }
+    .box__shadow { position: absolute; inset: -4%; transform: translateZ(-1px); background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent); filter: blur(14px); }
+    .box__floor { position: absolute; inset: 0; background: #e9e1d2; }
+    .box__floor::before {
+      content: ""; position: absolute; inset: 3.2%; border-radius: 50%;
+      background: url(/assets/backgrounds/kiriakos.webp?v=20260904-family2) 51.4% 63.6% / 156.7% auto no-repeat;
+      box-shadow: 0 0 0 2px rgba(120, 80, 40, 0.15), 0 6px 18px rgba(80, 40, 10, 0.35);
+    }
+    .box__floor::after { content: ""; position: absolute; inset: 0; background: radial-gradient(closest-side, transparent 88%, rgba(110, 80, 50, 0.18)); }
+    .wall { position: absolute; background: linear-gradient(#f3eee4, #e2d9c9); box-shadow: inset 0 0 0 1px rgba(150, 120, 80, 0.25); }
+    .wall--front, .wall--back { left: 0; width: 100%; height: var(--h); top: calc(50% - var(--h) / 2); }
+    .wall--left, .wall--right { top: 0; height: 100%; width: var(--h); left: calc(50% - var(--h) / 2); }
+    .wall--front { transform: translateZ(calc(var(--h) / 2)) rotateX(-90deg) translateZ(calc(var(--w) / 2)); }
+    .wall--back { transform: translateZ(calc(var(--h) / 2)) rotateX(90deg) translateZ(calc(var(--w) / 2)); }
+    .wall--left { transform: translateZ(calc(var(--h) / 2)) rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+    .wall--right { transform: translateZ(calc(var(--h) / 2)) rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+    .lid { position: absolute; inset: 0; transform-origin: 50% 0; transform: translateZ(calc(var(--h) + 1px)) rotateX(var(--open, 0deg)); transition: transform 1.15s cubic-bezier(0.3, 1.35, 0.4, 1); }
+    .box.is-open .lid { --open: 108deg; }
+    .lid__top, .lid__under { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .lid__top { background: #f6f1e7; box-shadow: inset 0 0 0 1px rgba(150, 120, 80, 0.3), inset 0 0 60px rgba(150, 120, 80, 0.12); }
+    .lid__top svg { position: absolute; inset: 7%; width: 86%; height: 86%; }
+    .lid__under { transform: rotateX(180deg); background: repeating-linear-gradient(90deg, #c9a677 0 3px, #c29e6e 3px 6px); box-shadow: inset 0 0 0 1px rgba(90, 60, 30, 0.3), inset 0 -40px 60px rgba(60, 40, 20, 0.25); }
+    .lid__lip { position: absolute; left: 0; width: 100%; height: var(--h); top: calc(100% - var(--h) / 2); transform: translateY(-50%) rotateX(-90deg) translateZ(0) translateY(50%); background: #efe8db; box-shadow: inset 0 0 0 1px rgba(150, 120, 80, 0.3); }
+    .steam { position: absolute; inset: -30% -20% 0; z-index: 3; width: 140%; height: 130%; pointer-events: none; }
+
+    /* The letterboard */
+    .menu { padding: 12vh clamp(16px, 5vw, 80px); background: #1c1c1d; color: #f4efe6; }
+    .menu__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(28px, 5vw, 80px); align-items: center; max-width: 1200px; margin: 0 auto; }
+    .board {
+      position: relative; padding: clamp(14px, 2vw, 22px); border-radius: 3px;
+      background: linear-gradient(135deg, #b88a55, #8e6234 40%, #a8783f 70%, #7d5328); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .board__felt {
+      padding: clamp(18px, 3vw, 34px) clamp(12px, 2.4vw, 28px); background: repeating-linear-gradient(#141414 0 7px, #060606 7px 8px, #262626 8px 9px), #121212;
+      box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.8); text-align: center; font: 600 clamp(17px, 2.5vw, 31px) / 1.62 "Archivo Narrow", "Arial Narrow", sans-serif; letter-spacing: 0.08em;
+    }
+    .board__felt p { margin: 0; min-height: 1.62em; white-space: nowrap; }
+    .board__felt i { display: inline-block; font-style: normal; color: #f2f0ea; text-shadow: 0 1px 0 #9c9a93, 0 2px 3px rgba(0, 0, 0, 0.8); transform: translateY(var(--y, 0)) rotate(var(--r, 0deg)); }
+    .js .board__felt i { opacity: 0; transform: translateY(calc(var(--y, 0px) - 10px)) rotate(var(--r, 0deg)); transition: opacity 0.25s ease, transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1); transition-delay: var(--d, 0ms); }
+    .js .board.is-placed .board__felt i { opacity: 1; transform: translateY(var(--y, 0px)) rotate(var(--r, 0deg)); }
+    .board__felt i.red { color: #ef5b40; text-shadow: 0 1px 0 #8f2a19, 0 2px 3px rgba(0, 0, 0, 0.8); }
+    .menu h2 { margin: 0 0 18px; font: 400 clamp(36px, 4vw, 54px) / 1 var(--slab); }
+    .menu p { margin: 0 0 14px; font-size: 18px; line-height: 1.6; color: #d9d3c8; }
+    .menu a { color: #fff; font-weight: 700; }
+
+    /* On the news */
+    .press { padding: 14vh clamp(16px, 5vw, 80px); background: #f3eee5; color: #1d1d1f; }
+    .press__inner { max-width: 1000px; margin: 0 auto; }
+    .press blockquote { margin: 0; font: 400 clamp(34px, 4.8vw, 66px) / 1.1 var(--slab); letter-spacing: -0.005em; text-indent: -0.42em; }
+    .press blockquote span { color: var(--red); }
+    .press figcaption { margin-top: 26px; font: 500 15px / 1.5 var(--mono); text-transform: uppercase; letter-spacing: 0.04em; color: #57534c; }
+    .press__context { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 48px; align-items: end; margin-top: 52px; padding-top: 28px; border-top: 2px solid #1d1d1f; }
+    .press__context p { margin: 0; max-width: 620px; font-size: 18px; line-height: 1.65; color: #3a3833; }
+    .press__context a { font-weight: 700; color: #1d1d1f; white-space: nowrap; }
+    .press figure { margin: 0; }
+
+    @media (max-width: 900px), (max-aspect-ratio: 1/1) {
+      .counter { grid-template-columns: 1fr; padding-top: 100px; gap: 10px; }
+      .stage { order: -1; height: min(64svh, 560px); margin-top: -10px; }
+      .box { --w: min(440px, 72vw, 44svh); }
+      .menu__inner { grid-template-columns: 1fr; }
+      .press__context { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="isl-chrome" data-isl-chrome></div>
+  <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
 
   <main id="main">
-    <header class="shop-hero shell">
-      <div>
-        <h1 class="display-title">Kiriakos</h1>
-        <p class="lead">Dad and the owner-operator of Mr. Pizza House in Hartford, Connecticut.</p>
-        <div class="actions">
-          <a class="btn" href="https://www.mrpizzahouse.com/">Mr. Pizza House</a>
+    <header class="counter">
+      <div class="counter__copy">
+        <h1>Kiriakos</h1>
+        <p>Dad, and the owner-operator of Mr. Pizza House on Blue Hills Avenue in Hartford, Connecticut.</p>
+        <div class="ticket" aria-label="Mr. Pizza House">
+          <b>Mr. Pizza House</b>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Mr+Pizza+House+671+Blue+Hills+Ave+Hartford+CT">671 Blue Hills Ave<br />Hartford, CT 06112</a><br />
+          <a href="tel:+18602429771">(860) 242-9771</a>
+          <hr />
+          <div class="row"><span>Owner-operator</span><span aria-hidden="true"></span><span>Kiriakos</span></div>
+          <div class="row"><span>Dad</span><span aria-hidden="true"></span><span>3 sons</span></div>
+          <hr />
+          Pizza, grinders, salads, and more
+        </div>
+        <div class="orders">
+          <a href="https://www.mrpizzahouse.com/">Order from the shop</a>
+          <a href="https://slicelife.com/restaurants/ct/hartford/06112/mr-pizza-house/menu">Order on Slice</a>
         </div>
       </div>
-      <figure class="pan" data-scrub=".95 .05 center">
-        <div class="pizza" data-parallax="-18">
-          <img src="/assets/backgrounds/kiriakos.webp?v=20260904-family2" alt="A Mr. Pizza House combination pizza with pepperoni, sausage, green peppers, onions, and mushrooms" width="1536" height="1024" fetchpriority="high" decoding="async" />
+
+      <div class="stage" data-stage>
+        <div class="box" data-box role="button" tabindex="0" aria-pressed="false" aria-label="A Mr. Pizza House box. Open it.">
+          <div class="box__shadow"></div>
+          <div class="box__floor" role="img" aria-label="A Mr. Pizza House combination pizza with pepperoni, sausage, green peppers, onions, and mushrooms"></div>
+          <div class="wall wall--back"></div>
+          <div class="wall wall--left"></div>
+          <div class="wall wall--right"></div>
+          <div class="wall wall--front"></div>
+          <div class="lid">
+            <div class="lid__top">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <defs>
+                  <path id="arc-top" d="M 62 214 A 138 138 0 0 1 338 214" />
+                  <path id="arc-bottom" d="M 62 214 A 138 138 0 0 0 338 214" />
+                </defs>
+                <g fill="none" stroke="#cf3a24">
+                  <circle cx="200" cy="214" r="178" stroke-width="5" />
+                  <circle cx="200" cy="214" r="168" stroke-width="1.6" />
+                  <circle cx="200" cy="214" r="98" stroke-width="1.6" />
+                </g>
+                <g fill="#cf3a24" font-family="Alfa Slab One, Rockwell, Georgia, serif">
+                  <text font-size="38" letter-spacing="2" text-anchor="middle"><textPath href="#arc-top" startOffset="50%">MR. PIZZA HOUSE</textPath></text>
+                  <text font-size="17" letter-spacing="3" text-anchor="middle"><textPath href="#arc-bottom" startOffset="50%">HARTFORD · CONNECTICUT</textPath></text>
+                  <text x="200" y="200" font-size="62" text-anchor="middle">HOT</text>
+                  <text x="200" y="244" font-size="22" letter-spacing="4" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-weight="600">&amp; FRESH</text>
+                  <g transform="translate(200 270)"><path d="M-10 0 h20 M0 -10 v20 M-7 -7 l14 14 M7 -7 l-14 14" stroke="#cf3a24" stroke-width="3" /></g>
+                </g>
+                <text x="200" y="22" fill="#cf3a24" font-size="13" letter-spacing="5" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-weight="600">PIZZA · GRINDERS · SALADS</text>
+              </svg>
+            </div>
+            <div class="lid__under"></div>
+            <div class="lid__lip"></div>
+          </div>
         </div>
-      </figure>
+        <canvas class="steam" data-steam aria-hidden="true"></canvas>
+      </div>
     </header>
 
-    <section class="shop-story shell" id="shop" aria-labelledby="shop-title">
-      <div data-reveal>
-        <h2 class="section-title" id="shop-title">Mr. Pizza House.</h2>
-        <div class="prose">
-          <p>Kiriakos runs Mr. Pizza House on Blue Hills Avenue in Hartford. The menu spans pizza, grinders, salads, and more, with pickup and delivery available through <a href="https://www.mrpizzahouse.com/">the restaurant’s website</a>.</p>
+    <section class="menu" aria-labelledby="menu-title">
+      <div class="menu__inner">
+        <div class="board" data-board>
+          <div class="board__felt" data-felt>
+            <p>MR. PIZZA HOUSE</p>
+            <p></p>
+            <p>HOUSE FAVORITES</p>
+            <p>SPECIALTY PIZZA</p>
+            <p>BUILD YOUR OWN</p>
+            <p>GLUTEN FREE · BY THE SLICE</p>
+            <p>CALZONES · GRINDERS</p>
+            <p>WINGS · SALADS · GYROS</p>
+            <p>BURGERS · DINNERS</p>
+            <p>FRIED FOODS · DESSERTS</p>
+          </div>
+        </div>
+        <div>
+          <h2 id="menu-title">On the board</h2>
+          <p>Pizza by the pie or by the slice, grinders, calzones, wings, salads, gyros, burgers, dinners and desserts. Gluten-free pizza too.</p>
+          <p>The current menu, with prices, is on <a href="https://www.mrpizzahouse.com/">mrpizzahouse.com</a>, where you can order for pickup or delivery.</p>
         </div>
       </div>
-      <article class="press-tile" data-parallax="18">
-        <h3>A menu shaped by the community.</h3>
-        <p>In June 2022, WFSB featured Kiriakos and Mr. Pizza in a collaboration with UConn Health and Hartford community members to develop healthier menu options. He shared a barbecue chicken pizza made with a lower-sodium sauce.</p>
-        <a class="text-link" href="https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/">Read the WFSB story</a>
-      </article>
     </section>
 
-    <aside class="footnotes shell" aria-label="Notes">
-      <p>The pizza is from Mr. Pizza House’s own ordering menu, cropped for this page. Full notes are in <a href="/IMAGE-CREDITS.md">IMAGE-CREDITS.md</a>.</p>
-    </aside>
+    <section class="press" aria-labelledby="press-title">
+      <div class="press__inner">
+        <h2 class="visually-hidden" id="press-title">On the news</h2>
+        <figure>
+          <blockquote><span>“</span>We did BBQ chicken pizza with very low sodium on the BBQ sauce.<span>”</span></blockquote>
+          <figcaption>Kiriakos, to WFSB · June 2022</figcaption>
+        </figure>
+        <div class="press__context">
+          <p>WFSB covered a collaboration between UConn Health, the city of Hartford’s Department of Health and Human Services, and local restaurants to build healthier menus. Mr. Pizza tried changes that community members suggested, including a barbecue chicken pizza made with a lower-sodium sauce.</p>
+          <a href="https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/">Read the WFSB story</a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <div data-site-footer></div>
+  <div data-isl-footer style="background: #f3eee5; --footer-ink: rgba(29, 29, 31, 0.62); color: #1d1d1f"></div>
 </body>
 </html>
