@@ -271,9 +271,9 @@ function build() {
   // ---------- light: the visitor's clock, or what they choose (shared with the chart on the home page) ----------
   const LIGHT_KEY = "isl-light";
   const prefersDark = matchMedia("(prefers-color-scheme: dark)");
-  const readLight = () => { try { const v = localStorage.getItem(LIGHT_KEY); if (v === "day" || v === "night" || v === "now") return v; } catch (e) { /* private */ } return prefersDark.matches ? "night" : "now"; };
+  const readLight = () => { const q = new URLSearchParams(location.search).get("time"); if (q === "day" || q === "night" || q === "dusk") return q; try { const v = localStorage.getItem(LIGHT_KEY); if (v === "day" || v === "night" || v === "now") return v; } catch (e) { /* private */ } return prefersDark.matches ? "night" : "now"; };
   let mode = readLight();
-  const hourFor = (m) => ({ day: 15.2, night: 22.5 }[m] ?? (new Date().getHours() + new Date().getMinutes() / 60));
+  const hourFor = (m) => ({ day: 15.2, night: 22.5, dusk: 17.3 }[m] ?? (new Date().getHours() + new Date().getMinutes() / 60));
   let hour = hourFor(mode), sweep = null;
   const lightButtons = [...room.querySelectorAll("[data-light]")];
   const showLight = () => lightButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.light === mode)));

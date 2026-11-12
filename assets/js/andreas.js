@@ -350,7 +350,9 @@ async function start() {
 
   // the run takes 48 s; then a pause, then the mist rolls back in along the route
   const RUN = 48, HOLD = 6, BACK = 4, CYCLE = RUN + HOLD + BACK + 1.5;
-  let t0 = performance.now() / 1000 - RUN * 0.06, intro = still ? 1 : 0, lastStamp = 0;
+  // ?run=0.5 starts partway through the race (used for the share image)
+  const seedRun = parseFloat(new URLSearchParams(location.search).get("run"));
+  let t0 = performance.now() / 1000 - RUN * (seedRun >= 0 && seedRun < 1 ? seedRun : 0.06), intro = still || seedRun >= 0 ? 1 : 0, lastStamp = 0;
   const frame = (t, dt, { width, height }) => {
     const c = still ? RUN + 1 : (t - t0) % CYCLE;
     let run;
