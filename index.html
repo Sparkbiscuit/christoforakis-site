@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>christoforakis.com</title>
-  <meta name="description" content="The Christoforakis family: Nicholas, Andreas, Lukas, Oksana, Kiriakos, Foxy, and the things we are making, learning, and living through." />
+  <meta name="description" content="The Christoforakis family: Nicholas, Andreas, Lukas, Oksana, Kiriakos and Foxy, drawn as a chart of islands." />
   <meta name="theme-color" content="#0b1020" />
   <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/" />
   <meta property="og:title" content="christoforakis.com" />
-  <meta property="og:description" content="Five people, one dog, and a little corner of the internet for all of us." />
+  <meta property="og:description" content="This is our little corner. The things we’re building, learning, watching, writing, and living through." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/" />
   <meta property="og:image" content="https://christoforakis.com/assets/og/home.jpg?v=20261113" />
@@ -19,9 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400..800&amp;family=B612+Mono:wght@400;700&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/islands.css?v=20261113" />
-  <script src="/assets/js/islands.js?v=20261113" defer></script>
-  <script type="module" src="/assets/js/home.js?v=20261113"></script>
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261114" />
+  <script src="/assets/js/islands.js?v=20261114" defer></script>
+  <script type="module" src="/assets/js/home.js?v=20261114"></script>
   <style>
     html, body { height: 100%; }
     body { overflow: hidden; background: #0b1020; }
@@ -30,71 +30,111 @@
     .no-gl .archipelago__canvas { display: none; }
     .no-gl { background: #0b1020 url(/assets/backgrounds/landing.webp) center / cover; }
 
-    .isles ul { list-style: none; margin: 0; padding: 0; }
-    .isles a, .home-blob {
-      font-family: "Libre Caslon Text", Georgia, serif; font-size: clamp(12px, 1vw, 14px); letter-spacing: 0.24em; text-indent: 0.24em; text-transform: uppercase;
-      color: #f6f1e4; text-decoration: none; text-shadow: 0 0 3px rgba(8, 14, 30, 0.95), 0 1px 14px rgba(8, 14, 30, 0.85);
+    /* The chart's frame: a neatline with the alternating bars of a graduated border. */
+    .neat { position: absolute; inset: 9px; z-index: 2; pointer-events: none; border: 1px solid rgba(243, 238, 225, 0.55); transition: opacity 0.6s ease; }
+    .neat::before { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(243, 238, 225, 0.4); }
+    .neat::after {
+      content: ""; position: absolute; inset: 0; --b: rgba(243, 238, 225, 0.5);
+      background:
+        repeating-linear-gradient(90deg, var(--b) 0 54px, transparent 54px 108px) top left / 100% 5px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 54px, var(--b) 54px 108px) bottom left / 100% 5px no-repeat,
+        repeating-linear-gradient(180deg, transparent 0 54px, var(--b) 54px 108px) top left / 5px 100% no-repeat,
+        repeating-linear-gradient(180deg, var(--b) 0 54px, transparent 54px 108px) top right / 5px 100% no-repeat;
     }
-    .isles a { display: inline-block; padding: 12px 12px; white-space: nowrap; transition: color 0.2s ease; }
-    .isles a:hover, .isles a:focus-visible { color: #f2cf3a; }
-    .has-gl .isles a, .has-gl .home-blob { position: absolute; left: 0; top: 0; will-change: transform; opacity: 0; }
+    .is-flying .neat { opacity: 0; }
+    .no-gl .neat { display: none; }
+
+    .isles ul { list-style: none; margin: 0; padding: 0; }
+    .isles a {
+      font-family: "Libre Caslon Text", Georgia, serif; font-size: clamp(13px, 1.12vw, 16px); letter-spacing: 0.24em; text-indent: 0.24em; text-transform: uppercase;
+      color: #f6f1e4; text-decoration: none; text-shadow: 0 0 2px rgba(8, 14, 30, 0.95), 0 0 7px rgba(8, 14, 30, 0.8), 0 1px 18px rgba(8, 14, 30, 0.7);
+      display: inline-block; padding: 12px 12px; white-space: nowrap; transition: color 0.2s ease;
+    }
+    .isles a:hover, .isles a:focus-visible, .isles a.is-hi { color: #f2cf3a; }
+    .has-gl .isles a { position: absolute; left: 0; top: 0; will-change: transform; opacity: 0; }
     .isles { position: absolute; left: 0; top: 0; z-index: 3; }
     .no-gl .isles, html:not(.js) .isles { position: relative; padding: 96px clamp(16px, 3.6vw, 56px) 0; }
     .no-gl .isles ul, html:not(.js) .isles ul { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-    .home-blob { display: none; padding: 0 0 8px; pointer-events: none; }
-    .has-gl .home-blob { display: block; }
-    .home-blob svg { display: block; width: 46px; height: 46px; overflow: visible; filter: drop-shadow(0 2px 6px rgba(8, 14, 30, 0.55)); }
-    .home-blob .beam { fill: #ffe08a; opacity: calc(0.25 + var(--night, 0) * 0.5); transform-origin: 23px 15px; animation: home-beam 6s ease-in-out infinite; }
-    @keyframes home-beam { 0%, 100% { transform: scaleX(0.8); opacity: calc(0.18 + var(--night, 0) * 0.4); } 50% { transform: scaleX(1); } }
 
-    .no-gl .rose, .no-gl .hud, .no-gl .hud-note { display: none; }
+    .no-gl .hud, .no-gl .hud-note { display: none; }
     .hud-note { position: absolute; left: 50%; top: clamp(70px, 9vh, 96px); z-index: 4; margin: 0; transform: translateX(-50%); padding: 8px 14px; border-radius: 8px; background: rgba(8, 13, 26, 0.4); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font: 400 13px/1.3 "B612 Mono", ui-monospace, monospace; color: #eef3fa; white-space: nowrap; opacity: 0; pointer-events: none; }
     .flash { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 55%, #fffaf0, #f3eee1 60%); transition: opacity 0.6s ease; }
     .flash.is-on { opacity: 1; }
-    .rose { position: absolute; left: clamp(16px, 6vw, 96px); top: 28vh; z-index: 2; width: 96px; height: 96px; pointer-events: none; opacity: 0.9; }
-    .rose span { position: absolute; left: 0; top: -20px; width: 96px; text-align: center; font-family: "Libre Caslon Text", Georgia, serif; font-size: 13px; color: #f6f1e4; }
 
-    .cartouche {
-      position: absolute; left: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 4; width: min(410px, calc(100% - 32px));
-      padding: 6px; background: #f3eee1; color: #1a2131; box-shadow: 0 22px 44px -18px rgba(4, 8, 20, 0.75); will-change: opacity, transform;
+    /* The legend: title block, key and light, printed on the chart's paper. */
+    .legend {
+      position: absolute; left: clamp(22px, 3.2vw, 52px); bottom: clamp(22px, 3.2vw, 52px); z-index: 4; width: min(352px, calc(100% - 44px));
+      max-height: calc(100% - 120px); display: flex; padding: 6px; background: #f3eee1; color: #1a2131;
+      box-shadow: 0 1px 2px rgba(4, 8, 20, 0.3), 0 26px 50px -20px rgba(4, 8, 20, 0.8); will-change: opacity, transform;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
     }
-    .cartouche__rule { padding: 3px; border: 1px solid #1a2131; }
-    .cartouche__body { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 28px 18px; border: 1px solid #1a2131; text-align: center; font-family: "Libre Caslon Text", Georgia, serif; }
-    .cartouche__name { font-size: 12px; letter-spacing: 0.3em; text-indent: 0.3em; }
-    .cartouche h1 { margin: 0; font-size: clamp(30px, 2.6vw, 36px); line-height: 1.08; font-weight: 400; font-style: italic; }
-    .cartouche p { margin: 0; max-width: 300px; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 14.5px; line-height: 1.5; color: #3b4253; }
-    .cartouche__line { width: 56px; height: 1px; background: #1a2131; }
-    .cartouche__latest { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; }
-    .cartouche__latest small { font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 12.5px; color: #4d5465; }
-    .cartouche__latest span { font-size: 18px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
-    .cartouche__latest:hover span { text-decoration-thickness: 2px; }
-    .cartouche__foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin-top: 2px; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 12px; color: #4d5465; }
-    .cartouche__foot em { font-family: "Libre Caslon Text", Georgia, serif; }
-    .cartouche__foot a { text-decoration: none; }
-    .cartouche__foot a:hover { text-decoration: underline; }
+    .legend__rule { flex: 1; display: flex; min-height: 0; padding: 3px; border: 1px solid #1a2131; }
+    .legend__body { flex: 1; min-height: 0; overflow: auto; padding: 22px 24px 16px; border: 1px solid #1a2131; scrollbar-width: thin; }
+    .legend__title { text-align: center; font-family: "Libre Caslon Text", Georgia, serif; }
+    .legend__name { display: block; font-size: 10.5px; letter-spacing: 0.26em; text-indent: 0.26em; white-space: nowrap; }
+    .legend h1 { margin: 10px 0 8px; font-size: clamp(28px, 2.3vw, 33px); line-height: 1.08; font-weight: 400; font-style: italic; }
+    .legend__title p { margin: 0 auto; max-width: 270px; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 14px; line-height: 1.5; color: #3b4253; }
+    .legend h2 { display: flex; align-items: center; gap: 12px; margin: 18px 0 8px; font: 400 11.5px/1 "Libre Caslon Text", Georgia, serif; letter-spacing: 0.3em; text-transform: uppercase; }
+    .legend h2::before, .legend h2::after { content: ""; flex: 1; height: 1px; background: #1a2131; opacity: 0.6; }
+    .legend ul { list-style: none; margin: 0; padding: 0; }
+    .legend__isles a { display: grid; grid-template-columns: 22px auto 1fr; align-items: center; gap: 10px; min-height: 30px; padding: 0 6px; margin: 0 -6px; border-radius: 6px; text-decoration: none; }
+    .legend__isles a span { font: 400 16px/1 "Libre Caslon Text", Georgia, serif; }
+    .legend__isles a small { justify-self: end; font-size: 12px; color: #5a6072; }
+    .legend__isles a:hover, .legend__isles a:focus-visible, .legend__isles a.is-hi { background: rgba(26, 33, 49, 0.07); }
+    .legend__isles a:hover span, .legend__isles a.is-hi span { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .glyph { width: 22px; height: 22px; display: block; }
+    .glyph .sea { fill: none; stroke: #1a2131; stroke-width: 0.8; opacity: 0.45; }
+    .legend__marks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 10px !important; padding-top: 10px !important; border-top: 1px dotted rgba(26, 33, 49, 0.4); }
+    .legend__marks li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #3b4253; }
+    .legend__marks svg { width: 22px; height: 22px; flex: none; }
+    .legend__light { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(26, 33, 49, 0.18); }
+    .legend__light > span { font: 400 11.5px/1 "Libre Caslon Text", Georgia, serif; letter-spacing: 0.3em; text-transform: uppercase; }
+    .switch { display: inline-flex; padding: 3px; border-radius: 999px; background: rgba(26, 33, 49, 0.08); }
+    .switch button { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 0; border-radius: 999px; background: none; cursor: pointer; font-size: 13px; font-weight: 650; color: #3b4253; transition: background-color 0.2s ease, color 0.2s ease; }
+    .switch button svg { width: 14px; height: 14px; }
+    .switch button[aria-pressed="true"] { background: #1a2131; color: #f3eee1; }
+    .switch button:not([aria-pressed="true"]):hover { color: #1a2131; }
+    .no-gl .legend__light { display: none; }
+    .legend__foot { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 13px; }
+    .legend__foot a { text-decoration: none; color: #3b4253; }
+    .legend__foot a:first-child { font-weight: 700; color: #1a2131; }
+    .legend__foot a:first-child::after { content: " →"; }
+    .legend__foot a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
     .hud { position: absolute; left: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 4; display: flex; gap: 28px; padding: 14px 20px; border-radius: 10px; background: rgba(8, 13, 26, 0.44); border: 1px solid rgba(238, 243, 250, 0.13); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); font-family: "B612 Mono", ui-monospace, monospace; color: #eef3fa; opacity: 0; pointer-events: none; }
     .hud span { display: flex; flex-direction: column; gap: 4px; font-size: 20px; font-weight: 700; }
     .hud small { font-size: 10px; letter-spacing: 0.18em; opacity: 0.7; font-weight: 400; }
 
-    .fly { position: absolute; right: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 5; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px 0 18px; border: 0; border-radius: 24px; background: #f3eee1; color: #1a2131; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 14px 30px -14px rgba(4, 8, 20, 0.8); transition: transform 0.2s ease; }
+    .fly { position: absolute; right: clamp(22px, 3.2vw, 52px); bottom: clamp(22px, 3.2vw, 52px); z-index: 5; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px 0 18px; border: 0; border-radius: 24px; background: #f3eee1; color: #1a2131; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 14px 30px -14px rgba(4, 8, 20, 0.8); transition: transform 0.2s ease; }
     .fly:hover { transform: translateY(-1px); }
     .fly svg { width: 18px; height: 18px; transform: rotate(45deg); transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1); }
     .is-flying .fly svg { transform: rotate(225deg); }
     .no-gl .fly { display: none; }
 
+    @media (max-height: 760px) and (min-aspect-ratio: 19/20) {
+      .legend__body { padding: 16px 20px 12px; }
+      .legend h1 { font-size: 27px; margin: 6px 0; }
+      .legend h2 { margin: 12px 0 6px; }
+      .legend__isles a { min-height: 26px; }
+    }
     @media (max-width: 760px), (max-aspect-ratio: 19/20) {
-      .cartouche { left: 12px; right: 12px; bottom: 12px; width: auto; }
-      .cartouche__body { padding: 16px 18px 14px; gap: 9px; }
-      .cartouche h1 { font-size: 27px; }
-      .cartouche p { font-size: 13.5px; }
+      .neat { inset: 6px; }
+      .legend { left: 12px; right: 12px; bottom: 12px; width: auto; max-height: 50%; }
+      .legend__body { padding: 14px 16px 12px; }
+      .legend__title { display: grid; grid-template-columns: 1fr; }
+      .legend h1 { font-size: 24px; margin: 4px 0 4px; }
+      .legend__title p { font-size: 13px; }
+      .legend h2 { margin: 12px 0 6px; }
+      .legend__isles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 6px; }
+      .legend__isles a { grid-template-columns: 18px auto; gap: 6px; min-height: 34px; }
+      .legend__isles a small, .legend__marks { display: none !important; }
+      .legend__isles a span { font-size: 14.5px; }
+      .glyph { width: 18px; height: 18px; }
+      .legend__light { margin-top: 10px; padding-top: 10px; }
+      .switch button { height: 28px; padding: 0 9px; font-size: 12.5px; }
       .fly { bottom: auto; top: 70px; right: 12px; height: 42px; font-size: 14px; }
-      .rose { top: auto; bottom: 46vh; left: 12px; transform-origin: center; width: 72px; height: 72px; }
-      .rose svg { width: 72px; height: 72px; }
-      .rose span { width: 72px; }
       .hud { left: 12px; bottom: 12px; }
     }
-    @media (max-width: 480px) { .rose { display: none; } }
   </style>
 </head>
 <body>
@@ -102,7 +142,8 @@
   <div class="isl-chrome" data-isl-chrome></div>
 
   <main id="main" class="archipelago" data-archipelago>
-    <canvas class="archipelago__canvas" role="img" aria-label="A chart of seven islands, one for each of us, drawn for the time of day where you are."></canvas>
+    <canvas class="archipelago__canvas" role="img" aria-label="A chart of seven islands: home in the middle under a lighthouse, and an island for each of us around it."></canvas>
+    <div class="neat" aria-hidden="true"></div>
 
     <nav class="isles" aria-label="The family">
       <ul>
@@ -114,32 +155,43 @@
         <li><a href="/kiriakos/" data-isle="kiriakos">Kiriakos</a></li>
       </ul>
     </nav>
-    <span class="home-blob" data-isle="home" aria-hidden="true"><svg viewBox="0 0 46 46"><path class="beam" d="M23 15 L45 9.5 L45 20.5 Z M23 15 L1 9.5 L1 20.5 Z"/><path d="M18 10.5 H28 L23 4.5 Z" fill="#1d2a48"/><rect x="18.8" y="10.5" width="8.4" height="7.6" rx="1.6" fill="#f2cf3a"/><path d="M18.2 18.1 H27.8 L29.8 40 H16.2 Z" fill="#f6f1e4"/><path d="M17.5 25.5 H28.5 L29 31 H17 Z" fill="#c7442a"/><rect x="21.2" y="33.5" width="3.6" height="6.5" rx="1.8" fill="#1d2a48"/></svg></span>
 
-    <div class="rose" data-rose aria-hidden="true">
-      <svg viewBox="0 0 96 96" width="96" height="96"><circle cx="48" cy="48" r="34" fill="none" stroke="#f6f1e4" stroke-width="1" opacity="0.6"/><circle cx="48" cy="48" r="27" fill="none" stroke="#f6f1e4" stroke-width="0.6" stroke-dasharray="1 3.2" opacity="0.7"/><path d="M48 12 L53 43 L84 48 L53 53 L48 84 L43 53 L12 48 L43 43 Z" fill="#f6f1e4" opacity="0.9"/><path d="M48 12 L48 48 L53 43 Z M84 48 L48 48 L53 53 Z M48 84 L48 48 L43 53 Z M12 48 L48 48 L43 43 Z" fill="#0b1020" opacity="0.85"/></svg>
-      <span>N</span>
-    </div>
+    <aside class="legend" data-legend aria-labelledby="home-title">
+      <div class="legend__rule"><div class="legend__body">
+        <header class="legend__title">
+          <span class="legend__name">THE CHRISTOFORAKIS ISLANDS</span>
+          <h1 id="home-title">This is our little corner.</h1>
+          <p>The things we’re building, learning, watching, writing, and living through.</p>
+        </header>
 
-    <section class="cartouche" data-cartouche aria-labelledby="home-title">
-      <div class="cartouche__rule">
-        <div class="cartouche__body">
-          <span class="cartouche__name">CHRISTOFORAKIS ISLANDS</span>
-          <h1 id="home-title">This is our<br />little corner.</h1>
-          <p>Five people, one dog, and a little corner of the internet for all of us.</p>
-          <span class="cartouche__line" aria-hidden="true"></span>
-          <a class="cartouche__latest" href="/updates/">
-            <small data-latest-date>Latest update, May 28, 2026</small>
-            <span data-latest-title>Home. For real.</span>
-          </a>
-          <div class="cartouche__foot">
-            <em data-corrected>Corrected to today</em>
-            <a href="/oksana/#notebook">Notebook</a>
-            <a href="/admin.html" rel="nofollow">Write</a>
+        <h2>Legend</h2>
+        <ul class="legend__isles">
+          <li><a href="/nicholas/" data-key="nicholas"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#3a8ce6"/></svg><span>Nicholas</span><small>builds things</small></a></li>
+          <li><a href="/andreas/" data-key="andreas"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#a07fe0"/></svg><span>Andreas</span><small>runs, and runs the table</small></a></li>
+          <li><a href="/lukas/" data-key="lukas"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#e2525e"/></svg><span>Lukas</span><small>loves anything fast</small></a></li>
+          <li><a href="/oksana/" data-key="oksana"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#4fbf7d"/></svg><span>Oksana</span><small>keeps the notebook</small></a></li>
+          <li><a href="/kiriakos/" data-key="kiriakos"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#e9b52a"/></svg><span>Kiriakos</span><small>makes the pizza</small></a></li>
+          <li><a href="/foxy/" data-key="foxy"><svg class="glyph" viewBox="0 0 22 22" aria-hidden="true"><circle class="sea" cx="11" cy="11" r="10"/><circle cx="11" cy="11" r="7.4" fill="#ecdcae"/><circle cx="11" cy="11" r="5.6" fill="#7aa75a"/><circle cx="11" cy="11" r="3" fill="#ef8a35"/></svg><span>Foxy</span><small>excellent ears</small></a></li>
+        </ul>
+        <ul class="legend__marks">
+          <li><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M8.6 19.5 9.6 8h2.8l1 11.5Z" fill="#f6f1e4" stroke="#1a2131" stroke-width=".9"/><path d="M9.3 12.2h3.4l.2 2.2H9.1Z" fill="#c7442a"/><rect x="9.4" y="5.2" width="3.2" height="2.8" rx=".5" fill="#f2cf3a" stroke="#1a2131" stroke-width=".9"/><path d="M9 5.2h4L11 3Z" fill="#c7442a" stroke="#1a2131" stroke-width=".9" stroke-linejoin="round"/><path d="M5 20.2h12" stroke="#1a2131" stroke-width="1" stroke-linecap="round"/></svg>Home</li>
+          <li><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 3.5c.7 0 1 1.3 1 3v2.6l7 3.6v1.4l-7-1.6-.2 4.2 2.2 1.6v1l-3-.7-3 .7v-1l2.2-1.6-.2-4.2-7 1.6v-1.4l7-3.6V6.5c0-1.7.3-3 1-3Z" fill="#f6f1e4" stroke="#1a2131" stroke-width=".9" stroke-linejoin="round"/></svg>Our seaplane</li>
+          <li><svg viewBox="0 0 22 22" aria-hidden="true"><text x="11" y="15" text-anchor="middle" font-family="Libre Caslon Text, Georgia, serif" font-style="italic" font-size="11" fill="#1a2131">12</text></svg>Soundings, fathoms</li>
+          <li><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M2 14c3-4 6-4 9 0s6 4 9 0" fill="none" stroke="#1a2131" stroke-width="1.2" stroke-dasharray="2.6 2"/></svg>Reef</li>
+        </ul>
+
+        <div class="legend__light">
+          <span>Light</span>
+          <div class="switch" role="group" aria-label="Light on the chart">
+            <button type="button" data-light="now" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6V8l2.3 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Now</button>
+            <button type="button" data-light="day" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="currentColor"/><path d="M8 1.2v1.9M8 12.9v1.9M1.2 8h1.9M12.9 8h1.9M3.2 3.2l1.3 1.3M11.5 11.5l1.3 1.3M3.2 12.8l1.3-1.3M11.5 4.5l1.3-1.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Day</button>
+            <button type="button" data-light="night" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8Z" fill="currentColor"/></svg>Night</button>
           </div>
         </div>
-      </div>
-    </section>
+
+        <footer class="legend__foot"><a href="/updates/">Updates on Lukas</a><a href="/admin.html" rel="nofollow">Write</a></footer>
+      </div></div>
+    </aside>
 
     <div class="hud" data-hud aria-hidden="true">
       <span><small>HDG</small><b data-hdg>000°</b></span>
