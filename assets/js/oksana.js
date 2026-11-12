@@ -316,6 +316,19 @@ if (print) {
         const r = print.getBoundingClientRect();
         drops.push([(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, 0.05, 1.6]);
       });
+      // Each note that comes into view lets a drop fall into the tray.
+      const feed = document.querySelector("[data-blog-feed]");
+      if (feed && "IntersectionObserver" in window) {
+        const seen = new WeakSet();
+        const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+          if (!en.isIntersecting || seen.has(en.target)) return;
+          seen.add(en.target);
+          drops.push([0.3 + Math.random() * 0.4, 0.3 + Math.random() * 0.4, 0.3, 2.6]);
+        }), { threshold: 0.3 });
+        const watch = () => feed.querySelectorAll(".note").forEach((n) => io.observe(n));
+        new MutationObserver(watch).observe(feed, { childList: true });
+        watch();
+      }
       print.addEventListener("pointerdown", (e) => {
         const r = print.getBoundingClientRect();
         drops.push([(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, 0.35, 2.4]);

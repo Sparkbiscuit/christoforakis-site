@@ -215,6 +215,18 @@ if (page) {
     c.fillText("FT", W - 6, small ? 10 : 14);
   };
 
+  // "Play Aloft": the clouds come up to meet you, then the game loads.
+  let dive = null;
+  const takeoff = document.querySelector("[data-takeoff]");
+  if (takeoff) takeoff.addEventListener("click", (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || reducedMotion.matches) return;
+    e.preventDefault();
+    dive = { t0: performance.now(), from: shownFt };
+    document.documentElement.classList.add("is-taking-off");
+    setTimeout(() => { location.href = takeoff.href; }, 1000);
+  });
+  addEventListener("pageshow", (e) => { if (e.persisted) { dive = null; document.documentElement.classList.remove("is-taking-off"); } });
+
   // The sky.
   const canvas = document.querySelector("[data-sky]");
   const gl = canvas && context(canvas);
@@ -228,13 +240,20 @@ if (page) {
     const still = reducedMotion.matches;
     const frame = (t, dt, { width, height }) => {
       shownFt += (ft - shownFt) * Math.min(1, dt * 7);
+      let dip = 0;
+      if (dive) {
+        // Taking off for Aloft: drop straight into the cloud deck.
+        const k = clamp((performance.now() - dive.t0) / 900), e = k * k * k;
+        shownFt = dive.from + (9000 - dive.from) * e;
+        dip = 0.35 * e;
+      }
       if (!still) drift += dt;
       const y = worldY(shownFt), k = clamp(y / 10);
       gl.viewport(0, 0, width, height);
       gl.uniform2f(prog.u("uRes"), width, height);
       gl.uniform1f(prog.u("uTime"), still ? 40 : drift + 40);
       gl.uniform1f(prog.u("uY"), y);
-      gl.uniform1f(prog.u("uPitch"), 0.03 + 0.09 * k);
+      gl.uniform1f(prog.u("uPitch"), 0.03 + 0.09 * k + dip);
       gl.uniform1f(prog.u("uZ"), drift * 0.12 + (60000 - shownFt) / 60000 * 30);
       gl.uniform1f(prog.u("uX"), Math.sin(drift * 0.03) * 0.6);
       gl.uniform1f(prog.u("uCov"), -0.3 * (1 - clamp((y - 0.4) / 4)) ** 1.5);

@@ -36,14 +36,11 @@ button { font: inherit; color: inherit; }
 .isl-chrome.is-scrolled { background: var(--chrome-bg, rgba(12, 10, 8, 0.72)); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); padding-top: 6px; padding-bottom: 6px; }
 .isl-chrome--static { position: absolute; }
 .isl-mark { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; text-decoration: none; }
-.isl-blob {
-  position: relative; display: inline-block; width: 22px; height: 22px; flex: none; border-radius: 43% 57% 58% 42%;
-  background: #f2cf3a; box-shadow: inset 0 -2px 0 #b8921a, 0 1px 6px rgba(8, 12, 24, 0.35); transform: rotate(-7deg);
-}
-.isl-blob::before, .isl-blob::after { content: ""; position: absolute; top: 38%; width: 12%; height: 12%; border-radius: 50%; background: #14181f; animation: isl-blink 6.5s 2.4s infinite; }
-.isl-blob::before { left: 27%; }
-.isl-blob::after { right: 27%; }
-@keyframes isl-blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.12); } }
+.isl-light { width: 26px; height: 26px; flex: none; overflow: visible; filter: drop-shadow(0 1px 6px rgba(8, 12, 24, 0.35)); }
+.isl-light__beam { fill: #f2cf3a; opacity: 0.38; transform-origin: 16px 10.5px; animation: isl-beam 5s ease-in-out infinite; }
+.isl-light__lamp { fill: #f2cf3a; }
+.isl-light__band { fill: var(--light-band, rgba(20, 24, 31, 0.55)); }
+@keyframes isl-beam { 0%, 100% { opacity: 0.18; transform: scaleX(0.82); } 50% { opacity: 0.5; transform: scaleX(1); } }
 
 .isl-family { position: relative; }
 .isl-family__button {

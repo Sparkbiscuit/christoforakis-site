@@ -13,19 +13,21 @@
     ["Foxy", "/foxy/", "excellent ears"]
   ];
   const here = window.location.pathname.replace(/index\.html$/, "");
+  // The family mark: the lighthouse on the home island, the one that lights up the chart at night.
+  const LIGHT = '<svg class="isl-light" viewBox="0 0 32 32" aria-hidden="true"><path class="isl-light__beam" d="M16 10.5 L31 7 L31 14 Z M16 10.5 L1 7 L1 14 Z"/><path d="M12.7 7.8 H19.3 L16 4 Z" fill="currentColor"/><rect class="isl-light__lamp" x="13.2" y="7.8" width="5.6" height="5.2" rx="1.1"/><path d="M12.8 13 H19.2 L20.5 27 H11.5 Z" fill="currentColor"/><path class="isl-light__band" d="M12.3 18 H19.7 L20 21.5 H12 Z"/><path d="M6.5 28.6 C11 26.8 21 26.8 25.5 28.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const current = (path) => (here === path ? ' aria-current="page"' : "");
 
   const chrome = document.querySelector("[data-isl-chrome]");
   if (chrome) {
     const rows = family.map(([name, path, note]) => `<li><a href="${path}"${current(path)}><span>${name}</span><small>${note}</small></a></li>`).join("");
     chrome.innerHTML = `
-      <a class="isl-mark" href="/"${here === "/" ? ' aria-current="page"' : ""}><span class="isl-blob" aria-hidden="true"></span><span>christoforakis.com</span></a>
+      <a class="isl-mark" href="/"${here === "/" ? ' aria-current="page"' : ""}>${LIGHT}<span>christoforakis.com</span></a>
       <div class="isl-family">
         <button class="isl-family__button" type="button" aria-expanded="false" aria-controls="isl-family-menu">Family<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <nav class="isl-family__menu" id="isl-family-menu" aria-label="Family" hidden>
           <ul>${rows}</ul>
           <hr>
-          <ul><li><a href="/updates/"${current("/updates/")}><span>Updates on Lukas</span></a></li><li><a href="/oksana/#notebook"><span>Oksana’s notebook</span></a></li></ul>
+          <ul><li><a href="/updates/"${current("/updates/")}><span>Updates on Lukas</span></a></li><li><a href="/oksana/#notebook"><span>Oksana’s notebook</span></a></li><li><a href="/aloft/"${current("/aloft/")}><span>Aloft</span><small>the flying game</small></a></li></ul>
         </nav>
       </div>`;
     const button = chrome.querySelector(".isl-family__button");

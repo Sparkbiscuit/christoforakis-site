@@ -59,6 +59,14 @@ const steam = (() => {
   };
 })();
 
+// ---------- the ticket: printed when you arrive ----------
+{
+  const now = new Date(), no = document.querySelector("[data-ticket-no]"), date = document.querySelector("[data-ticket-date]"), time = document.querySelector("[data-ticket-time]");
+  if (no) no.textContent = String(100 + Math.floor(Math.random() * 900)).padStart(4, "0");
+  if (date) date.textContent = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+  if (time) time.textContent = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
 // ---------- the box ----------
 if (box) {
   let auto = true;

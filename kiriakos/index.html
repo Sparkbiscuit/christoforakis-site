@@ -40,18 +40,21 @@
     .counter__copy > p { margin: 22px 0 0; max-width: 400px; font-size: 19px; line-height: 1.55; font-weight: 500; }
 
     .ticket {
-      position: relative; width: 300px; margin-top: 34px; padding: 18px 18px 26px; transform: rotate(-2.2deg); color: #262626; text-shadow: none;
+      position: relative; width: 290px; margin-top: 34px; padding: 22px 20px 30px; transform: rotate(-2.2deg); color: #262626; text-shadow: none;
       background: #fbfaf6; font: 500 12.5px / 1.55 var(--mono); letter-spacing: 0.02em; text-transform: uppercase;
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 18px 30px -12px rgba(0, 0, 0, 0.5);
       -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
               mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
     }
     .ticket::before { content: ""; position: absolute; left: 50%; top: -10px; width: 92px; height: 22px; margin-left: -46px; transform: rotate(3deg); background: rgba(236, 228, 200, 0.75); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
-    .ticket b { display: block; font-weight: 600; font-size: 14px; letter-spacing: 0.06em; }
-    .ticket hr { margin: 9px 0; border: 0; border-top: 1px dashed #8a8a8a; }
-    .ticket .row { display: flex; gap: 6px; }
-    .ticket .row span:nth-child(2) { flex: 1; overflow: hidden; white-space: nowrap; color: #9a9a9a; }
-    .ticket .row span:nth-child(2)::before { content: "................................................"; }
+    .ticket b { font-weight: 600; }
+    .ticket__head { margin-bottom: 12px; text-align: center; }
+    .ticket__head b { display: block; margin-bottom: 2px; font-size: 15px; letter-spacing: 0.08em; }
+    .ticket hr { margin: 8px 0; border: 0; border-top: 1px dashed #8a8a8a; }
+    .ticket .row { display: flex; justify-content: space-between; gap: 12px; }
+    .ticket .total { margin-top: 3px; font-weight: 600; font-size: 14px; }
+    .ticket__foot { margin: 10px 0 0; text-align: center; }
+    .ticket__code { height: 34px; margin: 12px 8px 0; background: repeating-linear-gradient(90deg, #262626 0 2px, transparent 2px 3px, #262626 3px 4px, transparent 4px 7px, #262626 7px 10px, transparent 10px 11px, #262626 11px 12px, transparent 12px 15px); }
     .ticket a { color: inherit; text-decoration: none; }
     .ticket a:hover { text-decoration: underline; }
     .orders { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; }
@@ -136,15 +139,28 @@
       <div class="counter__copy">
         <h1>Kiriakos</h1>
         <p>Dad, and the owner-operator of Mr. Pizza House on Blue Hills Avenue in Hartford, Connecticut.</p>
-        <div class="ticket" aria-label="Mr. Pizza House">
-          <b>Mr. Pizza House</b>
-          <a href="https://www.google.com/maps/search/?api=1&amp;query=Mr+Pizza+House+671+Blue+Hills+Ave+Hartford+CT">671 Blue Hills Ave<br />Hartford, CT 06112</a><br />
-          <a href="tel:+18602429771">(860) 242-9771</a>
+        <div class="ticket" aria-label="Mr. Pizza House receipt: 671 Blue Hills Ave, Hartford, (860) 242-9771">
+          <div class="ticket__head">
+            <b>Mr. Pizza House</b>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=Mr+Pizza+House+671+Blue+Hills+Ave+Hartford+CT">671 Blue Hills Ave<br />Hartford, CT 06112</a><br />
+            <a href="tel:+18602429771">(860) 242-9771</a>
+          </div>
+          <div class="row"><span>Ticket <span data-ticket-no>0417</span></span><span>Pickup</span></div>
+          <div class="row"><span data-ticket-date>11/12/2026</span><span data-ticket-time>6:42 PM</span></div>
+          <div class="row"><span>Server: Kiriakos</span><span></span></div>
           <hr />
-          <div class="row"><span>Owner-operator</span><span aria-hidden="true"></span><span>Kiriakos</span></div>
-          <div class="row"><span>Dad</span><span aria-hidden="true"></span><span>3 sons</span></div>
+          <div class="row"><span>1 Mr. Pizza Special</span><span>15.50</span></div>
+          <div class="row"><span>1 Soda</span><span>1.75</span></div>
           <hr />
-          Pizza, grinders, salads, and more
+          <div class="row"><span>Subtotal</span><span>17.25</span></div>
+          <div class="row"><span>Meals tax 7.35%</span><span>1.27</span></div>
+          <div class="row total"><span>Total</span><span>18.52</span></div>
+          <hr />
+          <div class="row"><span>Cash</span><span>20.00</span></div>
+          <div class="row"><span>Change</span><span>1.48</span></div>
+          <hr />
+          <p class="ticket__foot">Pizza, grinders, salads and more<br />Order ahead at mrpizzahouse.com<br /><b>Thank you</b></p>
+          <div class="ticket__code" aria-hidden="true"></div>
         </div>
         <div class="orders">
           <a href="https://www.mrpizzahouse.com/">Order from the shop</a>

@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Christoforakis.com mark">
-  <rect width="64" height="64" rx="16" fill="#f3d72c"/>
-  <path d="M43 19c-3-3.4-7-5-11.5-5C21.3 14 14 21.7 14 32s7.3 18 17.5 18c4.5 0 8.5-1.6 11.5-5" fill="none" stroke="#24242a" stroke-linecap="round" stroke-width="8"/>
-  <circle cx="53" cy="46" r="3.5" fill="#24242a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Christoforakis.com: the lighthouse on the home island">
+  <rect width="64" height="64" rx="15" fill="#15203a"/>
+  <path d="M32 21 L60 14.5 L60 27.5 Z M32 21 L4 14.5 L4 27.5 Z" fill="#f2cf3a" opacity="0.42"/>
+  <path d="M25.5 15.5 H38.5 L32 8 Z" fill="#f6f1e4"/>
+  <rect x="26.5" y="15.5" width="11" height="10" rx="2" fill="#f2cf3a"/>
+  <path d="M25.6 25.5 H38.4 L41 52 H23 Z" fill="#f6f1e4"/>
+  <path d="M24.7 35 H39.3 L39.9 42 H24.1 Z" fill="#15203a"/>
+  <rect x="29.5" y="44.5" width="5" height="7.5" rx="2.5" fill="#15203a"/>
+  <path d="M15 54.5 C24 50.5 40 50.5 49 54.5" fill="none" stroke="#f6f1e4" stroke-width="3" stroke-linecap="round"/>
 </svg>
