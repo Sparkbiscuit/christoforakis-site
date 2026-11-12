@@ -23,13 +23,13 @@
   <script src="/assets/js/islands.js?v=20261113" defer></script>
   <script type="module" src="/assets/js/kiriakos.js?v=20261113"></script>
   <style>
-    :root { --page-bg: #2a2b2d; --page-ink: #f4efe6; --chrome-bg: rgba(30, 31, 33, 0.78); --red: #cf3a24; --slab: "Alfa Slab One", Rockwell, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, monospace; }
+    :root { --page-bg: #2a2b2d; --page-ink: #f4efe6; --chrome-bg: rgba(30, 31, 33, 0.78); --red: #cf3a24; --slab: "Alfa Slab One", Rockwell, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, monospace; --peek: clamp(76px, 11vh, 118px); }
     body { background: #2a2b2d; }
 
     /* The counter: brushed stainless steel */
     .counter {
-      position: relative; min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(0, 470px) minmax(0, 1fr); align-items: center; gap: clamp(24px, 4vw, 64px);
-      padding: 110px clamp(16px, 5vw, 80px) 70px; overflow: hidden;
+      position: relative; height: calc(100vh - var(--peek)); height: calc(100svh - var(--peek)); min-height: 600px; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); align-items: center; gap: clamp(20px, 3vw, 48px);
+      padding: 92px clamp(16px, 5vw, 80px) 20px; overflow: hidden;
       background:
         radial-gradient(ellipse 55% 45% at 72% 30%, rgba(255, 255, 255, 0.16), transparent 70%),
         radial-gradient(ellipse 80% 60% at 20% 90%, rgba(0, 0, 0, 0.35), transparent 70%),
@@ -37,13 +37,14 @@
         linear-gradient(100deg, #6c6f73, #9a9da1 30%, #74777b 52%, #a6a9ad 74%, #66696d);
     }
     .counter::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(20, 21, 23, 0.55), transparent 22%, transparent 70%, rgba(20, 21, 23, 0.5)); }
+    .counter::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: linear-gradient(#c9ccd0, #7b7e82 40%, #3a3b3e); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55); z-index: 4; }
     .counter__copy { position: relative; z-index: 3; color: #fff; text-shadow: 0 1px 18px rgba(20, 21, 23, 0.45); }
     .counter h1 { margin: 0; font: 400 clamp(62px, 8vw, 118px) / 0.9 var(--slab); letter-spacing: -0.01em; }
     .counter__copy > p { margin: 22px 0 0; max-width: 400px; font-size: 19px; line-height: 1.55; font-weight: 500; }
 
     .ticket {
-      position: relative; width: 290px; margin-top: 34px; padding: 22px 20px 30px; transform: rotate(-2.2deg); color: #262626; text-shadow: none;
-      background: #fbfaf6; font: 500 12.5px / 1.55 var(--mono); letter-spacing: 0.02em; text-transform: uppercase;
+      position: relative; z-index: 4; flex: none; width: 21.5em; margin-right: -0.5em; padding: 1.7em 1.55em 2.3em; transform: rotate(-3deg); color: #262626; text-shadow: none;
+      background: #fbfaf6; font: 500 clamp(10px, 1.42svh, 12.5px) / 1.55 var(--mono); letter-spacing: 0.02em; text-transform: uppercase;
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 18px 30px -12px rgba(0, 0, 0, 0.5);
       -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
               mask: linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 8px repeat-x;
@@ -64,8 +65,9 @@
     .orders a:hover { border-bottom-color: #fff; }
 
     /* The box */
-    .stage { position: relative; z-index: 2; display: grid; place-items: center; height: min(84svh, 800px); perspective: 1700px; perspective-origin: 50% 0%; }
-    .box { --w: min(460px, 70vw, 49svh); --h: calc(var(--w) * 0.1); position: relative; width: var(--w); height: var(--w); transform-style: preserve-3d; transform: translateY(36%) rotateX(52deg) rotateZ(-13deg); cursor: pointer; }
+    .stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; height: 100%; perspective: 1700px; perspective-origin: 60% 0%; }
+    .stage__box { position: relative; flex: 0 1 auto; display: grid; place-items: center; }
+    .box { --w: min(400px, 31vw, 43svh); --h: calc(var(--w) * 0.1); position: relative; width: var(--w); height: var(--w); transform-style: preserve-3d; transform: translateY(36%) rotateX(52deg) rotateZ(-13deg); cursor: pointer; }
     .box * { transform-style: preserve-3d; }
     .box__shadow { position: absolute; inset: -4%; transform: translateZ(-1px); background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent); filter: blur(14px); }
     .box__floor { position: absolute; inset: 0; background: #e9e1d2; }
@@ -89,11 +91,12 @@
     .lid__top svg { position: absolute; inset: 7%; width: 86%; height: 86%; }
     .lid__under { transform: rotateX(180deg); background: repeating-linear-gradient(90deg, #c9a677 0 3px, #c29e6e 3px 6px); box-shadow: inset 0 0 0 1px rgba(90, 60, 30, 0.3), inset 0 -40px 60px rgba(60, 40, 20, 0.25); }
     .lid__lip { position: absolute; left: 0; width: 100%; height: var(--h); top: calc(100% - var(--h) / 2); transform: translateY(-50%) rotateX(-90deg) translateZ(0) translateY(50%); background: #efe8db; box-shadow: inset 0 0 0 1px rgba(150, 120, 80, 0.3); }
-    .steam { position: absolute; inset: -30% -20% 0; z-index: 3; width: 140%; height: 130%; pointer-events: none; }
+    .steam { position: absolute; inset: -60% -30% -10%; z-index: 3; width: 160%; height: 170%; pointer-events: none; }
 
     /* The letterboard */
-    .menu { padding: 12vh clamp(16px, 5vw, 80px); background: #1c1c1d; color: #f4efe6; }
-    .menu__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(28px, 5vw, 80px); align-items: center; max-width: 1200px; margin: 0 auto; }
+    .menu { padding: 24px clamp(16px, 5vw, 80px) 13vh; background: #1c1c1d; color: #f4efe6; }
+    .menu__inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(28px, 5vw, 80px); align-items: start; max-width: 1200px; margin: 0 auto; }
+    .menu__inner > div:last-child { padding-top: clamp(40px, 9vh, 110px); }
     .board {
       position: relative; padding: clamp(14px, 2vw, 22px); border-radius: 3px;
       background: linear-gradient(135deg, #b88a55, #8e6234 40%, #a8783f 70%, #7d5328); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -111,23 +114,41 @@
     .menu p { margin: 0 0 14px; font-size: 18px; line-height: 1.6; color: #d9d3c8; }
     .menu a { color: #fff; font-weight: 700; }
 
-    /* On the news */
-    .press { padding: 14vh clamp(16px, 5vw, 80px); background: #f3eee5; color: #1d1d1f; }
-    .press__inner { max-width: 1000px; margin: 0 auto; }
+    /* On the wall: what's been said about the shop, pinned up the way a shop pins it up */
+    .press {
+      padding: 14vh clamp(16px, 5vw, 80px) 12vh; color: #1d1d1f;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cg fill='none' stroke='%23d9d2c4' stroke-width='1.2'%3E%3Cpath d='M0 .6H120M0 30.6H120M.6 0V30M60.6 0V30M30.6 30V60M90.6 30V60'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 120px 60px, #f3eee5;
+    }
+    .press__inner { max-width: 1100px; margin: 0 auto; }
     .press blockquote { margin: 0; font: 400 clamp(34px, 4.8vw, 66px) / 1.1 var(--slab); letter-spacing: -0.005em; text-indent: -0.42em; }
     .press blockquote span { color: var(--red); }
     .press figcaption { margin-top: 26px; font: 500 15px / 1.5 var(--mono); text-transform: uppercase; letter-spacing: 0.04em; color: #57534c; }
-    .press__context { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 48px; align-items: end; margin-top: 52px; padding-top: 28px; border-top: 2px solid #1d1d1f; }
-    .press__context p { margin: 0; max-width: 620px; font-size: 18px; line-height: 1.65; color: #3a3833; }
-    .press__context a { font-weight: 700; color: #1d1d1f; white-space: nowrap; }
     .press figure { margin: 0; }
+    .clips { display: grid; grid-template-columns: 0.9fr 1fr 1fr; gap: clamp(22px, 3vw, 44px); align-items: start; margin-top: clamp(56px, 9vh, 96px); }
+    .clip { position: relative; padding: 26px 26px 24px; background: #fbf8f1; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 18px 34px -18px rgba(40, 30, 10, 0.45); transform: rotate(var(--r, 0deg)); }
+    .clip::before { content: ""; position: absolute; left: 50%; top: -11px; width: 84px; height: 22px; margin-left: -42px; transform: rotate(var(--tr, -2deg)); background: rgba(232, 222, 190, 0.8); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+    .clip__src { display: block; font: 600 12px/1.3 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #6b655b; }
+    .clip h3 { margin: 10px 0 12px; font: 700 clamp(22px, 2vw, 27px) / 1.08 "Archivo Narrow", "Arial Narrow", sans-serif; letter-spacing: -0.005em; }
+    .clip p { margin: 0 0 14px; font-size: 16px; line-height: 1.6; color: #3a3833; }
+    .clip a { font-weight: 700; color: #1d1d1f; }
+    .clip__links { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 15px; }
+    .clip--news { background: #f6f2e6 linear-gradient(rgba(255, 255, 255, 0.35), transparent); border-top: 3px double #3a3833; }
+    .clip--decal { display: grid; justify-items: center; text-align: center; background: none; box-shadow: none; padding-top: 4px; }
+    .clip--decal::before { display: none; }
+    .decal { width: min(230px, 100%); aspect-ratio: 1; filter: drop-shadow(0 10px 18px rgba(40, 30, 10, 0.25)); transform: rotate(-4deg); }
+    .decal svg { width: 100%; height: 100%; display: block; }
+    .clip--decal p { margin: 18px 0 8px; max-width: 280px; }
 
     @media (max-width: 900px), (max-aspect-ratio: 1/1) {
-      .counter { grid-template-columns: 1fr; padding-top: 100px; gap: 10px; }
-      .stage { order: -1; height: min(64svh, 560px); margin-top: -10px; }
-      .box { --w: min(440px, 72vw, 44svh); }
+      .counter { height: auto; min-height: 0; grid-template-columns: 1fr; padding-top: 96px; padding-bottom: 48px; gap: 10px; }
+      .stage { flex-direction: column-reverse; height: auto; gap: 8px; }
+      .stage__box { height: min(46svh, 400px); width: 100%; margin-top: -24px; }
+      .box { --w: min(400px, 70vw, 40svh); }
+      .ticket { margin: 0 auto; font-size: 12px; transform: rotate(-2deg); }
+      .menu { padding-top: 12vh; }
+      .menu__inner > div:last-child { padding-top: 0; }
       .menu__inner { grid-template-columns: 1fr; }
-      .press__context { grid-template-columns: 1fr; }
+      .clips { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
     }
   </style>
 </head>
@@ -140,7 +161,14 @@
     <header class="counter">
       <div class="counter__copy">
         <h1>Kiriakos</h1>
-        <p>Dad, and the owner-operator of Mr. Pizza House on Blue Hills Avenue in Hartford, Connecticut.</p>
+        <p>Dad, and the owner-operator of Mr. Pizza House on Blue Hills Avenue in Hartford, Connecticut. The shop’s been there since 1972.</p>
+        <div class="orders">
+          <a href="https://www.mrpizzahouse.com/">Order from the shop</a>
+          <a href="https://slicelife.com/restaurants/ct/hartford/06112/mr-pizza-house/menu">Order on Slice</a>
+        </div>
+      </div>
+
+      <div class="stage" data-stage>
         <div class="ticket" aria-label="Mr. Pizza House receipt: 671 Blue Hills Ave, Hartford, (860) 242-9771">
           <div class="ticket__head">
             <b>Mr. Pizza House</b>
@@ -164,13 +192,7 @@
           <p class="ticket__foot">Pizza, grinders, salads and more<br />Order ahead at mrpizzahouse.com<br /><b>Thank you</b></p>
           <div class="ticket__code" aria-hidden="true"></div>
         </div>
-        <div class="orders">
-          <a href="https://www.mrpizzahouse.com/">Order from the shop</a>
-          <a href="https://slicelife.com/restaurants/ct/hartford/06112/mr-pizza-house/menu">Order on Slice</a>
-        </div>
-      </div>
-
-      <div class="stage" data-stage>
+        <div class="stage__box">
         <div class="box" data-box role="button" tabindex="0" aria-pressed="false" aria-label="A Mr. Pizza House box. Open it.">
           <div class="box__shadow"></div>
           <div class="box__floor" role="img" aria-label="A Mr. Pizza House combination pizza with pepperoni, sausage, green peppers, onions, and mushrooms"></div>
@@ -205,6 +227,7 @@
           </div>
         </div>
         <canvas class="steam" data-steam aria-hidden="true"></canvas>
+        </div>
       </div>
     </header>
 
@@ -234,14 +257,40 @@
 
     <section class="press" aria-labelledby="press-title">
       <div class="press__inner">
-        <h2 class="visually-hidden" id="press-title">On the news</h2>
+        <h2 class="visually-hidden" id="press-title">On the wall</h2>
         <figure>
           <blockquote><span>“</span>We did BBQ chicken pizza with very low sodium on the BBQ sauce.<span>”</span></blockquote>
           <figcaption>Kiriakos, to WFSB · June 2022</figcaption>
         </figure>
-        <div class="press__context">
-          <p>WFSB covered a collaboration between UConn Health, the city of Hartford’s Department of Health and Human Services, and local restaurants to build healthier menus. Mr. Pizza tried changes that community members suggested, including a barbecue chicken pizza made with a lower-sodium sauce.</p>
-          <a href="https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/">Read the WFSB story</a>
+
+        <div class="clips">
+          <article class="clip clip--decal">
+            <div class="decal" aria-hidden="true">
+              <svg viewBox="0 0 240 240">
+                <defs><path id="dc-top" d="M40 120a80 80 0 0 1 160 0"/><path id="dc-bot" d="M30 120a90 90 0 0 0 180 0"/></defs>
+                <circle cx="120" cy="120" r="116" fill="#1f6b3a"/><circle cx="120" cy="120" r="104" fill="none" stroke="#f6f1e4" stroke-width="2"/><circle cx="120" cy="120" r="64" fill="#f6f1e4"/>
+                <g fill="#f6f1e4" font-family="Archivo Narrow, Arial Narrow, sans-serif" font-weight="700" letter-spacing="2.4"><text font-size="19" text-anchor="middle"><textPath href="#dc-top" startOffset="50%">NEIGHBORHOOD FAVE</textPath></text><text font-size="14" text-anchor="middle"><textPath href="#dc-bot" startOffset="50%">SEVEN TIMES SINCE 2017</textPath></text></g>
+                <text x="120" y="118" text-anchor="middle" font-family="Alfa Slab One, Georgia, serif" font-size="38" fill="#1f6b3a">2026</text>
+                <text x="120" y="142" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-weight="600" font-size="11" letter-spacing="2" fill="#1f6b3a">HARTFORD</text>
+              </svg>
+            </div>
+            <p>Neighbors on Nextdoor have voted the shop a Neighborhood Fave in 2017, 2018, 2019, 2020, 2022, 2024 and 2026.</p>
+            <div class="clip__links"><a href="https://nextdoor.com/pages/mr-pizza-house-hartford-ct/">Nextdoor</a></div>
+          </article>
+
+          <article class="clip clip--news" style="--r: 1.2deg; --tr: 3deg">
+            <span class="clip__src">WFSB · May 11, 2022</span>
+            <h3>20 Towns in 20 Days: Hartford</h3>
+            <p>Weaver High graduates from the ’90s still go back to Mr. Pizza on Blue Hills Avenue for the grinders and the pizza. One of them called it “a staple here in the community.”</p>
+            <div class="clip__links"><a href="https://www.wfsb.com/2022/05/11/20-towns-20-days-hartford/">Read it on WFSB</a></div>
+          </article>
+
+          <article class="clip clip--news" style="--r: -1.4deg; --tr: -4deg">
+            <span class="clip__src">FOX61 · June 15, 2022</span>
+            <h3>New program to bring healthier, affordable foods to 4 Hartford restaurants</h3>
+            <p>Mr. Pizza was one of four North End restaurants in a pilot with UConn Health, the state Department of Public Health and the city’s health department. Neighbors suggested the changes. The barbecue chicken pizza up top came out of it.</p>
+            <div class="clip__links"><a href="https://www.fox61.com/article/news/local/hartford-county/hartford/new-program-to-bring-healthier-affordable-foods-to-four-hartford-restaurants/520-381a815e-3c0a-4e0b-b15d-21a948de4fd7">FOX61</a><a href="https://www.wfsb.com/2022/06/15/restaurants-hartford-get-help-creating-healthier-menu-options/">WFSB</a><a href="https://today.uconn.edu/2022/06/hartford-calls-on-uconn-health-to-make-restaurant-dining-healthier/">UConn Today</a></div>
+          </article>
         </div>
       </div>
     </section>

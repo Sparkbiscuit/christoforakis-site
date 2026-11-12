@@ -118,7 +118,7 @@ if (felt && board) {
       if (!entries[0].isIntersecting) return;
       io.disconnect();
       board.classList.add("is-placed");
-    }, { threshold: 0.35 });
+    }, { threshold: 0.06 });
     io.observe(board);
   }
 }
