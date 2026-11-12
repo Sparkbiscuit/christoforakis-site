@@ -455,3 +455,28 @@ sup a { padding: 0 2px; color: inherit; font-size: 0.68em; font-weight: var(--we
 .lost .display-title { max-width: 11ch; }
 .lost .lead { margin-top: 1.5rem; }
 .lost .actions { margin-top: 2rem; }
+
+/* Documents: Lagoon Air's holding page, privacy policy and support. A calm reading column on the paper; every heading can be linked to. */
+.doc-hero { padding-block: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 3vw, 2.5rem); }
+.doc-hero .display-title { max-width: 14ch; margin-top: clamp(1.25rem, 3vw, 2.25rem); font-size: clamp(2.25rem, 8.4vw, 5.25rem); }
+.doc-hero .lead { margin-top: 1.5rem; }
+.doc-hero .actions { margin-top: 2rem; }
+.doc-hero--holding { padding-block: clamp(3rem, 8vw, 7rem) clamp(5rem, 13vw, 11rem); }
+.doc-hero--holding .display-title { max-width: none; margin-top: 0; font-size: var(--text-hero); }
+.doc-meta { max-width: 34rem; margin: 1.25rem 0 0; color: var(--color-ink-soft); font-size: var(--text-prose); }
+.doc { padding-bottom: clamp(3rem, 7vw, 6rem); }
+.doc__column { max-width: 42rem; }
+.doc h2 { margin: clamp(2.25rem, 5vw, 3.25rem) 0 0.75rem; font-size: clamp(1.45rem, 2.4vw, 1.875rem); letter-spacing: -0.032em; line-height: 1.15; }
+.doc p, .doc li { color: var(--color-ink-soft); font-size: var(--text-prose); line-height: 1.6; }
+.doc p { margin: 0 0 1em; }
+.doc ul, .doc ol { margin: 0 0 1em; padding-left: 1.3em; }
+.doc li { padding-left: 0.2em; }
+.doc li + li { margin-top: 0.6em; }
+.doc strong { color: var(--color-ink); }
+.doc a { color: var(--color-ink); font-weight: var(--weight-strong); text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; }
+.doc a:hover { text-decoration-thickness: 0.14em; }
+.doc-tile { padding: clamp(1.5rem, 3vw, 2.25rem); border-radius: var(--radius-tile); }
+.doc-tile h2 { margin-top: 0; }
+.doc-tile p { color: var(--color-ink); font-size: var(--text-lead); line-height: 1.45; }
+.doc-tile p:last-child { margin-bottom: 0; }
+.doc-end { margin-top: clamp(2.5rem, 6vw, 4rem); }

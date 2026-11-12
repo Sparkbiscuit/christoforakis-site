@@ -18,9 +18,10 @@ It's a static site. No framework, no package manager, no build step and no serve
 | `/contact/` | A postcard with the ways to reach Nicholas | `contact/index.html` |
 | `/aloft/` | Aloft, the flying game | `aloft/index.html` |
 | `/projects/filuma/`, `/projects/meds-ahead/` | The stories behind the two apps (older page style) | `projects/`, `assets/css/site.css`, `assets/js/site.js` |
+| `/lagoonair/`, `/lagoonair/privacy/`, `/lagoonair/support/` | Lagoon Air's holding page, and its App Store privacy policy and support pages (older page style) | `lagoonair/` |
 | `/updates/` | Forwards old links to the matching note on Oksana's page | `updates/index.html` |
 
-Every page except the project stories shares the header, family menu and footer from `assets/js/islands.js` and `assets/css/islands.css`.
+Every page except the project stories and the Lagoon Air pages shares the header, family menu and footer from `assets/js/islands.js` and `assets/css/islands.css`.
 
 ## Adding a note to Oksana's page
 
