@@ -1,452 +1,512 @@
-// Nicholas: a lit desk where every object is a way into the paper below it.
-// Hover lifts an object and names its section; a click turns the paper to that page.
-import { context, program, fullscreen, noiseTexture, loop, reducedMotion, clamp, mix } from "./gl.js";
+// Nicholas: the desk in his dorm room at golden hour, modeled from a phone scan of the real one.
+// Scrolling walks the camera from thing to thing; each thing is a piece of work.
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const FRAG = `#version 300 es
-precision highp float;
-out vec4 o;
-uniform vec2 uRes, uVc; uniform float uT, uFov, uHot; uniform vec3 uRo, uF, uR, uU, uL; uniform float uLift[9];
-uniform sampler2D uN;
-float vn(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f); return texture(uN,(i+f+.5)/256.).r; }
-float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
-float rbox(vec3 p, vec3 b, float r){ vec3 q=abs(p)-b+r; return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.)-r; }
-float cyl(vec3 p, float r, float h){ vec2 d=abs(vec2(length(p.xz),p.y))-vec2(r,h); return min(max(d.x,d.y),0.)+length(max(d,0.)); }
-float cap(vec3 p, vec3 a, vec3 b, float r){ vec3 pa=p-a, ba=b-a; float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.); return length(pa-ba*h)-r; }
-float tor(vec3 p, float R, float r){ return length(vec2(length(p.xz)-R,p.y))-r; }
-vec3 ry(vec3 p, float a){ float c=cos(a), s=sin(a); return vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z); }
-vec2 U(vec2 a, vec2 b){ return a.x<b.x?a:b; }
-vec3 PA(vec3 p){ return ry(p-vec3(-.35,.045+uLift[0],.25),-.22); }
-vec3 PB(vec3 p){ return ry(p-vec3(.82,.045+uLift[1],.62),.17); }
-vec3 NB(vec3 p){ return ry(p-vec3(3.45,.075+uLift[2],-1.15),.1); }
-vec3 MG(vec3 p){ return p-vec3(-1.75,uLift[3],-1.4); }
-vec3 HP(vec3 p){ return ry(p-vec3(3.05,uLift[4],2.2),-.3); }
-vec3 PL(vec3 p){ return ry(p-vec3(-2.1,.16+uLift[5],1.2),.45); }
-vec3 AP(vec3 p){ return ry(p-vec3(.9,uLift[6],-1.8),.5); }
-vec3 SH(vec3 p){ return ry(p-vec3(4.6,.008+uLift[7],.9),-.15); }
-vec3 MS(vec3 p){ return ry(p-vec3(2.05,uLift[8],.25),.08); }
-float plane(vec3 q){
-  float d=cap(q,vec3(-.62,.44,0.),vec3(.6,.44,0.),.105);
-  vec3 m=vec3(q.x,q.y,abs(q.z));
-  d=min(d,rbox(ry(m-vec3(-.08,.42,.44),-.42),vec3(.14,.014,.44),.012));
-  d=min(d,rbox(ry(m-vec3(-.6,.46,.18),-.42),vec3(.07,.012,.18),.01));
-  d=min(d,rbox(q-vec3(-.6,.6,0.)+vec3(q.y-.6,0.,0.)*.5,vec3(.1,.14,.014),.01));
-  d=min(d,cap(q,vec3(0.,.03,0.),vec3(0.,.34,0.),.028));
-  d=min(d,cyl(q-vec3(0.,.015,0.),.24,.015)-.006);
-  return d;
-}
-vec2 objs(vec3 p, bool fast){
-  vec2 r=vec2(p.y,0.); vec3 q; float b;
-  q=PA(p); b=fast?length(q)-.95:-1.; if(b<.06) r=U(r,vec2(rbox(q,vec3(.36,.04,.78),.05),1.)); else r.x=min(r.x,b);
-  q=PB(p); b=fast?length(q)-.95:-1.; if(b<.06) r=U(r,vec2(rbox(q,vec3(.36,.04,.78),.05),2.)); else r.x=min(r.x,b);
-  q=NB(p); b=fast?length(q)-1.4:-1.; if(b<.06){ r=U(r,vec2(rbox(q,vec3(.75,.07,1.05),.03),3.)); r=U(r,vec2(cap(q,vec3(-.32,.12,-.72),vec3(.2,.12,.62),.045),4.)); } else r.x=min(r.x,b);
-  q=MG(p); b=fast?length(q-vec3(.1,.45,0.))-1.05:-1.; if(b<.06){
-    float m=max(cyl(q-vec3(0.,.45,0.),.42,.45)-.02,-cyl(q-vec3(0.,.56,0.),.36,.45));
-    m=min(m,max(tor((q-vec3(.5,.45,0.)).xzy,.24,.055),-(q.x-.4)));
-    r=U(r,vec2(m,5.)); r=U(r,vec2(cyl(q-vec3(0.,.4,0.),.36,.37),6.)); } else r.x=min(r.x,b);
-  q=HP(p); b=fast?length(q)-1.2:-1.; if(b<.06){
-    float h=min(cyl(q-vec3(-.62,.14,0.),.4,.11)-.03,cyl(q-vec3(.62,.14,0.),.4,.11)-.03);
-    r=U(r,vec2(min(h,max(tor(q-vec3(0.,.1,0.),.62,.06),q.z)),7.)); } else r.x=min(r.x,b);
-  q=PL(p); b=fast?length(q)-1.25:-1.; if(b<.06) r=U(r,vec2(rbox(q,vec3(1.08,.15,.24),.04),8.)); else r.x=min(r.x,b);
-  q=AP(p); b=fast?length(q-vec3(0.,.4,0.))-1.1:-1.; if(b<.06) r=U(r,vec2(plane(q),9.)); else r.x=min(r.x,b);
-  q=SH(p); b=fast?length(q)-1.5:-1.; if(b<.06) r=U(r,vec2(rbox(q,vec3(.85,.005,1.15),.002),10.)); else r.x=min(r.x,b);
-  q=MS(p); b=fast?length(q)-1.2:-1.; if(b<.06){
-    r=U(r,vec2(rbox(q-vec3(0.,.016,0.),vec3(.62,.008,.84),.003),11.));
-    r=U(r,vec2(rbox(ry(q-vec3(.035,.006,.025),.035),vec3(.62,.006,.84),.003),11.));
-    r=U(r,vec2(rbox(q-vec3(0.,.05,-.79),vec3(.17,.028,.07),.012),12.));
-    r=U(r,vec2(min(cap(q,vec3(-.1,.075,-.77),vec3(-.1,.17,-.99),.009),cap(q,vec3(.1,.075,-.77),vec3(.1,.17,-.99),.009)),13.));
-  } else r.x=min(r.x,b);
-  return r;
-}
-vec2 map(vec3 p){ return objs(p,true); }
-vec2 mapx(vec3 p){ return objs(p,false); }
-float objOf(float id){ return id<1.5?0.:id<2.5?1.:id<4.5?2.:id<6.5?3.:id<7.5?4.:id<8.5?5.:id<9.5?6.:id<10.5?7.:8.; }
-vec3 nrm(vec3 p){ vec2 e=vec2(.0012,-.0012); return normalize(e.xyy*mapx(p+e.xyy).x+e.yyx*mapx(p+e.yyx).x+e.yxy*mapx(p+e.yxy).x+e.xxx*mapx(p+e.xxx).x); }
-float shadow(vec3 p){ float res=1., s=.02; for(int i=0;i<34;i++){ float d=mapx(p+uL*s).x; res=min(res,11.*d/s); s+=clamp(d,.02,.25); if(res<.01||s>7.) break; } return clamp(res,0.,1.); }
-float ln(float d, float w, float fw){ return 1.-smoothstep(w-fw,w+fw,abs(d)); }
-void main(){
-  vec2 uv=(gl_FragCoord.xy*2.-uRes)/uRes.y;
-  vec3 rd=normalize(uF+(uv.x*uR+uv.y*uU)*uFov), ro=uRo;
-  float t=0., id=-1.;
-  for(int i=0;i<120;i++){ vec2 m=map(ro+rd*t); if(m.x<.0008*t){ id=m.y; break; } t+=m.x; if(t>40.) break; }
-  vec3 col=vec3(.02,.012,.008);
-  if(id>-.5){
-    vec3 p=ro+rd*t, n=nrm(p), c=vec3(.5); float gloss=.1, shin=30.;
-    if(id<.5){
-      float g=vn(vec2(p.x*.9+vn(p.xz*.5)*2.2,p.z*15.));
-      float g2=vn(vec2(p.x*3.+7.,p.z*60.));
-      c=mix(vec3(.2,.105,.05),vec3(.4,.23,.12),g)*(.85+.3*g2);
-      float seam=smoothstep(.0,.012,abs(fract(p.z/2.6+.3)-.5)*2.6); c*=mix(.55,1.,seam);
-      gloss=.28; shin=50.;
-      vec3 a=PA(p); float da=length(max(abs(a.xz)-vec2(.36,.78),0.)); c+=vec3(1.,.5,.18)*exp(-da*da*5.)*.11;
-      vec3 bq=PB(p); float dbb=length(max(abs(bq.xz)-vec2(.36,.78),0.)); c+=vec3(.6,.85,1.)*exp(-dbb*dbb*5.)*.13;
-    } else if(id<2.5){ c=n.y>.7?vec3(.012):vec3(.2,.2,.22); gloss=n.y>.7?.9:.6; shin=120.; }
-    else if(id<3.5){ vec3 q=NB(p);
-      c=n.y>.5?vec3(.055,.08,.2)*(.8+.4*vn(q.xz*90.)):vec3(.9,.87,.78)*(.8+.2*step(.5,fract(q.y*90.)));
-      if(n.y>.5&&abs(q.x-.52)<.045) c=vec3(.94,.76,.1);
-      gloss=.12; }
-    else if(id<4.5){ c=vec3(.75,.55,.22); gloss=.8; shin=90.; }
-    else if(id<5.5){ vec3 q=MG(p); c=vec3(.9,.86,.78)*(1.-.45*step(.93,hash(floor(q.xy*38.)+floor(q.z*38.)))); gloss=.45; shin=70.; }
-    else if(id<6.5){ c=vec3(.13,.06,.03); gloss=.9; shin=140.; }
-    else if(id<7.5){ vec3 q=HP(p); c=q.y>.2?vec3(.05,.05,.055):vec3(.14,.14,.15); gloss=q.y>.2?.25:.6; shin=60.; }
-    else if(id<8.5){ vec3 q=PL(p); float k=floor((q.x+1.08)/.3086);
-      vec3 pal=k<.5?vec3(.95,.8,.2):k<1.5?vec3(.2,.6,.92):k<2.5?vec3(.7,.55,.94):k<3.5?vec3(.42,.84,.56):k<4.5?vec3(.97,.32,.42):k<5.5?vec3(.96,.55,.2):vec3(.93,.92,.86);
-      float div=smoothstep(.0,.02,abs(fract((q.x+1.08)/.3086)-.5)*.3086-.0)*smoothstep(.154,.14,abs(fract((q.x+1.08)/.3086)-.5)*.3086);
-      c=n.y>.5?mix(vec3(.1),pal,div):pal*.55; gloss=.55; shin=80.; }
-    else if(id<9.5){ vec3 q=AP(p); c=vec3(.93,.93,.9);
-      if(q.x<-.46&&q.y>.5) c=vec3(.95,.78,.12);
-      if(q.y<.36) c=vec3(.1,.1,.11);
-      if(abs(q.y-.47)<.012&&abs(q.x)<.5&&fract(q.x*14.)<.55&&abs(q.z)>.06) c=vec3(.12,.16,.25);
-      gloss=.6; shin=90.; }
-    else if(id<10.5){ vec3 q=SH(p); c=vec3(.95,.93,.87);
-      float st=fract((q.z+1.05)/.36); float l=step(st,.56)*step(abs(fract(st/.14+.5)-.5)*.14,.006);
-      c=mix(c,vec3(.2),l*step(abs(q.x),.72));
-      float nt=step(.86,hash(floor(vec2(q.x*9.,(q.z+1.05)/.045))))*step(st,.56)*step(abs(q.x),.7);
-      c=mix(c,vec3(.12),nt*smoothstep(.5,.3,length(fract(vec2(q.x*9.,(q.z+1.05)/.045))-.5)));
-      gloss=.05; }
-    else if(id<11.5){ vec3 q=MS(p); c=vec3(.965,.958,.94)*(.97+.03*vn(q.xz*80.));
-      if(n.y>.5){
-        float fw=fwidth(q.z)*1.2+.0004, ink=0.;
-        ink=max(ink,ln(q.z+.655,.016,fw)*step(abs(q.x),.44));
-        ink=max(ink,ln(q.z+.6,.016,fw)*step(abs(q.x),.3));
-        ink=max(ink,.75*ln(q.z+.53,.006,fw)*step(abs(q.x),.2));
-        ink=max(ink,.9*ln(q.z+.475,.0025,fw)*step(abs(q.x),.54));
-        ink=max(ink,.9*ln(q.z+.2,.0025,fw)*step(abs(q.x),.54));
-        float az=(q.z+.44)/.032; float ai=floor(az+.5);
-        if(ai>=0.&&ai<=7.) ink=max(ink,.85*ln(q.z+.44-ai*.032,.0055,fw)*step(abs(q.x),ai>6.5?.2:.52));
-        float cz=(q.z+.14)/.03; float ci=floor(cz+.5); float side=q.x<0.?0.:1.; float cx=abs(q.x-(side>.5?.29:-.29));
-        bool fig=side>.5&&q.z>.04&&q.z<.34;
-        if(ci>=0.&&ci<=30.&&!fig){ float lenR=hash(vec2(ci,side))>.86?.12:.255; ink=max(ink,.55*ln(q.z+.14-ci*.03,.005,fw)*step(cx,.255)*step(q.x-(side>.5?.29:-.29),lenR-.255+.255)); }
-        if(fig){ float bx=step(abs(q.x-.29),.25)*step(abs(q.z-.19),.14); c=mix(c,vec3(.9,.89,.86),bx);
-          float curve=.28-.1*sin((q.x-.06)*9.)*.8-(q.x-.06)*.25; ink=max(ink,.9*ln(q.z-curve,.005,fw)*step(abs(q.x-.29),.23)); }
-        c=mix(c,vec3(.13,.13,.15),ink);
-      }
-      gloss=.08; }
-    else if(id<12.5){ c=vec3(.03,.03,.035); gloss=.7; shin=110.; }
-    else { c=vec3(.72,.72,.74); gloss=.95; shin=160.; }
-    float sh=shadow(p+n*.01);
-    float dif=clamp(dot(n,uL),0.,1.)*sh;
-    float ao=clamp(.35+mapx(p+n*.1).x/.16,0.,1.)*clamp(.6+mapx(p+n*.3).x/.6,0.,1.);
-    float pool=smoothstep(9.5,1.4,length(p.xz-vec2(1.3,.3)));
-    vec3 key=vec3(1.,.82,.6)*2.1*pool;
-    vec3 lit=c*(key*dif+vec3(.2,.24,.34)*ao*(.35+.65*n.y)*.55+vec3(.03,.02,.015));
-    vec3 h=normalize(uL-rd);
-    lit+=key*pow(max(dot(n,h),0.),shin)*gloss*sh*.6;
-    vec3 rf=reflect(rd,n);
-    lit+=vec3(.5,.62,.8)*smoothstep(.55,.9,rf.y)*smoothstep(.3,.0,abs(rf.x-.25))*gloss*.22*ao;
-    if(id>.5&&abs(objOf(id)-uHot)<.5){ lit+=vec3(1.,.8,.55)*pow(1.-max(dot(n,-rd),0.),2.5)*.55; lit*=1.08; }
-    col=lit;
-  }
-  vec2 v=gl_FragCoord.xy/uRes; col*=.6+.4*smoothstep(1.25,.3,length((v-uVc)*vec2(1.15,1.)));
-  col=col/(1.+col*.25);
-  col+=(hash(gl_FragCoord.xy+uT)-.5)*.02;
-  o=vec4(pow(clamp(col,0.,1.),vec3(.88)),1.);
-}
-`;
+const canvas = document.querySelector("[data-room]");
+const story = document.querySelector("[data-story]");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(pointer: coarse)").matches;
 
-const OBJECTS = [
-  { c: [-0.35, 0.25], a: -0.22, h: [0.36, 0.09, 0.78], cy: 0.05, page: 2, label: "Filuma", sub: "Section 1, page 2" },
-  { c: [0.82, 0.62], a: 0.17, h: [0.36, 0.09, 0.78], cy: 0.05, page: 4, label: "Meds Ahead", sub: "Section 2, page 4" },
-  { c: [3.45, -1.15], a: 0.1, h: [0.75, 0.14, 1.05], cy: 0.08, page: 3, label: "A day that changes", sub: "Fig. 2, page 3" },
-  { c: [-1.75, -1.4], a: 0, h: [0.56, 0.46, 0.45], cy: 0.45, page: 7, label: "Let’s talk", sub: "Correspondence, page 7" },
-  { c: [3.05, 2.2], a: -0.3, h: [1.05, 0.3, 0.52], cy: 0.15, page: 7, label: "Music", sub: "Acknowledgements, page 7" },
-  { c: [-2.1, 1.2], a: 0.45, h: [1.1, 0.2, 0.27], cy: 0.16, page: 5, label: "What runs out next", sub: "Fig. 4, page 5" },
-  { c: [0.9, -1.8], a: 0.5, h: [0.75, 0.36, 0.55], cy: 0.4, page: 6, label: "Aloft", sub: "Section 3, page 6" },
-  { c: [4.6, 0.9], a: -0.15, h: [0.85, 0.03, 1.15], cy: 0.01, page: 7, label: "The Dissipated Eight", sub: "Acknowledgements, page 7" },
-  { c: [2.05, 0.25], a: 0.08, h: [0.64, 0.1, 0.9], cy: 0.03, page: 1, label: "The paper", sub: "Two apps for problems close to home" }
-];
-const DESK = { cx: 1.3, cz: 0.35, ex: 4.4, ez: 3.0 };
-const ry = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [c * v[0] + s * v[2], v[1], -s * v[0] + c * v[2]]; };
+const rng = (seed) => () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (k) => k * k * (3 - 2 * k);
 
-const hero = document.querySelector("[data-desk]");
-const canvas = hero && hero.querySelector("canvas");
-const book = setupBook();
-setupFigures();
-if (hero) setupContents();
-const gl = canvas && context(canvas);
-if (hero && gl) runDesk(); else if (hero) hero.classList.add("no-gl");
+let renderer = null;
+try { renderer = canvas && new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" }); } catch (e) { renderer = null; }
+if (renderer && story) build();
 
-function runDesk() {
-  const P = program(gl, FRAG, "desk");
-  if (!P) { hero.classList.add("no-gl"); return; }
-  P.use();
-  fullscreen(gl);
-  noiseTexture(gl, 4242, 0);
-  gl.uniform1i(P.u("uN"), 0);
-  hero.classList.add("has-gl");
+function build() {
+  document.documentElement.classList.add("has-scene");
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, coarse ? 1.4 : 1.75));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.72;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-  const screens = [...hero.querySelectorAll("[data-screen]")];
-  const tag = hero.querySelector("[data-tag]");
-  const tagLabel = tag && tag.querySelector("strong");
-  const tagSub = tag && tag.querySelector("small");
-  const lift = new Float32Array(9);
-  const s = { px: 0, py: 0, tx: 0, ty: 0, live: false, hot: -1, listHot: -1, scroll: 0, n: 0 };
-  let cam = null, view = layout();
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1b130d);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.1;
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.02, 30);
 
-  function layout() {
-    const W = canvas.clientWidth, H = canvas.clientHeight, portrait = W / H < 0.95;
-    const col = hero.querySelector("[data-desk-copy]");
-    let free = { x0: 0, x1: W, y0: 70, y1: H - 10 };
-    if (!portrait && col && getComputedStyle(col).position === "absolute") free.x0 = Math.min(W * 0.48, col.getBoundingClientRect().right - canvas.getBoundingClientRect().left + 10);
-    const hw = (free.x1 - free.x0) / H, hh = (free.y1 - free.y0) / H;
-    const pitch = 0.93;
-    const ax = portrait ? DESK.ez : DESK.ex, ay = (portrait ? DESK.ex : DESK.ez) * Math.sin(pitch) + 0.5;
-    const span = Math.max(ax / hw, ay / hh) * 1.04;
-    const sx = ((free.x0 + free.x1) / 2 - W / 2) / (H / 2), sy = (H / 2 - (free.y0 + free.y1) / 2) / (H / 2);
-    const vc = [((free.x0 + free.x1) / 2) / W, 1 - ((free.y0 + free.y1) / 2) / H];
-    return { W, H, portrait, span, sx, sy, pitch, vc };
-  }
-  new ResizeObserver(() => { view = layout(); }).observe(hero);
-
-  canvas.addEventListener("pointermove", (e) => {
-    const r = canvas.getBoundingClientRect();
-    s.tx = (e.clientX - r.left) / r.width * 2 - 1; s.ty = (e.clientY - r.top) / r.height * 2 - 1; s.live = true;
-    s.mx = e.clientX - r.left; s.my = e.clientY - r.top;
-  });
-  canvas.addEventListener("pointerleave", () => { s.live = false; s.mx = null; });
-  canvas.addEventListener("click", (e) => {
-    const r = canvas.getBoundingClientRect(), hit = pick(e.clientX - r.left, e.clientY - r.top);
-    if (hit >= 0) book.openAt(OBJECTS[hit].page, true);
-  });
-  addEventListener("scroll", () => { s.scroll = clamp(scrollY / Math.max(1, hero.offsetHeight)); }, { passive: true });
-  hero.addEventListener("deskhot", (e) => { s.listHot = e.detail; });
-
-  function ray(x, y) {
-    if (!cam) return null;
-    const uvx = (2 * x - view.W) / view.H, uvy = (view.H - 2 * y) / view.H;
-    const d = [0, 1, 2].map((i) => cam.f[i] + (uvx * cam.r[i] + uvy * cam.u[i]) * cam.fov), l = Math.hypot(...d);
-    return { o: cam.ro, d: d.map((v) => v / l) };
-  }
-  function pick(x, y) {
-    const R = ray(x, y);
-    if (!R) return -1;
-    let best = -1, bt = Infinity;
-    OBJECTS.forEach((ob, i) => {
-      const o = ry([R.o[0] - ob.c[0], R.o[1] - ob.cy - lift[i], R.o[2] - ob.c[1]], ob.a), d = ry(R.d, ob.a);
-      let t0 = -Infinity, t1 = Infinity;
-      for (let k = 0; k < 3; k += 1) {
-        if (Math.abs(d[k]) < 1e-6) { if (Math.abs(o[k]) > ob.h[k]) return; continue; }
-        let a = (-ob.h[k] - o[k]) / d[k], b = (ob.h[k] - o[k]) / d[k];
-        if (a > b) [a, b] = [b, a];
-        t0 = Math.max(t0, a); t1 = Math.min(t1, b);
-      }
-      if (t0 <= t1 && t1 > 0 && t0 < bt) { bt = t0; best = i; }
-    });
-    return best;
-  }
-  function warp(el, q) {
-    const adj = (m) => [m[4] * m[8] - m[5] * m[7], m[2] * m[7] - m[1] * m[8], m[1] * m[5] - m[2] * m[4], m[5] * m[6] - m[3] * m[8], m[0] * m[8] - m[2] * m[6], m[2] * m[3] - m[0] * m[5], m[3] * m[7] - m[4] * m[6], m[1] * m[6] - m[0] * m[7], m[0] * m[4] - m[1] * m[3]];
-    const mul = (a, b) => { const c = []; for (let i = 0; i < 3; i += 1) for (let j = 0; j < 3; j += 1) c[3 * i + j] = a[3 * i] * b[j] + a[3 * i + 1] * b[3 + j] + a[3 * i + 2] * b[6 + j]; return c; };
-    const basis = (p) => { const m = [p[0][0], p[1][0], p[2][0], p[0][1], p[1][1], p[2][1], 1, 1, 1], a = adj(m), v = [a[0] * p[3][0] + a[1] * p[3][1] + a[2], a[3] * p[3][0] + a[4] * p[3][1] + a[5], a[6] * p[3][0] + a[7] * p[3][1] + a[8]]; return mul(m, [v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]]); };
-    const t = mul(basis(q), adj(basis([[0, 0], [330, 0], [0, 717], [330, 717]])));
-    for (let i = 0; i < 9; i += 1) t[i] /= t[8];
-    el.style.transform = `matrix3d(${[t[0], t[3], 0, t[6], t[1], t[4], 0, t[7], 0, 0, 1, 0, t[2], t[5], 0, t[8]].map((v) => v.toFixed(6)).join(",")})`;
-  }
-
-  const engine = loop(canvas, (t, dt) => {
-    s.n += 1;
-    const still = reducedMotion.matches;
-    const k = 1 - Math.exp(-dt * 2.5);
-    const tx = s.live ? s.tx : Math.sin(t * 0.3) * 0.5, ty = s.live ? s.ty : Math.cos(t * 0.23) * 0.4;
-    s.px += ((still ? 0 : tx) - s.px) * k; s.py += ((still ? 0 : ty) - s.py) * k;
-    if (s.n % 2 === 0 && s.mx != null) s.hot = pick(s.mx, s.my);
-    if (!s.live) s.hot = -1;
-    const hot = s.listHot >= 0 ? s.listHot : s.hot;
-    canvas.style.cursor = s.hot >= 0 ? "pointer" : "";
-    for (let i = 0; i < 9; i += 1) lift[i] += ((i === hot ? (i === 7 || i === 8 ? 0.12 : 0.28) : 0) - lift[i]) * (1 - Math.exp(-dt * 8));
-
-    const ez = s.scroll * s.scroll * (3 - 2 * s.scroll);
-    const dist0 = 10, fov0 = view.span / dist0;
-    const pitch = mix(view.pitch, 1.25, ez) + s.py * 0.025;
-    const yawBase = view.portrait ? -Math.PI / 2 : 0, yaw = yawBase + s.px * 0.05;
-    const off = [Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)];
-    const f = off.map((v) => -v);
-    const rl = Math.hypot(f[2], f[0]) || 1, r = [-f[2] / rl, 0, f[0] / rl];
-    const u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
-    const kk = dist0 * fov0;
-    let T = [DESK.cx - (r[0] * view.sx + u[0] * view.sy) * kk, 0, DESK.cz - (r[2] * view.sx + u[2] * view.sy) * kk];
-    const ms = OBJECTS[8];
-    T = [mix(T[0], ms.c[0], ez), 0, mix(T[2], ms.c[1], ez)];
-    const dist = mix(dist0, 3.4, ez), fov = fov0;
-    const ro = [T[0] + off[0] * dist, T[1] + off[1] * dist, T[2] + off[2] * dist];
-    cam = { ro, f, r, u, fov };
-    const W = view.W, H = view.H;
-    const proj = (p) => {
-      const v = [p[0] - ro[0], p[1] - ro[1], p[2] - ro[2]], z = v[0] * f[0] + v[1] * f[1] + v[2] * f[2];
-      return [W / 2 + (v[0] * r[0] + v[1] * r[1] + v[2] * r[2]) / (z * fov) * H / 2, H / 2 - (v[0] * u[0] + v[1] * u[1] + v[2] * u[2]) / (z * fov) * H / 2];
-    };
-    let L = view.portrait ? [0.42 + s.py * 0.3, 0.8, -0.5 + s.px * 0.4] : [-0.5 + s.px * 0.4, 0.8, -0.42 + s.py * 0.3];
-    const ll = Math.hypot(...L); L = L.map((v) => v / ll);
-
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.uniform2f(P.u("uRes"), canvas.width, canvas.height);
-    gl.uniform2f(P.u("uVc"), view.vc[0], view.vc[1]);
-    gl.uniform1f(P.u("uT"), still ? 0 : t % 100);
-    gl.uniform1f(P.u("uFov"), fov);
-    gl.uniform1f(P.u("uHot"), hot);
-    gl.uniform3fv(P.u("uRo"), ro); gl.uniform3fv(P.u("uF"), f); gl.uniform3fv(P.u("uR"), r); gl.uniform3fv(P.u("uU"), u);
-    gl.uniform3fv(P.u("uL"), L);
-    gl.uniform1fv(P.u("uLift"), lift);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-    screens.forEach((el) => {
-      const i = Number(el.dataset.screen), ob = OBJECTS[i], c = Math.cos(-ob.a), sn = Math.sin(-ob.a), y = 0.088 + lift[i];
-      const w = (lx, lz) => proj([ob.c[0] + c * lx + sn * lz, y, ob.c[1] - sn * lx + c * lz]);
-      warp(el, [w(-0.325, -0.745), w(0.325, -0.745), w(-0.325, 0.745), w(0.325, 0.745)]);
-      el.style.opacity = "1";
-    });
-    if (tag) {
-      if (hot >= 0 && ez < 0.2) {
-        const ob = OBJECTS[hot], q = proj([ob.c[0], ob.cy + ob.h[1] + lift[hot] + 0.15, ob.c[1]]);
-        if (tagLabel.textContent !== ob.label) { tagLabel.textContent = ob.label; tagSub.textContent = ob.sub; }
-        tag.style.transform = `translate(${q[0].toFixed(1)}px,${q[1].toFixed(1)}px) translate(-50%,-100%)`;
-        tag.classList.add("is-on");
-      } else tag.classList.remove("is-on");
+  // ---------- painted textures ----------
+  const tex = (w, h, draw, { repeat, color = true } = {}) => {
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    draw(c.getContext("2d"), w, h);
+    const t = new THREE.CanvasTexture(c);
+    if (color) t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = maxAniso;
+    if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
+    return t;
+  };
+  const oak = (seed, base = "#c8995f", dark = "86,52,24") => tex(1024, 512, (g, w, h) => {
+    const r = rng(seed);
+    const grd = g.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, base); grd.addColorStop(0.5, "#d0a46c"); grd.addColorStop(1, base);
+    g.fillStyle = grd; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 260; i += 1) {
+      const y0 = r() * h, amp = 2 + r() * 10, fr = 0.002 + r() * 0.01, ph = r() * 6.28;
+      g.strokeStyle = `rgba(${dark},${(0.04 + r() * 0.16).toFixed(3)})`; g.lineWidth = 0.6 + r() * 2.4;
+      g.beginPath();
+      for (let x = 0; x <= w; x += 16) { const y = y0 + Math.sin(x * fr + ph) * amp + Math.sin(x * fr * 3.1 + ph * 2) * amp * 0.3; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.stroke();
     }
-    if (still && s.n > 3 && !s.live) engine.stop();
+    for (let i = 0; i < 140; i += 1) { g.fillStyle = `rgba(255,236,200,${(0.05 + r() * 0.08).toFixed(3)})`; g.fillRect(r() * w, r() * h, 6 + r() * 26, 1 + r() * 1.5); }
   });
-  engine.start();
-  canvas.addEventListener("pointerenter", () => engine.start());
-  addEventListener("scroll", () => engine.start(), { passive: true });
-}
+  const oakTop = oak(7), oakSide = oak(19, "#bf8f57"), oakDark = oak(33, "#a8794a", "60,36,16");
+  const plaster = tex(512, 512, (g, w, h) => {
+    const r = rng(5); g.fillStyle = "#e9e3d8"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 9000; i += 1) { const v = r(); g.fillStyle = v > 0.5 ? "rgba(255,255,255,0.05)" : "rgba(90,70,50,0.04)"; g.fillRect(r() * w, r() * h, 2, 2); }
+  }, { repeat: [3, 3] });
+  const rug = tex(1400, 1000, (g, w, h) => {
+    const r = rng(11);
+    g.fillStyle = "#d9d3c7"; g.fillRect(0, 0, w, h);
+    const ink = ["#2f3a4a", "#4c5b70", "#6f7f94", "#1f2732"];
+    // field of small motifs
+    for (let y = 70; y < h - 70; y += 22) for (let x = 70; x < w - 70; x += 22) {
+      if (r() < 0.55) continue;
+      g.fillStyle = ink[(r() * ink.length) | 0]; g.globalAlpha = 0.55 + r() * 0.4;
+      const s = 3 + r() * 5;
+      g.beginPath(); g.moveTo(x, y - s); g.lineTo(x + s, y); g.lineTo(x, y + s); g.lineTo(x - s, y); g.closePath(); g.fill();
+    }
+    g.globalAlpha = 1;
+    // medallion
+    for (let k = 0; k < 7; k += 1) { g.strokeStyle = ink[k % 4]; g.lineWidth = 10 - k; g.beginPath(); g.ellipse(w / 2, h / 2, 250 - k * 30, 170 - k * 20, 0, 0, 7); g.stroke(); }
+    for (let a = 0; a < 24; a += 1) { const t = a / 24 * 6.283; g.fillStyle = ink[a % 3]; g.beginPath(); g.ellipse(w / 2 + Math.cos(t) * 190, h / 2 + Math.sin(t) * 128, 18, 9, t, 0, 7); g.fill(); }
+    // borders
+    g.lineWidth = 26; g.strokeStyle = "#2f3a4a"; g.strokeRect(30, 30, w - 60, h - 60);
+    g.lineWidth = 6; g.strokeStyle = "#6f7f94"; g.strokeRect(62, 62, w - 124, h - 124);
+    for (let x = 40; x < w - 40; x += 28) { g.fillStyle = "#d9d3c7"; g.fillRect(x, 38, 10, 10); g.fillRect(x, h - 48, 10, 10); }
+    for (let i = 0; i < 20000; i += 1) { g.fillStyle = r() > 0.5 ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"; g.fillRect(r() * w, r() * h, 2, 2); }
+  });
+  const linen = tex(256, 256, (g, w, h) => {
+    const r = rng(3); g.fillStyle = "#efe4cf"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < w; i += 2) { g.fillStyle = `rgba(120,96,64,${(0.05 + r() * 0.07).toFixed(3)})`; g.fillRect(i, 0, 1, h); g.fillRect(0, i, w, 1); }
+  }, { repeat: [3, 1] });
+  const keys = tex(512, 256, (g, w, h) => {
+    g.fillStyle = "#2a2c30"; g.fillRect(0, 0, w, h);
+    const rows = [14, 14, 13, 12, 11];
+    rows.forEach((n, ri) => { const kw = (w - 20) / n, y = 18 + ri * 46; for (let k = 0; k < n; k += 1) { g.fillStyle = "#0e0f11"; g.fillRect(10 + k * kw + 2, y, kw - 5, 38); } });
+    g.fillStyle = "#0e0f11"; g.fillRect(120, 18 + 5 * 46 - 4, 270, 30);
+  });
+  const outside = tex(1024, 512, (g, w, h) => {
+    const sky = g.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, "#9fb8d6"); sky.addColorStop(0.55, "#f2d3a6"); sky.addColorStop(1, "#f6c27e");
+    g.fillStyle = sky; g.fillRect(0, 0, w, h);
+    const sun = g.createRadialGradient(w * 0.62, h * 0.6, 0, w * 0.62, h * 0.6, 260); sun.addColorStop(0, "rgba(255,240,205,1)"); sun.addColorStop(1, "rgba(255,220,170,0)");
+    g.fillStyle = sun; g.fillRect(0, 0, w, h);
+    const r = rng(23); g.filter = "blur(5px)";
+    for (let i = 0; i < 60; i += 1) { const x = r() * w, y = h * (0.45 + r() * 0.35), s = 30 + r() * 90; g.fillStyle = `rgba(${(120 + r() * 70) | 0},${(80 + r() * 50) | 0},${(40 + r() * 20) | 0},${(0.35 + r() * 0.4).toFixed(2)})`; g.beginPath(); g.ellipse(x, y, s, s * 0.8, 0, 0, 7); g.fill(); }
+    g.filter = "blur(1.5px)"; g.strokeStyle = "rgba(70,50,40,0.55)";
+    for (let i = 0; i < 18; i += 1) { let x = r() * w, y = h; g.lineWidth = 3 + r() * 5; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 6; k += 1) { x += (r() - 0.5) * 60; y -= 40 + r() * 50; g.lineTo(x, y); } g.stroke(); }
+    g.filter = "none";
+  });
+  // leaves outside the window: they only cast shadows
+  const gobo = tex(1024, 1024, (g, w, h) => {
+    const r = rng(41); g.fillStyle = "#000"; g.fillRect(0, 0, w, h); g.fillStyle = "#fff"; g.strokeStyle = "#fff";
+    for (let i = 0; i < 9; i += 1) { g.lineWidth = 6 + r() * 10; g.beginPath(); let x = r() * w, y = h; g.moveTo(x, y); for (let k = 0; k < 7; k += 1) { x += (r() - 0.5) * 220; y -= 60 + r() * 120; g.lineTo(x, y); } g.stroke(); }
+    for (let i = 0; i < 420; i += 1) { const x = r() * w, y = r() * h * 0.85, s = 14 + r() * 36; g.beginPath(); g.ellipse(x, y, s, s * 0.6, r() * 3, 0, 7); g.fill(); }
+  }, { color: false });
+  const roundedScreen = (src, w, h, radius) => {
+    const t = tex(w, h, (g) => { g.fillStyle = "#000"; g.fillRect(0, 0, w, h); });
+    const img = new Image(); img.src = src;
+    img.onload = () => { const g = t.image.getContext("2d"); g.save(); g.beginPath(); g.roundRect(0, 0, w, h, radius); g.clip(); g.drawImage(img, 0, 0, w, h); g.restore(); t.needsUpdate = true; };
+    return t;
+  };
 
-function setupContents() {
-  hero.querySelectorAll("[data-goto]").forEach((button) => {
-    const page = Number(button.dataset.goto), objs = (button.dataset.obj || "").split(",").filter(Boolean).map(Number);
-    button.addEventListener("click", () => book.openAt(page, true));
-    const hot = (v) => hero.dispatchEvent(new CustomEvent("deskhot", { detail: v }));
-    button.addEventListener("pointerenter", () => hot(objs.length ? objs[0] : -1));
-    button.addEventListener("focus", () => hot(objs.length ? objs[0] : -1));
-    button.addEventListener("pointerleave", () => hot(-1));
-    button.addEventListener("blur", () => hot(-1));
-  });
-}
+  // ---------- materials ----------
+  const M = {
+    wall: new THREE.MeshStandardMaterial({ map: plaster, color: 0xd9d0c2, roughness: 0.92 }),
+    floor: new THREE.MeshStandardMaterial({ color: 0x6b5340, roughness: 0.7 }),
+    deskTop: new THREE.MeshPhysicalMaterial({ map: oakTop, roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.35 }),
+    oak: new THREE.MeshStandardMaterial({ map: oakSide, roughness: 0.55 }),
+    oakDark: new THREE.MeshStandardMaterial({ map: oakDark, roughness: 0.55 }),
+    sill: new THREE.MeshStandardMaterial({ color: 0xdcd8d0, roughness: 0.6 }),
+    white: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.55 }),
+    rug: new THREE.MeshStandardMaterial({ map: rug, roughness: 0.95 }),
+    alu: new THREE.MeshStandardMaterial({ color: 0x8c9096, metalness: 0.85, roughness: 0.32 }),
+    black: new THREE.MeshStandardMaterial({ color: 0x0c0d0f, roughness: 0.4 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xc9a46a, metalness: 0.9, roughness: 0.28 }),
+    walnut: new THREE.MeshStandardMaterial({ color: 0x4a2a1a, roughness: 0.38 }),
+    shade: new THREE.MeshStandardMaterial({ map: linen, color: 0xfff1da, emissive: 0xffa458, emissiveIntensity: 1.1, roughness: 0.9, side: THREE.DoubleSide }),
+    globe: new THREE.MeshStandardMaterial({ color: 0xfff2dc, emissive: 0xffbf78, emissiveIntensity: 0.75, roughness: 0.6 }),
+    ceramic: new THREE.MeshPhysicalMaterial({ color: 0xf6f3ee, roughness: 0.18, clearcoat: 0.8 }),
+    tea: new THREE.MeshStandardMaterial({ color: 0x5a2e10, roughness: 0.1 }),
+    bottle: new THREE.MeshPhysicalMaterial({ color: 0x173a2c, roughness: 0.25, clearcoat: 0.6 }),
+    navy: new THREE.MeshStandardMaterial({ color: 0x1d2a48, roughness: 0.6 }),
+    pot: new THREE.MeshStandardMaterial({ color: 0xf3f1ec, roughness: 0.5 }),
+    leaf: new THREE.MeshStandardMaterial({ color: 0x3f6b2e, roughness: 0.5, side: THREE.DoubleSide }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.08, roughness: 0.04, metalness: 0, envMapIntensity: 1.2 }),
+    outside: new THREE.MeshBasicMaterial({ map: outside, color: new THREE.Color(1.5, 1.35, 1.15) }),
+    print: new THREE.MeshStandardMaterial({ roughness: 0.82 }),
+    phoneBody: new THREE.MeshStandardMaterial({ color: 0x3a3d42, metalness: 0.7, roughness: 0.35 })
+  };
+  new THREE.TextureLoader().load("/assets/nicholas/river.jpg", (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAniso; M.print.map = t; M.print.needsUpdate = true; });
+  const screenAloft = new THREE.TextureLoader().load("/assets/nicholas/aloft-screen.jpg", (t) => { t.colorSpace = THREE.SRGBColorSpace; });
 
-function setupBook() {
-  const wrap = document.querySelector("[data-book]");
-  const api = { openAt() {} };
-  if (!wrap) return api;
-  const leaves = [...wrap.querySelectorAll("[data-leaf]")];
-  const status = document.querySelector("[data-book-status]");
-  const prevBtn = document.querySelector("[data-book-prev]"), nextBtn = document.querySelector("[data-book-next]");
-  const max = leaves.length;
-  let cur = 0, moving = -1, timer = 0;
-  const stacked = () => matchMedia("(max-width: 959px), (max-aspect-ratio: 1/1)").matches;
-  const pagesOf = (sp) => sp === 0 ? [1, 2] : sp === max ? [2 * max + 1] : [2 * sp + 1, 2 * sp + 2];
-  const render = () => {
-    leaves.forEach((leaf, j) => {
-      leaf.style.transform = j < cur ? "rotateY(-180deg)" : "rotateY(0deg)";
-      leaf.style.zIndex = String(moving === j ? 60 : j < cur ? 10 + j : 10 - j);
-      const flat = stacked();
-      leaf.querySelectorAll("section").forEach((sec, k) => { const shown = flat || (k === 0 && j >= cur) || (k === 1 && j < cur); sec.inert = !shown; if (shown) sec.removeAttribute("aria-hidden"); else sec.setAttribute("aria-hidden", "true"); });
-    });
-    wrap.dataset.spread = String(cur);
-    if (status) status.textContent = pagesOf(cur).length > 1 ? `Pages ${pagesOf(cur).join(" and ")} of ${2 * max + 1}` : `Page ${pagesOf(cur)[0]} of ${2 * max + 1}`;
-    if (prevBtn) prevBtn.disabled = cur === 0;
-    if (nextBtn) nextBtn.disabled = cur === max;
+  const add = (geo, mat, x, y, z, { shadow = true, receive = true, parent = scene, ry = 0, rx = 0, rz = 0 } = {}) => {
+    const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
+    m.castShadow = shadow; m.receiveShadow = receive; parent.add(m); return m;
   };
-  const go = (to) => {
-    to = clamp(to, 0, max);
-    if (to === cur) return;
-    clearTimeout(timer);
-    moving = to > cur ? cur : to;
-    if (Math.abs(to - cur) > 1) { wrap.classList.add("is-jumping"); requestAnimationFrame(() => requestAnimationFrame(() => wrap.classList.remove("is-jumping"))); }
-    cur = to;
-    render();
-    timer = setTimeout(() => { moving = -1; render(); }, 1100);
-  };
-  const fit = () => {
-    if (stacked()) { wrap.style.removeProperty("--s"); return; }
-    const sc = Math.min(1, (innerWidth - 64) / 1220, (innerHeight - 200) / 800);
-    wrap.style.setProperty("--s", sc.toFixed(4));
-  };
-  fit();
-  addEventListener("resize", () => { fit(); render(); });
-  wrap.addEventListener("click", (e) => {
-    const ear = e.target.closest("[data-ear]");
-    if (!ear) return;
-    go(cur + (ear.dataset.ear === "next" ? 1 : -1));
-  });
-  if (prevBtn) prevBtn.addEventListener("click", () => go(cur - 1));
-  if (nextBtn) nextBtn.addEventListener("click", () => go(cur + 1));
-  document.addEventListener("keydown", (e) => {
-    if (stacked() || e.target.closest("input, textarea, select")) return;
-    const r = wrap.getBoundingClientRect();
-    if (r.top > innerHeight * 0.6 || r.bottom < innerHeight * 0.4) return;
-    if (e.key === "ArrowRight") { go(cur + 1); e.preventDefault(); }
-    if (e.key === "ArrowLeft") { go(cur - 1); e.preventDefault(); }
-  });
-  render();
-  api.openAt = (page, scroll) => {
-    const target = document.getElementById(`page-${page}`);
-    if (stacked()) { if (target) target.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" }); return; }
-    const sp = page <= 2 ? 0 : Math.min(max, Math.floor((page - 1) / 2));
-    if (scroll) {
-      const section = document.querySelector("[data-paper]");
-      section.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" });
-      setTimeout(() => go(sp), reducedMotion.matches ? 0 : 650);
-    } else go(sp);
-  };
-  return api;
-}
+  const box = (w, h, d, mat, x, y, z, o = {}) => add(o.r ? new RoundedBoxGeometry(w, h, d, 3, o.r) : new THREE.BoxGeometry(w, h, d), mat, x, y, z, o);
+  // x0..x1, y0..y1, z0..z1 helper
+  const slab = (x0, x1, y0, y1, z0, z1, mat, o = {}) => box(x1 - x0, y1 - y0, z1 - z0, mat, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, o);
 
-function setupFigures() {
-  const fig2 = document.querySelector("[data-fig2]");
-  if (fig2) {
-    const S = {
-      "on-time": { summary: "It’s 2:00 pm. Start with the reading.", now: 0, end: 180, blocks: [[0, 30, "Reading", "flexible"], [30, 90, "Seminar", "fixed"], [90, 135, "Essay", "flexible"]] },
-      late: { summary: "It’s 2:30 pm. Seminar comes first.", now: 30, end: 180, blocks: [[90, 120, "Reading", "moved"], [30, 90, "Seminar", "fixed"], [120, 165, "Essay", "moved later"]] },
-      short: { summary: "It’s 2:30 pm, and today now ends at 4:00.", now: 30, end: 120, blocks: [[90, 120, "Reading", "fits"], [30, 90, "Seminar", "fixed"], [-1, 45, "Essay", "doesn’t fit today"]] }
-    };
-    const clock = (m) => { const v = 120 + m; return `${Math.floor(v / 60)}:${String(v % 60).padStart(2, "0")}`; };
-    const pct = (m) => `${(m / 180 * 100).toFixed(2)}%`;
-    const blocks = [...fig2.querySelectorAll("[data-block]")];
-    const draw = (key) => {
-      const D = S[key];
-      fig2.querySelector("[data-summary]").textContent = D.summary;
-      fig2.style.setProperty("--now", pct(D.now));
-      fig2.style.setProperty("--end", pct(D.end));
-      D.blocks.forEach((b, i) => {
-        const el = blocks[i], deferred = b[0] < 0;
-        el.style.left = deferred ? "0%" : pct(b[0]);
-        el.style.width = deferred ? pct(b[1]) : pct(b[1] - b[0]);
-        el.classList.toggle("is-deferred", deferred);
-        el.querySelector("span").textContent = deferred ? "For later" : `${clock(b[0])}-${clock(b[1])}`;
-        el.querySelector("small").textContent = b[3];
-      });
-      fig2.querySelectorAll("[data-scen]").forEach((btn) => btn.setAttribute("aria-pressed", String(btn.dataset.scen === key)));
-    };
-    fig2.addEventListener("click", (e) => { const b = e.target.closest("[data-scen]"); if (b) draw(b.dataset.scen); });
-    draw("on-time");
+  // ---------- the room (measured from the scan: desk top 0.75 m, sill 0.82 m) ----------
+  const WIN = { x: 0.95, z0: -0.42, z1: 0.62, y0: 0.86, y1: 2.06 };
+  add(new THREE.PlaneGeometry(8, 8), M.floor, -1, 0, 1, { rx: -Math.PI / 2, shadow: false });
+  add(new THREE.PlaneGeometry(1.75, 1.25), M.rug, -0.35, 0.004, 0.3, { rx: -Math.PI / 2, shadow: false });
+  add(new THREE.PlaneGeometry(4.6, 2.8), M.wall, -1.35, 1.4, -0.6, { shadow: false });
+  // the window wall, built around its opening so the sun only gets in through the glass
+  slab(WIN.x, WIN.x + 0.14, 0, WIN.y0, -0.6, 3, M.wall);
+  slab(WIN.x, WIN.x + 0.14, WIN.y1, 2.8, -0.6, 3, M.wall);
+  slab(WIN.x, WIN.x + 0.14, WIN.y0, WIN.y1, -0.6, WIN.z0, M.wall);
+  slab(WIN.x, WIN.x + 0.14, WIN.y0, WIN.y1, WIN.z1, 3, M.wall);
+  slab(-3.2, 1.2, 2.8, 2.86, -0.62, 3, M.wall, { receive: false });
+  // sill, radiator cover, casing, sashes and glass
+  slab(0.46, 1.02, 0.8, 0.86, -0.5, 0.72, M.sill, { r: 0.008 });
+  slab(0.58, 0.95, 0.02, 0.8, -0.48, 0.7, M.white);
+  for (let k = 0; k < 18; k += 1) slab(0.575, 0.585, 0.08, 0.74, -0.44 + k * 0.064, -0.425 + k * 0.064, M.sill, { shadow: false });
+  const casing = 0.06;
+  slab(WIN.x - 0.02, WIN.x + 0.005, WIN.y1, WIN.y1 + casing, WIN.z0 - casing, WIN.z1 + casing, M.oak);
+  slab(WIN.x - 0.02, WIN.x + 0.005, WIN.y0 - 0.0, WIN.y1, WIN.z0 - casing, WIN.z0, M.oak);
+  slab(WIN.x - 0.02, WIN.x + 0.005, WIN.y0 - 0.0, WIN.y1, WIN.z1, WIN.z1 + casing, M.oak);
+  const SX = 1.03, cols = [WIN.z0, (WIN.z0 + WIN.z1) / 2, WIN.z1], rail = 0.045, mun = 0.022;
+  const PANES = [];
+  for (let s = 0; s < 2; s += 1) {
+    const a = cols[s], b = cols[s + 1];
+    slab(SX - 0.02, SX + 0.02, WIN.y0, WIN.y0 + rail, a, b, M.oak); slab(SX - 0.02, SX + 0.02, WIN.y1 - rail, WIN.y1, a, b, M.oak);
+    slab(SX - 0.02, SX + 0.02, WIN.y0, WIN.y1, a, a + rail, M.oak); slab(SX - 0.02, SX + 0.02, WIN.y0, WIN.y1, b - rail, b, M.oak);
+    const za = a + rail, zb = b - rail, ya = WIN.y0 + rail, yb = WIN.y1 - rail, zm = (za + zb) / 2;
+    slab(SX - 0.012, SX + 0.012, ya, yb, zm - mun / 2, zm + mun / 2, M.oak);
+    for (let k = 1; k < 3; k += 1) { const y = ya + (yb - ya) * k / 3; slab(SX - 0.012, SX + 0.012, y - mun / 2, y + mun / 2, za, zb, M.oak); }
+    for (let c = 0; c < 2; c += 1) for (let rI = 0; rI < 3; rI += 1) {
+      const z0 = c ? zm + mun / 2 : za, z1 = c ? zb : zm - mun / 2, y0 = ya + (yb - ya) * rI / 3 + (rI ? mun / 2 : 0), y1 = ya + (yb - ya) * (rI + 1) / 3 - (rI < 2 ? mun / 2 : 0);
+      PANES.push({ z0, z1, y0, y1 });
+    }
   }
-  const fig4 = document.querySelector("[data-fig4]");
-  if (fig4) {
-    const state = { refill: false, missed: false };
-    const draw = () => {
-      const days = 96, sx = 330 / days, sy = 180 / 90;
-      let v = 34, out = -1;
-      const pts = [[0, 34]];
-      for (let d = 1; d <= days; d += 1) {
-        if (v > 0 && !(state.missed && d === 6)) v -= 1;
-        if (state.refill && d === 11) v += 30;
-        if (v === 0 && out < 0) out = d;
-        pts.push([d, v]);
+  add(new THREE.PlaneGeometry(WIN.z1 - WIN.z0, WIN.y1 - WIN.y0), M.glass, SX + 0.004, (WIN.y0 + WIN.y1) / 2, (WIN.z0 + WIN.z1) / 2, { ry: -Math.PI / 2, shadow: false, receive: false });
+  add(new THREE.PlaneGeometry(9, 5), M.outside, 4.2, 1.3, 0.2, { ry: -Math.PI / 2, shadow: false, receive: false });
+
+  // ---------- the desk ----------
+  box(1.0, 0.032, 0.62, M.deskTop, -0.13, 0.749, -0.25, { r: 0.006 });
+  slab(0.0, 0.37, 0.0, 0.733, -0.56, 0.04, M.oak);
+  slab(-0.63, -0.6, 0.0, 0.733, -0.56, 0.04, M.oak);
+  slab(-0.6, 0.0, 0.62, 0.733, -0.56, 0.035, M.oak);
+  slab(-0.6, 0.0, 0.3, 0.62, -0.56, -0.54, M.oak);
+  const drawer = (x0, x1, y0, y1, z) => { slab(x0 + 0.004, x1 - 0.004, y0 + 0.004, y1 - 0.004, z, z + 0.018, M.oakDark, { r: 0.004 }); box(0.09, 0.016, 0.022, M.oak, (x0 + x1) / 2, y1 - 0.045, z + 0.028, { r: 0.006 }); };
+  drawer(-0.6, 0.0, 0.625, 0.73, 0.035);
+  drawer(0.0, 0.37, 0.5, 0.73, 0.04); drawer(0.0, 0.37, 0.26, 0.5, 0.04); drawer(0.0, 0.37, 0.02, 0.26, 0.04);
+
+  // the chair, pulled out a little
+  const chair = new THREE.Group(); chair.position.set(-0.36, 0, 0.5); chair.rotation.y = 0.32; scene.add(chair);
+  box(0.42, 0.028, 0.4, M.oak, 0, 0.45, 0, { r: 0.008, parent: chair });
+  for (const [x, z] of [[-0.18, -0.17], [0.18, -0.17], [-0.18, 0.17], [0.18, 0.17]]) box(0.03, 0.45, 0.03, M.oak, x, 0.225, z, { r: 0.006, parent: chair });
+  for (const x of [-0.18, 0.18]) box(0.03, 0.42, 0.03, M.oak, x, 0.66, 0.17, { r: 0.006, parent: chair, rx: 0.08 });
+  box(0.42, 0.13, 0.018, M.oak, 0, 0.8, 0.19, { r: 0.008, parent: chair, rx: 0.12 });
+
+  // the dresser, its globe lamp, and the poster above it all
+  slab(-1.45, -0.68, 0, 0.955, -0.6, -0.07, M.oak);
+  slab(-1.47, -0.66, 0.955, 0.985, -0.61, -0.05, M.deskTop, { r: 0.006 });
+  for (let k = 0; k < 3; k += 1) { const y0 = 0.05 + k * 0.3, y1 = y0 + 0.28; slab(-1.43, -0.7, y0, y1, -0.07, -0.05, M.oakDark, { r: 0.004 }); for (const x of [-1.25, -0.88]) add(new THREE.SphereGeometry(0.012, 12, 8), M.oak, x, y1 - 0.06, -0.04); }
+  add(new THREE.CylinderGeometry(0.05, 0.06, 0.02, 32), M.white, -0.98, 0.995, -0.36);
+  const globe = add(new THREE.SphereGeometry(0.16, 48, 32), M.globe, -0.98, 1.16, -0.36, { shadow: false });
+  const globeLight = new THREE.PointLight(0xffc07a, 0.7, 3.2, 2); globeLight.position.set(-0.98, 1.16, -0.2); scene.add(globeLight);
+  void globe;
+  const frame = new THREE.Group(); frame.position.set(-0.2, 1.5, -0.585); scene.add(frame);
+  const FW = 1.2, FH = FW * 1366 / 2200 + 0.04;
+  box(FW + 0.06, 0.03, 0.035, M.oak, 0, FH / 2 + 0.015, 0, { parent: frame }); box(FW + 0.06, 0.03, 0.035, M.oak, 0, -FH / 2 - 0.015, 0, { parent: frame });
+  box(0.03, FH, 0.035, M.oak, -FW / 2 - 0.015, 0, 0, { parent: frame }); box(0.03, FH, 0.035, M.oak, FW / 2 + 0.015, 0, 0, { parent: frame });
+  const print = add(new THREE.PlaneGeometry(FW, FW * 1366 / 2200), M.print, 0, 0, 0.004, { parent: frame, shadow: false });
+  add(new THREE.PlaneGeometry(FW, FH), M.white, 0, 0, 0.001, { parent: frame, shadow: false });
+
+  // the table lamp
+  add(new THREE.CylinderGeometry(0.085, 0.09, 0.02, 48), M.brass, 0.24, 0.775, -0.43);
+  add(new THREE.CylinderGeometry(0.012, 0.012, 0.42, 16), M.walnut, 0.24, 0.995, -0.43);
+  add(new THREE.CylinderGeometry(0.016, 0.016, 0.03, 16), M.brass, 0.24, 1.2, -0.43);
+  const shade = add(new THREE.CylinderGeometry(0.12, 0.15, 0.21, 64, 1, true), M.shade, 0.24, 1.255, -0.43, { shadow: false });
+  void shade;
+  const lampSpot = new THREE.SpotLight(0xffa85c, 2.2, 3, 1.0, 0.85, 2);
+  lampSpot.position.set(0.24, 1.2, -0.43); lampSpot.target.position.set(0.15, 0.7, -0.3); lampSpot.castShadow = true; lampSpot.shadow.mapSize.set(1024, 1024); lampSpot.shadow.bias = -0.0008;
+  scene.add(lampSpot, lampSpot.target);
+  const lampGlow = new THREE.PointLight(0xffa85c, 0.45, 2.5, 2); lampGlow.position.set(0.24, 1.3, -0.43); scene.add(lampGlow);
+
+  // the laptop, open on Aloft
+  const laptop = new THREE.Group(); laptop.position.set(-0.24, 0.765, -0.27); laptop.rotation.y = -0.06; scene.add(laptop);
+  box(0.357, 0.016, 0.248, M.alu, 0, 0.008, 0, { r: 0.006, parent: laptop });
+  add(new THREE.PlaneGeometry(0.3, 0.115), new THREE.MeshStandardMaterial({ map: keys, roughness: 0.6 }), 0, 0.0165, -0.045, { parent: laptop, rx: -Math.PI / 2, shadow: false });
+  add(new THREE.PlaneGeometry(0.15, 0.09), new THREE.MeshStandardMaterial({ color: 0x9a9ea4, metalness: 0.6, roughness: 0.3 }), 0, 0.0166, 0.068, { parent: laptop, rx: -Math.PI / 2, shadow: false });
+  const lid = new THREE.Group(); lid.position.set(0, 0.016, -0.124); lid.rotation.x = -1.83 + Math.PI / 2; laptop.add(lid);
+  box(0.357, 0.248, 0.007, M.alu, 0, 0.124, -0.0035, { r: 0.003, parent: lid });
+  add(new THREE.PlaneGeometry(0.35, 0.24), M.black, 0, 0.124, 0.0002, { parent: lid, shadow: false });
+  const laptopScreen = add(new THREE.PlaneGeometry(0.336, 0.21), new THREE.MeshBasicMaterial({ map: screenAloft, color: new THREE.Color(1.15, 1.15, 1.15) }), 0, 0.128, 0.0006, { parent: lid, shadow: false, receive: false });
+
+  // two phones, screens up
+  const phone = (src, x, z, ry) => {
+    const g = new THREE.Group(); g.position.set(x, 0.765, z); g.rotation.y = ry; scene.add(g);
+    box(0.0715, 0.0083, 0.1467, M.phoneBody, 0, 0.0042, 0, { r: 0.0035, parent: g });
+    const scr = add(new THREE.PlaneGeometry(0.066, 0.1415), new THREE.MeshBasicMaterial({ map: roundedScreen(src, 330, 707, 34), color: new THREE.Color(1.05, 1.05, 1.05), transparent: true }), 0, 0.0085, 0, { parent: g, rx: -Math.PI / 2, shadow: false, receive: false });
+    return { g, scr };
+  };
+  const filuma = phone("/assets/apps/filuma-focus-660.jpg", 0.13, -0.11, 0.38);
+  const meds = phone("/assets/apps/meds-supply-660.jpg", -0.53, -0.08, -0.3);
+
+  // mug of tea, water bottle, a notebook and pen
+  const mugProf = [[0, 0], [0.036, 0], [0.04, 0.004], [0.041, 0.095], [0.037, 0.095], [0.036, 0.008], [0, 0.008]].map(([r, y]) => new THREE.Vector2(r, y));
+  add(new THREE.LatheGeometry(mugProf, 48), M.ceramic, 0.02, 0.765, -0.43);
+  add(new THREE.CircleGeometry(0.036, 32), M.tea, 0.02, 0.765 + 0.075, -0.43, { rx: -Math.PI / 2, shadow: false });
+  add(new THREE.TorusGeometry(0.026, 0.006, 12, 24, Math.PI), M.ceramic, 0.062, 0.765 + 0.048, -0.43, { rz: -Math.PI / 2 });
+  add(new THREE.CylinderGeometry(0.045, 0.045, 0.19, 40), M.bottle, 0.1, 0.765 + 0.095, -0.5);
+  add(new THREE.CylinderGeometry(0.03, 0.034, 0.04, 32), M.black, 0.1, 0.765 + 0.21, -0.5);
+  box(0.15, 0.012, 0.21, M.navy, -0.5, 0.771, -0.33, { r: 0.003, ry: 0.15 });
+  add(new THREE.CylinderGeometry(0.004, 0.004, 0.14, 12), M.black, -0.43, 0.781, -0.3, { rz: Math.PI / 2, ry: 0.5 });
+
+  // plants on the sill
+  add(new THREE.CylinderGeometry(0.075, 0.06, 0.11, 32), M.pot, 0.74, 0.915, 0.42);
+  add(new THREE.CylinderGeometry(0.05, 0.04, 0.08, 32), M.pot, 0.72, 0.9, -0.3);
+  const leafShape = new THREE.Shape(); leafShape.moveTo(0, 0); leafShape.bezierCurveTo(0.03, 0.01, 0.035, 0.05, 0, 0.07); leafShape.bezierCurveTo(-0.035, 0.05, -0.03, 0.01, 0, 0);
+  const leafGeo = new THREE.ShapeGeometry(leafShape, 8);
+  {
+    const r = rng(9);
+    const vines = [[0.74, 0.97, 0.42, -0.6, 0.06], [0.74, 0.97, 0.42, 0.4, 0.4], [0.74, 0.97, 0.42, -1.6, 0.1], [0.72, 0.94, -0.3, 2.2, 0.0]];
+    const leaves = new THREE.InstancedMesh(leafGeo, M.leaf, 60); leaves.castShadow = true; let n = 0; const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+    for (const [x0, y0, z0, a, droop] of vines) {
+      let x = x0, y = y0, z = z0;
+      for (let k = 0; k < 12 && n < 60; k += 1) {
+        x += Math.cos(a) * 0.018 * (1 + droop); z += Math.sin(a) * 0.022; y += 0.012 - k * 0.0025 * (droop * 6);
+        y = Math.max(y, 0.865);
+        e.set(-1.1 + r() * 0.8, a + r() * 1.4, r() * 0.8); q.setFromEuler(e);
+        const s = 0.75 + r() * 0.6;
+        m4.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s, s, s)); leaves.setMatrixAt(n++, m4);
       }
-      const line = pts.map((p, i) => `${i ? "L" : "M"}${(p[0] * sx).toFixed(1)} ${(180 - p[1] * sy).toFixed(1)}`).join(" ");
-      const date = new Date(2026, 9, 9 + out).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-      fig4.querySelector("[data-line]").setAttribute("d", line);
-      fig4.querySelector("[data-area]").setAttribute("d", `${line} L330 180 L0 180 Z`);
-      const dot = fig4.querySelector("[data-dot]"), label = fig4.querySelector("[data-dot-label]");
-      dot.setAttribute("cx", (out * sx).toFixed(1));
-      label.setAttribute("x", (out * sx).toFixed(1));
-      label.textContent = date;
-      fig4.querySelectorAll("[data-date]").forEach((el) => { el.textContent = date; });
-      fig4.querySelector("[data-refill-cell]").textContent = state.refill ? "+30" : "none";
-      fig4.querySelector("[data-missed-cell]").textContent = state.missed ? "+1 day" : "none";
-      fig4.querySelector("[data-doses]").textContent = `−${34 + (state.refill ? 30 : 0)}`;
-      fig4.querySelector("svg").setAttribute("aria-label", `Tablets on hand from October 9. The supply runs out around ${date}.`);
-      fig4.querySelectorAll("[data-toggle]").forEach((b) => b.setAttribute("aria-pressed", String(state[b.dataset.toggle])));
-    };
-    fig4.addEventListener("click", (e) => { const b = e.target.closest("[data-toggle]"); if (b) { state[b.dataset.toggle] = !state[b.dataset.toggle]; draw(); } });
-    draw();
+    }
+    leaves.count = n; scene.add(leaves);
   }
+
+  // the toy seaplane from the home page, parked on the sill
+  const toy = toyPlane(); toy.position.set(0.72, 0.86, 0.08); toy.rotation.y = -Math.PI * 0.62; toy.scale.setScalar(0.24); scene.add(toy);
+
+  // ---------- light ----------
+  scene.add(new THREE.HemisphereLight(0x8fa2c4, 0x3a2618, 0.16));
+  const sunDir = new THREE.Vector3(-0.8, -0.27, -0.52).normalize();
+  const sun = new THREE.DirectionalLight(0xffb979, 4.2);
+  sun.target.position.set(0, 0.8, -0.1); sun.position.copy(sun.target.position).addScaledVector(sunDir, -6);
+  sun.castShadow = true; sun.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048);
+  Object.assign(sun.shadow.camera, { left: -2.2, right: 2.2, top: 2.2, bottom: -2.2, near: 1, far: 12 });
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
+  sun.shadow.camera.layers.enable(1);
+  scene.add(sun, sun.target);
+  const leavesGobo = add(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ alphaMap: gobo, alphaTest: 0.5, side: THREE.DoubleSide }), 2.3, 1.7, 0.6, { receive: false });
+  leavesGobo.layers.set(1);
+  leavesGobo.lookAt(leavesGobo.position.clone().sub(sunDir));
+  const goboBase = leavesGobo.position.clone();
+
+  // ---------- shafts of light through each pane, and dust in them ----------
+  const beamMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(1.0, 0.72, 0.42) } },
+    vertexShader: "varying vec2 vUv; varying vec3 vW; void main(){ vUv=uv; vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }",
+    fragmentShader: `varying vec2 vUv; varying vec3 vW; uniform float uTime; uniform vec3 uColor;
+      float h(vec3 p){ return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453); }
+      float n3(vec3 p){ vec3 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+        return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z); }
+      void main(){
+        float across=1.-pow(abs(vUv.x*2.-1.),2.2);
+        float along=smoothstep(0.,.06,vUv.y)*pow(1.-vUv.y,1.6);
+        float dust=.55+.45*n3(vW*7.+vec3(0.,uTime*.05,uTime*.03));
+        float a=across*along*dust*.075;
+        gl_FragColor=vec4(uColor*a,a);
+      }`
+  });
+  const L = sunDir.clone(), beams = new THREE.Group(); scene.add(beams);
+  for (const p of PANES) {
+    const c = new THREE.Vector3(SX, (p.y0 + p.y1) / 2, (p.z0 + p.z1) / 2), len = 3.2;
+    for (const [axis, width] of [[new THREE.Vector3(0, 0, 1), p.z1 - p.z0], [new THREE.Vector3(0, 1, 0), p.y1 - p.y0]]) {
+      const across = axis.clone().sub(L.clone().multiplyScalar(axis.dot(L))).normalize().multiplyScalar(width / 2);
+      const g = new THREE.BufferGeometry();
+      const a0 = c.clone().sub(across), a1 = c.clone().add(across), b0 = a0.clone().addScaledVector(L, len), b1 = a1.clone().addScaledVector(L, len);
+      g.setAttribute("position", new THREE.Float32BufferAttribute([...a0.toArray(), ...a1.toArray(), ...b0.toArray(), ...b1.toArray()], 3));
+      g.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 1, 0, 0, 1, 1, 1], 2));
+      g.setIndex([0, 1, 2, 2, 1, 3]);
+      beams.add(new THREE.Mesh(g, beamMat));
+    }
+  }
+  const DUST = 700, dpos = new Float32Array(DUST * 3), r0 = rng(77);
+  for (let i = 0; i < DUST; i += 1) {
+    const p = PANES[(r0() * PANES.length) | 0], t = r0() * 2.6;
+    const v = new THREE.Vector3(SX, p.y0 + r0() * (p.y1 - p.y0), p.z0 + r0() * (p.z1 - p.z0)).addScaledVector(L, t);
+    v.x += (r0() - 0.5) * 0.15; v.y += (r0() - 0.5) * 0.15; v.z += (r0() - 0.5) * 0.15;
+    dpos.set(v.toArray(), i * 3);
+  }
+  const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute("position", new THREE.BufferAttribute(dpos, 3));
+  const dustMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uTime: { value: 0 }, uScale: { value: 1 }, uL: { value: L }, uWin: { value: new THREE.Vector4(WIN.z0, WIN.z1, WIN.y0, WIN.y1) }, uSX: { value: SX } },
+    vertexShader: `uniform float uTime, uScale, uSX; uniform vec3 uL; uniform vec4 uWin; varying float vLit;
+      void main(){
+        vec3 p=position; float s=fract(sin(dot(p,vec3(12.9,78.2,37.7)))*437.5);
+        p+=vec3(sin(uTime*.13+s*40.),sin(uTime*.09+s*17.)*1.3,cos(uTime*.11+s*29.))*.035;
+        float t=(uSX-p.x)/uL.x; vec3 w=p+uL*t;
+        vLit=step(uWin.x,w.z)*step(w.z,uWin.y)*step(uWin.z,w.y)*step(w.y,uWin.w);
+        vec4 mv=viewMatrix*modelMatrix*vec4(p,1.);
+        gl_PointSize=uScale*(1.2+s*1.6)/-mv.z; gl_Position=projectionMatrix*mv;
+      }`,
+    fragmentShader: `varying float vLit; void main(){ vec2 d=gl_PointCoord-.5; float a=smoothstep(.5,.0,length(d))*vLit*.4; gl_FragColor=vec4(vec3(1.,.85,.62)*a,a); }`
+  });
+  scene.add(new THREE.Points(dustGeo, dustMat));
+
+  // ---------- post ----------
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.26, 0.6, 0.96);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
+  // ---------- shots ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const SHOTS = {
+    intro: { pos: V(-1.75, 1.55, 2.05), tgt: V(0.05, 1.02, -0.25), fov: 38, shift: [-0.3, 0.02] },
+    filuma: { pos: V(0.16, 1.0, 0.2), tgt: V(0.13, 0.77, -0.1), fov: 34, shift: [-0.42, 0.05] },
+    meds: { pos: V(-0.46, 0.99, 0.22), tgt: V(-0.53, 0.77, -0.07), fov: 34, shift: [-0.42, 0.05] },
+    aloft: { pos: V(-0.36, 1.02, 0.36), tgt: V(-0.24, 0.9, -0.36), fov: 38, shift: [0.42, 0] },
+    river: { pos: V(-0.66, 1.56, 0.66), tgt: V(-0.34, 1.66, -0.58), fov: 36, shift: [0.32, 0] },
+    window: { pos: V(-0.02, 1.32, 1.08), tgt: V(0.95, 1.16, 0.02), fov: 48, shift: [-0.34, 0] }
+  };
+  const sections = [...story.querySelectorAll("[data-shot]")].map((el) => ({ el, shot: SHOTS[el.dataset.shot] || SHOTS.intro }));
+  let marks = [];
+  const measure = () => {
+    const vh = innerHeight;
+    marks = sections.map(({ el }) => { const top = el.offsetTop, h = el.offsetHeight; return { a: top + (h - vh) * 0.05, b: top + Math.max(0, h - vh) * 0.62 }; });
+    marks[0].a = 0;
+  };
+  measure();
+  addEventListener("resize", measure);
+  addEventListener("load", measure);
+
+  const cur = { pos: SHOTS.intro.pos.clone(), tgt: SHOTS.intro.tgt.clone(), fov: 40, sx: SHOTS.intro.shift[0], sy: 0 };
+  const want = { pos: new THREE.Vector3(), tgt: new THREE.Vector3(), fov: 40, sx: 0, sy: 0 };
+  let activeIdx = -1;
+  const place = () => {
+    const y = scrollY;
+    let i = 0;
+    while (i < marks.length - 1 && y > marks[i].b) i += 1;
+    let A = sections[i].shot, B = A, k = 0, on = i;
+    if (i > 0 && y < marks[i].a) { A = sections[i - 1].shot; B = sections[i].shot; k = ease(clamp((y - marks[i - 1].b) / Math.max(1, marks[i].a - marks[i - 1].b))); on = k < 0.5 ? i - 1 : i; }
+    want.pos.lerpVectors(A.pos, B.pos, k); want.tgt.lerpVectors(A.tgt, B.tgt, k);
+    // lift the path a little mid-move so it never skims the desk
+    want.pos.y += Math.sin(Math.PI * k) * 0.12;
+    const narrow = innerWidth < 760;
+    want.fov = (A.fov + (B.fov - A.fov) * k) * (narrow ? 1.35 : 1);
+    want.sx = narrow ? 0 : A.shift[0] + (B.shift[0] - A.shift[0]) * k;
+    want.sy = narrow ? -0.42 : A.shift[1] + (B.shift[1] - A.shift[1]) * k;
+    if (on !== activeIdx) { activeIdx = on; sections.forEach((s, j) => s.el.classList.toggle("is-on", j === on)); }
+  };
+  place();
+
+  // ---------- hover and click ----------
+  const pickables = [
+    { obj: filuma.g, id: "filuma", glow: filuma.scr.material },
+    { obj: meds.g, id: "meds", glow: meds.scr.material },
+    { obj: laptop, id: "aloft", glow: laptopScreen.material },
+    { obj: frame, id: "river" },
+    { obj: toy, id: "hello" }
+  ];
+  const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(9, 9);
+  let hot = null, px = 0, py = 0;
+  canvas.style.pointerEvents = "auto";
+  addEventListener("pointermove", (e) => { mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); px = mouse.x; py = mouse.y; }, { passive: true });
+  story.style.pointerEvents = "none";
+  story.querySelectorAll(".panel__in").forEach((p) => { p.style.pointerEvents = "auto"; });
+  canvas.addEventListener("click", () => { if (hot) document.getElementById(hot.id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); });
+  story.querySelectorAll("[data-goto]").forEach((a) => a.addEventListener("click", (e) => { const id = a.getAttribute("href").slice(1); const el = document.getElementById(id); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); history.replaceState(null, "", "#" + id); } }));
+
+  // ---------- run ----------
+  const resize = () => {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false); composer.setSize(w, h);
+    bloom.resolution.set(w / 2, h / 2);
+    camera.aspect = w / h;
+    dustMat.uniforms.uScale.value = h * renderer.getPixelRatio() * 0.012;
+  };
+  resize();
+  addEventListener("resize", resize);
+
+  const clock = new THREE.Clock();
+  let first = true;
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
+    place();
+    const k = reduced ? 1 : 1 - Math.exp(-dt * 3.2);
+    cur.pos.lerp(want.pos, k); cur.tgt.lerp(want.tgt, k);
+    cur.fov += (want.fov - cur.fov) * k; cur.sx += (want.sx - cur.sx) * k; cur.sy += (want.sy - cur.sy) * k;
+    const sway = reduced ? 0 : 1;
+    camera.position.copy(cur.pos).add(new THREE.Vector3(Math.sin(t * 0.21) * 0.012 + px * 0.025, Math.sin(t * 0.17) * 0.008 + py * 0.015, 0).multiplyScalar(sway));
+    camera.lookAt(cur.tgt);
+    camera.fov = cur.fov; camera.updateProjectionMatrix();
+    camera.projectionMatrix.elements[8] += cur.sx; camera.projectionMatrix.elements[9] += cur.sy;
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+
+    if (!reduced) {
+      leavesGobo.position.set(goboBase.x, goboBase.y + Math.sin(t * 0.6) * 0.03, goboBase.z + Math.sin(t * 0.43) * 0.05 + Math.sin(t * 1.3) * 0.012);
+      beamMat.uniforms.uTime.value = t; dustMat.uniforms.uTime.value = t;
+    }
+    // hover
+    ray.setFromCamera(mouse, camera);
+    let found = null;
+    for (const p of pickables) { if (ray.intersectObject(p.obj, true).length) { found = p; break; } }
+    if (found !== hot) {
+      if (hot && hot.glow) hot.glow.color.setScalar(1.05);
+      hot = found;
+      if (hot && hot.glow) hot.glow.color.setScalar(1.35);
+      canvas.classList.toggle("is-hot", !!hot);
+    }
+    composer.render(dt);
+    if (first) { first = false; requestAnimationFrame(() => document.documentElement.classList.add("is-lit")); }
+  });
+  void print;
+}
+
+// The same chubby enamel seaplane as on the home page, as a three.js mesh.
+function toyPlane() {
+  const P = [], C = [], I = [];
+  const WHITE = [0.96, 0.94, 0.89], YEL = [0.95, 0.8, 0.22], NAVY = [0.11, 0.16, 0.29], GLASS = [0.2, 0.32, 0.5];
+  const sp = (v, e) => Math.sign(v) * Math.pow(Math.abs(v), e);
+  const shape = (nu, nv, at, color) => {
+    const start = P.length / 3;
+    for (let i = 0; i <= nu; i += 1) for (let j = 0; j <= nv; j += 1) { const p = at(i / nu, j / nv); P.push(...p); C.push(...color(p)); }
+    for (let i = 0; i < nu; i += 1) for (let j = 0; j < nv; j += 1) { const a = start + i * (nv + 1) + j, b = a + nv + 1; I.push(a, b, a + 1, a + 1, b, b + 1); }
+  };
+  const blob = (cx, cy, cz, rx, ry, rz, e1, e2, color) => shape(14, 24, (u, v) => {
+    const la = -Math.PI / 2 + u * Math.PI, lo = -Math.PI + v * Math.PI * 2, cu = Math.cos(la);
+    return [cx + rx * sp(cu, e1) * sp(Math.cos(lo), e2), cy + ry * sp(Math.sin(la), e1), cz + rz * sp(cu, e1) * sp(Math.sin(lo), e2)];
+  }, color);
+  const prof = [[-0.52, 0.0], [-0.5, 0.03], [-0.38, 0.055], [-0.2, 0.09], [0.0, 0.118], [0.16, 0.125], [0.3, 0.118], [0.38, 0.105], [0.43, 0.085], [0.46, 0.05], [0.47, 0.0]];
+  const rAt = (z) => { for (let k = 1; k < prof.length; k += 1) if (z <= prof[k][0]) { const [z0, r0] = prof[k - 1], [z1, r1] = prof[k], t = (z - z0) / (z1 - z0); return r0 + (r1 - r0) * (t * t * (3 - 2 * t)); } return 0; };
+  shape(36, 24, (u, v) => { const z = -0.52 + u * 0.99, r = rAt(z), a = -Math.PI + v * Math.PI * 2; return [Math.cos(a) * r, Math.sin(a) * r * 1.08 + (z < -0.2 ? (z + 0.2) * -0.12 : 0), z]; },
+    ([x, y, z]) => (z > 0.38 ? NAVY : z > 0.06 && z < 0.27 && y > 0.045 && Math.abs(x) < 0.11 ? GLASS : y > -0.025 && y < 0.018 ? YEL : y > -0.04 && y <= -0.025 ? NAVY : WHITE));
+  blob(0, 0, 0.49, 0.045, 0.045, 0.05, 1, 1, () => YEL);
+  blob(0, 0.138, 0.1, 0.64, 0.026, 0.105, 0.5, 0.32, ([x]) => (Math.abs(x) > 0.53 ? YEL : WHITE));
+  blob(0, 0.04, -0.45, 0.22, 0.016, 0.065, 0.5, 0.4, () => WHITE);
+  blob(0, 0.13, -0.44, 0.017, 0.12, 0.075, 0.5, 0.45, ([, y]) => (y > 0.19 ? NAVY : YEL));
+  for (const sx of [-1, 1]) {
+    blob(sx * 0.2, -0.245, 0.03, 0.052, 0.046, 0.37, 0.75, 0.75, ([, y]) => (y > -0.215 ? NAVY : WHITE));
+    blob(sx * 0.13, -0.15, 0.14, 0.012, 0.08, 0.016, 0.8, 0.8, () => NAVY);
+    blob(sx * 0.13, -0.15, -0.1, 0.012, 0.08, 0.016, 0.8, 0.8, () => NAVY);
+  }
+  blob(0, 0.06, 0.5, 0.018, 0.11, 0.006, 0.6, 0.6, () => [0.2, 0.2, 0.24]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+  g.setAttribute("color", new THREE.Float32BufferAttribute(C.map((v) => Math.pow(v, 2.2)), 3));
+  g.setIndex(I); g.computeVertexNormals();
+  const mesh = new THREE.Mesh(g, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12, side: THREE.DoubleSide }));
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  const wrap = new THREE.Group(); wrap.add(mesh); mesh.position.y = 0.29;
+  return wrap;
 }
