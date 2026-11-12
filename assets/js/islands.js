@@ -6,7 +6,7 @@
 
   const family = [
     ["Nicholas", "/nicholas/", "builds things"],
-    ["Andreas", "/andreas/", "runs, and runs the table"],
+    ["Andreas", "/andreas/", "runs, and runs D&D"],
     ["Lukas", "/lukas/", "loves anything fast"],
     ["Oksana", "/oksana/", "keeps the notebook"],
     ["Kiriakos", "/kiriakos/", "makes the pizza"],
