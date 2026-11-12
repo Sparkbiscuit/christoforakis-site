@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Andreas · christoforakis.com</title>
   <meta name="description" content="Andreas Christoforakis: the middle brother, a high school senior at Longmeadow, a cross-country runner and a Dungeon Master." />
-  <meta name="theme-color" content="#e9dfcf" />
+  <meta name="theme-color" content="#0f1619" />
   <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/andreas/" />
   <meta property="og:title" content="Andreas" />
@@ -23,23 +23,24 @@
   <script src="/assets/js/islands.js?v=20261113" defer></script>
   <script type="module" src="/assets/js/andreas.js?v=20261113"></script>
   <style>
-    :root { --page-bg: #e9dfcf; --page-ink: #1e2a22; --chrome-ink: #1e2a22; --chrome-shadow: none; --chrome-bg: rgba(233, 223, 207, 0.8); --footer-ink: rgba(30, 42, 34, 0.65); --fell: "IM Fell English", Georgia, serif; }
-    body { background: #e9dfcf; }
-    .island { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: radial-gradient(ellipse at 62% 55%, #cbd6cf, #e9dfcf 70%); }
-    .island canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity 1.6s ease; }
+    :root { --page-bg: #0f1619; --page-ink: #efe6d6; --chrome-bg: rgba(15, 22, 25, 0.78); --footer-ink: rgba(239, 230, 214, 0.6); --fell: "IM Fell English", Georgia, serif; }
+    body { background: #0f1619; }
+    .island { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: radial-gradient(ellipse at 62% 55%, #2a3a3e, #0f1619 70%); }
+    .island canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; opacity: 0; transition: opacity 1.6s ease; }
     .island canvas:active { cursor: grabbing; }
     .is-drawn canvas { opacity: 1; }
-    .no-gl.island { background: #e9dfcf url(/assets/backgrounds/andreas.webp) center / cover; }
-    .copy { position: absolute; left: clamp(16px, 5vw, 80px); top: 50%; z-index: 2; max-width: 400px; transform: translateY(-46%); color: #1e2a22; }
-    .copy::before { content: ""; position: absolute; inset: -70px -110px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(236, 228, 214, 0.78), transparent); }
+    .no-gl.island { background: #0f1619 url(/assets/backgrounds/andreas.webp) center / cover; }
+    .copy { position: absolute; left: clamp(16px, 5vw, 80px); top: 50%; z-index: 2; max-width: 400px; transform: translateY(-46%); color: #efe6d6; text-shadow: 0 1px 16px rgba(8, 12, 14, 0.6); pointer-events: none; }
+    .copy a { pointer-events: auto; }
+    .copy::before { content: ""; position: absolute; inset: -80px -120px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(12, 18, 21, 0.72), transparent); }
     .copy h1 { margin: 0 0 16px; font: 400 clamp(68px, 8vw, 116px) / 0.86 var(--fell); letter-spacing: -0.02em; }
-    .copy p { margin: 0 0 12px; font-size: 18px; line-height: 1.6; color: #2f3b33; }
-    .copy p:first-of-type { font-size: 20px; color: #1e2a22; }
-    .copy a { display: inline-block; margin-top: 12px; font-size: 15px; font-weight: 700; color: #1e2a22; text-decoration: none; border-bottom: 2px solid #d9772b; padding-bottom: 2px; }
-    .copy a:hover { border-bottom-color: #1e2a22; }
+    .copy p { margin: 0 0 12px; font-size: 18px; line-height: 1.6; color: #cfc6b6; }
+    .copy p:first-of-type { font-size: 20px; color: #efe6d6; }
+    .copy a { display: inline-block; margin-top: 12px; font-size: 15px; font-weight: 700; color: #efe6d6; text-decoration: none; border-bottom: 2px solid #d9a24a; padding-bottom: 2px; }
+    .copy a:hover { border-bottom-color: #efe6d6; }
     @media (max-width: 760px), (max-aspect-ratio: 19/20) {
       .copy { top: auto; bottom: 22px; transform: none; right: 16px; max-width: none; }
-      .copy::before { inset: -40px -20px -24px; background: linear-gradient(transparent, rgba(236, 228, 214, 0.92) 34%); }
+      .copy::before { inset: -60px -20px -24px; background: linear-gradient(transparent, rgba(12, 18, 21, 0.9) 38%); }
       .copy h1 { font-size: 64px; }
       .copy p:first-of-type { font-size: 18px; }
       .copy p { font-size: 16px; }
@@ -52,7 +53,7 @@
   <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
 
   <main id="main" class="island" data-island>
-    <canvas role="img" aria-label="A wooded island with a pond and playing fields, under morning mist. A runner follows a trail around it, and the mist clears behind them."></canvas>
+    <canvas role="img" aria-label="A wooded island under fog of war. A token runs a trail around it and the fog clears where it goes; moving the pointer over the island clears it too."></canvas>
     <div class="copy">
       <h1>Andreas</h1>
       <p>The middle brother, between Nicholas and Lukas. A high school senior at Longmeadow, a cross-country runner, and a Dungeon Master.</p>
