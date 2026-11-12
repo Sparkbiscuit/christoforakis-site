@@ -5,106 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Andreas · christoforakis.com</title>
   <meta name="description" content="Andreas Christoforakis: the middle brother, a high school senior at Longmeadow, a cross-country runner and a Dungeon Master." />
-  <meta name="theme-color" content="#16110c" />
-  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
+  <meta name="theme-color" content="#e9dfcf" />
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/andreas/" />
   <meta property="og:title" content="Andreas" />
   <meta property="og:description" content="The middle brother, a high school senior at Longmeadow, a cross-country runner and a Dungeon Master." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/andreas/" />
-  <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/andreas-og.jpg?v=20260904-family2" />
+  <meta property="og:image" content="https://christoforakis.com/assets/og/andreas.jpg?v=20261113" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&amp;family=IM+Fell+English+SC&amp;family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&amp;family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/islands.css?v=20261113" />
   <script src="/assets/js/islands.js?v=20261113" defer></script>
   <script type="module" src="/assets/js/andreas.js?v=20261113"></script>
   <style>
-    :root { --page-bg: #16110c; --page-ink: #eadfc8; --fell: "IM Fell English", Georgia, serif; --fell-sc: "IM Fell English SC", Georgia, serif; --orange: #d9772b; }
-    body { background: #16110c; }
-
-    .atlas {
-      position: relative; min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: minmax(300px, 420px) auto;
-      align-items: center; justify-content: center; gap: clamp(36px, 6vw, 104px); padding: 104px clamp(16px, 4vw, 64px) 72px;
-      background: radial-gradient(ellipse 70% 80% at 62% 52%, #33261a, #16110c 72%);
-      overflow: hidden;
-    }
-    .atlas::before {
-      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
-      background: repeating-linear-gradient(91deg, rgba(0, 0, 0, 0.06) 0 2px, transparent 2px 9px), repeating-linear-gradient(89.4deg, rgba(255, 230, 190, 0.025) 0 1px, transparent 1px 23px);
-    }
-
-    /* The copy, and the bits of the table that change with the map */
-    .atlas__copy { position: relative; z-index: 2; max-width: 420px; }
-    .atlas__copy h1 { margin: 0 0 18px; font: 400 clamp(64px, 8vw, 112px) / 0.86 var(--fell); letter-spacing: -0.02em; color: #f3e8d0; }
-    .atlas__copy p { margin: 0 0 14px; font-size: 17px; line-height: 1.6; color: #d8ccb4; }
-    .atlas__copy p:first-of-type { font-size: 19px; color: #eadfc8; }
-
-    .modes { display: flex; gap: 26px; margin: 34px 0 24px; padding: 0; border-bottom: 1px solid rgba(234, 223, 200, 0.18); }
-    .modes button {
-      position: relative; padding: 0 0 12px; border: 0; background: none; cursor: pointer; color: rgba(234, 223, 200, 0.55);
-      font: 400 23px/1 var(--fell); transition: color 0.2s ease;
-    }
-    .modes button:hover { color: #eadfc8; }
-    .modes button[aria-pressed="true"] { color: #f3e8d0; }
-    .modes button::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .modes button[aria-pressed="true"]::after { transform: none; }
-    .modes button[data-mode-btn="race"][aria-pressed="true"] { color: #f0a15a; }
-
-    .panels { display: grid; }
-    .panel { grid-area: 1 / 1; align-self: start; transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s; }
-    .panel[hidden] { display: block; opacity: 0; transform: translateY(8px); pointer-events: none; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s 0.25s; }
-
-    .table-die { display: flex; align-items: center; gap: 18px; }
-    .table-die canvas { width: 132px; height: 132px; flex: none; cursor: pointer; margin: -14px -8px -14px -16px; }
-    .table-die button {
-      display: block; padding: 0; border: 0; background: none; cursor: pointer; font: 400 21px/1.2 var(--fell); color: #f3e8d0;
-      text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; text-decoration-color: rgba(243, 232, 208, 0.4);
-    }
-    .table-die button:hover { text-decoration-color: currentColor; }
-    .table-die output { display: block; min-height: 1.5em; margin-top: 6px; font: italic 400 17px/1.5 var(--fell); color: #b9ab90; }
-
-    .cds { margin: 0; padding: 0; list-style: none; font: 500 14px/1.3 Helvetica, Arial, sans-serif; color: #d8ccb4; counter-reset: c; max-width: 300px; border: 1px solid rgba(234, 223, 200, 0.3); }
-    .cds li { display: grid; grid-template-columns: 34px 1fr; border-top: 1px solid rgba(234, 223, 200, 0.18); }
-    .cds li:first-child { border-top: 0; }
-    .cds b { display: grid; place-items: center; border-right: 1px solid rgba(234, 223, 200, 0.18); color: #e05ac8; font-weight: 700; }
-    .cds span { padding: 7px 10px; }
-    .race-link { display: inline-block; margin-top: 18px; font-size: 15px; font-weight: 650; color: #f0a15a; text-decoration: none; }
-    .race-link:hover { text-decoration: underline; text-underline-offset: 4px; }
-
-    /* The sheet */
-    .sheet-wrap { position: relative; z-index: 1; height: min(calc(100svh - 150px), 1040px); aspect-ratio: 1100 / 1542; }
-    .sheet {
-      position: absolute; inset: 0; transform: rotate(-1.4deg); background: #e9dec4;
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4), 0 30px 60px -20px rgba(0, 0, 0, 0.8), 0 70px 120px -40px rgba(0, 0, 0, 0.6);
-      transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-    [data-mode="race"] .sheet { transform: rotate(0.6deg); }
-    .sheet canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-    .sheet [data-map-campaign] { opacity: 0; transition: opacity 0.8s ease; }
-    .is-drawn .sheet [data-map-campaign] { opacity: 1; }
-    .sheet__race { position: absolute; inset: 0; background: #fffef9; clip-path: circle(0px at var(--fx, 0px) var(--fy, 0px)); transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1); }
-    [data-mode="race"] .sheet__race { clip-path: circle(160% at var(--fx, 0px) var(--fy, 0px)); }
-    .sheet__light { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; background: radial-gradient(ellipse 85% 70% at var(--lx, 46%) var(--ly, 40%), transparent 40%, rgba(60, 34, 12, 0.32)); transition: opacity 0.8s ease; }
-    [data-mode="race"] .sheet__light { opacity: 0.35; }
-    .sheet__scale { position: absolute; left: 4.5%; bottom: 2.6%; display: flex; flex-direction: column; gap: 3px; font: 700 10px/1 Helvetica, Arial, sans-serif; color: #111; opacity: 0; transition: opacity 0.4s ease 0.5s; }
-    .sheet__scale i { display: block; height: 5px; border: 1.5px solid #111; border-top: 0; }
-    [data-mode="race"] .sheet__scale { opacity: 1; }
-
-    html:not(.js) .sheet-wrap, html:not(.js) .modes, html:not(.js) .panels { display: none; }
-
-    @media (max-width: 959px), (max-aspect-ratio: 1/1) {
-      .atlas { grid-template-columns: 1fr; justify-items: center; align-items: start; gap: 34px; padding-top: 96px; }
-      .atlas__copy { max-width: 560px; width: 100%; }
-      .sheet-wrap { order: 2; height: auto; width: min(100%, 640px, calc((100svh - 40px) * 0.7134)); }
-      .panel[hidden] { display: none; }
-    }
-    @media (max-width: 479px) {
-      .atlas__copy h1 { font-size: 68px; }
-      .atlas__copy p:first-of-type { font-size: 18px; }
-      .modes { gap: 22px; margin-top: 26px; }
-      .sheet { transform: rotate(-0.8deg); }
+    :root { --page-bg: #e9dfcf; --page-ink: #1e2a22; --chrome-ink: #1e2a22; --chrome-shadow: none; --chrome-bg: rgba(233, 223, 207, 0.8); --footer-ink: rgba(30, 42, 34, 0.65); --fell: "IM Fell English", Georgia, serif; }
+    body { background: #e9dfcf; }
+    .island { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: radial-gradient(ellipse at 62% 55%, #cbd6cf, #e9dfcf 70%); }
+    .island canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity 1.6s ease; }
+    .island canvas:active { cursor: grabbing; }
+    .is-drawn canvas { opacity: 1; }
+    .no-gl.island { background: #e9dfcf url(/assets/backgrounds/andreas.webp) center / cover; }
+    .copy { position: absolute; left: clamp(16px, 5vw, 80px); top: 50%; z-index: 2; max-width: 400px; transform: translateY(-46%); color: #1e2a22; }
+    .copy::before { content: ""; position: absolute; inset: -70px -110px; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(236, 228, 214, 0.78), transparent); }
+    .copy h1 { margin: 0 0 16px; font: 400 clamp(68px, 8vw, 116px) / 0.86 var(--fell); letter-spacing: -0.02em; }
+    .copy p { margin: 0 0 12px; font-size: 18px; line-height: 1.6; color: #2f3b33; }
+    .copy p:first-of-type { font-size: 20px; color: #1e2a22; }
+    .copy a { display: inline-block; margin-top: 12px; font-size: 15px; font-weight: 700; color: #1e2a22; text-decoration: none; border-bottom: 2px solid #d9772b; padding-bottom: 2px; }
+    .copy a:hover { border-bottom-color: #1e2a22; }
+    @media (max-width: 760px), (max-aspect-ratio: 19/20) {
+      .copy { top: auto; bottom: 22px; transform: none; right: 16px; max-width: none; }
+      .copy::before { inset: -40px -20px -24px; background: linear-gradient(transparent, rgba(236, 228, 214, 0.92) 34%); }
+      .copy h1 { font-size: 64px; }
+      .copy p:first-of-type { font-size: 18px; }
+      .copy p { font-size: 16px; }
     }
   </style>
 </head>
@@ -113,44 +49,13 @@
   <div class="isl-chrome" data-isl-chrome></div>
   <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
 
-  <main id="main" class="atlas" data-atlas data-mode="campaign">
-    <div class="atlas__copy">
+  <main id="main" class="island" data-island>
+    <canvas role="img" aria-label="A wooded island with a pond and playing fields, under morning mist. A runner follows a trail around it, and the mist clears behind them."></canvas>
+    <div class="copy">
       <h1>Andreas</h1>
       <p>The middle brother, between Nicholas and Lukas. A high school senior at Longmeadow, a cross-country runner, and a Dungeon Master.</p>
       <p>He also plays ultimate frisbee and wrestles.</p>
-
-      <div class="modes" role="group" aria-label="Map">
-        <button type="button" data-mode-btn="campaign" aria-pressed="true">The campaign</button>
-        <button type="button" data-mode-btn="race" aria-pressed="false">Race day</button>
-      </div>
-
-      <div class="panels">
-        <div class="panel" data-panel="campaign">
-          <div class="table-die">
-            <canvas data-die width="264" height="264" aria-hidden="true"></canvas>
-            <div>
-              <button type="button" data-roll>Roll the d20</button>
-              <output data-roll-out aria-live="polite"></output>
-            </div>
-          </div>
-        </div>
-        <div class="panel" data-panel="race" hidden>
-          <ol class="cds" data-cds aria-label="Control descriptions"></ol>
-          <a class="race-link" href="https://ma.milesplit.com/athletes/10898113-andreas-christoforakis">Race results on MileSplit</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="sheet-wrap">
-      <div class="sheet" data-sheet>
-        <canvas data-map-campaign width="1100" height="1542" role="img" aria-label="A hand-inked map of a wooded island with a pond, playing fields and a winding route marked in red"></canvas>
-        <div class="sheet__light" aria-hidden="true"></div>
-        <div class="sheet__race" aria-hidden="true">
-          <canvas data-map-race width="1100" height="1542"></canvas>
-          <canvas data-map-over width="1100" height="1542"></canvas>
-          <div class="sheet__scale" data-scale><span>200 m</span><i></i></div>
-        </div>
-      </div>
+      <a href="https://ma.milesplit.com/athletes/10898113-andreas-christoforakis">Race results on MileSplit</a>
     </div>
   </main>
 
