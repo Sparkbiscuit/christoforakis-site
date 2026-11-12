@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>christoforakis.com</title>
   <meta name="description" content="The Christoforakis family: Nicholas, Andreas, Lukas, Oksana, Kiriakos, Foxy, and the things we are making, learning, and living through." />
-  <meta name="theme-color" content="#f8f7ed" />
+  <meta name="theme-color" content="#0b1020" />
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/" />
   <meta property="og:title" content="christoforakis.com" />
@@ -16,89 +16,140 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
-  <script src="/assets/js/site.js?v=20260911" defer></script>
-  <script src="/assets/js/motion.js?v=20260911" defer></script>
-  <script src="/assets/js/family-map.js?v=20260911" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400..800&amp;family=B612+Mono:wght@400;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261113" />
+  <script src="/assets/js/islands.js?v=20261113" defer></script>
+  <script type="module" src="/assets/js/home.js?v=20261113"></script>
+  <style>
+    html, body { height: 100%; }
+    body { overflow: hidden; background: #0b1020; }
+    .archipelago { position: relative; width: 100%; height: 100vh; height: 100svh; overflow: hidden; background: radial-gradient(ellipse at 60% 45%, #1a3a66, #0b1020 75%); }
+    .archipelago__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .no-gl .archipelago__canvas { display: none; }
+    .no-gl { background: #0b1020 url(/assets/backgrounds/landing.webp) center / cover; }
+
+    .isles ul { list-style: none; margin: 0; padding: 0; }
+    .isles a, .home-blob {
+      font-family: "Libre Caslon Text", Georgia, serif; font-size: clamp(12px, 1vw, 14px); letter-spacing: 0.24em; text-indent: 0.24em; text-transform: uppercase;
+      color: #f6f1e4; text-decoration: none; text-shadow: 0 0 3px rgba(8, 14, 30, 0.95), 0 1px 14px rgba(8, 14, 30, 0.85);
+    }
+    .isles a { display: inline-block; padding: 12px 12px; white-space: nowrap; transition: color 0.2s ease; }
+    .isles a:hover, .isles a:focus-visible { color: #f2cf3a; }
+    .has-gl .isles a, .has-gl .home-blob { position: absolute; left: 0; top: 0; will-change: transform; opacity: 0; }
+    .isles { position: absolute; left: 0; top: 0; z-index: 3; }
+    .no-gl .isles, html:not(.js) .isles { position: relative; padding: 96px clamp(16px, 3.6vw, 56px) 0; }
+    .no-gl .isles ul, html:not(.js) .isles ul { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+    .home-blob { display: none; padding: 0 0 8px; pointer-events: none; }
+    .has-gl .home-blob { display: block; }
+    .home-blob span { position: relative; display: block; width: 30px; height: 30px; border-radius: 43% 57% 58% 42%; background: #f2cf3a; box-shadow: inset 0 -3px 0 #b8921a, 0 2px 10px rgba(8, 14, 30, 0.65); transform: rotate(-7deg); }
+    .home-blob span::before, .home-blob span::after { content: ""; position: absolute; top: 38%; width: 12%; height: 12%; border-radius: 50%; background: #14181f; animation: isl-blink 6.5s 2.4s infinite; }
+    .home-blob span::before { left: 27%; } .home-blob span::after { right: 27%; }
+
+    .plane { position: absolute; left: 0; top: 0; z-index: 2; width: 56px; height: 56px; margin: -28px 0 0 -28px; opacity: 0; pointer-events: none; will-change: transform; filter: drop-shadow(0 2px 3px rgba(6, 10, 24, 0.55)); }
+    .no-gl .plane, .no-gl .rose, .no-gl .hud { display: none; }
+    .rose { position: absolute; left: clamp(16px, 6vw, 96px); top: 28vh; z-index: 2; width: 96px; height: 96px; pointer-events: none; opacity: 0.9; }
+    .rose span { position: absolute; left: 0; top: -20px; width: 96px; text-align: center; font-family: "Libre Caslon Text", Georgia, serif; font-size: 13px; color: #f6f1e4; }
+
+    .cartouche {
+      position: absolute; left: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 4; width: min(410px, calc(100% - 32px));
+      padding: 6px; background: #f3eee1; color: #1a2131; box-shadow: 0 22px 44px -18px rgba(4, 8, 20, 0.75); will-change: opacity, transform;
+    }
+    .cartouche__rule { padding: 3px; border: 1px solid #1a2131; }
+    .cartouche__body { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 28px 18px; border: 1px solid #1a2131; text-align: center; font-family: "Libre Caslon Text", Georgia, serif; }
+    .cartouche__name { font-size: 12px; letter-spacing: 0.3em; text-indent: 0.3em; }
+    .cartouche h1 { margin: 0; font-size: clamp(30px, 2.6vw, 36px); line-height: 1.08; font-weight: 400; font-style: italic; }
+    .cartouche p { margin: 0; max-width: 300px; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 14.5px; line-height: 1.5; color: #3b4253; }
+    .cartouche__line { width: 56px; height: 1px; background: #1a2131; }
+    .cartouche__latest { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; }
+    .cartouche__latest small { font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 12.5px; color: #4d5465; }
+    .cartouche__latest span { font-size: 18px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    .cartouche__latest:hover span { text-decoration-thickness: 2px; }
+    .cartouche__foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin-top: 2px; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 12px; color: #4d5465; }
+    .cartouche__foot em { font-family: "Libre Caslon Text", Georgia, serif; }
+    .cartouche__foot a { text-decoration: none; }
+    .cartouche__foot a:hover { text-decoration: underline; }
+
+    .hud { position: absolute; left: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 4; display: flex; gap: 28px; padding: 14px 20px; border-radius: 10px; background: rgba(8, 13, 26, 0.44); border: 1px solid rgba(238, 243, 250, 0.13); -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2); font-family: "B612 Mono", ui-monospace, monospace; color: #eef3fa; opacity: 0; pointer-events: none; }
+    .hud span { display: flex; flex-direction: column; gap: 4px; font-size: 20px; font-weight: 700; }
+    .hud small { font-size: 10px; letter-spacing: 0.18em; opacity: 0.7; font-weight: 400; }
+
+    .fly { position: absolute; right: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3.6vw, 56px); z-index: 5; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px 0 18px; border: 0; border-radius: 24px; background: #f3eee1; color: #1a2131; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 14px 30px -14px rgba(4, 8, 20, 0.8); transition: transform 0.2s ease; }
+    .fly:hover { transform: translateY(-1px); }
+    .fly svg { width: 18px; height: 18px; transform: rotate(45deg); transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1); }
+    .is-flying .fly svg { transform: rotate(225deg); }
+    .no-gl .fly { display: none; }
+
+    @media (max-width: 760px), (max-aspect-ratio: 19/20) {
+      .cartouche { left: 12px; right: 12px; bottom: 12px; width: auto; }
+      .cartouche__body { padding: 16px 18px 14px; gap: 9px; }
+      .cartouche h1 { font-size: 27px; }
+      .cartouche p { font-size: 13.5px; }
+      .fly { bottom: auto; top: 70px; right: 12px; height: 42px; font-size: 14px; }
+      .rose { top: auto; bottom: 46vh; left: 12px; transform-origin: center; width: 72px; height: 72px; }
+      .rose svg { width: 72px; height: 72px; }
+      .rose span { width: 72px; }
+      .hud { left: 12px; bottom: 12px; }
+    }
+    @media (max-width: 480px) { .rose { display: none; } }
+  </style>
 </head>
 <body>
-  <div data-site-header></div>
-  <noscript><p class="shell"><a href="/updates/">Updates</a> · <a href="/oksana/">Oksana’s notebook</a></p></noscript>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="isl-chrome" data-isl-chrome></div>
 
-  <main id="main">
-    <header class="home-hero shell">
-      <h1 class="display-title">This is our little corner.</h1>
-      <p class="lead">The things we’re building, learning, watching, writing, and living through.</p>
-    </header>
+  <main id="main" class="archipelago" data-archipelago>
+    <canvas class="archipelago__canvas" role="img" aria-label="A chart of seven islands, one for each of us, drawn for the time of day where you are."></canvas>
 
-    <section class="family-map-section" aria-labelledby="family-title">
-      <h2 class="visually-hidden" id="family-title">The family</h2>
-      <div class="family-map" data-family-map>
-        <svg class="family-map__ground" data-parallax="-36" aria-hidden="true"></svg>
-        <svg class="family-map__paths" aria-hidden="true"></svg>
-        <div class="family-map__home" aria-hidden="true"><span class="home-character"><i></i><i></i></span></div>
-        <ul class="family-map__rooms">
-          <li class="room" data-room="nicholas">
-            <a class="room__link" href="/nicholas/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/nicholas.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Nicholas</span>
-            </a>
-          </li>
-          <li class="room" data-room="andreas">
-            <a class="room__link" href="/andreas/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/andreas.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Andreas</span>
-            </a>
-          </li>
-          <li class="room" data-room="lukas">
-            <a class="room__link" href="/lukas/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/lukas.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Lukas</span>
-            </a>
-          </li>
-          <li class="room" data-room="oksana">
-            <a class="room__link" href="/oksana/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/oksana.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Oksana</span>
-            </a>
-          </li>
-          <li class="room" data-room="kiriakos">
-            <a class="room__link" href="/kiriakos/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/kiriakos.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Kiriakos</span>
-            </a>
-          </li>
-          <li class="room" data-room="foxy">
-            <a class="room__link" href="/foxy/" data-prefetch>
-              <span class="room__photo"><img src="/assets/backgrounds/foxy.webp?v=20260904-family2" alt="" width="1536" height="1024" decoding="async" /></span>
-              <span class="room__name">Foxy</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </section>
+    <nav class="isles" aria-label="The family">
+      <ul>
+        <li><a href="/nicholas/" data-isle="nicholas">Nicholas</a></li>
+        <li><a href="/andreas/" data-isle="andreas">Andreas</a></li>
+        <li><a href="/oksana/" data-isle="oksana">Oksana</a></li>
+        <li><a href="/lukas/" data-isle="lukas">Lukas</a></li>
+        <li><a href="/foxy/" data-isle="foxy">Foxy</a></li>
+        <li><a href="/kiriakos/" data-isle="kiriakos">Kiriakos</a></li>
+      </ul>
+    </nav>
+    <span class="home-blob" data-isle="home" aria-hidden="true"><span></span></span>
 
-    <section class="home-latest shell" aria-labelledby="latest-title">
-      <article class="latest" data-latest data-parallax="18">
-        <div>
-          <time datetime="2026-05-28" data-latest-date>May 28, 2026</time>
-          <h2 id="latest-title" data-latest-title>Home. For real.</h2>
-          <p data-latest-excerpt>After 238 days in the hospital across two stays, Lukas is home.</p>
+    <div class="plane" data-plane aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="56" height="56"><path d="M32 4 C34 4 35.5 8 35.5 14 L35.5 24 L58 38 L58 42 L35.5 36 L35 50 L42 56 L42 59 L32 56.5 L22 59 L22 56 L29 50 L28.5 36 L6 42 L6 38 L28.5 24 L28.5 14 C28.5 8 30 4 32 4 Z" fill="#f6f1e4" stroke="#0b1020" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="rose" data-rose aria-hidden="true">
+      <svg viewBox="0 0 96 96" width="96" height="96"><circle cx="48" cy="48" r="34" fill="none" stroke="#f6f1e4" stroke-width="1" opacity="0.6"/><circle cx="48" cy="48" r="27" fill="none" stroke="#f6f1e4" stroke-width="0.6" stroke-dasharray="1 3.2" opacity="0.7"/><path d="M48 12 L53 43 L84 48 L53 53 L48 84 L43 53 L12 48 L43 43 Z" fill="#f6f1e4" opacity="0.9"/><path d="M48 12 L48 48 L53 43 Z M84 48 L48 48 L53 53 Z M48 84 L48 48 L43 53 Z M12 48 L48 48 L43 43 Z" fill="#0b1020" opacity="0.85"/></svg>
+      <span>N</span>
+    </div>
+
+    <section class="cartouche" data-cartouche aria-labelledby="home-title">
+      <div class="cartouche__rule">
+        <div class="cartouche__body">
+          <span class="cartouche__name">CHRISTOFORAKIS ISLANDS</span>
+          <h1 id="home-title">This is our<br />little corner.</h1>
+          <p>Five people, one dog, and a little corner of the internet for all of us.</p>
+          <span class="cartouche__line" aria-hidden="true"></span>
+          <a class="cartouche__latest" href="/updates/">
+            <small data-latest-date>Latest update, May 28, 2026</small>
+            <span data-latest-title>Home. For real.</span>
+          </a>
+          <div class="cartouche__foot">
+            <em data-corrected>Corrected to today</em>
+            <a href="/oksana/#notebook">Notebook</a>
+            <a href="/admin.html" rel="nofollow">Write</a>
+          </div>
         </div>
-        <a class="btn btn--cyan" href="/updates/#post-post-mppn1xki-hnwvz" data-latest-link>Read the update</a>
-      </article>
-    </section>
-
-    <section class="home-hello shell" aria-labelledby="hello-title" data-reveal>
-      <h2 class="section-title" id="hello-title">A note to Nicholas.</h2>
-      <div>
-        <p class="lead">For questions about the site, my apps, or something you’d like to share.</p>
-        <a class="btn btn--ink" href="mailto:nick@christoforakis.com">nick@christoforakis.com</a>
       </div>
     </section>
-  </main>
 
-  <div data-site-footer></div>
+    <div class="hud" data-hud aria-hidden="true">
+      <span><small>HDG</small><b data-hdg>000°</b></span>
+      <span><small>NEXT</small><b data-next>HOME</b></span>
+    </div>
+
+    <button class="fly" type="button" data-fly aria-pressed="false" hidden>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 C34 4 35.5 8 35.5 14 L35.5 24 L58 38 L58 42 L35.5 36 L35 50 L42 56 L42 59 L32 56.5 L22 59 L22 56 L29 50 L28.5 36 L6 42 L6 38 L28.5 24 L28.5 14 C28.5 8 30 4 32 4 Z" fill="#1a2131"/></svg>
+      <span>Take the plane</span>
+    </button>
+  </main>
 </body>
 </html>
