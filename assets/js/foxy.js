@@ -1,6 +1,6 @@
-// Foxy: four photographs and the weather in each. Snow settles on the prints and can be brushed off;
-// leaves land and slide away; the pointer is the wind.
-import { reducedMotion, clamp } from "./gl.js";
+// Foxy: her photographs and the weather in each. Snow settles on the prints and can be brushed off;
+// leaves land and slide away; the bath has bubbles; the pointer is the wind.
+import { reducedMotion, clamp } from "./gl.js?v=20261115";
 
 const root = document.querySelector("[data-weather]");
 const canvas = document.querySelector("[data-sky]");
@@ -8,11 +8,19 @@ const station = document.querySelector("[data-station]");
 const shots = [...document.querySelectorAll("[data-season]")];
 
 const SEASONS = {
-  autumn: { bg: [43, 28, 18], leaves: 1.2, snow: 0, motes: 0, now: "leaves falling" },
-  flurries: { bg: [52, 58, 66], leaves: 0.08, snow: 0.35, motes: 0, now: "first snow" },
-  snow: { bg: [70, 82, 96], leaves: 0, snow: 2.4, motes: 0, now: "heavy snow" },
-  sun: { bg: [38, 52, 30], leaves: 0, snow: 0, motes: 0.7, now: "sunny" }
+  autumn: { bg: [43, 28, 18], leaves: 1.2, snow: 0, motes: 0, bubbles: 0, now: "leaves falling" },
+  winter: { bg: [46, 42, 38], leaves: 0, snow: 0.06, motes: 0, bubbles: 0, now: "late winter" },
+  flurries: { bg: [52, 58, 66], leaves: 0.08, snow: 0.35, motes: 0, bubbles: 0, now: "first snow" },
+  snow: { bg: [70, 82, 96], leaves: 0, snow: 2.4, motes: 0, bubbles: 0, now: "heavy snow" },
+  sun: { bg: [38, 52, 30], leaves: 0, snow: 0, motes: 0.7, bubbles: 0, now: "sunny" },
+  bath: { bg: [36, 50, 58], leaves: 0, snow: 0, motes: 0, bubbles: 1, now: "bath time" },
+  home: { bg: [52, 35, 24], leaves: 0, snow: 0.16, motes: 0, bubbles: 0, now: "snow outside" }
 };
+// the sun is a light over the whole page, so it's a layer the compositor fades rather than something drawn each frame
+const glow = document.createElement("div");
+glow.className = "sunglow";
+glow.setAttribute("aria-hidden", "true");
+document.body.append(glow);
 
 let active = shots[0] ? shots[0].dataset.season : "autumn";
 const pickSeason = () => {
@@ -26,14 +34,17 @@ const pickSeason = () => {
     active = best;
     if (station) station.querySelector("[data-now]").textContent = SEASONS[active].now;
   }
+  glow.classList.toggle("is-on", active === "sun");
 };
 
 // The page colour follows the weather.
 const bg = SEASONS[active].bg.slice();
+let painted = "";
 const paintBg = (dt) => {
   const t = SEASONS[active].bg, k = 1 - Math.exp(-dt * 2.2);
   for (let i = 0; i < 3; i += 1) bg[i] += (t[i] - bg[i]) * k;
-  document.body.style.backgroundColor = `rgb(${bg.map((v) => Math.round(v)).join(",")})`;
+  const css = `rgb(${bg.map((v) => Math.round(v)).join(",")})`;
+  if (css !== painted) { document.body.style.backgroundColor = css; painted = css; }
 };
 
 if (root && canvas && !reducedMotion.matches) {
@@ -52,7 +63,7 @@ if (root && canvas && !reducedMotion.matches) {
   const flake = document.createElement("canvas");
   flake.width = flake.height = 64;
   { const f = flake.getContext("2d"), g = f.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.35, "rgba(255,255,255,0.85)"); g.addColorStop(1, "rgba(255,255,255,0)"); f.fillStyle = g; f.fillRect(0, 0, 64, 64); }
-  const rate = { leaves: 0, snow: 0, motes: 0 };
+  const rate = { leaves: 0, snow: 0, motes: 0, bubbles: 0 };
   const LEAF = ["#c8612a", "#d98b2b", "#a4441f", "#e0b04a", "#8c5a2b"];
 
   const spawn = (kind) => {
@@ -61,6 +72,9 @@ if (root && canvas && !reducedMotion.matches) {
       parts.push({ kind, x: Math.random() * (W + 200) - 100, y: -10, vx: 0, vy: 30 + z * 60, r: 0.8 + z * 2.6, z, ph: Math.random() * 6.28 });
     } else if (kind === "leaves") {
       parts.push({ kind, x: Math.random() * (W + 300) - 150, y: -20, vx: 10 + Math.random() * 20, vy: 38 + Math.random() * 40, r: 7 + Math.random() * 8, z: Math.random(), ph: Math.random() * 6.28, spin: (Math.random() - 0.5) * 4, a: Math.random() * 6.28, c: LEAF[(Math.random() * LEAF.length) | 0] });
+    } else if (kind === "bubbles") {
+      const z = Math.random();
+      parts.push({ kind, x: Math.random() * W, y: H + 20, vx: 0, vy: -(26 + z * 46), r: 3 + z * z * 13, z, ph: Math.random() * 6.28, life: 4 + Math.random() * 9, age: 0 });
     } else {
       parts.push({ kind, x: Math.random() * W, y: H * (0.2 + Math.random() * 0.8), vx: 6 + Math.random() * 10, vy: -4 - Math.random() * 8, r: 1 + Math.random() * 2, z: Math.random(), ph: Math.random() * 6.28, life: 6 + Math.random() * 6, age: 0 });
     }
@@ -75,31 +89,33 @@ if (root && canvas && !reducedMotion.matches) {
     wind.x = e.clientX; wind.y = e.clientY; wind.t = now;
   }, { passive: true });
 
-  let last = 0, sun = 0;
+  let last = 0, drawn = true;
   const tick = (now) => {
+    requestAnimationFrame(tick);
+    // never more than 60 frames a second, even on a 120 Hz screen
+    if (last && now - last < 15) return;
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
     last = now;
     pickSeason();
     paintBg(dt);
     const S = SEASONS[active];
-    for (const k of ["leaves", "snow", "motes"]) {
+    let calm = parts.length === 0;
+    for (const k of ["leaves", "snow", "motes", "bubbles"]) {
       rate[k] += (S[k] - rate[k]) * (1 - Math.exp(-dt * 1.5));
-      const n = rate[k] * (k === "snow" ? 70 : k === "leaves" ? 7 : 4) * dt * (W / 1200 + 0.4);
+      if (rate[k] > 0.004) calm = false;
+      const n = rate[k] * (k === "snow" ? 70 : k === "leaves" ? 7 : k === "bubbles" ? 5 : 4) * dt * (W / 1200 + 0.4);
       for (let i = 0; i < n; i += 1) if (Math.random() < n - i) spawn(k);
     }
+    for (const d of drifts.values()) if (d.leaves.length || d.h[0] > 0.01 || d.h.some((v) => v > 0.4)) { calm = false; break; }
+    // nothing falling and nothing settled: leave the canvas clear and do no more work this frame
+    if (calm) { if (drawn) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); drawn = false; } return; }
+    drawn = true;
     const t = now / 1000, still = now - wind.t > 120;
     if (still) { wind.vx *= 0.9; wind.vy *= 0.9; }
     const rects = shots.map((s) => s.querySelector("img").getBoundingClientRect());
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    // Sun: a warm light from the upper right when the weather turns.
-    sun += ((active === "sun" ? 1 : 0) - sun) * (1 - Math.exp(-dt * 1.2));
-    if (sun > 0.01) {
-      const g = ctx.createRadialGradient(W * 0.92, -H * 0.08, 0, W * 0.92, -H * 0.08, Math.max(W, H) * 0.95);
-      g.addColorStop(0, `rgba(255,214,140,${0.34 * sun})`); g.addColorStop(0.4, `rgba(255,190,110,${0.12 * sun})`); g.addColorStop(1, "rgba(255,190,110,0)");
-      ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over";
-    }
 
     // Particles
     for (let i = parts.length - 1; i >= 0; i -= 1) {
@@ -114,6 +130,11 @@ if (root && canvas && !reducedMotion.matches) {
         p.vx += (Math.sin(t * 1.3 + p.ph) * 60 + 18 - p.vx) * dt * 1.4;
         p.vy += ((38 + p.z * 40) * (0.6 + 0.6 * Math.abs(Math.cos(t * 1.6 + p.ph))) - p.vy) * dt * 2;
         p.a += p.spin * dt;
+      } else if (p.kind === "bubbles") {
+        p.age += dt;
+        p.vx += (Math.sin(t * 2.1 + p.ph) * 22 - p.vx) * dt * 2;
+        p.vy += (-(26 + p.z * 46) - p.vy) * dt;
+        if (p.age > p.life) { parts.splice(i, 1); continue; }
       } else {
         p.age += dt;
         p.vx += (Math.sin(t * 0.4 + p.ph) * 10 - p.vx) * dt;
@@ -122,7 +143,7 @@ if (root && canvas && !reducedMotion.matches) {
       p.x += p.vx * dt; p.y += p.vy * dt;
 
       // Landing on the top edge of a print.
-      if (p.kind !== "motes" && p.vy > 0) {
+      if ((p.kind === "snow" || p.kind === "leaves") && p.vy > 0) {
         for (let k = 0; k < rects.length; k += 1) {
           const r = rects[k], dr = drifts.get(shots[k]), ci = Math.floor((p.x - r.left) / COL);
           if (p.x < r.left || p.x > r.right) continue;
@@ -148,6 +169,14 @@ if (root && canvas && !reducedMotion.matches) {
         ctx.drawImage(flake, p.x - size / 2, p.y - size / 2, size, size);
       } else if (p.kind === "leaves") {
         drawLeaf(p.x, p.y, p.a, p.r, Math.cos(t * 3 + p.ph), p.c, 0.92);
+      } else if (p.kind === "bubbles") {
+        // a soap bubble: a thin bright rim, a faint tint, a highlight; it fades in and pops at the end
+        const k = p.age / p.life, a = Math.min(1, p.age * 3) * (k > 0.96 ? 0 : 1), wob = 1 + Math.sin(t * 5 + p.ph) * 0.05;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.scale(wob, 2 - wob);
+        ctx.globalAlpha = a * 0.16; ctx.fillStyle = "#cfe8ff"; ctx.beginPath(); ctx.arc(0, 0, p.r, 0, 7); ctx.fill();
+        ctx.globalAlpha = a * 0.7; ctx.strokeStyle = "#f2fbff"; ctx.lineWidth = 1; ctx.stroke();
+        ctx.globalAlpha = a * 0.85; ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(-p.r * 0.38, -p.r * 0.42, Math.max(0.8, p.r * 0.2), 0, 7); ctx.fill();
+        ctx.restore();
       } else {
         const a = Math.sin(Math.PI * clamp(p.age / p.life));
         ctx.globalAlpha = a * 0.7; ctx.fillStyle = "#fff4c8";
@@ -198,7 +227,6 @@ if (root && canvas && !reducedMotion.matches) {
         drawLeaf(r.left + l.x, r.top - (dr.h[Math.floor(l.x / COL)] || 0) - l.r * 0.3, l.a, l.r, 0.35, l.c, 1 - Math.max(0, (k2 - 0.75) * 4));
       }
     });
-    requestAnimationFrame(tick);
   };
 
   function drawLeaf(x, y, a, r, flip, color, alpha) {

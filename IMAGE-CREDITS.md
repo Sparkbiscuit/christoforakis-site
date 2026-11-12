@@ -20,8 +20,19 @@ The following photographs are family-owned and were supplied locally by the site
 - `assets/photos/foxy-deep-snow.jpg`
 - `assets/photos/foxy-first-snow.jpg`
 - `assets/photos/foxy-family-day.jpg`
+- `assets/photos/foxy-first-picture.jpg`
+- `assets/photos/foxy-year-one.jpg`
+- `assets/photos/foxy-reading-glasses.jpg`
+- `assets/photos/foxy-incoming.jpg`
+- `assets/photos/foxy-with-nicholas.jpg`
+- `assets/photos/foxy-bath.jpg`
+- `assets/photos/foxy-late-summer.jpg`
+- `assets/photos/foxy-mid-sentence.jpg`
+- `assets/photos/foxy-golden-hour.jpg`
+- `assets/photos/foxy-upside-down.jpg`
+- `assets/photos/foxy-home-with-lukas.jpg`
 
-Each is an optimized derivative. Production copies are resized JPEGs with embedded EXIF, camera, and location metadata removed. The untouched originals remain local in `foxy/` and are excluded by `.gitignore`; they should not be added to Git. A landscape crop of `foxy-autumn.jpg` is also used as `assets/backgrounds/foxy.webp` on the family map.
+Each is an optimized derivative. Production copies are resized sRGB JPEGs (1800 px on the long side) with embedded EXIF, camera, and location metadata removed. The untouched originals remain local (in `foxy/` or on Nick's Desktop) and should not be added to Git. A landscape crop of `foxy-autumn.jpg` is also used as `assets/backgrounds/foxy.webp` on the family map.
 
 ## Family-map stills
 

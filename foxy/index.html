@@ -19,13 +19,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Young+Serif&amp;family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/islands.css?v=20261114" />
-  <script src="/assets/js/islands.js?v=20261114" defer></script>
-  <script type="module" src="/assets/js/foxy.js?v=20261113"></script>
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261115" />
+  <script src="/assets/js/islands.js?v=20261115" defer></script>
+  <script type="module" src="/assets/js/foxy.js?v=20261115"></script>
   <style>
     :root { --page-bg: #2b1c12; --page-ink: #f6eee2; --chrome-bg: rgba(20, 16, 12, 0.6); --serif: "Young Serif", Georgia, serif; }
     body { background: #2b1c12; }
     .sky { position: fixed; inset: 0; z-index: 6; width: 100%; height: 100%; pointer-events: none; }
+    .sunglow { position: fixed; inset: 0; z-index: 6; pointer-events: none; background: radial-gradient(circle at 92% -8%, rgba(255, 214, 140, 0.34), rgba(255, 190, 110, 0.12) 38vmax, rgba(255, 190, 110, 0) 95vmax); mix-blend-mode: screen; opacity: 0; transition: opacity 1.6s ease; }
+    .sunglow.is-on { opacity: 1; }
 
     .intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(28px, 6vw, 100px); min-height: 100vh; min-height: 100svh; padding: 120px clamp(16px, 6vw, 100px) 90px; }
     .intro h1 { margin: 0; font: 400 clamp(96px, 16vw, 230px) / 0.82 var(--serif); letter-spacing: -0.04em; color: #f6eee2; }
@@ -42,9 +44,15 @@
     .stop { display: flex; min-height: 92vh; align-items: center; }
     .stop--left { justify-content: flex-start; padding-left: 4vw; }
     .stop--right { justify-content: flex-end; padding-right: 4vw; }
-    .stop--wide { justify-content: center; }
+    .stop--wide, .stop--center { justify-content: center; }
     .stop .print { width: min(460px, 80vw, calc((100svh - 200px) * 0.66)); }
     .stop--wide .print { width: min(960px, 100%, calc((100svh - 220px) * 1.33)); }
+    /* two prints at a stop, set down a little out of line with each other */
+    .stop--pair { justify-content: center; align-items: center; gap: clamp(28px, 6vw, 110px); }
+    .stop--pair .print { width: min(400px, 38vw, calc((100svh - 240px) * 0.62)); }
+    .stop--pair .print--wide { width: min(600px, 46vw, calc((100svh - 240px) * 1.1)); }
+    .stop--pair .print:first-child { margin-top: -10vh; }
+    .stop--pair .print:last-child { margin-top: 12vh; }
 
     .station { position: fixed; left: clamp(16px, 3.6vw, 56px); bottom: clamp(16px, 3vw, 32px); z-index: 7; margin: 0; font: 400 16px/1.3 var(--serif); color: rgba(246, 238, 226, 0.92); text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5); }
     .station span { color: #f0a35e; }
@@ -55,6 +63,8 @@
       .intro .print { width: min(100%, 420px); justify-self: center; }
       .stop--left, .stop--right { justify-content: center; padding: 0; }
       .stop { min-height: 86vh; }
+      .stop--pair { flex-direction: column; gap: 48px; padding: 6vh 0; }
+      .stop--pair .print, .stop--pair .print--wide { width: min(100%, 460px); margin: 0 !important; }
     }
   </style>
 </head>
@@ -62,7 +72,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <div class="isl-chrome" data-isl-chrome></div>
   <canvas class="sky" data-sky aria-hidden="true"></canvas>
-  <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/updates/">Updates</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
+  <noscript><p style="padding: 90px 24px 0"><a href="/">Home</a> · <a href="/oksana/#notebook">Oksana’s notebook</a></p></noscript>
 
   <main id="main" data-weather>
     <header class="intro">
@@ -78,6 +88,22 @@
 
     <section class="seasons" aria-labelledby="seasons-title">
       <h2 id="seasons-title">The weather changes. The ears remain excellent.</h2>
+      <div class="stop stop--wide">
+        <figure class="print" data-season="winter">
+          <img src="/assets/photos/foxy-first-picture.jpg" alt="Foxy on a red leash with Nicholas and Andreas in the backyard, in the first picture ever taken of her" width="1800" height="1350" loading="lazy" decoding="async" />
+          <figcaption>The first picture, with Nicholas and Andreas</figcaption>
+        </figure>
+      </div>
+      <div class="stop stop--pair">
+        <figure class="print" data-season="sun">
+          <img src="/assets/photos/foxy-year-one.jpg" alt="A young Foxy sitting in the yard with her tongue out" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Year one</figcaption>
+        </figure>
+        <figure class="print print--wide" data-season="sun">
+          <img src="/assets/photos/foxy-reading-glasses.jpg" alt="Foxy lying on a rug in a patch of sun, wearing a pair of glasses" width="1800" height="1350" loading="lazy" decoding="async" />
+          <figcaption>Reading glasses</figcaption>
+        </figure>
+      </div>
       <div class="stop stop--left">
         <figure class="print" data-season="flurries">
           <img src="/assets/photos/foxy-first-snow.jpg" alt="Foxy tasting the first snowflakes from a chair" width="1350" height="1800" loading="lazy" decoding="async" />
@@ -90,10 +116,52 @@
           <figcaption>Deep snow</figcaption>
         </figure>
       </div>
+      <div class="stop stop--pair">
+        <figure class="print" data-season="sun">
+          <img src="/assets/photos/foxy-incoming.jpg" alt="Foxy running straight at the camera across a sunny field" width="1315" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Incoming</figcaption>
+        </figure>
+        <figure class="print print--wide" data-season="sun">
+          <img src="/assets/photos/foxy-with-nicholas.jpg" alt="Nicholas sitting in the grass, scratching Foxy as she lies on her side" width="1800" height="1350" loading="lazy" decoding="async" />
+          <figcaption>With Nicholas</figcaption>
+        </figure>
+      </div>
+      <div class="stop stop--center">
+        <figure class="print" data-season="bath">
+          <img src="/assets/photos/foxy-bath.jpg" alt="Foxy standing in the bathtub, soaked and looking out through the glass" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Bath day</figcaption>
+        </figure>
+      </div>
+      <div class="stop stop--pair">
+        <figure class="print" data-season="sun">
+          <img src="/assets/photos/foxy-late-summer.jpg" alt="Foxy lying in tall grass under a blue sky, tongue out" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Late summer</figcaption>
+        </figure>
+        <figure class="print" data-season="sun">
+          <img src="/assets/photos/foxy-mid-sentence.jpg" alt="Foxy sitting on a patio with her mouth wide open" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Mid-sentence</figcaption>
+        </figure>
+      </div>
+      <div class="stop stop--pair">
+        <figure class="print" data-season="autumn">
+          <img src="/assets/photos/foxy-golden-hour.jpg" alt="Foxy lying in the grass with the low sun behind her and leaves around her" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Golden hour</figcaption>
+        </figure>
+        <figure class="print" data-season="autumn">
+          <img src="/assets/photos/foxy-upside-down.jpg" alt="Foxy rolling on her back in the grass among fallen leaves, mouth open" width="1350" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Upside down</figcaption>
+        </figure>
+      </div>
       <div class="stop stop--wide">
         <figure class="print" data-season="sun">
           <img src="/assets/photos/foxy-family-day.jpg" alt="Foxy and Lukas smiling together on bright green grass" width="1800" height="1285" loading="lazy" decoding="async" />
           <figcaption>With Lukas</figcaption>
+        </figure>
+      </div>
+      <div class="stop stop--center">
+        <figure class="print" data-season="home">
+          <img src="/assets/photos/foxy-home-with-lukas.jpg" alt="Lukas sitting on the step inside the front door with Foxy beside him" width="1430" height="1800" loading="lazy" decoding="async" />
+          <figcaption>Home with Lukas</figcaption>
         </figure>
       </div>
     </section>
