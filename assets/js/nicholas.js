@@ -6,7 +6,6 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
@@ -19,7 +18,7 @@ const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const mixv = (a, b, k) => a + (b - a) * k;
 
 const ORDER = ["desk", "filuma", "meds", "aloft", "site", "river", "hello"];
-const NAMES = { filuma: ["Filuma", "iPhone app"], meds: ["Meds Ahead", "iPhone app"], aloft: ["Aloft", "flight game"], site: ["This site", "you’re on it"], river: ["The river print", "66 × 42 in"], hello: ["Say hi", "coffee"], lamp: ["The lamp", "switch it"] };
+const NAMES = { filuma: ["Filuma", "iPhone app"], meds: ["Meds Ahead", "iPhone app"], aloft: ["Aloft", "flight game"], site: ["This site", "you’re on it"], river: ["The river print", "66 × 42 in"], hello: ["Say hi", "coffee"], lamp: ["The lamp", "switch it"], candle: ["The candle", "pumpkin"] };
 const OPEN = { filuma: "https://apps.apple.com/app/filuma/id6792247549", meds: "https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619", aloft: "/aloft/", site: "/", river: "/assets/nicholas/river.jpg", hello: "/contact/" };
 
 let renderer = null;
@@ -30,8 +29,9 @@ else document.documentElement.classList.remove("has-scene");
 function build() {
   document.documentElement.classList.add("has-scene");
   const narrowQ = matchMedia("(max-width: 820px), (max-aspect-ratio: 4/5)");
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, coarse ? 1.5 : 1.75));
   renderer.shadowMap.enabled = true;
+  // the shadows only re-render when the light or something in it moves (see frame)
+  renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -79,7 +79,7 @@ function build() {
   lampSpot.castShadow = true; lampSpot.shadow.mapSize.set(1024, 1024); lampSpot.shadow.bias = -0.0004; lampSpot.shadow.normalBias = 0.01;
   lampSpot.shadow.camera.near = 0.05;
   const lampGlow = new THREE.PointLight(0xffa860, 0, 3.2, 1.7);
-  const globeGlow = new THREE.PointLight(0xffc488, 0, 3.0, 1.7);
+  const globeGlow = new THREE.PointLight(0xff9c48, 0, 3.0, 1.7);
   scene.add(lampSpot, lampSpot.target, lampGlow, globeGlow);
 
   // ---------- the room ----------
@@ -91,9 +91,9 @@ function build() {
   const screenTex = (src, flip = true) => { const t = tl.load(src, () => { renderer.initTexture(t); }); t.colorSpace = THREE.SRGBColorSpace; t.flipY = flip; t.anisotropy = 8; return t; };
   // glTF's texture coordinates start at the top of the image, so these load unflipped
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
-  const lit = { shade: null, bulb: null, globe: null, screens: [] };
+  const lit = { shade: null, bulb: null, globe: null, flame: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261114", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261115", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -108,7 +108,12 @@ function build() {
       } else if (m.name === "lamp_shade") {
         m.side = THREE.DoubleSide; m.emissive = new THREE.Color(0xffb366); m.emissiveMap = m.map; m.emissiveIntensity = 0; lit.shade = m; o.castShadow = false;
       } else if (m.name === "bulb") { m.emissiveIntensity = 0; lit.bulb = m; o.castShadow = false; }
-      else if (m.name === "globe_glass") { m.emissive = new THREE.Color(0xffc68a); m.emissiveIntensity = 0; lit.globe = m; o.castShadow = false; }
+      else if (m.name === "globe_glass") {
+        m.emissive = new THREE.Color(0xffb468); m.emissiveIntensity = 0; lit.globe = m; o.castShadow = false;
+        // frosted glass lit from inside: brightest where you look straight through it, deeper orange toward the rim
+        m.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n float fz = clamp(dot(normal, normalize(vViewPosition)), 0., 1.);\n totalEmissiveRadiance *= mix(vec3(1., .5, .2), vec3(1.), fz * fz) * (.35 + .9 * fz);"); };
+      }
+      else if (m.name === "candle_flame") { m.emissive = new THREE.Color(0xffa040); m.emissiveIntensity = 0; m.toneMapped = false; lit.flame = o; o.castShadow = false; o.visible = false; }
       else if (m.name === "glass_black") { m.roughness = 0.05; m.envMapIntensity = 1.4; }
       else if (m.name === "wall") { m.envMapIntensity = 0.2; }
     });
@@ -116,24 +121,55 @@ function build() {
     model.traverse((o) => { if (o.isMesh && o.name === "river_print") o.material = new THREE.MeshStandardMaterial({ map: screens.print, roughness: 0.78 }); });
     scene.add(model);
     const find = (name) => model.getObjectByName(name);
-    const groups = { filuma: "iphone_filuma_stand", meds: "iphone_meds_stand", site: "macbook", river: "board", hello: "mug", aloft: "toy_plane", lamp: "table_lamp" };
+    const groups = { filuma: "iphone_filuma_stand", meds: "iphone_meds_stand", site: "macbook", river: "board", hello: "mug", aloft: "toy_plane", lamp: "table_lamp", candle: "candle" };
     for (const [key, name] of Object.entries(groups)) {
       const g = find(name); if (!g) continue;
       H[key] = { node: g, meshes: [], home: g.position.clone() };
       g.traverse((o) => { if (o.isMesh) { H[key].meshes.push(o); groupOf.set(o, key); } });
       // each group gets its own copies of its materials, so it can glow on its own when pointed at
-      for (const o of H[key].meshes) { if (!lit.screens.includes(o.material) && o.material !== lit.shade && o.material !== lit.bulb) { o.material = o.material.clone(); o.material.userData.glow = true; } }
+      for (const o of H[key].meshes) { if (!lit.screens.includes(o.material) && o.material !== lit.shade && o.material !== lit.bulb && o !== lit.flame) { o.material = o.material.clone(); o.material.userData.glow = true; } }
     }
     // where the lights sit, from the model
     const bulb = find("lamp_bulb"), globe = find("globe_glass");
     if (bulb) { const p = bulb.getWorldPosition(new THREE.Vector3()); lampSpot.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); lampSpot.target.position.copy(p).add(new THREE.Vector3(-0.1, -1, 0.12)); lampGlow.position.copy(p).add(new THREE.Vector3(0, 0.1, 0.02)); }
     if (globe) { const p = globe.getWorldPosition(new THREE.Vector3()); globeGlow.position.copy(p).add(new THREE.Vector3(0.05, 0.14, 0.12)); }
     // the plane flies; the stand it would sit on doesn't exist, so it starts in the air
-    if (H.aloft) { H.aloft.node.position.set(0.36, 1.12, -0.04); }
+    if (H.aloft) { H.aloft.node.position.set(0.36, 1.12, -0.04); H.aloft.node.scale.setScalar(0.62); H.aloft.node.traverse((o) => { o.castShadow = false; }); }
+    shadowsFor = 3;
     shotsFromModel();
     room.classList.add("is-lit");
     go(location.hash.slice(1) && ORDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : "desk", true);
   }, undefined, () => { document.documentElement.classList.remove("has-scene"); });
+
+  // ---------- contact shadows: soft dark pools where things meet the surface they sit on ----------
+  // (a screen-space AO pass did this before and cost more than the rest of the frame put together)
+  const grad = (radial) => {
+    const c = document.createElement("canvas"); c.width = c.height = 128;
+    const g = c.getContext("2d"); g.fillStyle = "#000"; g.fillRect(0, 0, 128, 128);
+    const r = radial ? g.createRadialGradient(64, 64, 0, 64, 64, 64) : g.createLinearGradient(0, 0, 0, 128);
+    r.addColorStop(0, "#fff"); r.addColorStop(radial ? 0.42 : 0.18, "#999"); r.addColorStop(1, "#000");
+    g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+  };
+  const pool = grad(true), edge = grad(false);
+  // Blender's coordinates (x right, y toward the wall, z up), so these read against tools/desk/build.py
+  const contact = (x, y, z, w, d, yaw, k, tex = pool) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ color: 0x140b05, alphaMap: tex, transparent: true, opacity: k, depthWrite: false }));
+    m.rotation.set(-Math.PI / 2, 0, THREE.MathUtils.degToRad(yaw)); m.position.set(x, z + 0.0006, -y); m.renderOrder = 1;
+    scene.add(m);
+  };
+  const DESK = 0.76, DRESSER = 1.0;
+  contact(-0.2475, -0.0495, DESK, 0.42, 0.31, 0, 0.5);       // the MacBook
+  contact(0.012, -0.085, DESK, 0.13, 0.12, -12, 0.45);       // the phone stands
+  contact(0.15, -0.035, DESK, 0.13, 0.12, -22, 0.45);
+  contact(0.305, -0.15, DESK, 0.12, 0.12, 0, 0.45);          // the mug
+  contact(0.3755, 0.1645, DESK, 0.23, 0.23, 0, 0.45);        // the lamp
+  contact(0, 0.262, DESK, 1.07, 0.09, 0, 0.35, edge);        // where the desk meets the wall
+  contact(-0.73, 0.13, DRESSER, 0.3, 0.3, 0, 0.5);           // the globe
+  contact(-0.655, -0.155, DRESSER, 0.12, 0.12, 0, 0.45);     // the candle
+  contact(-0.93, -0.045, DRESSER, 0.26, 0.3, 28, 0.4);       // the cap
+  contact(-0.9375, 0.267, DRESSER, 0.765, 0.085, 0, 0.35, edge);
+  contact(0.712, 0.16, 0.865, 0.15, 0.3, -14, 0.35);         // the plant, on the sill
 
   // ---------- dust in the sunlight ----------
   const dust = (() => {
@@ -173,10 +209,6 @@ function build() {
   // ---------- post ----------
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  let gtao = null;
-  if (!coarse) {
-    try { gtao = new GTAOPass(scene, camera, 1, 1); gtao.output = GTAOPass.OUTPUT.Default; gtao.blendIntensity = 0.85; gtao.updateGtaoMaterial({ radius: 0.12, distanceExponent: 1.6, thickness: 1.2, scale: 1.0, samples: 12 }); composer.addPass(gtao); } catch (e) { gtao = null; }
-  }
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.55, 0.92);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -211,7 +243,7 @@ function build() {
 
   // ---------- state ----------
   const cam = { p: new THREE.Vector3(...SH.desk.p), t: new THREE.Vector3(...SH.desk.t), fov: SH.desk.fov, from: null, to: null, k: 1 };
-  let active = "desk", hover = null, lampOn = null;
+  let active = "desk", hover = null, lampOn = null, candleOn = null;
   const look = { x: 0, y: 0, tx: 0, ty: 0 };
 
   const index = [...room.querySelectorAll("[data-go]")];
@@ -256,6 +288,7 @@ function build() {
   canvas.addEventListener("pointerleave", () => { pointer = null; pick = null; });
   canvas.addEventListener("click", () => {
     if (pick === "lamp") { lampOn = !(lampOn ?? lampAuto()); return; }
+    if (pick === "candle") { candleOn = !(candleOn ?? lampAuto()); return; }
     if (pick) { if (pick === active && OPEN[pick]) location.href = OPEN[pick]; else go(pick); return; }
     if (active !== "desk") go("desk");
   });
@@ -279,7 +312,7 @@ function build() {
   const showLight = () => lightButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.light === mode)));
   lightButtons.forEach((b) => b.addEventListener("click", () => {
     if (b.dataset.light === mode) return;
-    mode = b.dataset.light; lampOn = null;
+    mode = b.dataset.light; lampOn = null; candleOn = null;
     try { if (mode === "now" && !prefersDark.matches) localStorage.removeItem(LIGHT_KEY); else localStorage.setItem(LIGHT_KEY, mode); } catch (e) { /* private */ }
     let span = (hourFor(mode) - hour + 24) % 24; if (span > 20) span -= 24;
     sweep = { from: hour, span, k: 0 };
@@ -289,30 +322,51 @@ function build() {
   const sunAt = (h) => { const el = 62 * Math.sin(Math.PI * (h - 6) / 12); return el; };
   const lampAuto = () => sunAt(hour) < 14;
 
-  // ---------- size ----------
-  let W = 1, Hh = 1;
+  // ---------- size: at most about 2.4 million pixels, less if the GPU says a frame is costing too much ----------
+  let W = 1, Hh = 1, quality = 1;
+  const MAX_PIXELS = 2.4e6;
   const size = () => {
     W = canvas.clientWidth; Hh = canvas.clientHeight;
-    renderer.setSize(W, Hh, false); composer.setSize(W, Hh);
-    if (gtao) gtao.setSize(W * renderer.getPixelRatio(), Hh * renderer.getPixelRatio());
+    const pr = Math.max(0.6, Math.min(devicePixelRatio || 1, coarse ? 1.5 : 1.75, Math.sqrt(MAX_PIXELS / Math.max(1, W * Hh))) * quality);
+    renderer.setPixelRatio(pr);
+    renderer.setSize(W, Hh, false); composer.setPixelRatio(pr); composer.setSize(W, Hh);
     camera.aspect = W / Hh;
   };
   new ResizeObserver(size).observe(canvas); size();
+  const glc = renderer.getContext(), tq = glc.getExtension("EXT_disjoint_timer_query_webgl2");
+  let query = null, gpu = 0, gpuN = 0, adjusted = 0;
+  const readGpu = (now) => {
+    if (query && glc.getQueryParameter(query, glc.QUERY_RESULT_AVAILABLE)) {
+      if (!glc.getParameter(tq.GPU_DISJOINT_EXT)) { const ms = glc.getQueryParameter(query, glc.QUERY_RESULT) / 1e6; gpu = gpuN ? gpu * 0.85 + ms * 0.15 : ms; gpuN += 1; }
+      glc.deleteQuery(query); query = null;
+    }
+    if (gpuN >= 6 && now - adjusted > 800) {
+      if (gpu > 7.5 && quality > 0.5) { quality *= 0.88; size(); gpuN = 0; adjusted = now; }
+      else if (gpu < 3.5 && quality < 1) { quality = Math.min(1, quality * 1.06); size(); gpuN = 0; adjusted = now; }
+    }
+  };
+  // 60 frames a second while someone's doing something, 30 while the room just sits there
+  let lastInput = performance.now(), lastDraw = 0, shadowsFor = 0, shadowHour = -1;
+  for (const type of ["pointermove", "pointerdown", "wheel", "keydown", "touchstart"]) addEventListener(type, () => { lastInput = performance.now(); }, { passive: true, capture: true });
 
   // ---------- frame ----------
   const clock = new THREE.Clock();
   const tmpUp = new THREE.Vector3(), basis = new THREE.Matrix4();
   const planePath = (s) => {
     // a lazy oval around the lamp, with a loop-the-loop once a lap
-    const a = s * 0.55, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.3, 1.12 + Math.sin(a * 2) * 0.035, -0.05 + Math.sin(a) * 0.17);
+    const a = s * 0.55, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.27, 1.12 + Math.sin(a * 2) * 0.03, -0.05 + Math.sin(a) * 0.15);
     const lap = ((a / (Math.PI * 2)) % 1 + 1) % 1, k = clamp((lap - 0.22) / 0.16);
     if (k > 0 && k < 1) {
-      const ph = ease(k) * Math.PI * 2, f = new THREE.Vector3(-Math.sin(a) * 0.3, 0, Math.cos(a) * 0.17).normalize();
-      P.addScaledVector(f, Math.sin(ph) * 0.07); P.y += (1 - Math.cos(ph)) * 0.07;
+      const ph = ease(k) * Math.PI * 2, f = new THREE.Vector3(-Math.sin(a) * 0.27, 0, Math.cos(a) * 0.15).normalize();
+      P.addScaledVector(f, Math.sin(ph) * 0.055); P.y += (1 - Math.cos(ph)) * 0.055;
     }
     return P;
   };
-  function frame() {
+  function frame(now) {
+    const busy = now - lastInput < 2500 || cam.k < 1 || sweep;
+    if (lastDraw && now - lastDraw < (busy ? 1000 / 60 : 1000 / 30) - 2.5) return;
+    lastDraw = now;
+    if (tq) readGpu(now);
     const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
     // hour
     if (sweep) { sweep.k = Math.min(1, sweep.k + dt / (reduced ? 0.01 : 2.2)); hour = (sweep.from + sweep.span * ease(sweep.k) + 24) % 24; if (sweep.k >= 1) sweep = null; }
@@ -323,8 +377,8 @@ function build() {
     const dir = new THREE.Vector3(Math.cos(elev) * Math.cos(az), Math.sin(elev), Math.cos(elev) * Math.sin(az) + 0.18).normalize();
     sun.position.copy(sun.target.position).addScaledVector(dir, 6);
     sun.intensity = 22 * day;
-    sun.color.setRGB(1, mixv(0.95, 0.78, gold), mixv(0.86, 0.56, gold));
-    hemi.intensity = mixv(0.05, 0.26, day); hemi.color.setRGB(mixv(0.35, 0.78, day), mixv(0.42, 0.84, day), mixv(0.65, 0.95, day));
+    sun.color.setRGB(1, mixv(0.86, 0.72, gold), mixv(0.66, 0.46, gold));
+    hemi.intensity = mixv(0.05, 0.26, day); hemi.color.setRGB(mixv(0.35, 0.92, day), mixv(0.42, 0.86, day), mixv(0.65, 0.78, day));
     const lk = lamps ? 1 : 0;
     lampSpot.intensity += (lk * 2.4 - lampSpot.intensity) * Math.min(1, dt * 6);
     lampGlow.intensity += (lk * 0.9 - lampGlow.intensity) * Math.min(1, dt * 6);
@@ -332,7 +386,12 @@ function build() {
     globeGlow.intensity = gk * 0.7;
     if (lit.shade) lit.shade.emissiveIntensity = lampSpot.intensity / 2.4 * 0.9;
     if (lit.bulb) lit.bulb.emissiveIntensity = lampSpot.intensity / 2.4 * 6;
-    if (lit.globe) lit.globe.emissiveIntensity = gk * 1.1;
+    if (lit.globe) lit.globe.emissiveIntensity = gk * 2.6;
+    if (lit.flame) {
+      const on = candleOn ?? lamps;
+      lit.flame.visible = on;
+      if (on) { const fl = 0.85 + 0.1 * Math.sin(t * 13.1) + 0.06 * Math.sin(t * 23.7 + 1.3); lit.flame.material.emissiveIntensity = 2.2 * fl; lit.flame.scale.set(0.9 + 0.15 * fl, 1, 0.9 + 0.15 * fl); }
+    }
     for (const m of lit.screens) m.emissiveIntensity = mixv(1.05, 0.85, day);
     renderer.toneMappingExposure = mixv(1.15, 0.82, day);
     scene.environmentIntensity = mixv(0.06, 0.2, day);
@@ -395,19 +454,26 @@ function build() {
       const want = key === hot && key !== active ? 1 : 0;
       g.glow = (g.glow || 0) + (want - (g.glow || 0)) * Math.min(1, dt * 10);
       for (const o of g.meshes) if (o.material.userData.glow) { o.material.emissive.setRGB(0.32, 0.2, 0.08); o.material.emissiveIntensity = g.glow * 0.35; }
-      if (key !== "aloft" && key !== "river" && key !== "site" && key !== "lamp") g.node.position.y = g.home.y + g.glow * 0.008;
+      if (key !== "aloft" && key !== "river" && key !== "site" && key !== "lamp" && key !== "candle") g.node.position.y = g.home.y + g.glow * 0.008;
     }
     if (tag) {
       if (pick && pointer && NAMES[pick]) {
         const [n, d] = NAMES[pick];
-        const label = pick === active && OPEN[pick] ? (pick === "site" ? "Open the chart" : pick === "aloft" ? "Play Aloft" : pick === "hello" ? "Reach out" : "Open") : pick === "lamp" ? (lampOn ?? lampAuto() ? "Turn it off" : "Turn it on") : d;
+        const label = pick === active && OPEN[pick] ? (pick === "site" ? "Open the chart" : pick === "aloft" ? "Play Aloft" : pick === "hello" ? "Reach out" : "Open") : pick === "lamp" ? (lampOn ?? lampAuto() ? "Turn it off" : "Turn it on") : pick === "candle" ? (candleOn ?? lampAuto() ? "Blow it out" : "Light it") : d;
         tag.innerHTML = `${n}<small>${label}</small>`;
         tag.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 14}px)`;
         tag.classList.add("is-on");
       } else tag.classList.remove("is-on");
     }
 
+    const lampMoving = Math.abs(lampSpot.intensity - (lampOn ?? lampAuto() ? 2.4 : 0)) > 0.01;
+    const lifting = Object.values(H).some((g) => g.glow > 0.002 && g.glow < 0.998);
+    if (Math.abs(hour - shadowHour) > 0.02 || lampMoving || lifting) shadowsFor = Math.max(shadowsFor, 1);
+    if (shadowsFor > 0) { renderer.shadowMap.needsUpdate = true; shadowsFor -= 1; shadowHour = hour; }
+    const timing = tq && !query;
+    if (timing) { query = glc.createQuery(); glc.beginQuery(tq.TIME_ELAPSED_EXT, query); }
     composer.render(dt);
+    if (timing) glc.endQuery(tq.TIME_ELAPSED_EXT);
   }
   renderer.setAnimationLoop(frame);
   document.addEventListener("visibilitychange", () => renderer.setAnimationLoop(document.hidden ? null : frame));

@@ -57,7 +57,7 @@ M = {
     'linen': mat('lamp_shade', (0.92, 0.86, 0.74), 0.9, tex='linen.jpg'),
     'bulb': mat('bulb', (1.0, 0.95, 0.85), 0.3, emit=(1.0, 0.85, 0.6)),
     'globe': mat('globe_glass', (0.97, 0.96, 0.93), 0.35),
-    'alu_black': mat('space_black', (0.085, 0.085, 0.09), 0.38, 0.85),
+    'alu': mat('space_gray', (0.34, 0.345, 0.36), 0.4, 0.9),
     'keys': mat('keycaps', (0.025, 0.025, 0.027), 0.55),
     'glass_black': mat('glass_black', (0.004, 0.004, 0.005), 0.06),
     'mbp_screen': mat('mbp_screen', (0.02, 0.02, 0.02), 0.08),
@@ -80,6 +80,21 @@ M = {
     'plane_navy': mat('plane_navy', (0.09, 0.14, 0.27), 0.3, clearcoat=0.6),
     'plane_window': mat('plane_window', (0.06, 0.08, 0.13), 0.15),
     'dresser_knob': mat('knob', (0.86, 0.68, 0.4), 0.3, 1.0),
+    'grille_dark': mat('grille_dark', (0.07, 0.07, 0.07), 0.85),
+    'groove': mat('groove', (0.2, 0.12, 0.06), 0.85),
+    'granite': mat('granite', (0.62, 0.61, 0.6), 0.42, tex='granite.jpg'),
+    'leaf': mat('leaf', (0.035, 0.1, 0.04), 0.36, clearcoat=0.35),
+    'leaf_young': mat('leaf_young', (0.07, 0.17, 0.06), 0.4, clearcoat=0.3),
+    'stem': mat('stem', (0.1, 0.13, 0.06), 0.6),
+    'pot': mat('pot', (0.9, 0.9, 0.88), 0.45),
+    'soil': mat('soil', (0.07, 0.05, 0.035), 1.0),
+    'driftwood': mat('driftwood', (0.3, 0.19, 0.12), 0.75),
+    'cap': mat('cap', (0.5, 0.5, 0.5), 0.95, tex='cap.jpg'),
+    'tin': mat('tin', (0.74, 0.73, 0.7), 0.3, 1.0),
+    'wax': mat('wax', (0.93, 0.86, 0.72), 0.5),
+    'wick': mat('wick', (0.04, 0.035, 0.03), 0.9),
+    'flame': mat('candle_flame', (1.0, 0.8, 0.45), 0.5, emit=(1.0, 0.62, 0.22)),
+    'label': mat('candle_label', (0.9, 0.9, 0.9), 0.7, tex='candle_label.jpg'),
 }
 
 # ---------------------------------------------------------------- mesh helpers
@@ -204,18 +219,51 @@ def empty(name, loc=(0, 0, 0), parent=None):
 
 # ================================================================ the room
 WALL_Y = 0.33
+RX = 0.9          # the right-hand wall, where the window is (the window itself stays out of the picture)
+LX = -4.4         # far enough left that wide screens never run off the end of the room
 bm = bmesh.new()
-vs = [bm.verts.new(v) for v in [(-1.9, WALL_Y, 0), (1.7, WALL_Y, 0), (1.7, WALL_Y, 2.7), (-1.9, WALL_Y, 2.7)]]
+vs = [bm.verts.new(v) for v in [(LX, WALL_Y, 0), (RX, WALL_Y, 0), (RX, WALL_Y, 2.7), (LX, WALL_Y, 2.7)]]
 f = bm.faces.new(vs); f.normal_update()
 if f.normal.y > 0: f.normal_flip()
 uvl = bm.loops.layers.uv.verify()
 for l in f.loops: l[uvl].uv = (l.vert.co.x / 0.9, l.vert.co.z / 0.9)
 finish('wall', bm, M['wall'], smooth=False)
 bm = bmesh.new()
-vs = [bm.verts.new(v) for v in [(-1.9, -1.8, 0), (1.7, -1.8, 0), (1.7, WALL_Y, 0), (-1.9, WALL_Y, 0)]]
+vs = [bm.verts.new(v) for v in [(RX, WALL_Y, 0), (RX, -3.0, 0), (RX, -3.0, 2.7), (RX, WALL_Y, 2.7)]]
+f = bm.faces.new(vs); f.normal_update()
+if f.normal.x > 0: f.normal_flip()
+uvl = bm.loops.layers.uv.verify()
+for l in f.loops: l[uvl].uv = (l.vert.co.y / 0.9, l.vert.co.z / 0.9)
+finish('wall_right', bm, M['wall'], smooth=False)
+bm = bmesh.new()
+vs = [bm.verts.new(v) for v in [(LX, -3.0, 0), (RX, -3.0, 0), (RX, WALL_Y, 0), (LX, WALL_Y, 0)]]
 bm.faces.new(vs)
 finish('floor', bm, M['floor'], smooth=False)
-box('baseboard', -1.9, 1.7, WALL_Y - 0.014, WALL_Y, 0, 0.1, M['paint'], bevel=0.002, seg=2)
+box('baseboard', LX, RX, WALL_Y - 0.014, WALL_Y, 0, 0.1, M['paint'], bevel=0.002, seg=2)
+
+# ================================================================ the radiator cover under the window, and its stone sill
+RAD_X, SILL_Z, RAD_Y0 = 0.55, 0.835, -2.6
+box('radiator_cover', RAD_X + 0.012, RX, RAD_Y0, WALL_Y, 0, SILL_Z, M['paint'])
+box('radiator_kick', RAD_X + 0.006, RAD_X + 0.014, RAD_Y0, WALL_Y, 0, 0.07, M['paint'])
+# a slotted grille just under the sill, and louvres down the front
+box('radiator_grille_back', RAD_X + 0.008, RAD_X + 0.013, RAD_Y0, WALL_Y, 0.735, 0.815, M['grille_dark'])
+bm = bmesh.new()
+yv = WALL_Y - 0.01
+while yv > -1.9:
+    b = box_bm(RAD_X + 0.004, RAD_X + 0.012, yv - 0.0042, yv, 0.735, 0.815)
+    me = bpy.data.meshes.new('tmp'); b.to_mesh(me); b.free(); bm.from_mesh(me); bpy.data.meshes.remove(me)
+    yv -= 0.0125
+finish('radiator_slats', bm, M['paint'], smooth=False)
+box('radiator_rail', RAD_X + 0.003, RAD_X + 0.013, RAD_Y0, WALL_Y, 0.815, SILL_Z, M['paint'])
+box('radiator_rail_low', RAD_X + 0.003, RAD_X + 0.013, RAD_Y0, WALL_Y, 0.715, 0.735, M['paint'])
+box('radiator_louvre_back', RAD_X + 0.008, RAD_X + 0.013, RAD_Y0, WALL_Y, 0.09, 0.69, M['grille_dark'])
+bm = bmesh.new()
+for i in range(12):
+    z0 = 0.095 + i * 0.05
+    b = box_bm(RAD_X + 0.003, RAD_X + 0.011, RAD_Y0, WALL_Y, z0, z0 + 0.036, 0.0015, 2)
+    me = bpy.data.meshes.new('tmp'); b.to_mesh(me); b.free(); bm.from_mesh(me); bpy.data.meshes.remove(me)
+finish('radiator_louvres', bm, M['paint'], smooth=True, sharp=50)
+box('sill', RAD_X - 0.022, RX, RAD_Y0, WALL_Y, SILL_Z, SILL_Z + 0.03, M['granite'], bevel=0.006, seg=4, uv=(1.6, 'x'))
 
 # ================================================================ the desk (light oak, 42 x 24 in)
 desk = empty('desk')
@@ -233,7 +281,7 @@ def drawer(name, x0, x1, z0, z1, uvo):
     o = box(name, x0, x1, YF + 0.012, YF + 0.032, z0, z1, M['oak'], bevel=0.003, seg=3, parent=desk, uv=(0.83, 'x', uvo))
     box(name + '_pull', x0 + 0.02, x1 - 0.02, YF + 0.03, YF + 0.034, z1 - 0.026, z1 - 0.012, M['oak_end'], parent=desk)
     return o
-drawer('drawer_pencil', X0 + 0.03, PX0 - 0.006, 0.655, TOP - 0.032, (0.1, 0.0))
+drawer('drawer_pencil', X0 + 0.03, PX0 - 0.006, 0.626, TOP - 0.032, (0.1, 0.0))
 drawer('drawer_1', PX0 + 0.004, X1 - 0.004, 0.555, TOP - 0.032, (0.4, 0.2))
 drawer('drawer_2', PX0 + 0.004, X1 - 0.004, 0.335, 0.549, (0.7, 0.5))
 drawer('drawer_3', PX0 + 0.004, X1 - 0.004, 0.07, 0.329, (0.2, 0.7))
@@ -245,13 +293,14 @@ box('dresser_top', DX0, DX1, -0.24, 0.31, DTOP - 0.026, DTOP, M['oak'], bevel=0.
 box('dresser_body', DX0 + 0.01, DX1 - 0.01, -0.225, 0.3, 0.0, DTOP - 0.026, M['oak'], bevel=0.002, seg=2, parent=dres, uv=(0.83, 'z', (0.1, 0.6)))
 for i, (z0, z1) in enumerate([(0.06, 0.29), (0.3, 0.53), (0.54, 0.76), (0.77, 0.965)]):
     box('dresser_drawer_%d' % i, DX0 + 0.02, DX1 - 0.02, -0.245, -0.225, z0, z1, M['oak'], bevel=0.003, seg=3, parent=dres, uv=(0.83, 'x', (0.13 * i, 0.4)))
-    box('dresser_pull_%d' % i, DX0 + 0.05, DX1 - 0.05, -0.249, -0.243, z1 - 0.024, z1 - 0.012, M['oak_end'], parent=dres)
+    box('dresser_pull_%d' % i, DX0 + 0.05, DX1 - 0.05, -0.2454, -0.2449, z1 - 0.022, z1 - 0.013, M['groove'], parent=dres)
 
 # ================================================================ the globe lamp on the dresser
-glamp = empty('globe_lamp', (-0.735, 0.12, DTOP), dres)
-lathe('globe_base', [(0, 0), (0.055, 0), (0.06, 0.006), (0.056, 0.014), (0.03, 0.02), (0, 0.021)], M['paint'], parent=glamp)
-bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=48, v_segments=32, radius=0.125)
-bmesh.ops.translate(bm, vec=(0, 0, 0.142), verts=bm.verts)
+glamp = empty('globe_lamp', (-0.73, 0.13, DTOP), dres)
+lathe('globe_base', [(0, 0), (0.04, 0), (0.043, 0.004), (0.041, 0.02), (0.036, 0.025), (0.03, 0.024), (0, 0.022)], M['paint'], parent=glamp)
+GR = 0.13
+bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=64, v_segments=40, radius=GR)
+bmesh.ops.translate(bm, vec=(0, 0, 0.025 + math.sqrt(GR * GR - 0.034 ** 2)), verts=bm.verts)
 finish('globe_glass', bm, M['globe'], parent=glamp, sharp=0)
 
 # ================================================================ the board on the wall, and the river print on it
@@ -305,7 +354,7 @@ mbp = empty('macbook', (-0.2475, -0.1735 + 0.124, TOP))
 W, D = 0.3557, 0.2481
 BASE_H = 0.0098
 bm = slab_bm(rrect_pts(W, D, 0.0105, 12), 0.0006, BASE_H, edge=0.0016, seg=3)
-finish('mbp_base', bm, M['alu_black'], parent=mbp, sharp=50, weighted=True)
+finish('mbp_base', bm, M['alu'], parent=mbp, sharp=50, weighted=True)
 # feet
 for fx, fy in [(-0.15, -0.1), (0.15, -0.1), (-0.15, 0.1), (0.15, 0.1)]:
     lathe('mbp_foot', [(0, 0.0), (0.006, 0.0), (0.0068, 0.0006), (0, 0.0007)], M['keys'], parent=mbp, loc=(fx, fy, 0), seg=16)
@@ -348,12 +397,12 @@ for s in (-1, 1):
     gx0 = KW / 2 + 0.008
     box('mbp_grille_%d' % (s > 0), min(s * gx0, s * (gx0 + 0.026)), max(s * gx0, s * (gx0 + 0.026)), kb_front, ytop, BASE_H - 0.00025, BASE_H + 0.00002, M['grille'], parent=mbp)
 bm = slab_bm(rrect_pts(0.16, 0.1, 0.006, 8, 0, -D / 2 + 0.012 + 0.05), BASE_H - 0.00012, BASE_H + 0.00008)
-finish('mbp_trackpad', bm, M['alu_black'], parent=mbp, sharp=50)
+finish('mbp_trackpad', bm, M['alu'], parent=mbp, sharp=50)
 # the lid, hinged at the back edge, opened to about 108 degrees
 lid = empty('mbp_lid', (0, D / 2 - 0.004, BASE_H + 0.002), mbp)
 LH = 0.0068
 bm = slab_bm(rrect_pts(W, D, 0.0105, 12, 0, D / 2), -LH, 0, edge=0.0014, seg=3)
-finish('mbp_lid_shell', bm, M['alu_black'], parent=lid, sharp=50, weighted=True)
+finish('mbp_lid_shell', bm, M['alu'], parent=lid, sharp=50, weighted=True)
 bm = plate_bm(rrect_pts(W - 0.002, D - 0.002, 0.0095, 12, 0, D / 2), 0.00005)
 finish('mbp_bezel', bm, M['glass_black'], parent=lid, smooth=False)
 SW, SHh = 0.3456, 0.2234
@@ -473,6 +522,193 @@ for s in (-1, 1):
     bmesh.ops.translate(bm, vec=(s * 0.036, 0.012, -0.0125), verts=bm.verts)
     finish('toy_engine', bm, M['plane_coral'], parent=toy, sharp=55)
     finish('toy_pylon', box_bm(s * 0.036 - 0.0012, s * 0.036 + 0.0012, 0.0, 0.016, -0.007, -0.002, 0.0006, 2), M['plane_white'], parent=toy, sharp=50)
+
+
+# ================================================================ helpers for the soft things
+def merge(dst, src):
+    me = bpy.data.meshes.new('tmp'); src.to_mesh(me); src.free(); dst.from_mesh(me); bpy.data.meshes.remove(me)
+
+def spline(pts, n=10):
+    """Catmull-Rom through the points, n samples per span."""
+    P = [Vector(p) for p in pts]; P = [P[0] * 2 - P[1]] + P + [P[-1] * 2 - P[-2]]
+    out = []
+    for i in range(1, len(P) - 2):
+        p0, p1, p2, p3 = P[i - 1], P[i], P[i + 1], P[i + 2]
+        for k in range(n):
+            t = k / n
+            out.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (-p0 + 3 * p1 - 3 * p2 + p3) * t ** 3))
+    out.append(P[-2])
+    return out
+
+# ================================================================ his Red Sox cap, tipped back on the dresser
+CA, CB, CH = 0.088, 0.099, 0.112
+bm = bmesh.new(); uvl = bm.loops.layers.uv.verify()
+NT, NP = 72, 14
+ring = []
+for j in range(NP + 1):
+    ph = (math.pi / 2) * j / NP
+    row = []
+    for i in range(NT):
+        th = 2 * math.pi * i / NT
+        # six panels: a faint dip along each seam
+        seam = 1 - 0.014 * (1 if i % 12 == 0 else 0) * math.sin(ph * 2) ** 0.5
+        x = CA * math.cos(th) * math.cos(ph) * seam; y = CB * math.sin(th) * math.cos(ph) * seam
+        z = CH * math.sin(ph) ** 0.85
+        if y < 0: z += 0.012 * (-y / CB) * math.sin(ph)        # the front stands a little taller
+        row.append(bm.verts.new((x, y, z)))
+    ring.append(row)
+top = bm.verts.new((0, -0.006, CH + 0.004))
+for j in range(NP):
+    for i in range(NT):
+        k = (i + 1) % NT
+        bm.faces.new((ring[j][i], ring[j][k], ring[j + 1][k], ring[j + 1][i]))
+for i in range(NT):
+    bm.faces.new((ring[NP][i], ring[NP][(i + 1) % NT], top))
+bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-6)
+crown_faces = bm.faces[:]
+# the bill: from the front of the crown, curved down at the sides
+NB, NR = 28, 6
+inner, outer = [], []
+bill = []
+for i in range(NB + 1):
+    th = math.radians(198 + 144 * i / NB)
+    ix, iy = CA * math.cos(th), CB * math.sin(th)
+    reach = 0.078 * math.sin(math.pi * i / NB) ** 0.6
+    row = []
+    for r in range(NR + 1):
+        q = r / NR
+        x = ix * (1 + 0.1 * q); y = iy - reach * q
+        z = 0.002 - 0.9 * x * x - 0.16 * reach * q
+        row.append((x, y, z))
+    bill.append(row)
+BT = 0.0035
+for side in (0, 1):
+    vs = [[bm.verts.new((x, y, z + (BT if side == 0 else 0))) for (x, y, z) in row] for row in bill]
+    for i in range(NB):
+        for r in range(NR):
+            q = (vs[i][r], vs[i + 1][r], vs[i + 1][r + 1], vs[i][r + 1])
+            bm.faces.new(q if side == 0 else tuple(reversed(q)))
+    if side == 0: up = vs
+    else: dn = vs
+for i in range(NB):
+    bm.faces.new((up[i][NR], up[i + 1][NR], dn[i + 1][NR], dn[i][NR]))
+for r in range(NR):
+    bm.faces.new((up[0][r], up[0][r + 1], dn[0][r + 1], dn[0][r]))
+    bm.faces.new((up[NB][r + 1], up[NB][r], dn[NB][r], dn[NB][r + 1]))
+bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+# the B: projected onto the front panels only
+for f in bm.faces:
+    front = f in crown_faces and f.calc_center_median().y < -0.02 and f.normal.y < -0.2
+    for l in f.loops:
+        c = l.vert.co
+        l[uvl].uv = (0.5 + c.x / (2 * CA) * 0.92, 0.04 + c.z / CH * 0.96) if front else (0.04, 0.04)
+# the button on top
+b = bmesh.new(); bmesh.ops.create_uvsphere(b, u_segments=16, v_segments=8, radius=0.0075)
+bmesh.ops.scale(b, vec=(1, 1, 0.45), verts=b.verts); bmesh.ops.translate(b, vec=(0, -0.006, CH + 0.005), verts=b.verts)
+uv2 = b.loops.layers.uv.verify()
+for f in b.faces:
+    for l in f.loops: l[uv2].uv = (0.04, 0.04)
+merge(bm, b)
+# tipped back so it rests on the bill and the back of the band, then turned to show the B
+bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(-13), 3, 'X'))
+zmin = min(v.co.z for v in bm.verts)
+bmesh.ops.translate(bm, vec=(0, 0, -zmin), verts=bm.verts)
+cap = empty('cap', (-0.93, -0.045, DTOP), dres)
+cap.rotation_euler = (0, 0, math.radians(28))
+finish('cap_body', bm, M['cap'], parent=cap, smooth=True, sharp=70)
+
+# ================================================================ the candle: a tin of pumpkin, standing on its own lid
+cnd = empty('candle', (-0.655, -0.155, DTOP), dres)
+lathe('candle_lid', [(0, 0), (0.0405, 0), (0.0418, 0.0015), (0.0418, 0.0095), (0.0405, 0.011), (0, 0.011)], M['tin'], parent=cnd, seg=56)
+lathe('candle_tin', [(0, 0.011), (0.039, 0.011), (0.0398, 0.0125), (0.0398, 0.054), (0.0405, 0.0552), (0.0398, 0.0565), (0.0385, 0.0555), (0.0384, 0.02), (0, 0.02)], M['tin'], parent=cnd, seg=56)
+lathe('candle_wax', [(0, 0.046), (0.0384, 0.046), (0.0384, 0.0455), (0, 0.0455)], M['wax'], parent=cnd, seg=48)
+lathe('candle_wick', [(0, 0.046), (0.0011, 0.046), (0.0011, 0.053), (0.0006, 0.0545), (0, 0.0547)], M['wick'], parent=cnd, seg=8)
+lathe('candle_flame', [(0, 0.0535), (0.0022, 0.0545), (0.0034, 0.058), (0.003, 0.0625), (0.0018, 0.067), (0, 0.0715)], M['flame'], parent=cnd, seg=16)
+bm = bmesh.new(); uvl = bm.loops.layers.uv.verify()
+A0, A1, NA = math.radians(-128), math.radians(8), 24
+rows = []
+for zz in (0.019, 0.047):
+    rows.append([bm.verts.new((0.0401 * math.cos(A0 + (A1 - A0) * i / NA), 0.0401 * math.sin(A0 + (A1 - A0) * i / NA), zz)) for i in range(NA + 1)])
+for i in range(NA):
+    f = bm.faces.new((rows[0][i], rows[0][i + 1], rows[1][i + 1], rows[1][i]))
+    for l, (u, v) in zip(f.loops, [(i / NA, 0), ((i + 1) / NA, 0), ((i + 1) / NA, 1), (i / NA, 1)]): l[uvl].uv = (u, v)
+bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+for f in bm.faces:
+    if f.normal.dot(f.calc_center_median().to_2d().to_3d()) < 0: f.normal_flip()
+finish('candle_label', bm, M['label'], parent=cnd, smooth=True, sharp=0)
+
+# ================================================================ the plant on the sill: a hoya in a white pot on a piece of driftwood
+PX, PY, PZ = 0.705, 0.17, SILL_Z + 0.03
+bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=28, v_segments=12, radius=1.0)
+import random
+rnd = random.Random(11)
+for v in bm.verts:
+    a = math.atan2(v.co.y, v.co.x)
+    k = 1 + 0.12 * math.sin(a * 3 + 1.3) + 0.06 * math.sin(a * 7)
+    v.co.x *= 0.05 * k; v.co.y *= 0.125 * k; v.co.z = max(v.co.z, -0.05) * 0.016
+    v.co.z += 0.0006 * math.sin(v.co.y * 160)
+zmin = min(v.co.z for v in bm.verts)
+bmesh.ops.translate(bm, vec=(PX + 0.012, PY - 0.01, PZ - zmin), verts=bm.verts)
+bmesh.ops.rotate(bm, verts=bm.verts, cent=(PX, PY, PZ), matrix=Matrix.Rotation(math.radians(-14), 3, 'Z'))
+finish('driftwood', bm, M['driftwood'], sharp=0)
+POT_Z = PZ + 0.028
+lathe('pot', [(0, POT_Z), (0.034, POT_Z), (0.036, POT_Z + 0.004), (0.044, POT_Z + 0.07), (0.046, POT_Z + 0.072), (0.046, POT_Z + 0.076), (0.042, POT_Z + 0.076), (0.04, POT_Z + 0.06), (0, POT_Z + 0.06)], M['pot'], loc=(PX, PY, 0), seg=40)
+lathe('pot_soil', [(0, POT_Z + 0.066), (0.0405, POT_Z + 0.066), (0, POT_Z + 0.0665)], M['soil'], loc=(PX, PY, 0), seg=32)
+SOIL = POT_Z + 0.066
+stems = [
+    [(PX, PY, SOIL), (PX + 0.005, PY - 0.004, SOIL + 0.05), (PX + 0.02, PY - 0.02, SOIL + 0.1), (PX + 0.035, PY - 0.03, SOIL + 0.125)],
+    [(PX - 0.01, PY + 0.01, SOIL), (PX - 0.02, PY + 0.03, SOIL + 0.04), (PX - 0.035, PY + 0.06, SOIL + 0.08), (PX - 0.04, PY + 0.075, SOIL + 0.1)],
+    [(PX + 0.01, PY + 0.01, SOIL), (PX + 0.03, PY + 0.03, SOIL + 0.03), (PX + 0.065, PY + 0.05, SOIL + 0.05), (PX + 0.095, PY + 0.065, SOIL + 0.055)],
+    # three that trail over the sill and down onto the desk
+    [(PX - 0.02, PY - 0.02, SOIL), (PX - 0.05, PY - 0.04, SOIL + 0.022), (PX - 0.105, PY - 0.06, SOIL + 0.005), (0.548, PY - 0.07, 0.905), (0.521, PY - 0.075, 0.85), (0.509, PY - 0.08, 0.8), (0.497, PY - 0.09, 0.772), (0.47, PY - 0.11, 0.764)],
+    [(PX - 0.02, PY + 0.0, SOIL), (PX - 0.055, PY + 0.03, SOIL + 0.02), (PX - 0.115, PY + 0.05, SOIL + 0.0), (0.54, PY + 0.06, 0.9), (0.518, PY + 0.065, 0.84), (0.511, PY + 0.07, 0.79), (0.504, PY + 0.08, 0.765)],
+    [(PX - 0.015, PY - 0.03, SOIL), (PX - 0.045, PY - 0.07, SOIL + 0.015), (PX - 0.105, PY - 0.13, SOIL - 0.005), (0.55, PY - 0.17, 0.905), (0.523, PY - 0.19, 0.85), (0.511, PY - 0.2, 0.8), (0.5, PY - 0.21, 0.767), (0.46, PY - 0.24, 0.763), (0.42, PY - 0.25, 0.763)],
+]
+stem_bm = bmesh.new(); leaves = bmesh.new(); young = bmesh.new()
+def add_leaf(dst, base, d, n, L, Wd, fold=0.32, curl=0.22):
+    d = d.normalized(); n = (n - d * n.dot(d)).normalized(); sd = n.cross(d)
+    NU, NV = 9, 3
+    grid = []
+    for i in range(NU + 1):
+        t = i / NU
+        hw = max(0.0004, Wd / 2 * math.sin(math.pi * t ** 0.85) ** 0.7)
+        row = []
+        for j in range(-NV, NV + 1):
+            v = j / NV
+            p = base + d * (t * L) + sd * (v * hw) + n * (fold * abs(v) * hw - curl * L * t * t)
+            row.append(dst.verts.new(p))
+        grid.append(row)
+    for i in range(NU):
+        for j in range(2 * NV):
+            dst.faces.new((grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]))
+UP = Vector((0, 0, 1)); FACE = Vector((-0.35, -0.55, 0.75)).normalized()
+for si, ctrl in enumerate(stems):
+    path = spline(ctrl, 8)
+    merge(stem_bm, tube_bm([tuple(p) for p in path], 0.0019 if si < 3 else 0.0016, 6))
+    # leaves in opposite pairs along the stem
+    acc, nxt, flip = 0.0, 0.028, 0
+    for i in range(1, len(path)):
+        seg = (path[i] - path[i - 1]).length; acc += seg
+        if acc < nxt: continue
+        nxt += 0.034 + rnd.random() * 0.012
+        t = (path[min(i + 1, len(path) - 1)] - path[i - 1]).normalized()
+        side = t.cross(UP)
+        if side.length < 0.2: side = t.cross(Vector((0, -1, 0)))
+        side.normalize()
+        flip ^= 1
+        for sgn in (1, -1):
+            d = side * sgn * 0.9 + t * 0.45 + UP * (0.35 if si < 3 else -0.05)
+            d.rotate(Matrix.Rotation(rnd.uniform(-0.35, 0.35), 3, t))
+            size = rnd.uniform(0.85, 1.12) * (0.82 if acc < 0.06 else 1.0)
+            n = (FACE if si >= 3 else UP * 0.7 + FACE * 0.3)
+            add_leaf(young if (si < 3 and acc > 0.09) or rnd.random() < 0.15 else leaves, path[i] + d.normalized() * 0.002, d, n, 0.046 * size, 0.034 * size)
+    # a last leaf at the tip of the uprights
+    if si < 3:
+        t = (path[-1] - path[-2]).normalized()
+        add_leaf(young, path[-1], t + UP * 0.3, FACE, 0.04, 0.03)
+finish('plant_stems', stem_bm, M['stem'], sharp=0)
+finish('plant_leaves', leaves, M['leaf'], sharp=0)
+finish('plant_leaves_young', young, M['leaf_young'], sharp=0)
 
 # ================================================================ export
 for o in bpy.data.objects: o.select_set(o in EXPORT)
