@@ -32,15 +32,15 @@
             <svg class="menu-button__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" /></svg>
           </button>
           <nav class="nav-utility" aria-label="Utility">
-            <a href="/updates/">Updates</a>
-            <a href="/oksana/">Oksana’s notebook</a>
+            <a href="/oksana/#notebook">Oksana’s notebook</a>
+            <a href="/contact/">Reach out</a>
           </nav>
         </div>
         <nav class="mega-menu" id="family-menu" aria-label="Family" data-mega-menu hidden>
           <div class="mega-menu__grid">${rooms}</div>
           <div class="mega-menu__footer">
-            <a class="text-link" href="/updates/">Updates</a>
-            <a class="text-link" href="/oksana/">Oksana’s notebook</a>
+            <a class="text-link" href="/oksana/#notebook">Oksana’s notebook</a>
+            <a class="text-link" href="/contact/">Reach out</a>
           </div>
         </nav>
         <button class="menu-scrim" type="button" aria-label="Close family menu" data-menu-scrim hidden></button>
@@ -55,9 +55,8 @@
           <div class="site-footer__meta">
             <nav class="site-footer__links" aria-label="Footer">
               <a href="/">Home</a>
-              <a href="/updates/">Updates</a>
-              <a href="/oksana/">Oksana’s notebook</a>
-              <a href="/admin.html" rel="nofollow">Write</a>
+              <a href="/oksana/#notebook">Oksana’s notebook</a>
+              <a href="/contact/">Reach out</a>
             </nav>
             <p class="site-footer__credit">Made by <a href="/nicholas/">Nicholas&nbsp;Christoforakis</a>&nbsp;·&nbsp;<span data-year></span></p>
           </div>
@@ -135,51 +134,6 @@
     });
   }
 
-  // A home-page excerpt ends on a full sentence when one fits, and on a whole word when none does.
-  function excerptOf(text, limit = 200) {
-    const compact = String(text).replace(/\s+/g, " ").trim();
-    if (compact.length <= limit) return compact;
-    const head = compact.slice(0, limit);
-    const end = Math.max(head.lastIndexOf(". "), head.lastIndexOf("! "), head.lastIndexOf("? "));
-    if (end > 60) return head.slice(0, end + 1);
-    return `${head.slice(0, limit - 1).replace(/\s+\S*$/, "")}…`;
-  }
-
-  async function loadLatestUpdate() {
-    const title = document.querySelector("[data-latest-title]");
-    if (!title) return;
-    try {
-      const response = await fetch("/posts.json", { cache: "no-store" });
-      if (!response.ok) throw new Error("Updates unavailable");
-      const posts = await response.json();
-      const tile = title.closest("[data-latest]");
-      if (Array.isArray(posts) && posts.length === 0) {
-        if (tile) tile.hidden = true;
-        return;
-      }
-      const latest = posts.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
-      if (!latest) return;
-      const date = document.querySelector("[data-latest-date]");
-      const excerpt = document.querySelector("[data-latest-excerpt]");
-      const link = document.querySelector("[data-latest-link]");
-      title.textContent = latest.title;
-      if (date) {
-        date.dateTime = latest.date;
-        date.textContent = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${latest.date}T12:00:00Z`));
-      }
-      if (excerpt && latest.body && latest.body.length) {
-        const source = latest.body.find((part) => String(part).length > 70) || latest.body[0];
-        excerpt.textContent = excerptOf(source);
-      }
-      // Updates answers #post-<id>, so the button opens this update rather than the top of the archive.
-      if (link && /^[\w-]+$/.test(String(latest.id))) link.href = `/updates/#post-${latest.id}`;
-    } catch (error) {
-      const tile = title.closest("[data-latest]");
-      if (tile) tile.dataset.state = "error";
-    }
-  }
-
   setupChrome();
   setupPreloads();
-  loadLatestUpdate();
 })();

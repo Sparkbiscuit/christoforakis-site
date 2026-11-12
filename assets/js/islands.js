@@ -27,7 +27,7 @@
         <nav class="isl-family__menu" id="isl-family-menu" aria-label="Family" hidden>
           <ul>${rows}</ul>
           <hr>
-          <ul><li><a href="/updates/"${current("/updates/")}><span>Updates on Lukas</span></a></li><li><a href="/aloft/"${current("/aloft/")}><span>Aloft</span><small>the flying game</small></a></li></ul>
+          <ul><li><a href="/aloft/"${current("/aloft/")}><span>Aloft</span><small>the flying game</small></a></li></ul>
           <a class="isl-reach" href="/contact/"${current("/contact/")}>Reach out<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </nav>
       </div>`;
@@ -55,6 +55,6 @@
     footer.classList.add("isl-footer");
     footer.innerHTML = `
       <span>Made by <a href="/nicholas/">Nicholas Christoforakis</a>, ${new Date().getFullYear()}</span>
-      <nav aria-label="Footer"><a href="/">Home</a><a href="/updates/">Updates</a><a href="/oksana/#notebook">Notebook</a><a href="/contact/">Reach out</a><a href="/admin.html" rel="nofollow">Write</a></nav>`;
+      <nav aria-label="Footer"><a href="/">Home</a><a href="/oksana/#notebook">Notebook</a><a href="/aloft/">Aloft</a><a href="/contact/">Reach out</a></nav>`;
   }
 })();

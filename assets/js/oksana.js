@@ -1,6 +1,6 @@
 // Oksana: a cyanotype of pressed plants, rinsed in a shallow tray when the page opens.
 // The plants are drawn as a contact mask; the print, the rinse and the water are one shader.
-import { context, program, fullscreen, loop, reducedMotion, imageTexture, seeded, clamp } from "./gl.js";
+import { context, program, fullscreen, loop, reducedMotion, imageTexture, seeded, clamp } from "./gl.js?v=20261115";
 
 // ---------- the plants ----------
 const MW = 1000, MH = 1250;
@@ -317,7 +317,7 @@ if (print) {
         drops.push([(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, 0.05, 1.6]);
       });
       // Each note that comes into view lets a drop fall into the tray.
-      const feed = document.querySelector("[data-blog-feed]");
+      const feed = document.getElementById("notebook");
       if (feed && "IntersectionObserver" in window) {
         const seen = new WeakSet();
         const io = new IntersectionObserver((entries) => entries.forEach((en) => {
@@ -325,9 +325,7 @@ if (print) {
           seen.add(en.target);
           drops.push([0.3 + Math.random() * 0.4, 0.3 + Math.random() * 0.4, 0.3, 2.6]);
         }), { threshold: 0.3 });
-        const watch = () => feed.querySelectorAll(".note").forEach((n) => io.observe(n));
-        new MutationObserver(watch).observe(feed, { childList: true });
-        watch();
+        feed.querySelectorAll(".note").forEach((n) => io.observe(n));
       }
       print.addEventListener("pointerdown", (e) => {
         const r = print.getBoundingClientRect();

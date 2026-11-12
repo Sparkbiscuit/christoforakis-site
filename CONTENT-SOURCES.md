@@ -78,7 +78,7 @@ Review the local preview. Reconfirm the dated App Store status if publication is
     - Attribution reads Nicholas Christoforakis.
 - Screenshots: `assets/apps/filuma-focus-660.jpg` and `assets/apps/meds-supply-660.jpg` are 660 × 1434 JPEG copies of the committed screenshots, made with `sips` for the doorway tiles and story pages. The full-size PNGs are unchanged.
 - The Kiriakos photograph’s alt text now describes the combination pizza that is actually pictured.
-- Notebook excerpts now link to `/updates/#post-our-story`, which opens and expands the original update. The earlier `/updates/#our-story` link landed at the top of the archive.
+- (November 2026) The updates on Lukas moved into Oksana's page as hard-coded notes; the two notebook excerpts from “Our Story” were folded back into the full update. `/updates/` forwards old links.
 - For the family to review in `IMAGE-CREDITS.md`, left unchanged:
   - The A380 row still lists “Lukas hero” among its uses. That hero is now a drawn sky; the photograph remains on the flight board and the family map.
   - The Mr. Pizza House row lists the subject as “Cheese pizza”.

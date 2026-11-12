@@ -1,4 +1,4 @@
-/* Shared tokens for the public pages and the writing room (admin.css). Change a value here only when both should move. */
+/* Shared tokens for the older pages that still use site.css (the project stories and their chrome). */
 :root {
   color-scheme: light;
 
