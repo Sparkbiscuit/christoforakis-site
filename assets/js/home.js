@@ -465,7 +465,7 @@ for (const q of ISLES) {
   }
   q.top = [bx, best, bz];
   const out = Math.hypot(q.c[0] / RING.x, q.c[1] / RING.z) || 1, ox = q.c[0] / RING.x / out, oz = q.c[1] / RING.z / out;
-  q.p = [q.c[0] + ox * 0.92, 0.06, q.c[1] + oz * 0.9];
+  q.p = [q.c[0], Math.max(0.12, best * 0.55), q.c[1]];
 }
 const EXTENT = { x: 4.45, z: 3.55 };
 const CHART_PITCH = 0.98;
@@ -1017,8 +1017,9 @@ function run() {
       const fade = clamp(1.6 - q[2] / mix(60, 9, ez)) * clamp(intro * 1.6 - 0.4);
       el.style.opacity = fade.toFixed(2);
       el.style.pointerEvents = fade > 0.3 ? "" : "none";
+      // the name is printed on the island itself, a little below its summit
       const hw = (el._w || (el._w = el.offsetWidth)) / 2, lx = ez < 0.5 ? clamp(q[0], hw + 6, W - hw - 6) : q[0];
-      el.style.transform = `translate(${lx.toFixed(1)}px,${(q[1] - mix(12, 14, ez)).toFixed(1)}px) translate(-50%,-100%)`;
+      el.style.transform = `translate(${lx.toFixed(1)}px,${(q[1] + mix(26, -14, ez)).toFixed(1)}px) translate(-50%,${ez > 0.5 ? -100 : -50}%)`;
     }
     if (legend) {
       legend.style.opacity = (1 - Math.min(1, ez * 2.2)).toFixed(2);
