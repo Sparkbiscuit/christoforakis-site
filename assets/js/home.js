@@ -2,7 +2,7 @@
 // ring it on one reef. The chart is lit for the visitor's time of day, or for the light they pick in the legend.
 // "Take the plane" drops the camera in behind a toy seaplane you can fly with the arrow keys or the pointer;
 // fly into an island and you land on that person's page.
-import { context, program, fullscreen, noiseTexture, loop, reducedMotion, clamp, mix } from "./gl.js";
+import { context, program, fullscreen, noiseTexture, loop, reducedMotion, clamp, mix } from "./gl.js?v=20261115";
 
 const NEAR = 0.04, FAR = 140;
 const RING = { x: 3.4, z: 2.5 };
@@ -92,6 +92,8 @@ float cloudN(vec2 x){
   return fbm5(w)+.035*(vn(w*9.)-.5)+.17*smoothstep(1.3,2.4,eo)-.3*(1.-smoothstep(1.12,1.42,eo));
 }
 float cloud(vec2 x){ float c=cloudN(x), e=max(fwidth(c),.002); return smoothstep(.665-e,.665+e,c)*uCloud; }
+// bright colours roll off toward white by their brightest channel, so the hue holds (sand stays sand at noon)
+vec3 tone(vec3 c){ float m=max(max(c.r,c.g),c.b); return m>.82?c*(.82+.18*(1.-exp(-(m-.82)/.18)))/m:c; }
 float cloudShade(vec3 p){ return 1.-.42*cloud(p.xz+uSun.xz/max(uSun.y,.22)*max(CH-p.y,0.)); }
 vec3 sky(vec3 rd){
   vec3 c=mix(cSkyH,cSkyZ,pow(clamp(rd.y,0.,1.),.55));
@@ -168,7 +170,7 @@ void main(){
     float ndl=dot(nn,uSun);
     float dif=(smoothstep(-.02,.22,ndl)*.55+smoothstep(.22,.7,ndl)*.45)*sh;
     float sl=clamp(.5+.5*nn.y,0.,1.);
-    c*=cAmb*(.62+.48*sl)+cSun*dif*1.05;
+    c*=cAmb*(.6+.44*sl)+cSun*dif*.96;
     hiMask=uHi.z*(1.-smoothstep(.75,1.35,length(p.xz-uHi.xy)));
     c=mix(c,c*1.1+cSun*.05,hiMask*.6);
     float fw=fwidth(h)*1.2+.0008;
@@ -256,7 +258,7 @@ void main(){
   vec2 vq=gl_FragCoord.xy/uRes; float vg=1.-smoothstep(.35,1.25,length((vq-.5)*vec2(1.25,1.)));
   col*=.8+.2*vg;
   col*=.965+.07*vn(gl_FragCoord.xy*.9);
-  o=vec4(pow(clamp(col,0.,1.),vec3(.95)),1.);
+  o=vec4(pow(clamp(tone(col),0.,1.),vec3(.95)),1.);
   float z=dist*dot(rd,uF);
   float A=(uFar+uNear)/(uFar-uNear), B=2.*uFar*uNear/(uFar-uNear);
   gl_FragDepth=dist<1e4?clamp(.5*(A-B/max(z,uNear))+.5,0.,1.):1.;
@@ -293,6 +295,7 @@ void main(){
   c+=smoothstep(.955,.975,dot(n,h))*.55*cSun;
   c+=pow(1.-max(dot(n,v),0.),3.)*.18*cSkyH;
   if(vC.a>.6&&vC.a<.8) c=mix(c,vec3(1.,.86,.5)*1.5,.25+.75*uNight);
+  float m=max(max(c.r,c.g),c.b); if(m>.82) c*=(.82+.18*(1.-exp(-(m-.82)/.18)))/m;
   o=vec4(pow(clamp(c,0.,1.),vec3(.95)),1.);
 }`;
 const TRAIL_V = `#version 300 es
@@ -751,6 +754,8 @@ function run() {
     s.n += 1;
     const still = reducedMotion.matches && !s.fly;
     const settling = s.sweep || s.intro < 1 || Math.abs(s.hiK - (s.hi > 0 ? 1 : 0)) > 0.01;
+    // full frame rate while flying or while the chart is moving on its own; otherwise the loop idles at 30
+    if (s.fly || settling || Math.abs(s.tv) > 0.02) engine.wake(300);
     const stepDt = still && !settling ? 0 : dt;
     s.tv += (((s.fly ? 1 : 0) - s.tilt) * 22 - s.tv * 9) * dt;
     s.tilt += s.tv * dt;
@@ -833,9 +838,9 @@ function run() {
     const pal = (day, dawn, dusk, nite) => day.map((v, i) => v * wDay + (am ? dawn[i] : dusk[i]) * gold + nite[i] * night);
     const C = {
       cSkyZ: pal([0.22, 0.5, 0.86], [0.36, 0.44, 0.72], [0.2, 0.2, 0.48], [0.02, 0.04, 0.1]),
-      cSkyH: pal([0.78, 0.9, 0.96], [1.0, 0.76, 0.64], [1.0, 0.55, 0.3], [0.07, 0.11, 0.24]),
-      cSun: pal([1.0, 0.95, 0.84], [1.0, 0.74, 0.56], [1.0, 0.56, 0.28], [0.34, 0.42, 0.62]),
-      cAmb: pal([0.5, 0.55, 0.62], [0.46, 0.42, 0.54], [0.4, 0.33, 0.5], [0.11, 0.14, 0.26]),
+      cSkyH: pal([0.86, 0.89, 0.9], [1.0, 0.76, 0.64], [1.0, 0.55, 0.3], [0.07, 0.11, 0.24]),
+      cSun: pal([1.0, 0.86, 0.68], [1.0, 0.74, 0.56], [1.0, 0.56, 0.28], [0.34, 0.42, 0.62]),
+      cAmb: pal([0.47, 0.49, 0.54], [0.46, 0.42, 0.54], [0.4, 0.33, 0.5], [0.11, 0.14, 0.26]),
       cDeep: pal([0.04, 0.2, 0.45], [0.1, 0.18, 0.42], [0.08, 0.12, 0.34], [0.02, 0.05, 0.15]),
       cShal: pal([0.25, 0.8, 0.8], [0.5, 0.74, 0.8], [0.42, 0.56, 0.72], [0.07, 0.22, 0.36])
     };
@@ -1034,7 +1039,7 @@ function run() {
       if (next) next.textContent = nearestIsle(s.x, s.z)[0].name.toUpperCase();
     }
     if (still && !settling && Math.abs(s.tilt) < 0.001 && s.n > 2) engine.stop();
-  });
+  }, { maxPixels: 2.7e6, gpuBudget: 6.5 });
   engine.start();
   reducedMotion.addEventListener("change", () => engine.start());
 }

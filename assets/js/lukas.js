@@ -1,5 +1,5 @@
 // Lukas: a descent from 60,000 feet to the ground. The page scroll is the altitude; the sky is raymarched clouds.
-import { context, program, fullscreen, loop, reducedMotion, clamp } from "./gl.js";
+import { context, program, fullscreen, loop, reducedMotion, clamp } from "./gl.js?v=20261115";
 
 const FRAG = `#version 300 es
 precision highp float;

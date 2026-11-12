@@ -73,32 +73,68 @@ export function imageTexture(gl, image, unit = 1, { repeat = false } = {}) {
   return tex;
 }
 
+// Input anywhere on the page wakes every scene to its full frame rate for a little while.
+let lastInput = performance.now();
+const poke = () => { lastInput = performance.now(); };
+for (const type of ["pointermove", "pointerdown", "wheel", "keydown", "touchstart", "scroll"]) addEventListener(type, poke, { passive: true, capture: true });
+
 // Runs frame(t, dt, info) while the canvas is on screen and the tab is visible.
-// The drawing buffer follows the canvas's CSS size times a scale that drops when frames run long.
-export function loop(canvas, frame, { maxScale = 1, minScale = 0.45, budget = 0.034, startScale } = {}) {
+// Being kind to the machine it runs on:
+// - 30 frames a second while nobody's touching anything, 60 while they are (never 120, even on a 120 Hz screen);
+// - never more than maxPixels in the drawing buffer, however big or dense the screen;
+// - where the browser reports GPU time, the resolution settles where a frame costs about gpuBudget ms;
+//   elsewhere it drops when frames start arriving late.
+export function loop(canvas, frame, { maxScale = 1, minScale = 0.45, budget = 0.034, startScale, maxPixels = 2.4e6, fps = 30, activeFps = 60, gpuBudget = 6 } = {}) {
   const dpr = () => Math.min(2, window.devicePixelRatio || 1);
   const coarse = matchMedia("(pointer: coarse)").matches;
-  let scale = startScale ?? (coarse ? 0.6 : 0.85) * maxScale;
-  let raf = 0, prev = 0, slow = 0, fast = 0, visible = true, running = false, frames = 0;
+  const cap = () => Math.max(minScale, Math.min(maxScale, Math.sqrt(maxPixels / Math.max(1, canvas.clientWidth * canvas.clientHeight * dpr() * dpr()))));
+  let scale = Math.min(cap(), startScale ?? (coarse ? 0.6 : 0.85) * maxScale);
+  let raf = 0, prev = 0, slow = 0, fast = 0, visible = true, running = false, frames = 0, awakeUntil = 0;
+  const gl = canvas.getContext("webgl2");
+  const tq = gl && gl.getExtension("EXT_disjoint_timer_query_webgl2");
+  let query = null, gpu = 0, gpuN = 0, adjusted = 0;
   const size = () => {
+    scale = Math.min(scale, cap());
     const w = Math.max(1, Math.round(canvas.clientWidth * dpr() * scale)), h = Math.max(1, Math.round(canvas.clientHeight * dpr() * scale));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
   };
+  const readGpu = () => {
+    if (!query || !gl.getQueryParameter(query, gl.QUERY_RESULT_AVAILABLE)) return;
+    if (!gl.getParameter(tq.GPU_DISJOINT_EXT)) { const ms = gl.getQueryParameter(query, gl.QUERY_RESULT) / 1e6; gpu = gpuN ? gpu * 0.85 + ms * 0.15 : ms; gpuN += 1; }
+    gl.deleteQuery(query); query = null;
+  };
   const tick = (now) => {
     raf = 0;
-    const t = now / 1000, dt = prev ? Math.min(0.05, t - prev) : 1 / 60, raw = prev ? t - prev : 0;
-    prev = t;
-    frames += 1;
-    if (frames > 20 && raw > budget) { slow += 1; fast = 0; } else if (raw && raw < budget * 0.55) { fast += 1; slow = Math.max(0, slow - 1); }
-    if (slow > 18 && scale > minScale) { scale = Math.max(minScale, scale * 0.82); slow = 0; }
-    if (fast > 240 && scale < maxScale) { scale = Math.min(maxScale, scale * 1.1); fast = 0; }
-    size();
-    frame(t, dt, { width: canvas.width, height: canvas.height, scale });
     if (running && visible && !document.hidden) raf = requestAnimationFrame(tick);
+    const active = now - lastInput < 2500 || now < awakeUntil;
+    const interval = 1000 / (active ? activeFps : fps);
+    if (prev && now - prev < interval - 2.5) return;
+    const t = now / 1000, raw = prev ? (now - prev) / 1000 : 0, dt = prev ? Math.min(0.05, raw) : 1 / 60;
+    prev = now;
+    frames += 1;
+    if (tq) {
+      readGpu();
+      if (gpuN >= 6 && now - adjusted > 600) {
+        if (gpu > gpuBudget * 1.2 && scale > minScale) { scale = Math.max(minScale, scale * 0.88); gpuN = 0; adjusted = now; }
+        else if (gpu < gpuBudget * 0.55 && scale < cap()) { scale = Math.min(cap(), scale * 1.06); gpuN = 0; adjusted = now; }
+      }
+    } else {
+      const late = Math.max(budget, (interval / 1000) * 1.7);
+      if (frames > 20 && raw > late) { slow += 1; fast = 0; } else if (raw && raw < late * 0.55) { fast += 1; slow = Math.max(0, slow - 1); }
+      if (slow > 18 && scale > minScale) { scale = Math.max(minScale, scale * 0.82); slow = 0; }
+      if (fast > 240 && scale < cap()) { scale = Math.min(cap(), scale * 1.1); fast = 0; }
+    }
+    size();
+    const timing = tq && !query;
+    if (timing) { query = gl.createQuery(); gl.beginQuery(tq.TIME_ELAPSED_EXT, query); }
+    frame(t, dt, { width: canvas.width, height: canvas.height, scale });
+    if (timing) gl.endQuery(tq.TIME_ELAPSED_EXT);
   };
   const start = () => { running = true; if (!raf) { prev = 0; raf = requestAnimationFrame(tick); } };
   const stop = () => { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; };
-  const once = () => { if (!raf) raf = requestAnimationFrame((now) => { const r = running; running = false; tick(now); running = r; }); };
+  const once = () => { if (!raf) raf = requestAnimationFrame((now) => { const r = running; running = false; prev = 0; tick(now); running = r; }); };
+  // a scene can ask for full frame rate while something it's doing needs it (a flight, a camera move)
+  const wake = (ms = 400) => { awakeUntil = Math.max(awakeUntil, performance.now() + ms); };
   if ("IntersectionObserver" in window) {
     new IntersectionObserver((entries) => {
       visible = entries[0].isIntersecting;
@@ -107,7 +143,7 @@ export function loop(canvas, frame, { maxScale = 1, minScale = 0.45, budget = 0.
   }
   document.addEventListener("visibilitychange", () => { if (!document.hidden && running && visible && !raf) { prev = 0; raf = requestAnimationFrame(tick); } });
   new ResizeObserver(() => { if (!running) once(); }).observe(canvas);
-  return { start, stop, once, get scale() { return scale; } };
+  return { start, stop, once, wake, get scale() { return scale; }, get gpu() { return gpu; } };
 }
 
 export function seeded(seed) {
