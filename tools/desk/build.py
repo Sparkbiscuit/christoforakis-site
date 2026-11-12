@@ -90,11 +90,10 @@ M = {
     'soil': mat('soil', (0.07, 0.05, 0.035), 1.0),
     'driftwood': mat('driftwood', (0.3, 0.19, 0.12), 0.75),
     'cap': mat('cap', (0.5, 0.5, 0.5), 0.95, tex='cap.jpg'),
-    'tin': mat('tin', (0.74, 0.73, 0.7), 0.3, 1.0),
+    'tin': mat('tin', (0.72, 0.72, 0.71), 0.42, 0.45),
     'wax': mat('wax', (0.93, 0.86, 0.72), 0.5),
     'wick': mat('wick', (0.04, 0.035, 0.03), 0.9),
     'flame': mat('candle_flame', (1.0, 0.8, 0.45), 0.5, emit=(1.0, 0.62, 0.22)),
-    'label': mat('candle_label', (0.9, 0.9, 0.9), 0.7, tex='candle_label.jpg'),
 }
 
 # ---------------------------------------------------------------- mesh helpers
@@ -286,12 +285,14 @@ drawer('drawer_1', PX0 + 0.004, X1 - 0.004, 0.555, TOP - 0.032, (0.4, 0.2))
 drawer('drawer_2', PX0 + 0.004, X1 - 0.004, 0.335, 0.549, (0.7, 0.5))
 drawer('drawer_3', PX0 + 0.004, X1 - 0.004, 0.07, 0.329, (0.2, 0.7))
 
-# ================================================================ the dresser, to the left (only its right side shows)
+# ================================================================ the dresser, to the left: taller than the desk, five drawers all the same height
 dres = empty('dresser')
-DX0, DX1, DTOP = -1.32, -0.555, 1.0
+DX0, DX1, DTOP = -1.32, -0.555, 1.18
 box('dresser_top', DX0, DX1, -0.24, 0.31, DTOP - 0.026, DTOP, M['oak'], bevel=0.004, seg=3, parent=dres, uv=(0.83, 'x', (0.5, 0.3)))
 box('dresser_body', DX0 + 0.01, DX1 - 0.01, -0.225, 0.3, 0.0, DTOP - 0.026, M['oak'], bevel=0.002, seg=2, parent=dres, uv=(0.83, 'z', (0.1, 0.6)))
-for i, (z0, z1) in enumerate([(0.06, 0.29), (0.3, 0.53), (0.54, 0.76), (0.77, 0.965)]):
+ZLO, ZHI, ND, GAP = 0.06, DTOP - 0.036, 5, 0.01
+DH = (ZHI - ZLO - GAP * (ND - 1)) / ND
+for i, (z0, z1) in enumerate([(ZLO + k * (DH + GAP), ZLO + k * (DH + GAP) + DH) for k in range(ND)]):
     box('dresser_drawer_%d' % i, DX0 + 0.02, DX1 - 0.02, -0.245, -0.225, z0, z1, M['oak'], bevel=0.003, seg=3, parent=dres, uv=(0.83, 'x', (0.13 * i, 0.4)))
     box('dresser_pull_%d' % i, DX0 + 0.05, DX1 - 0.05, -0.2454, -0.2449, z1 - 0.022, z1 - 0.013, M['groove'], parent=dres)
 
@@ -613,29 +614,17 @@ merge(bm, b)
 bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(-13), 3, 'X'))
 zmin = min(v.co.z for v in bm.verts)
 bmesh.ops.translate(bm, vec=(0, 0, -zmin), verts=bm.verts)
-cap = empty('cap', (-0.93, -0.045, DTOP), dres)
+cap = empty('cap', (-0.89, -0.05, DTOP), dres)
 cap.rotation_euler = (0, 0, math.radians(28))
 finish('cap_body', bm, M['cap'], parent=cap, smooth=True, sharp=70)
 
-# ================================================================ the candle: a tin of pumpkin, standing on its own lid
+# ================================================================ the candle: a plain tin, standing on its own lid, lit
 cnd = empty('candle', (-0.655, -0.155, DTOP), dres)
 lathe('candle_lid', [(0, 0), (0.0405, 0), (0.0418, 0.0015), (0.0418, 0.0095), (0.0405, 0.011), (0, 0.011)], M['tin'], parent=cnd, seg=56)
-lathe('candle_tin', [(0, 0.011), (0.039, 0.011), (0.0398, 0.0125), (0.0398, 0.054), (0.0405, 0.0552), (0.0398, 0.0565), (0.0385, 0.0555), (0.0384, 0.02), (0, 0.02)], M['tin'], parent=cnd, seg=56)
+lathe('candle_tin', [(0, 0.011), (0.039, 0.011), (0.0398, 0.0125), (0.0398, 0.042), (0.0392, 0.0436), (0.0398, 0.0452), (0.0398, 0.054), (0.0405, 0.0552), (0.0398, 0.0565), (0.0385, 0.0555), (0.0384, 0.02), (0, 0.02)], M['tin'], parent=cnd, seg=56)
 lathe('candle_wax', [(0, 0.046), (0.0384, 0.046), (0.0384, 0.0455), (0, 0.0455)], M['wax'], parent=cnd, seg=48)
 lathe('candle_wick', [(0, 0.046), (0.0011, 0.046), (0.0011, 0.053), (0.0006, 0.0545), (0, 0.0547)], M['wick'], parent=cnd, seg=8)
-lathe('candle_flame', [(0, 0.0535), (0.0022, 0.0545), (0.0034, 0.058), (0.003, 0.0625), (0.0018, 0.067), (0, 0.0715)], M['flame'], parent=cnd, seg=16)
-bm = bmesh.new(); uvl = bm.loops.layers.uv.verify()
-A0, A1, NA = math.radians(-128), math.radians(8), 24
-rows = []
-for zz in (0.019, 0.047):
-    rows.append([bm.verts.new((0.0401 * math.cos(A0 + (A1 - A0) * i / NA), 0.0401 * math.sin(A0 + (A1 - A0) * i / NA), zz)) for i in range(NA + 1)])
-for i in range(NA):
-    f = bm.faces.new((rows[0][i], rows[0][i + 1], rows[1][i + 1], rows[1][i]))
-    for l, (u, v) in zip(f.loops, [(i / NA, 0), ((i + 1) / NA, 0), ((i + 1) / NA, 1), (i / NA, 1)]): l[uvl].uv = (u, v)
-bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
-for f in bm.faces:
-    if f.normal.dot(f.calc_center_median().to_2d().to_3d()) < 0: f.normal_flip()
-finish('candle_label', bm, M['label'], parent=cnd, smooth=True, sharp=0)
+lathe('candle_flame', [(0, 0.053), (0.003, 0.0545), (0.0046, 0.059), (0.0042, 0.066), (0.0026, 0.0735), (0.0009, 0.0805), (0, 0.083)], M['flame'], parent=cnd, seg=16)
 
 # ================================================================ the plant on the sill: a hoya in a white pot on a piece of driftwood
 PX, PY, PZ = 0.705, 0.17, SILL_Z + 0.03

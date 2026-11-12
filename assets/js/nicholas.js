@@ -91,9 +91,9 @@ function build() {
   const screenTex = (src, flip = true) => { const t = tl.load(src, () => { renderer.initTexture(t); }); t.colorSpace = THREE.SRGBColorSpace; t.flipY = flip; t.anisotropy = 8; return t; };
   // glTF's texture coordinates start at the top of the image, so these load unflipped
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
-  const lit = { shade: null, bulb: null, globe: null, flame: null, screens: [] };
+  const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261115", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261116", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -113,7 +113,9 @@ function build() {
         // frosted glass lit from inside: brightest where you look straight through it, deeper orange toward the rim
         m.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n float fz = clamp(dot(normal, normalize(vViewPosition)), 0., 1.);\n totalEmissiveRadiance *= mix(vec3(1., .5, .2), vec3(1.), fz * fz) * (.35 + .9 * fz);"); };
       }
-      else if (m.name === "candle_flame") { m.emissive = new THREE.Color(0xffa040); m.emissiveIntensity = 0; m.toneMapped = false; lit.flame = o; o.castShadow = false; o.visible = false; }
+      else if (m.name === "candle_flame") { m.emissive = new THREE.Color(0xffa040); m.emissiveIntensity = 0; m.toneMapped = false; lit.flame = o; o.castShadow = false; }
+      // lit wax glows: the flame shines down through it
+      else if (m.name === "wax") { m.emissive = new THREE.Color(0xffa548); m.emissiveIntensity = 0; lit.wax = o; }
       else if (m.name === "glass_black") { m.roughness = 0.05; m.envMapIntensity = 1.4; }
       else if (m.name === "wall") { m.envMapIntensity = 0.2; }
     });
@@ -127,7 +129,7 @@ function build() {
       H[key] = { node: g, meshes: [], home: g.position.clone() };
       g.traverse((o) => { if (o.isMesh) { H[key].meshes.push(o); groupOf.set(o, key); } });
       // each group gets its own copies of its materials, so it can glow on its own when pointed at
-      for (const o of H[key].meshes) { if (!lit.screens.includes(o.material) && o.material !== lit.shade && o.material !== lit.bulb && o !== lit.flame) { o.material = o.material.clone(); o.material.userData.glow = true; } }
+      for (const o of H[key].meshes) { if (!lit.screens.includes(o.material) && o.material !== lit.shade && o.material !== lit.bulb && o !== lit.flame && o !== lit.wax) { o.material = o.material.clone(); o.material.userData.glow = true; } }
     }
     // where the lights sit, from the model
     const bulb = find("lamp_bulb"), globe = find("globe_glass");
@@ -158,7 +160,7 @@ function build() {
     m.rotation.set(-Math.PI / 2, 0, THREE.MathUtils.degToRad(yaw)); m.position.set(x, z + 0.0006, -y); m.renderOrder = 1;
     scene.add(m);
   };
-  const DESK = 0.76, DRESSER = 1.0;
+  const DESK = 0.76, DRESSER = 1.18;
   contact(-0.2475, -0.0495, DESK, 0.42, 0.31, 0, 0.5);       // the MacBook
   contact(0.012, -0.085, DESK, 0.13, 0.12, -12, 0.45);       // the phone stands
   contact(0.15, -0.035, DESK, 0.13, 0.12, -22, 0.45);
@@ -167,8 +169,12 @@ function build() {
   contact(0, 0.262, DESK, 1.07, 0.09, 0, 0.35, edge);        // where the desk meets the wall
   contact(-0.73, 0.13, DRESSER, 0.3, 0.3, 0, 0.5);           // the globe
   contact(-0.655, -0.155, DRESSER, 0.12, 0.12, 0, 0.45);     // the candle
-  contact(-0.93, -0.045, DRESSER, 0.26, 0.3, 28, 0.4);       // the cap
+  contact(-0.89, -0.05, DRESSER, 0.26, 0.3, 28, 0.4);        // the cap
   contact(-0.9375, 0.267, DRESSER, 0.765, 0.085, 0, 0.35, edge);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color: 0xffa850, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
+  halo.position.set(-0.655, DRESSER + 0.068, 0.155); halo.scale.setScalar(0.12); scene.add(halo);
+  const candlePool = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), new THREE.MeshBasicMaterial({ color: 0xff9a40, alphaMap: pool, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
+  candlePool.rotation.x = -Math.PI / 2; candlePool.position.set(-0.655, DRESSER + 0.0008, 0.155); scene.add(candlePool);
   contact(0.712, 0.16, 0.865, 0.15, 0.3, -14, 0.35);         // the plant, on the sill
 
   // ---------- dust in the sunlight ----------
@@ -215,7 +221,7 @@ function build() {
 
   // ---------- shots ----------
   const SH = {
-    desk: { p: [0.2, 1.36, 2.05], t: [-0.06, 1.1, -0.16], fov: 37 },
+    desk: { p: [0.2, 1.42, 2.1], t: [-0.06, 1.2, -0.16], fov: 37 },
     site: { p: [-0.2475, 1.07, 0.47], t: [-0.2475, 0.885, -0.1], fov: 33 },
     river: { p: [-0.17, 1.38, 0.86], t: [-0.19, 1.43, -0.31], fov: 40 },
     hello: { p: [0.47, 1.01, 0.62], t: [0.3, 0.83, 0.14], fov: 30 },
@@ -288,7 +294,7 @@ function build() {
   canvas.addEventListener("pointerleave", () => { pointer = null; pick = null; });
   canvas.addEventListener("click", () => {
     if (pick === "lamp") { lampOn = !(lampOn ?? lampAuto()); return; }
-    if (pick === "candle") { candleOn = !(candleOn ?? lampAuto()); return; }
+    if (pick === "candle") { candleOn = !(candleOn ?? true); return; }
     if (pick) { if (pick === active && OPEN[pick]) location.href = OPEN[pick]; else go(pick); return; }
     if (active !== "desk") go("desk");
   });
@@ -387,10 +393,15 @@ function build() {
     if (lit.shade) lit.shade.emissiveIntensity = lampSpot.intensity / 2.4 * 0.9;
     if (lit.bulb) lit.bulb.emissiveIntensity = lampSpot.intensity / 2.4 * 6;
     if (lit.globe) lit.globe.emissiveIntensity = gk * 2.6;
+    // the candle is lit unless someone blows it out
     if (lit.flame) {
-      const on = candleOn ?? lamps;
+      const on = candleOn ?? true, fl = 0.85 + 0.1 * Math.sin(t * 13.1) + 0.06 * Math.sin(t * 23.7 + 1.3);
       lit.flame.visible = on;
-      if (on) { const fl = 0.85 + 0.1 * Math.sin(t * 13.1) + 0.06 * Math.sin(t * 23.7 + 1.3); lit.flame.material.emissiveIntensity = 2.2 * fl; lit.flame.scale.set(0.9 + 0.15 * fl, 1, 0.9 + 0.15 * fl); }
+      if (on) { lit.flame.material.emissiveIntensity = 3.2 * fl; lit.flame.scale.set(0.9 + 0.15 * fl, 1, 0.9 + 0.15 * fl); }
+      if (lit.wax) lit.wax.material.emissiveIntensity = on ? 0.75 * fl : 0;
+      const glowK = on ? fl * mixv(1, 0.45, day) : 0;
+      halo.material.opacity = 0.8 * glowK; halo.scale.setScalar(0.1 + 0.02 * fl);
+      candlePool.material.opacity = 0.32 * glowK;
     }
     for (const m of lit.screens) m.emissiveIntensity = mixv(1.05, 0.85, day);
     renderer.toneMappingExposure = mixv(1.15, 0.82, day);
@@ -429,7 +440,7 @@ function build() {
     camera.lookAt(cam.t);
     camera.updateProjectionMatrix();
     // the subject sits to the right of the sidebar on wide screens
-    camera.projectionMatrix.elements[8] = narrow ? 0 : -0.36;
+    camera.projectionMatrix.elements[8] = narrow ? 0 : -0.4;
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 
     // the plane's lazy loops; it banks into turns and goes over the top in the loop
@@ -459,7 +470,7 @@ function build() {
     if (tag) {
       if (pick && pointer && NAMES[pick]) {
         const [n, d] = NAMES[pick];
-        const label = pick === active && OPEN[pick] ? (pick === "site" ? "Open the chart" : pick === "aloft" ? "Play Aloft" : pick === "hello" ? "Reach out" : "Open") : pick === "lamp" ? (lampOn ?? lampAuto() ? "Turn it off" : "Turn it on") : pick === "candle" ? (candleOn ?? lampAuto() ? "Blow it out" : "Light it") : d;
+        const label = pick === active && OPEN[pick] ? (pick === "site" ? "Open the chart" : pick === "aloft" ? "Play Aloft" : pick === "hello" ? "Reach out" : "Open") : pick === "lamp" ? (lampOn ?? lampAuto() ? "Turn it off" : "Turn it on") : pick === "candle" ? (candleOn ?? true ? "Blow it out" : "Light it") : d;
         tag.innerHTML = `${n}<small>${label}</small>`;
         tag.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 14}px)`;
         tag.classList.add("is-on");

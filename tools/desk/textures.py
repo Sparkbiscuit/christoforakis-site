@@ -62,16 +62,19 @@ save(col,'granite.jpg',80)
 W=H=512
 tw=0.5+0.5*np.sin((np.arange(W)[None,:]+np.arange(H)[:,None])*2*np.pi/5.0)
 n=fbm(W,H,1,1,1.2,20)
-navy=np.dstack([0.16+0.012*tw+0.02*n,0.18+0.012*tw+0.02*n,0.26+0.014*tw+0.025*n])
+navy=np.dstack([0.19+0.012*tw+0.02*n,0.205+0.012*tw+0.02*n,0.27+0.014*tw+0.025*n])
 img=Image.fromarray((np.clip(navy,0,1)*255).astype(np.uint8))
-d=ImageDraw.Draw(img)
-f=ImageFont.truetype('/System/Library/Fonts/Supplemental/Georgia Bold.ttf',235)
-d.text((256,262),'B',font=f,fill=(196,30,48),anchor='mm',stroke_width=9,stroke_fill=(238,236,228))
-img.save(out+'/cap.jpg',quality=90)
-# ---- the candle's label ----
-img=Image.new('RGB',(512,192),(238,234,226))
-d=ImageDraw.Draw(img)
-f=ImageFont.truetype('/System/Library/Fonts/Supplemental/Bradley Hand Bold.ttf',84)
-d.text((256,100),'pumpkin',font=f,fill=(226,128,40),anchor='mm')
-img.save(out+'/candle_label.jpg',quality=90)
+# the hanging B, traced from a photo of his cap (sox-b.png: 128 = the white outline, 255 = the red)
+import os
+B=Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'sox-b.png')).convert('L')
+bh=262; bw=round(B.size[0]*bh/B.size[1])
+m=np.asarray(B.resize((bw,bh),Image.LANCZOS)).astype(np.float32)
+x0,y0=256-bw//2,172
+base=np.asarray(img).astype(np.float32)
+cut=base[y0:y0+bh,x0:x0+bw]
+ao=np.clip(m/128,0,1)[...,None]; ar=np.clip((m-128)/127,0,1)[...,None]
+cut=cut*(1-ao)+np.array([236,233,224])*ao
+cut=cut*(1-ar)+np.array([200,34,44])*ar
+base[y0:y0+bh,x0:x0+bw]=cut
+Image.fromarray(base.astype(np.uint8)).save(out+'/cap.jpg',quality=90)
 print('ok2')
