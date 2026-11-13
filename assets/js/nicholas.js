@@ -89,7 +89,7 @@ function build() {
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg?v=20261117", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
   const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261117", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261118", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -172,10 +172,10 @@ function build() {
   const glowSprite = (color, size) => { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 })); g.scale.setScalar(size); scene.add(g); return g; };
   const globeHalo = glowSprite(0xffa04a, 0.66), lampHalo = glowSprite(0xffaa58, 0.62);
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color: 0xffa850, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
-  halo.position.set(-0.655, DRESSER + 0.068, 0.155); halo.scale.setScalar(0.12); scene.add(halo);
+  halo.position.set(-0.655, DRESSER + 0.068, 0.155); halo.scale.setScalar(0.07); scene.add(halo);
   const candlePool = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), new THREE.MeshBasicMaterial({ color: 0xff9a40, alphaMap: pool, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
   candlePool.rotation.x = -Math.PI / 2; candlePool.position.set(-0.655, DRESSER + 0.0008, 0.155); scene.add(candlePool);
-  contact(0.712, 0.16, 0.865, 0.15, 0.3, -14, 0.35);         // the plant, on the sill
+  contact(0.705, 0.17, 0.865, 0.13, 0.13, 0, 0.45);          // the plant, on the sill
 
   // ---------- dust in the sunlight ----------
   const dust = (() => {
@@ -221,7 +221,7 @@ function build() {
     site: { p: [-0.2475, 1.07, 0.47], t: [-0.2475, 0.885, -0.1], fov: 33 },
     river: { p: [-0.17, 1.38, 0.86], t: [-0.19, 1.43, -0.31], fov: 40 },
     hello: { p: [0.47, 1.01, 0.62], t: [0.3, 0.83, 0.14], fov: 30 },
-    aloft: { p: [-0.06, 1.44, 1.9], t: [-0.1, 1.37, -0.1], fov: 46 },
+    aloft: { p: [0.36, 1.26, 0.96], t: [0.36, 1.12, -0.05], fov: 34 },
     filuma: { p: [0.0, 0.98, 0.45], t: [0.01, 0.85, 0.08], fov: 30 },
     meds: { p: [0.12, 0.98, 0.5], t: [0.15, 0.85, 0.04], fov: 30 }
   };
@@ -354,18 +354,12 @@ function build() {
   // ---------- frame ----------
   const clock = new THREE.Clock();
   const tmpUp = new THREE.Vector3(), basis = new THREE.Matrix4(), tmpQ = new THREE.Quaternion();
-  // the plane's route: low past the front of the lamp, across the board, round the left of the globe, back over the
-  // top of it and the lamp, with a loop-the-loop once a lap (three.js coordinates: x right, y up, z toward you)
-  const ROUTE = new THREE.CatmullRomCurve3([
-    [0.62, 1.2, -0.02], [0.36, 1.16, 0.16], [0, 1.22, 0.15], [-0.45, 1.3, 0.13], [-0.76, 1.4, 0.14], [-1.0, 1.49, -0.05],
-    [-0.92, 1.53, -0.19], [-0.6, 1.59, -0.17], [-0.15, 1.53, -0.12], [0.3, 1.5, -0.05], [0.62, 1.37, 0.05]
-  ].map((q) => new THREE.Vector3(...q)), true, "centripetal");
-  const LAP = ROUTE.getLength() / 0.13; // seconds a lap takes, at an unhurried 13 cm a second
   const planePath = (s) => {
-    const u = ((s / LAP) % 1 + 1) % 1, P = ROUTE.getPointAt(u);
-    const k = clamp((u - 0.16) / 0.07);
+    // a lazy oval around the lamp, with a loop-the-loop once a lap
+    const a = s * 0.45, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.27, 1.12 + Math.sin(a * 2) * 0.03, -0.05 + Math.sin(a) * 0.15);
+    const lap = ((a / (Math.PI * 2)) % 1 + 1) % 1, k = clamp((lap - 0.22) / 0.16);
     if (k > 0 && k < 1) {
-      const ph = ease(k) * Math.PI * 2, f = ROUTE.getTangentAt(u);
+      const ph = ease(k) * Math.PI * 2, f = new THREE.Vector3(-Math.sin(a) * 0.27, 0, Math.cos(a) * 0.15).normalize();
       P.addScaledVector(f, Math.sin(ph) * 0.055); P.y += (1 - Math.cos(ph)) * 0.055;
     }
     return P;
@@ -401,11 +395,11 @@ function build() {
     if (lit.flame) {
       const on = candleOn ?? true, fl = 0.85 + 0.1 * Math.sin(t * 13.1) + 0.06 * Math.sin(t * 23.7 + 1.3);
       lit.flame.visible = on;
-      if (on) { lit.flame.material.emissiveIntensity = 3.2 * fl; lit.flame.scale.set(0.9 + 0.15 * fl, 1, 0.9 + 0.15 * fl); }
-      if (lit.wax) lit.wax.material.emissiveIntensity = on ? 0.75 * fl : 0;
+      if (on) { lit.flame.material.emissiveIntensity = 1.7 * fl; lit.flame.scale.set(0.9 + 0.15 * fl, 1, 0.9 + 0.15 * fl); }
+      if (lit.wax) lit.wax.material.emissiveIntensity = on ? 0.4 * fl : 0;
       const glowK = on ? fl * mixv(1, 0.45, day) : 0;
-      halo.material.opacity = 0.8 * glowK; halo.scale.setScalar(0.1 + 0.02 * fl);
-      candlePool.material.opacity = 0.32 * glowK;
+      halo.material.opacity = 0.35 * glowK; halo.scale.setScalar(0.06 + 0.01 * fl);
+      candlePool.material.opacity = 0.14 * glowK;
     }
     for (const m of lit.screens) m.color.setScalar(mixv(0.9, 1, day));
     renderer.toneMappingExposure = mixv(1.15, 0.82, day);
@@ -429,11 +423,11 @@ function build() {
       // arc up and back a touch on the way, so the move reads as a move
       cam.p.y += Math.sin(e * Math.PI) * 0.08;
     }
-    // on Aloft the whole route is in view, and the camera drifts a little after the plane
+    // on Aloft, the camera keeps the plane in view as it goes round
     if (active === "aloft" && cam.k >= 1 && H.aloft && !reduced) {
       const pp = H.aloft.node.position;
-      cam.t.lerp(new THREE.Vector3(-0.1 + pp.x * 0.15, 1.37 + (pp.y - 1.38) * 0.3, -0.1), Math.min(1, dt * 1.2));
-      cam.p.lerp(new THREE.Vector3(-0.06 + pp.x * 0.15, 1.44, 1.9), Math.min(1, dt * 0.8));
+      cam.t.lerp(new THREE.Vector3(pp.x * 0.6 + 0.36 * 0.4, pp.y, pp.z * 0.5), Math.min(1, dt * 1.5));
+      cam.p.lerp(new THREE.Vector3(pp.x * 0.5 + 0.2, pp.y + 0.16, 0.9), Math.min(1, dt * 0.8));
     }
     look.x += (look.tx * (pointer && !reduced ? 1 : 0) - look.x) * Math.min(1, dt * 2);
     look.y += (look.ty * (pointer && !reduced ? 1 : 0) - look.y) * Math.min(1, dt * 2);
@@ -449,17 +443,17 @@ function build() {
 
     // the plane's lazy loops; it banks into turns and goes over the top in the loop
     if (H.aloft && model) {
-      const s = reduced ? 6 : t, e2 = 0.2;
+      const s = reduced ? 1.2 : t, e2 = 0.03;
       const p0 = planePath(s - e2), p1 = planePath(s), p2 = planePath(s + e2);
       const v = p2.clone().sub(p0).divideScalar(2 * e2), acc = p2.clone().add(p0).sub(p1.clone().multiplyScalar(2)).divideScalar(e2 * e2);
       const f = v.clone().normalize();
       // the plane leans into the pull of the turn against a light cartoon gravity, so it tips well over onto a wing
-      tmpUp.copy(acc).add(new THREE.Vector3(0, 0.045, 0)); tmpUp.addScaledVector(f, -tmpUp.dot(f)).normalize();
+      tmpUp.copy(acc).add(new THREE.Vector3(0, 0.06, 0)); tmpUp.addScaledVector(f, -tmpUp.dot(f)).normalize();
       const back = f.clone().negate(), right = new THREE.Vector3().crossVectors(tmpUp, back).normalize();
       basis.makeBasis(right, tmpUp, back);
       H.aloft.node.position.copy(p1);
       tmpQ.setFromRotationMatrix(basis);
-      if (reduced || !H.aloft.started) { H.aloft.node.quaternion.copy(tmpQ); H.aloft.started = true; } else H.aloft.node.quaternion.slerp(tmpQ, Math.min(1, dt * 5));
+      if (reduced || !H.aloft.started) { H.aloft.node.quaternion.copy(tmpQ); H.aloft.started = true; } else H.aloft.node.quaternion.slerp(tmpQ, Math.min(1, dt * 9));
     }
 
     // pointing

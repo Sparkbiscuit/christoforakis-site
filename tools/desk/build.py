@@ -88,7 +88,6 @@ M = {
     'stem': mat('stem', (0.1, 0.13, 0.06), 0.6),
     'pot': mat('pot', (0.9, 0.9, 0.88), 0.45),
     'soil': mat('soil', (0.07, 0.05, 0.035), 1.0),
-    'driftwood': mat('driftwood', (0.3, 0.19, 0.12), 0.75),
     'cap': mat('cap', (0.5, 0.5, 0.5), 0.95, tex='cap.jpg'),
     'tin': mat('tin', (0.72, 0.72, 0.71), 0.42, 0.45),
     'wax': mat('wax', (0.93, 0.86, 0.72), 0.5),
@@ -626,21 +625,11 @@ lathe('candle_wax', [(0, 0.046), (0.0384, 0.046), (0.0384, 0.0455), (0, 0.0455)]
 lathe('candle_wick', [(0, 0.046), (0.0011, 0.046), (0.0011, 0.053), (0.0006, 0.0545), (0, 0.0547)], M['wick'], parent=cnd, seg=8)
 lathe('candle_flame', [(0, 0.053), (0.003, 0.0545), (0.0046, 0.059), (0.0042, 0.066), (0.0026, 0.0735), (0.0009, 0.0805), (0, 0.083)], M['flame'], parent=cnd, seg=16)
 
-# ================================================================ the plant on the sill: a hoya in a white pot on a piece of driftwood
+# ================================================================ the plant on the sill: a hoya in a white pot
 PX, PY, PZ = 0.705, 0.17, SILL_Z + 0.03
-bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=28, v_segments=12, radius=1.0)
 import random
 rnd = random.Random(11)
-for v in bm.verts:
-    a = math.atan2(v.co.y, v.co.x)
-    k = 1 + 0.12 * math.sin(a * 3 + 1.3) + 0.06 * math.sin(a * 7)
-    v.co.x *= 0.05 * k; v.co.y *= 0.125 * k; v.co.z = max(v.co.z, -0.05) * 0.016
-    v.co.z += 0.0006 * math.sin(v.co.y * 160)
-zmin = min(v.co.z for v in bm.verts)
-bmesh.ops.translate(bm, vec=(PX + 0.012, PY - 0.01, PZ - zmin), verts=bm.verts)
-bmesh.ops.rotate(bm, verts=bm.verts, cent=(PX, PY, PZ), matrix=Matrix.Rotation(math.radians(-14), 3, 'Z'))
-finish('driftwood', bm, M['driftwood'], sharp=0)
-POT_Z = PZ + 0.028
+POT_Z = PZ
 lathe('pot', [(0, POT_Z), (0.034, POT_Z), (0.036, POT_Z + 0.004), (0.044, POT_Z + 0.07), (0.046, POT_Z + 0.072), (0.046, POT_Z + 0.076), (0.042, POT_Z + 0.076), (0.04, POT_Z + 0.06), (0, POT_Z + 0.06)], M['pot'], loc=(PX, PY, 0), seg=40)
 lathe('pot_soil', [(0, POT_Z + 0.066), (0.0405, POT_Z + 0.066), (0, POT_Z + 0.0665)], M['soil'], loc=(PX, PY, 0), seg=32)
 SOIL = POT_Z + 0.066
