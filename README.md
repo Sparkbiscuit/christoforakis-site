@@ -17,11 +17,11 @@ It's a static site. No framework, no package manager, no build step and no serve
 | `/foxy/` | Foxy's photographs, each with its own weather | `foxy/index.html`, `assets/js/foxy.js`, `assets/photos/` |
 | `/contact/` | A postcard with the ways to reach Nicholas | `contact/index.html` |
 | `/aloft/` | Aloft, the flying game | `aloft/index.html` |
-| `/projects/filuma/`, `/projects/meds-ahead/` | The stories behind the two apps (older page style) | `projects/`, `assets/css/site.css`, `assets/js/site.js` |
+| `/projects/filuma/`, `/projects/meds-ahead/` | The stories behind the two apps, in the desk page's colours | `projects/`, `assets/css/story.css` |
 | `/lagoonair/`, `/lagoonair/privacy/`, `/lagoonair/support/` | Lagoon Air's holding page, and its App Store privacy policy and support pages (older page style) | `lagoonair/` |
 | `/updates/` | Forwards old links to the matching note on Oksana's page | `updates/index.html` |
 
-Every page except the project stories and the Lagoon Air pages shares the header, family menu and footer from `assets/js/islands.js` and `assets/css/islands.css`.
+Every page except the Lagoon Air pages shares the header, family menu and footer from `assets/js/islands.js` and `assets/css/islands.css`.
 
 ## Adding a note to Oksana's page
 
@@ -36,7 +36,7 @@ The home chart, Andreas, Lukas and Oksana's print are full-screen fragment shade
 - where the browser reports GPU time (`EXT_disjoint_timer_query_webgl2`), the resolution settles where a frame costs a few milliseconds; elsewhere it drops when frames arrive late;
 - nothing renders while the canvas is off screen or the tab is hidden.
 
-The desk on `/nicholas/` uses three.js (loaded from jsDelivr) with the same rules, and its shadow maps only re-render when the light or something in it moves. The model is built by `tools/desk/build.py` in Blender; see `tools/desk/README.md`.
+The desk on `/nicholas/` uses three.js (loaded from jsDelivr) with the same rules; it renders straight to the canvas (no post-processing, so it keeps its antialiasing), the screens are unlit so their colours stay true, and its shadow maps only re-render when the light or something in it moves. The model is built by `tools/desk/build.py` in Blender; see `tools/desk/README.md`.
 
 `?time=day`, `?time=night` and `?time=dusk` fix the light on the chart and the desk. Without them, the light follows the visitor's clock, or their choice in the legend (stored as `isl-light`), or their system's dark mode.
 

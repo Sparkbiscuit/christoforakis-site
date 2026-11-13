@@ -5,88 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Meds Ahead · Built around a family need</title>
   <meta name="description" content="Why Nicholas Christoforakis built Meds Ahead, and the decisions behind its supply records, on-device scanning, and privacy. Free on iPhone, with no account required." />
-  <meta name="theme-color" content="#f8f7ed" />
+  <meta name="theme-color" content="#15110d" />
   <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/projects/meds-ahead/" />
   <meta property="og:title" content="Meds Ahead · Built around a family need" />
   <meta property="og:description" content="Today’s doses and tomorrow’s refill needs. The decisions behind Meds Ahead." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/projects/meds-ahead/" />
-  <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
+  <meta property="og:image" content="https://christoforakis.com/assets/og/nicholas.jpg?v=20261116" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Meds Ahead · Built around a family need" />
   <meta name="twitter:description" content="Medication supply tracking for iPhone, by Nicholas Christoforakis." />
-  <meta name="twitter:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
+  <meta name="twitter:image" content="https://christoforakis.com/assets/og/nicholas.jpg?v=20261116" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
-  <script src="/assets/js/site.js?v=20261115" defer></script>
-  <script src="/assets/js/motion.js?v=20260911" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261117" />
+  <link rel="stylesheet" href="/assets/css/story.css?v=20261117" />
+  <script src="/assets/js/islands.js?v=20261117" defer></script>
 </head>
-<body class="story-page story-page--meds">
-  <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/nicholas/">Nicholas</a></p></noscript>
+<body class="story--meds">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="isl-chrome" data-isl-chrome></div>
 
-  <main id="main">
-    <header class="story-hero shell">
+  <main id="main" class="story">
+    <header class="hero">
       <div>
-        <a class="text-link text-link--back" href="/nicholas/">Nicholas</a>
-        <p class="app-name">Meds Ahead</p>
-        <h1 class="display-title">Built around a family need.</h1>
+        <a class="back" href="/nicholas/#meds"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8h-10M7.5 4l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>The desk</a>
+        <p class="app">Meds Ahead · iPhone · free, no account</p>
+        <h1>Built around a family need.</h1>
         <p class="lead">I built Meds Ahead because my family needed help coordinating medications and refills. Knowing what was due was only part of it. We also needed to know what was running low.</p>
-        <div class="actions">
-          <a class="btn btn--ink" href="https://sparkbiscuit.me/meds/">Visit Meds Ahead</a>
-          <a class="text-link" href="https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619">App Store</a>
+        <div class="pills">
+          <a href="https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619">App Store</a>
+          <a href="https://sparkbiscuit.me/meds/">Visit Meds Ahead</a>
         </div>
       </div>
-      <figure class="story-hero__stage" data-parallax="-24">
-        <img class="screen" src="/assets/apps/meds-supply-660.jpg" alt="Meds Ahead’s Supply view: one medication to act on soon, and the rest ranked by when they run out" width="660" height="1434" fetchpriority="high" />
+      <figure class="phone">
+        <img src="/assets/apps/meds-supply-660.jpg" alt="Meds Ahead’s Supply view: one medication to act on soon, and the rest ranked by when they run out" width="660" height="1434" fetchpriority="high" />
       </figure>
     </header>
 
-    <section class="decisions shell" aria-label="Decisions behind Meds Ahead">
-      <article class="decision" data-parallax="12">
+    <section class="decisions" aria-label="Decisions behind Meds Ahead">
+      <article class="decision">
         <h2>Keep the changes explainable.</h2>
         <p><strong>Records.</strong> Supply comes from recorded inventory changes and taken doses. Refills, corrections, and dose logs give a count its history, so an estimate has something concrete behind it.<sup><a href="#note-forecast" id="ref-forecast" aria-label="Note 1">1</a></sup></p>
         <p>Dose logging uses a shared schedule engine to identify the scheduled dose across screens and avoid counting the same dose twice.</p>
         <p>Every run-out date has a <em>Why this date?</em> view that shows the count, refills, and doses behind it.</p>
       </article>
-      <article class="decision" data-parallax="22">
+      <article class="decision">
         <h2>You confirm what the camera finds.</h2>
         <p><strong>Scanning.</strong> Label text and supported barcodes are recognized on the device. You review the extracted details before saving a medication. Recognition is a starting point for entry, not a substitute for checking the label.</p>
         <p>When a label prints its NDC, Meds Ahead looks it up in a copy of the FDA’s National Drug Code Directory on the phone, and fills in the exact product only when the rest of the label agrees.</p>
       </article>
-      <article class="decision" data-parallax="32">
+      <article class="decision">
         <h2>No account to create.</h2>
         <p><strong>Privacy.</strong> Nothing leaves your iPhone. Medication records are stored on it, there are no ads or third-party analytics, and scanned images are not retained by the app. Your records can be included in your own device and iCloud backups.</p>
         <p>Reminders are scheduled on the phone, with detailed notification text off by default.</p>
       </article>
     </section>
 
-    <section class="story-close shell" aria-labelledby="try-title">
-      <div data-reveal>
-        <h2 class="section-title" id="try-title">Keep the next refill in view.</h2>
-        <p class="lead">Start with a medication, check its schedule and count, and build a record you can keep up with.</p>
+    <section class="close" aria-labelledby="try-title">
+      <div>
+        <h2 id="try-title">Keep the next refill in view.</h2>
+        <p>Start with a medication, check its schedule and count, and build a record you can keep up with.</p>
         <p>Free. Every feature included. No subscription. Optional tips support development and unlock nothing.</p>
-        <div class="actions">
-          <a class="btn btn--ink" href="https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619">Get Meds Ahead</a>
-          <a class="text-link" href="https://sparkbiscuit.me/meds/support/">Support and feedback</a>
+        <div class="pills">
+          <a href="https://apps.apple.com/us/app/meds-ahead-supply-tracker/id6804540619">Get Meds Ahead</a>
+          <a href="https://sparkbiscuit.me/meds/support/">Support and feedback</a>
         </div>
       </div>
-      <aside class="story-maker" data-parallax="16">
+      <aside class="maker">
         <h3>Made by Nicholas Christoforakis.</h3>
         <p>I study neuroscience at Middlebury and build apps for practical problems close to home. Meds Ahead is now released; the next step is learning from everyday use.</p>
         <p>Built with SwiftUI, SwiftData, and Vision.</p>
         <p class="links">
-          <a class="text-link" href="https://github.com/Sparkbiscuit/meds-ahead">Source</a>
-          <a class="text-link" href="https://sparkbiscuit.me/meds/privacy/">Privacy policy</a>
-          <a class="text-link" href="/projects/filuma/">The story of Filuma</a>
+          <a href="https://github.com/Sparkbiscuit/meds-ahead">Source</a>
+          <a href="https://sparkbiscuit.me/meds/privacy/">Privacy policy</a>
+          <a href="/projects/filuma/">The story of Filuma</a>
         </p>
       </aside>
     </section>
 
-    <aside class="footnotes shell" aria-label="Notes">
+    <aside class="notes" aria-label="Notes">
       <ol>
         <li id="note-forecast">Supply forecasts depend on the schedules, counts, and doses you record. They do not determine prescription refill eligibility or recommend changes to medication. <a href="#ref-forecast" aria-label="Back to the records decision">↩</a></li>
       </ol>
@@ -94,6 +94,6 @@
     </aside>
   </main>
 
-  <div data-site-footer></div>
+  <div data-isl-footer></div>
 </body>
 </html>

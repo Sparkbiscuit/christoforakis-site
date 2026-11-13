@@ -1,0 +1,69 @@
+/* The two app stories (Filuma, Meds Ahead), in the desk page's colours: what each app is for, and the decisions behind it. */
+:root {
+  --page-bg: #15110d; --page-ink: #f3ebde; --chrome-bg: rgba(21, 17, 13, 0.78); --footer-ink: rgba(243, 235, 222, 0.55);
+  --mono: "IBM Plex Mono", ui-monospace, monospace; --muted: #bfb3a2; --line: rgba(243, 235, 222, 0.16); --accent: #f0b56a;
+}
+.story--filuma { --accent: #f2a25c; }
+.story--meds { --accent: #7cc4e4; }
+body { background: #15110d; color: #f3ebde; }
+::selection { background: var(--accent); color: #15110d; }
+
+.story { max-width: 1180px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 64px); }
+
+/* the opening: words on the left, the app on a phone on the right */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(32px, 6vw, 100px); align-items: center; min-height: 100vh; min-height: 100svh; padding: 112px 0 72px; }
+.back { display: inline-flex; align-items: center; gap: 8px; font: 500 13px/1 var(--mono); color: var(--muted); text-decoration: none; }
+.back svg { width: 14px; height: 14px; transition: transform 0.2s ease; }
+.back:hover { color: #f3ebde; }
+.back:hover svg { transform: translateX(-3px); }
+.app { margin: 30px 0 0; font: 500 13px/1.4 var(--mono); letter-spacing: 0.04em; color: var(--accent); }
+.hero h1 { max-width: 11ch; margin: 12px 0 0; font-size: clamp(42px, 6.2vw, 84px); line-height: 0.98; font-weight: 790; letter-spacing: -0.045em; }
+.hero .lead { max-width: 33em; margin: 26px 0 0; font-size: clamp(17px, 1.4vw, 19px); line-height: 1.6; color: #e1d7c7; }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+.pills a {
+  display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(243, 235, 222, 0.3);
+  color: #f3ebde; font-size: 15px; font-weight: 680; line-height: 1; text-decoration: none; transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.pills a:first-child { background: #f3ebde; color: #1c1611; border-color: #f3ebde; }
+.pills a:hover { border-color: #f3ebde; }
+.pills a:first-child:hover { background: #fff; }
+
+.phone { position: relative; z-index: 0; width: min(320px, 30vw, calc((100svh - 220px) * 0.46)); margin: 0; transform: rotate(3deg); }
+.phone::before { content: ""; position: absolute; z-index: -1; inset: -16% -46%; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 30%, transparent), transparent); filter: blur(8px); }
+.phone img {
+  display: block; width: 100%; height: auto; border: clamp(7px, 0.8vw, 10px) solid #0b0b0c; border-radius: clamp(30px, 3.4vw, 46px); background: #000;
+  box-shadow: 0 0 0 1.5px #3a3733, 0 50px 90px -30px rgba(0, 0, 0, 0.85);
+}
+
+/* the decisions, numbered */
+.decisions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px); padding: 24px 0 112px; counter-reset: decision; }
+.decision { padding-top: 22px; border-top: 1px solid var(--line); counter-increment: decision; }
+.decision::before { content: counter(decision, decimal-leading-zero); font: 500 12px/1 var(--mono); color: var(--accent); }
+.decision h2 { margin: 16px 0 14px; font-size: clamp(22px, 2vw, 27px); line-height: 1.15; font-weight: 750; letter-spacing: -0.025em; }
+.decision p { margin: 0 0 12px; font-size: 16px; line-height: 1.62; color: #d5cbbb; }
+.decision strong { color: #f3ebde; font-weight: 700; }
+.story sup a { padding: 0 2px; color: var(--accent); font-size: 0.72em; text-decoration: none; }
+
+/* the close: try it, and who made it */
+.close { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: start; padding: 64px 0 96px; border-top: 1px solid var(--line); }
+.close h2 { max-width: 15ch; margin: 0; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.04; font-weight: 780; letter-spacing: -0.035em; }
+.close p { max-width: 34em; margin: 18px 0 0; font-size: 17px; line-height: 1.6; color: #d5cbbb; }
+.maker { padding: 26px 28px; border: 1px solid rgba(243, 235, 222, 0.1); border-radius: 18px; background: rgba(243, 235, 222, 0.045); }
+.maker h3 { margin: 0 0 10px; font-size: 18px; font-weight: 720; letter-spacing: -0.01em; }
+.maker p { margin: 0 0 10px; font-size: 15px; line-height: 1.55; color: #d5cbbb; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; }
+.links a { color: #f3ebde; font-size: 14.5px; font-weight: 650; text-decoration: underline; text-decoration-color: rgba(243, 235, 222, 0.35); text-underline-offset: 3px; }
+.links a:hover { text-decoration-color: currentColor; }
+
+.notes { max-width: 46em; padding: 0 0 80px; color: #a99d8b; font-size: 13.5px; line-height: 1.55; }
+.notes ol { margin: 0 0 10px; padding-left: 1.2em; }
+.notes a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; min-height: 0; padding: 100px 0 48px; }
+  .phone { justify-self: center; width: min(76vw, 300px); margin-top: 12px; }
+  /* on a phone the glow stays inside the screen, so it never widens the page */
+  .phone::before { inset: -10% -6%; }
+  .decisions { grid-template-columns: 1fr; padding-bottom: 72px; }
+  .close { grid-template-columns: 1fr; }
+}

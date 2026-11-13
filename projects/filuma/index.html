@@ -5,84 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Filuma · A plan has to survive the day</title>
   <meta name="description" content="Why Nicholas Christoforakis built Filuma, and three decisions behind how it schedules work, records progress, and brings the first step closer. For iPhone and iPad." />
-  <meta name="theme-color" content="#f8f7ed" />
+  <meta name="theme-color" content="#15110d" />
   <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" sizes="any" />
   <link rel="canonical" href="https://christoforakis.com/projects/filuma/" />
   <meta property="og:title" content="Filuma · A plan has to survive the day" />
   <meta property="og:description" content="A task, a deadline, a place to start. The decisions behind Filuma." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://christoforakis.com/projects/filuma/" />
-  <meta property="og:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
+  <meta property="og:image" content="https://christoforakis.com/assets/og/nicholas.jpg?v=20261116" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Filuma · A plan has to survive the day" />
   <meta name="twitter:description" content="The decisions behind Filuma, by Nicholas Christoforakis." />
-  <meta name="twitter:image" content="https://christoforakis.com/assets/backgrounds/nicholas-og.jpg?v=20260904-family2" />
+  <meta name="twitter:image" content="https://christoforakis.com/assets/og/nicholas.jpg?v=20261116" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260911" />
-  <script src="/assets/js/site.js?v=20261115" defer></script>
-  <script src="/assets/js/motion.js?v=20260911" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/islands.css?v=20261117" />
+  <link rel="stylesheet" href="/assets/css/story.css?v=20261117" />
+  <script src="/assets/js/islands.js?v=20261117" defer></script>
 </head>
-<body class="story-page story-page--filuma">
-  <div data-site-header></div>
-  <noscript><p class="shell"><a href="/">Home</a> · <a href="/nicholas/">Nicholas</a></p></noscript>
+<body class="story--filuma">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="isl-chrome" data-isl-chrome></div>
 
-  <main id="main">
-    <header class="story-hero shell">
+  <main id="main" class="story">
+    <header class="hero">
       <div>
-        <a class="text-link text-link--back" href="/nicholas/">Nicholas</a>
-        <p class="app-name">Filuma</p>
-        <h1 class="display-title">A plan has to survive the day.</h1>
+        <a class="back" href="/nicholas/#filuma"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8h-10M7.5 4l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>The desk</a>
+        <p class="app">Filuma · iPhone and iPad</p>
+        <h1>A plan has to survive the day.</h1>
         <p class="lead">I built Filuma around a problem close to home: making time for the work in front of me, with ADHD planning challenges in mind.</p>
-        <div class="actions">
-          <a class="btn btn--ink" href="https://sparkbiscuit.me/filuma/">Visit Filuma</a>
-          <a class="text-link" href="https://apps.apple.com/app/filuma/id6792247549">App Store</a>
+        <div class="pills">
+          <a href="https://apps.apple.com/app/filuma/id6792247549">App Store</a>
+          <a href="https://sparkbiscuit.me/filuma/">Visit Filuma</a>
         </div>
       </div>
-      <figure class="story-hero__stage" data-parallax="-24">
-        <img class="screen" src="/assets/apps/filuma-focus-660.jpg" alt="Filuma’s Today view shows a Design project, scheduled sessions, and upcoming work" width="660" height="1434" fetchpriority="high" />
+      <figure class="phone">
+        <img src="/assets/apps/filuma-focus-660.jpg" alt="Filuma’s Today view shows a Design project, scheduled sessions, and upcoming work" width="660" height="1434" fetchpriority="high" />
       </figure>
     </header>
 
-    <section class="decisions shell" aria-label="Decisions behind Filuma">
-      <article class="decision" data-parallax="12">
+    <section class="decisions" aria-label="Decisions behind Filuma">
+      <article class="decision">
         <h2>Work with the time that exists.</h2>
         <p><strong>Scheduling.</strong> The scheduler places blocks around existing commitments and prioritizes earlier deadlines when replanning. If the remaining work cannot fit, it surfaces that constraint so the deadline or estimate can be reconsidered.</p>
         <p>Apple Calendar integration separates importing busy time from exporting work blocks to a dedicated Filuma calendar. Each direction is optional.</p>
       </article>
-      <article class="decision" data-parallax="22">
+      <article class="decision">
         <h2>Time spent and work finished are different.</h2>
         <p><strong>Progress.</strong> A timer records effort. You decide how much of the task is complete. Work sessions are linked to their blocks so the same work is not counted twice, and unfinished effort stays in the plan.</p>
       </article>
-      <article class="decision" data-parallax="32">
+      <article class="decision">
         <h2>Bring the first action closer.</h2>
         <p><strong>Starting.</strong> The Focus card keeps the next block and an optional first step together. That step also appears in the session timer and block-start notification, so you do not have to reconstruct where to begin.</p>
       </article>
     </section>
 
-    <section class="story-close shell" aria-labelledby="try-title">
-      <div data-reveal>
-        <h2 class="section-title" id="try-title">Start with something you actually need to do.</h2>
-        <p class="lead">Try one task with a real deadline. Does the plan make sense? Is the next step clear? If something gets in the way, I’d like to hear about it.</p>
-        <div class="actions">
-          <a class="btn btn--ink" href="mailto:nick@christoforakis.com?subject=Filuma%20feedback">Send feedback</a>
-          <a class="text-link" href="https://apps.apple.com/app/filuma/id6792247549">Get Filuma on the App Store</a>
+    <section class="close" aria-labelledby="try-title">
+      <div>
+        <h2 id="try-title">Start with something you actually need to do.</h2>
+        <p>Try one task with a real deadline. Does the plan make sense? Is the next step clear? If something gets in the way, I’d like to hear about it.</p>
+        <div class="pills">
+          <a href="https://apps.apple.com/app/filuma/id6792247549">Get Filuma</a>
+          <a href="mailto:nick@christoforakis.com?subject=Filuma%20feedback">Send feedback</a>
         </div>
       </div>
-      <aside class="story-maker" data-parallax="16">
+      <aside class="maker">
         <h3>From building to learning.</h3>
         <p>Filuma is now on the App Store. The next step is learning how it holds up in everyday use.</p>
         <p>Built with SwiftUI, SwiftData, and EventKit.</p>
         <p class="links">
-          <a class="text-link" href="https://github.com/Sparkbiscuit/Filuma">Source</a>
-          <a class="text-link" href="https://sparkbiscuit.me/privacy/">Privacy policy</a>
-          <a class="text-link" href="/projects/meds-ahead/">The story of Meds Ahead</a>
+          <a href="https://github.com/Sparkbiscuit/Filuma">Source</a>
+          <a href="https://sparkbiscuit.me/privacy/">Privacy policy</a>
+          <a href="/projects/meds-ahead/">The story of Meds Ahead</a>
         </p>
       </aside>
     </section>
   </main>
 
-  <div data-site-footer></div>
+  <div data-isl-footer></div>
 </body>
 </html>
