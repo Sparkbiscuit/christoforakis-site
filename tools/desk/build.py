@@ -540,8 +540,12 @@ def spline(pts, n=10):
     out.append(P[-2])
     return out
 
-# ================================================================ his Red Sox cap, tipped back on the dresser
+# ================================================================ his Red Sox cap, sitting on the dresser
 CA, CB, CH = 0.088, 0.099, 0.112
+# the bill is curved like a worn cap's: arched up in the middle and down to its sides, and the front of the band
+# follows that arch where the bill is sewn on, so the cap rests on the back of its band and the bill's two sides
+ARCH, BX = 0.021, CA * abs(math.cos(math.radians(198)))
+arch = lambda x, w=BX: ARCH * max(0.0, 1 - (x / w) ** 2)
 bm = bmesh.new(); uvl = bm.loops.layers.uv.verify()
 NT, NP = 72, 14
 ring = []
@@ -555,6 +559,7 @@ for j in range(NP + 1):
         x = CA * math.cos(th) * math.cos(ph) * seam; y = CB * math.sin(th) * math.cos(ph) * seam
         z = CH * math.sin(ph) ** 0.85
         if y < 0: z += 0.012 * (-y / CB) * math.sin(ph)        # the front stands a little taller
+        if y < 0: z += arch(x) * (1 - min(1.0, z / 0.05)) ** 2   # the band rises with the bill's arch
         row.append(bm.verts.new((x, y, z)))
     ring.append(row)
 top = bm.verts.new((0, -0.006, CH + 0.004))
@@ -578,7 +583,7 @@ for i in range(NB + 1):
     for r in range(NR + 1):
         q = r / NR
         x = ix * (1 + 0.1 * q); y = iy - reach * q
-        z = 0.004 - 0.7 * x * x
+        z = 0.002 + arch(x, BX * (1 + 0.1 * q)) * (1 - 0.3 * q * q)
         row.append((x, y, z))
     bill.append(row)
 BT = 0.0035
@@ -609,7 +614,7 @@ uv2 = b.loops.layers.uv.verify()
 for f in b.faces:
     for l in f.loops: l[uv2].uv = (0.04, 0.04)
 merge(bm, b)
-# it sits flat on its band, the bill's curved edges resting on the dresser; then it's turned to show the B
+# it rests on the back of its band and the bill's sides; then it's turned to show the B
 for v in bm.verts:
     if v.co.z < 0.0005: v.co.z = 0.0005
 cap = empty('cap', (-0.706, -0.1, DTOP), dres)
