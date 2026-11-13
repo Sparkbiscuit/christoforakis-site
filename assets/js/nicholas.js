@@ -89,7 +89,7 @@ function build() {
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg?v=20261117", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
   const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261121", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261122", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;

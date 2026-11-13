@@ -67,9 +67,9 @@ img=Image.fromarray((np.clip(navy,0,1)*255).astype(np.uint8))
 # the hanging B, traced from a photo of his cap (sox-b.png: 128 = the white outline, 255 = the red)
 import os
 B=Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'sox-b.png')).convert('L')
-bh=262; bw=round(B.size[0]*bh/B.size[1])
+bh=222; bw=round(B.size[0]*bh/B.size[1])
 m=np.asarray(B.resize((bw,bh),Image.LANCZOS)).astype(np.float32)
-x0,y0=256-bw//2,172
+x0,y0=256-bw//2,106   # its foot sits just above where the arched bill meets the crown
 base=np.asarray(img).astype(np.float32)
 cut=base[y0:y0+bh,x0:x0+bw]
 ao=np.clip(m/128,0,1)[...,None]; ar=np.clip((m-128)/127,0,1)[...,None]
