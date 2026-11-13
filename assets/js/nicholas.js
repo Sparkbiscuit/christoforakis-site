@@ -3,10 +3,6 @@
 // index or in the room and the camera goes to it; pick it again and it opens.
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const room = document.querySelector("[data-desk]");
@@ -90,10 +86,10 @@ function build() {
   const tl = new THREE.TextureLoader();
   const screenTex = (src, flip = true) => { const t = tl.load(src, () => { renderer.initTexture(t); }); t.colorSpace = THREE.SRGBColorSpace; t.flipY = flip; t.anisotropy = 8; return t; };
   // glTF's texture coordinates start at the top of the image, so these load unflipped
-  const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
+  const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg?v=20261117", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
   const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261116", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261117", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -103,7 +99,8 @@ function build() {
       if (!m) return;
       if (m.map) m.map.anisotropy = 8;
       if (screens[m.name]) {
-        const sm = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: screens[m.name], emissiveIntensity: 1, roughness: 0.18, metalness: 0 });
+        // a screen makes its own light: unlit, no glare, and spared the tone mapping, so its colours and whites stay true
+        const sm = new THREE.MeshBasicMaterial({ map: screens[m.name], toneMapped: false });
         sm.name = m.name; o.material = sm; o.castShadow = false; lit.screens.push(sm);
       } else if (m.name === "lamp_shade") {
         m.side = THREE.DoubleSide; m.emissive = new THREE.Color(0xffb366); m.emissiveMap = m.map; m.emissiveIntensity = 0; lit.shade = m; o.castShadow = false;
@@ -133,8 +130,8 @@ function build() {
     }
     // where the lights sit, from the model
     const bulb = find("lamp_bulb"), globe = find("globe_glass");
-    if (bulb) { const p = bulb.getWorldPosition(new THREE.Vector3()); lampSpot.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); lampSpot.target.position.copy(p).add(new THREE.Vector3(-0.1, -1, 0.12)); lampGlow.position.copy(p).add(new THREE.Vector3(0, 0.1, 0.02)); }
-    if (globe) { const p = globe.getWorldPosition(new THREE.Vector3()); globeGlow.position.copy(p).add(new THREE.Vector3(0.05, 0.14, 0.12)); }
+    if (bulb) { const p = bulb.getWorldPosition(new THREE.Vector3()); lampSpot.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); lampSpot.target.position.copy(p).add(new THREE.Vector3(-0.1, -1, 0.12)); lampGlow.position.copy(p).add(new THREE.Vector3(0, 0.1, 0.02)); lampHalo.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); }
+    if (globe) { const p = globe.getWorldPosition(new THREE.Vector3()); globeGlow.position.copy(p).add(new THREE.Vector3(0.05, 0.14, 0.12)); globe.geometry.computeBoundingSphere(); globeHalo.position.copy(globe.geometry.boundingSphere.center).applyMatrix4(globe.matrixWorld); }
     // the plane flies; the stand it would sit on doesn't exist, so it starts in the air
     if (H.aloft) { H.aloft.node.position.set(0.36, 1.12, -0.04); H.aloft.node.scale.setScalar(0.62); H.aloft.node.traverse((o) => { o.castShadow = false; }); }
     shadowsFor = 3;
@@ -171,6 +168,9 @@ function build() {
   contact(-0.655, -0.155, DRESSER, 0.12, 0.12, 0, 0.45);     // the candle
   contact(-0.89, -0.05, DRESSER, 0.26, 0.3, 28, 0.4);        // the cap
   contact(-0.9375, 0.267, DRESSER, 0.765, 0.085, 0, 0.35, edge);
+  // soft glows round the lit globe and the lamp shade (they used to come from a bloom pass)
+  const glowSprite = (color, size) => { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 })); g.scale.setScalar(size); scene.add(g); return g; };
+  const globeHalo = glowSprite(0xffa04a, 0.66), lampHalo = glowSprite(0xffaa58, 0.62);
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color: 0xffa850, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
   halo.position.set(-0.655, DRESSER + 0.068, 0.155); halo.scale.setScalar(0.12); scene.add(halo);
   const candlePool = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), new THREE.MeshBasicMaterial({ color: 0xff9a40, alphaMap: pool, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
@@ -213,11 +213,7 @@ function build() {
   })();
 
   // ---------- post ----------
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.55, 0.92);
-  composer.addPass(bloom);
-  composer.addPass(new OutputPass());
+  // (no post-processing: rendering straight to the canvas keeps its antialiasing, and the glows are soft sprites instead)
 
   // ---------- shots ----------
   const SH = {
@@ -225,7 +221,7 @@ function build() {
     site: { p: [-0.2475, 1.07, 0.47], t: [-0.2475, 0.885, -0.1], fov: 33 },
     river: { p: [-0.17, 1.38, 0.86], t: [-0.19, 1.43, -0.31], fov: 40 },
     hello: { p: [0.47, 1.01, 0.62], t: [0.3, 0.83, 0.14], fov: 30 },
-    aloft: { p: [0.36, 1.26, 0.96], t: [0.36, 1.12, -0.05], fov: 34 },
+    aloft: { p: [-0.06, 1.44, 1.9], t: [-0.1, 1.37, -0.1], fov: 46 },
     filuma: { p: [0.0, 0.98, 0.45], t: [0.01, 0.85, 0.08], fov: 30 },
     meds: { p: [0.12, 0.98, 0.5], t: [0.15, 0.85, 0.04], fov: 30 }
   };
@@ -335,7 +331,7 @@ function build() {
     W = canvas.clientWidth; Hh = canvas.clientHeight;
     const pr = Math.max(0.6, Math.min(devicePixelRatio || 1, coarse ? 1.5 : 1.75, Math.sqrt(MAX_PIXELS / Math.max(1, W * Hh))) * quality);
     renderer.setPixelRatio(pr);
-    renderer.setSize(W, Hh, false); composer.setPixelRatio(pr); composer.setSize(W, Hh);
+    renderer.setSize(W, Hh, false);
     camera.aspect = W / Hh;
   };
   new ResizeObserver(size).observe(canvas); size();
@@ -357,13 +353,19 @@ function build() {
 
   // ---------- frame ----------
   const clock = new THREE.Clock();
-  const tmpUp = new THREE.Vector3(), basis = new THREE.Matrix4();
+  const tmpUp = new THREE.Vector3(), basis = new THREE.Matrix4(), tmpQ = new THREE.Quaternion();
+  // the plane's route: low past the front of the lamp, across the board, round the left of the globe, back over the
+  // top of it and the lamp, with a loop-the-loop once a lap (three.js coordinates: x right, y up, z toward you)
+  const ROUTE = new THREE.CatmullRomCurve3([
+    [0.62, 1.2, -0.02], [0.36, 1.16, 0.16], [0, 1.22, 0.15], [-0.45, 1.3, 0.13], [-0.76, 1.4, 0.14], [-1.0, 1.49, -0.05],
+    [-0.92, 1.53, -0.19], [-0.6, 1.59, -0.17], [-0.15, 1.53, -0.12], [0.3, 1.5, -0.05], [0.62, 1.37, 0.05]
+  ].map((q) => new THREE.Vector3(...q)), true, "centripetal");
+  const LAP = ROUTE.getLength() / 0.13; // seconds a lap takes, at an unhurried 13 cm a second
   const planePath = (s) => {
-    // a lazy oval around the lamp, with a loop-the-loop once a lap
-    const a = s * 0.55, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.27, 1.12 + Math.sin(a * 2) * 0.03, -0.05 + Math.sin(a) * 0.15);
-    const lap = ((a / (Math.PI * 2)) % 1 + 1) % 1, k = clamp((lap - 0.22) / 0.16);
+    const u = ((s / LAP) % 1 + 1) % 1, P = ROUTE.getPointAt(u);
+    const k = clamp((u - 0.16) / 0.07);
     if (k > 0 && k < 1) {
-      const ph = ease(k) * Math.PI * 2, f = new THREE.Vector3(-Math.sin(a) * 0.27, 0, Math.cos(a) * 0.15).normalize();
+      const ph = ease(k) * Math.PI * 2, f = ROUTE.getTangentAt(u);
       P.addScaledVector(f, Math.sin(ph) * 0.055); P.y += (1 - Math.cos(ph)) * 0.055;
     }
     return P;
@@ -393,6 +395,8 @@ function build() {
     if (lit.shade) lit.shade.emissiveIntensity = lampSpot.intensity / 2.4 * 0.9;
     if (lit.bulb) lit.bulb.emissiveIntensity = lampSpot.intensity / 2.4 * 6;
     if (lit.globe) lit.globe.emissiveIntensity = gk * 2.6;
+    globeHalo.material.opacity = gk * 0.5;
+    lampHalo.material.opacity = (lampSpot.intensity / 2.4) * mixv(0.42, 0.12, day);
     // the candle is lit unless someone blows it out
     if (lit.flame) {
       const on = candleOn ?? true, fl = 0.85 + 0.1 * Math.sin(t * 13.1) + 0.06 * Math.sin(t * 23.7 + 1.3);
@@ -403,7 +407,7 @@ function build() {
       halo.material.opacity = 0.8 * glowK; halo.scale.setScalar(0.1 + 0.02 * fl);
       candlePool.material.opacity = 0.32 * glowK;
     }
-    for (const m of lit.screens) m.emissiveIntensity = mixv(1.05, 0.85, day);
+    for (const m of lit.screens) m.color.setScalar(mixv(0.9, 1, day));
     renderer.toneMappingExposure = mixv(1.15, 0.82, day);
     scene.environmentIntensity = mixv(0.06, 0.2, day);
     dust.uniforms.uA.value = 0.55 * day * (0.5 + 0.5 * gold); dust.uniforms.uT.value = t; dust.uniforms.uPx.value = 4 * renderer.getPixelRatio();
@@ -425,11 +429,11 @@ function build() {
       // arc up and back a touch on the way, so the move reads as a move
       cam.p.y += Math.sin(e * Math.PI) * 0.08;
     }
-    // on Aloft, the camera keeps the plane in view as it goes round
+    // on Aloft the whole route is in view, and the camera drifts a little after the plane
     if (active === "aloft" && cam.k >= 1 && H.aloft && !reduced) {
       const pp = H.aloft.node.position;
-      cam.t.lerp(new THREE.Vector3(pp.x * 0.6 + 0.36 * 0.4, pp.y, pp.z * 0.5), Math.min(1, dt * 1.5));
-      cam.p.lerp(new THREE.Vector3(pp.x * 0.5 + 0.2, pp.y + 0.16, 0.9), Math.min(1, dt * 0.8));
+      cam.t.lerp(new THREE.Vector3(-0.1 + pp.x * 0.15, 1.37 + (pp.y - 1.38) * 0.3, -0.1), Math.min(1, dt * 1.2));
+      cam.p.lerp(new THREE.Vector3(-0.06 + pp.x * 0.15, 1.44, 1.9), Math.min(1, dt * 0.8));
     }
     look.x += (look.tx * (pointer && !reduced ? 1 : 0) - look.x) * Math.min(1, dt * 2);
     look.y += (look.ty * (pointer && !reduced ? 1 : 0) - look.y) * Math.min(1, dt * 2);
@@ -445,15 +449,17 @@ function build() {
 
     // the plane's lazy loops; it banks into turns and goes over the top in the loop
     if (H.aloft && model) {
-      const s = reduced ? 1.2 : t, e2 = 0.01;
+      const s = reduced ? 6 : t, e2 = 0.2;
       const p0 = planePath(s - e2), p1 = planePath(s), p2 = planePath(s + e2);
       const v = p2.clone().sub(p0).divideScalar(2 * e2), acc = p2.clone().add(p0).sub(p1.clone().multiplyScalar(2)).divideScalar(e2 * e2);
       const f = v.clone().normalize();
-      tmpUp.copy(acc).add(new THREE.Vector3(0, 0.55, 0)); tmpUp.addScaledVector(f, -tmpUp.dot(f)).normalize();
+      // the plane leans into the pull of the turn against a light cartoon gravity, so it tips well over onto a wing
+      tmpUp.copy(acc).add(new THREE.Vector3(0, 0.045, 0)); tmpUp.addScaledVector(f, -tmpUp.dot(f)).normalize();
       const back = f.clone().negate(), right = new THREE.Vector3().crossVectors(tmpUp, back).normalize();
       basis.makeBasis(right, tmpUp, back);
       H.aloft.node.position.copy(p1);
-      H.aloft.node.quaternion.setFromRotationMatrix(basis);
+      tmpQ.setFromRotationMatrix(basis);
+      if (reduced || !H.aloft.started) { H.aloft.node.quaternion.copy(tmpQ); H.aloft.started = true; } else H.aloft.node.quaternion.slerp(tmpQ, Math.min(1, dt * 5));
     }
 
     // pointing
@@ -483,7 +489,7 @@ function build() {
     if (shadowsFor > 0) { renderer.shadowMap.needsUpdate = true; shadowsFor -= 1; shadowHour = hour; }
     const timing = tq && !query;
     if (timing) { query = glc.createQuery(); glc.beginQuery(tq.TIME_ELAPSED_EXT, query); }
-    composer.render(dt);
+    renderer.render(scene, camera);
     if (timing) glc.endQuery(tq.TIME_ELAPSED_EXT);
   }
   renderer.setAnimationLoop(frame);

@@ -62,7 +62,7 @@ M = {
     'glass_black': mat('glass_black', (0.004, 0.004, 0.005), 0.06),
     'mbp_screen': mat('mbp_screen', (0.02, 0.02, 0.02), 0.08),
     'hinge': mat('hinge', (0.05, 0.05, 0.055), 0.45, 0.6),
-    'grille': mat('grille', (0.03, 0.03, 0.032), 0.7),
+    'grille': mat('grille', (0.15, 0.15, 0.16), 0.55, 0.5),
     'ti_desert': mat('ti_desert', (0.77, 0.68, 0.58), 0.32, 1.0),
     'ti_natural': mat('ti_natural', (0.74, 0.73, 0.7), 0.3, 1.0),
     'back_desert': mat('back_desert', (0.72, 0.62, 0.51), 0.55),
