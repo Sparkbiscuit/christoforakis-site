@@ -612,6 +612,8 @@ function run() {
   // the keyboard hint means nothing on a phone: there you just drag to steer, so the note only speaks when there's news
   if (note && matchMedia("(pointer: coarse)").matches) { note.dataset.help = ""; note.textContent = ""; }
   const flyButton = root.querySelector("[data-fly]");
+  const board = root.querySelector("[data-board]");
+  const ring = root.querySelector("[data-plane-ring]");
   const flyLabel = flyButton && flyButton.querySelector("span");
   const flash = root.querySelector("[data-flash]");
   const still0 = reducedMotion.matches;
@@ -631,7 +633,9 @@ function run() {
 
   function layout() {
     const W = root.clientWidth, H = root.clientHeight, portrait = W / H < 0.95;
-    const lb = legend ? legend.getBoundingClientRect() : { right: 0, top: H }, rb = root.getBoundingClientRect();
+    const lr = legend ? legend.getBoundingClientRect() : { right: 0, top: H }, rb = root.getBoundingClientRect();
+    // the take-off card sits on top of the legend, so the chart keeps clear of both
+    const lb = { right: lr.right, top: board && !board.hidden ? Math.min(lr.top, board.getBoundingClientRect().top) : lr.top };
     let free;
     if (portrait) free = { x0: 0, x1: W, y0: 70, y1: Math.max(H * 0.42, lb.top - rb.top + 24) };
     else free = { x0: Math.min(W * 0.42, Math.max(0, lb.right - rb.left + 12)), x1: W - 8, y0: 64, y1: H - 22 };
@@ -691,16 +695,23 @@ function run() {
     }
     return null;
   };
+  // the seaplane itself can be taken: pointing at it rings it, clicking it takes off
+  const onPlane = (x, y) => !s.fly && s.pxy && Math.hypot(x - s.pxy[0], y - s.pxy[1]) < 34;
+  const showRing = () => { if (ring) ring.classList.toggle("is-on", s.planeHot || s.boardHot); };
   root.addEventListener("pointermove", (e) => {
     const rect = root.getBoundingClientRect();
     ptr.x = ((e.clientX - rect.left) / rect.width - 0.5) * 2; ptr.y = -((e.clientY - rect.top) / rect.height - 0.5) * 2; ptr.t = performance.now();
-    if (!s.fly && e.target === canvas) { const q = pick(e.clientX - rect.left, e.clientY - rect.top); setHi(q && q.key !== "home" ? q.key : null); }
+    const hot = e.target === canvas && onPlane(e.clientX - rect.left, e.clientY - rect.top);
+    if (hot !== !!s.planeHot) { s.planeHot = hot; showRing(); }
+    if (!s.fly && e.target === canvas) { const q = hot ? null : pick(e.clientX - rect.left, e.clientY - rect.top); setHi(q && q.key !== "home" ? q.key : null); }
+    root.style.cursor = hot || (s.hi > 0 && !s.fly) ? "pointer" : "";
     engine.start();
   });
   root.addEventListener("pointerleave", () => { ptr.t = -1e9; if (!s.fly) setHi(null); });
   canvas.addEventListener("click", (e) => {
     if (s.fly) return;
     const rect = root.getBoundingClientRect();
+    if (onPlane(e.clientX - rect.left, e.clientY - rect.top)) { s.planeHot = false; showRing(); setFly(true); return; }
     const q = pick(e.clientX - rect.left, e.clientY - rect.top);
     if (q && q.key !== "home") location.href = q.href;
   });
@@ -723,6 +734,12 @@ function run() {
     engine.start();
   };
   if (flyButton) { flyButton.hidden = false; flyButton.addEventListener("click", () => setFly(!s.fly)); }
+  if (board) {
+    board.hidden = false;
+    board.addEventListener("click", () => { s.boardHot = false; showRing(); setFly(true); });
+    for (const [type, on] of [["pointerenter", true], ["pointerleave", false], ["focus", true], ["blur", false]]) board.addEventListener(type, () => { s.boardHot = on; showRing(); });
+    view = layout();
+  }
   const KEYS = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1, KeyA: 1, KeyD: 1, KeyW: 1, KeyS: 1 };
   addEventListener("keydown", (e) => {
     if (!s.fly) return;
@@ -1025,6 +1042,15 @@ function run() {
       // the name is printed on the island itself, a little below its summit
       const hw = (el._w || (el._w = el.offsetWidth)) / 2, lx = ez < 0.5 ? clamp(q[0], hw + 6, W - hw - 6) : q[0];
       el.style.transform = `translate(${lx.toFixed(1)}px,${(q[1] + mix(26, -14, ez)).toFixed(1)}px) translate(-50%,${ez > 0.5 ? -100 : -50}%)`;
+    }
+    {
+      const q = ez < 0.02 ? proj([s.x, s.y, s.z]) : null;
+      s.pxy = q && q[0] > 0 && q[0] < W && q[1] > 0 && q[1] < H ? q : null;
+      if (ring && s.pxy) ring.style.transform = `translate(${q[0].toFixed(1)}px,${q[1].toFixed(1)}px)`;
+      if (ring && !s.called && s.intro >= 1 && s.pxy && !reducedMotion.matches) {
+        s.called = true;
+        setTimeout(() => { ring.classList.add("is-calling"); setTimeout(() => ring.classList.remove("is-calling"), 2700); }, 900);
+      }
     }
     if (legend) {
       legend.style.opacity = (1 - Math.min(1, ez * 2.2)).toFixed(2);
