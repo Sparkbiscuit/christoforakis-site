@@ -13,8 +13,7 @@ const SEASONS = {
   flurries: { bg: [52, 58, 66], leaves: 0.08, snow: 0.35, motes: 0, bubbles: 0, now: "first snow" },
   snow: { bg: [70, 82, 96], leaves: 0, snow: 2.4, motes: 0, bubbles: 0, now: "heavy snow" },
   sun: { bg: [38, 52, 30], leaves: 0, snow: 0, motes: 0.7, bubbles: 0, now: "sunny" },
-  bath: { bg: [36, 50, 58], leaves: 0, snow: 0, motes: 0, bubbles: 1, now: "bath time" },
-  home: { bg: [52, 35, 24], leaves: 0, snow: 0.16, motes: 0, bubbles: 0, now: "snow outside" }
+  bath: { bg: [36, 50, 58], leaves: 0, snow: 0, motes: 0, bubbles: 1, now: "bath time" }
 };
 // the sun is a light over the whole page, so it's a layer the compositor fades rather than something drawn each frame
 const glow = document.createElement("div");

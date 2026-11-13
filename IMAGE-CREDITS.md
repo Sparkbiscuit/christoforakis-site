@@ -6,7 +6,7 @@ This file records the origin, license, production treatment, and placement of ph
 
 | Production file | Subject | Creator / source | License | Site use and modifications |
 | --- | --- | --- | --- | --- |
-| `assets/interests/airliner.jpg` | Airbus A380 at sunset | [Chad Ajamian / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | Lukas’s Airliners panel; a cropped derivative is also used as `assets/backgrounds/lukas.webp` on the family map and Lukas hero. Resized, metadata removed, and responsively cropped by CSS. |
+| `assets/interests/ana-a380.jpg` | All Nippon Airways Airbus A380 JA381A, “Flying Honu” livery, taking off at Narita | [Masakatsu Ukon / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:All_Nippon_Airways_A380_(JA381A)_@_NRT,_April_2019.jpg) (originally on flickr) | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/) | Lukas’s Airliners card; cropped to 3:2 and resized to 2000 px |
 | `assets/interests/f22-raptor.jpg` | U.S. Air Force F-22 Raptor with condensation cloud | [Trevor Cokley, U.S. Air Force / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:U.S._Air_Force_F-22_Raptor.jpg) | Public domain in the United States as a work of the U.S. federal government | Lukas’s U.S. military jets panel; resized, metadata removed, and responsively cropped by CSS. |
 | `assets/interests/formula-one.jpg` | Carlos Sainz’s Ferrari at the 2024 Dutch Grand Prix | [Steffen Prößdorf / Wikimedia Commons](https://commons.wikimedia.org/wiki/File:2024-08-25_Motorsport,_Formel_1,_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3895_by_Stepro.jpg) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | Lukas’s Formula 1 panel; resized, metadata removed, and responsively cropped by CSS. |
 
@@ -30,7 +30,6 @@ The following photographs are family-owned and were supplied locally by the site
 - `assets/photos/foxy-mid-sentence.jpg`
 - `assets/photos/foxy-golden-hour.jpg`
 - `assets/photos/foxy-upside-down.jpg`
-- `assets/photos/foxy-home-with-lukas.jpg`
 
 Each is an optimized derivative. Production copies are resized sRGB JPEGs (1800 px on the long side) with embedded EXIF, camera, and location metadata removed. The untouched originals remain local (in `foxy/` or on Nick's Desktop) and should not be added to Git. A landscape crop of `foxy-autumn.jpg` is also used as `assets/backgrounds/foxy.webp` on the family map.
 
@@ -45,7 +44,7 @@ Andreas and Oksana tiles are decorative generated stills. They do not depict fam
 | `assets/backgrounds/oksana.webp` | Open notebook on a kitchen table | Original generated still, September 4, 2026 | Oksana map tile, notebook header, and Open Graph image |
 | `assets/backgrounds/kiriakos.webp` | Cheese pizza | Official Mr. Pizza House listing photograph via [Slice](https://slicelife.imgix.net/15429/photos/original/Mr_Pizza_House_SpecialCombo.jpg), also used on [mrpizzahouse.com](https://www.mrpizzahouse.com/). Shop-owned; cropped and resized for the family site at the owner’s request. | Kiriakos map tile, hero, and Open Graph image |
 
-`assets/backgrounds/lukas.webp` is credited with the A380 photograph above. `assets/backgrounds/foxy.webp` is credited with the family photographs above.
+`assets/backgrounds/lukas.webp` (the older pages' family menu) is a crop of [Airbus A380 at sunset by Chad Ajamian](https://commons.wikimedia.org/wiki/File:Airbus_A380_with_sunset_(175372547).jpg), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). `assets/backgrounds/foxy.webp` is credited with the family photographs above.
 
 ## Maintenance rule
 
