@@ -89,7 +89,7 @@ function build() {
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg?v=20261117", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
   const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261119", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261120", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -166,7 +166,7 @@ function build() {
   contact(0, 0.262, DESK, 1.07, 0.09, 0, 0.35, edge);        // where the desk meets the wall
   contact(-0.73, 0.13, DRESSER, 0.3, 0.3, 0, 0.5);           // the globe
   contact(0.66, -0.16, 0.865, 0.12, 0.12, 0, 0.45);          // the candle, on the sill
-  contact(-0.7, -0.1, DRESSER, 0.26, 0.3, 48, 0.4);          // the cap
+  contact(-0.706, -0.1, DRESSER, 0.24, 0.26, 48, 0.5);       // the cap
   contact(-0.9375, 0.267, DRESSER, 0.765, 0.085, 0, 0.35, edge);
   // soft glows round the lit globe and the lamp shade (they used to come from a bloom pass)
   const glowSprite = (color, size) => { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 })); g.scale.setScalar(size); scene.add(g); return g; };
@@ -358,11 +358,12 @@ function build() {
   const tmpUp = new THREE.Vector3(), basis = new THREE.Matrix4(), tmpQ = new THREE.Quaternion();
   const planePath = (s) => {
     // a lazy oval around the lamp, with a loop-the-loop once a lap
-    const a = s * 0.45, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.27, 1.12 + Math.sin(a * 2) * 0.03, -0.05 + Math.sin(a) * 0.15);
-    const lap = ((a / (Math.PI * 2)) % 1 + 1) % 1, k = clamp((lap - 0.22) / 0.16);
+    const a = s * 0.45, P = new THREE.Vector3(0.36 + Math.cos(a) * 0.27, 1.105 + Math.sin(a * 2) * 0.03, -0.05 + Math.sin(a) * 0.15);
+    // the loop: tall and unhurried, over a fifth of the lap, in front of the lamp
+    const lap = ((a / (Math.PI * 2)) % 1 + 1) % 1, k = clamp((lap - 0.14) / 0.2);
     if (k > 0 && k < 1) {
       const ph = ease(k) * Math.PI * 2, f = new THREE.Vector3(-Math.sin(a) * 0.27, 0, Math.cos(a) * 0.15).normalize();
-      P.addScaledVector(f, Math.sin(ph) * 0.055); P.y += (1 - Math.cos(ph)) * 0.055;
+      P.addScaledVector(f, Math.sin(ph) * 0.085); P.y += (1 - Math.cos(ph)) * 0.12;
     }
     return P;
   };

@@ -578,7 +578,7 @@ for i in range(NB + 1):
     for r in range(NR + 1):
         q = r / NR
         x = ix * (1 + 0.1 * q); y = iy - reach * q
-        z = 0.002 - 0.9 * x * x - 0.16 * reach * q
+        z = 0.004 - 0.7 * x * x
         row.append((x, y, z))
     bill.append(row)
 BT = 0.0035
@@ -609,11 +609,10 @@ uv2 = b.loops.layers.uv.verify()
 for f in b.faces:
     for l in f.loops: l[uv2].uv = (0.04, 0.04)
 merge(bm, b)
-# tipped back so it rests on the bill and the back of the band, then turned to show the B
-bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(-13), 3, 'X'))
-zmin = min(v.co.z for v in bm.verts)
-bmesh.ops.translate(bm, vec=(0, 0, -zmin), verts=bm.verts)
-cap = empty('cap', (-0.7, -0.1, DTOP), dres)
+# it sits flat on its band, the bill's curved edges resting on the dresser; then it's turned to show the B
+for v in bm.verts:
+    if v.co.z < 0.0005: v.co.z = 0.0005
+cap = empty('cap', (-0.706, -0.1, DTOP), dres)
 cap.rotation_euler = (0, 0, math.radians(48))
 finish('cap_body', bm, M['cap'], parent=cap, smooth=True, sharp=70)
 
