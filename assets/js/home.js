@@ -52,7 +52,7 @@ float lights(vec2 p){
 const FRAG = `#version 300 es
 precision highp float;
 out vec4 o;
-uniform vec2 uRes; uniform float uT, uFov, uTilt, uNight, uBeam, uGold, uNear, uFar, uCloud;
+uniform vec2 uRes, uLamp; uniform float uT, uFov, uTilt, uNight, uBeam, uGold, uNear, uFar, uCloud;
 uniform vec3 uRo, uF, uR, uU, uSun, cSkyZ, cSkyH, cSun, cAmb, cDeep, cShal, uHi;
 uniform vec4 uShadow, uBoat[3];
 uniform mat2 uTxt;
@@ -94,6 +94,8 @@ float cloudN(vec2 x){
 float cloud(vec2 x){ float c=cloudN(x), e=max(fwidth(c),.002); return smoothstep(.665-e,.665+e,c)*uCloud; }
 // bright colours roll off toward white by their brightest channel, so the hue holds (sand stays sand at noon)
 vec3 tone(vec3 c){ float m=max(max(c.r,c.g),c.b); return m>.82?c*(.82+.18*(1.-exp(-(m-.82)/.18)))/m:c; }
+// where the lighthouse's two beams come down: a broad, soft wash that starts well out from the tower and fades with distance
+float beamLight(vec2 q){ vec2 d=q-uLamp; float r=length(d), a=atan(d.y,d.x)-uBeam; return pow(abs(cos(a)),9.)*smoothstep(.6,1.5,r)*exp(-max(r-1.2,0.)*.55); }
 float cloudShade(vec3 p){ return 1.-.42*cloud(p.xz+uSun.xz/max(uSun.y,.22)*max(CH-p.y,0.)); }
 vec3 sky(vec3 rd){
   vec3 c=mix(cSkyH,cSkyZ,pow(clamp(rd.y,0.,1.),.55));
@@ -179,8 +181,7 @@ void main(){
     float lk=max(l1*.45,l5*.75)*smoothstep(.02,.06,h);
     c=mix(c,mix(c*.55,vec3(.99,.8,.32)*(cAmb+cSun*.6),hiMask),lk);
     c+=uNight*vec3(1.,.72,.35)*lights(p.xz)*1.6;
-    float ba=atan(p.z,p.x); float bm=pow(max(cos(ba-uBeam),0.),90.)*exp(-length(p.xz)*.32);
-    c+=uNight*vec3(1.,.85,.5)*bm*.8;
+    c+=uNight*vec3(1.,.85,.5)*beamLight(p.xz)*.55;
     col=c;
   } else if(tw<1e4 && live){
     vec3 p=ro+rd*tw; dist=tw; wp=p.xz;
@@ -231,8 +232,7 @@ void main(){
     vec3 hv=normalize(uSun-rd); float spec=pow(max(hv.y,0.),260.);
     c+=cSun*spec*(.5+.8*gl)*uGold*mix(.35,1.,uTilt);
     c+=uNight*vec3(1.,.72,.35)*lights(p.xz)*.5;
-    float ba=atan(p.z,p.x); float bm=pow(max(cos(ba-uBeam),0.),90.)*exp(-length(p.xz)*.32);
-    c+=uNight*vec3(1.,.85,.5)*bm*.55;
+    c+=uNight*vec3(1.,.85,.5)*beamLight(p.xz)*.42;
     col=c;
   } else {
     col=sky(rd);
@@ -406,8 +406,6 @@ function buildPlane() {
   return finish();
 }
 
-// A squat, toy-like lighthouse in the same enamel as the plane: banded tower, gallery, a lantern that lights at
-// night, and the keeper's cottage beside it. Units are world units; the base sits at y = 0.
 // A little sailboat: hull, mast and a full sail. Bow toward +z.
 function buildBoat(hull) {
   const { blob, finish } = builder();
@@ -418,6 +416,8 @@ function buildBoat(hull) {
   return finish();
 }
 
+// A squat, toy-like lighthouse in the same enamel as the plane: banded tower, gallery, a lantern that lights at
+// night. Units are world units; the base sits at y = 0.
 function buildLighthouse() {
   const { blob, lathe, finish } = builder();
   lathe([[0, 0], [0, 0.075], [0.035, 0.075], [0.035, 0.0]], () => STONE);
@@ -426,9 +426,6 @@ function buildLighthouse() {
   lathe([[0.348, 0], [0.348, 0.033], [0.41, 0.033], [0.41, 0]], () => [1, 0.86, 0.45], 0.7);
   lathe([[0.405, 0], [0.405, 0.044], [0.43, 0.036], [0.452, 0.016], [0.468, 0.004], [0.475, 0]], () => RED);
   for (let k = 0; k < 6; k += 1) { const a = (k / 6) * Math.PI * 2; blob(Math.cos(a) * 0.033, 0.379, Math.sin(a) * 0.033, 0.004, 0.032, 0.004, 1, 1, () => NAVY); }
-  blob(0.11, 0.034, 0.035, 0.05, 0.034, 0.036, 0.25, 0.22, () => WHITE);
-  blob(0.11, 0.074, 0.035, 0.056, 0.016, 0.042, 0.55, 0.2, () => RED);
-  blob(0.135, 0.03, 0.072, 0.009, 0.016, 0.002, 0.3, 0.3, () => NAVY);
   return finish();
 }
 
@@ -612,6 +609,8 @@ function run() {
   const altEl = root.querySelector("[data-alt]");
   const next = root.querySelector("[data-next]");
   const note = root.querySelector("[data-note]");
+  // the keyboard hint means nothing on a phone: there you just drag to steer, so the note only speaks when there's news
+  if (note && matchMedia("(pointer: coarse)").matches) { note.dataset.help = ""; note.textContent = ""; }
   const flyButton = root.querySelector("[data-fly]");
   const flyLabel = flyButton && flyButton.querySelector("span");
   const flash = root.querySelector("[data-flash]");
@@ -899,6 +898,7 @@ function run() {
     gl.uniform1f(P.u("uNight"), night);
     gl.uniform1f(P.u("uGold"), 0.4 + gold * 0.9);
     gl.uniform1f(P.u("uBeam"), s.beam);
+    gl.uniform2f(P.u("uLamp"), lamp[0], lamp[2]);
     gl.uniform1f(P.u("uCloud"), 1 - night * 0.7);
     gl.uniform1f(P.u("uNear"), NEAR); gl.uniform1f(P.u("uFar"), FAR);
     gl.uniform3fv(P.u("uRo"), ro); gl.uniform3fv(P.u("uF"), f); gl.uniform3fv(P.u("uR"), r); gl.uniform3fv(P.u("uU"), u);
