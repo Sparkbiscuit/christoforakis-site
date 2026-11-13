@@ -613,12 +613,12 @@ merge(bm, b)
 bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(-13), 3, 'X'))
 zmin = min(v.co.z for v in bm.verts)
 bmesh.ops.translate(bm, vec=(0, 0, -zmin), verts=bm.verts)
-cap = empty('cap', (-0.89, -0.05, DTOP), dres)
-cap.rotation_euler = (0, 0, math.radians(28))
+cap = empty('cap', (-0.7, -0.1, DTOP), dres)
+cap.rotation_euler = (0, 0, math.radians(48))
 finish('cap_body', bm, M['cap'], parent=cap, smooth=True, sharp=70)
 
-# ================================================================ the candle: a plain tin, standing on its own lid, lit
-cnd = empty('candle', (-0.655, -0.155, DTOP), dres)
+# ================================================================ the candle: a plain tin on the window sill, standing on its own lid, lit
+cnd = empty('candle', (0.66, -0.16, SILL_Z + 0.03))
 lathe('candle_lid', [(0, 0), (0.0405, 0), (0.0418, 0.0015), (0.0418, 0.0095), (0.0405, 0.011), (0, 0.011)], M['tin'], parent=cnd, seg=56)
 lathe('candle_tin', [(0, 0.011), (0.039, 0.011), (0.0398, 0.0125), (0.0398, 0.042), (0.0392, 0.0436), (0.0398, 0.0452), (0.0398, 0.054), (0.0405, 0.0552), (0.0398, 0.0565), (0.0385, 0.0555), (0.0384, 0.02), (0, 0.02)], M['tin'], parent=cnd, seg=56)
 lathe('candle_wax', [(0, 0.046), (0.0384, 0.046), (0.0384, 0.0455), (0, 0.0455)], M['wax'], parent=cnd, seg=48)

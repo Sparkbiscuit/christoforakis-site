@@ -89,7 +89,7 @@ function build() {
   const screens = { mbp_screen: screenTex("/assets/nicholas/screen-home.jpg?v=20261117", false), phone_screen_a: screenTex("/assets/nicholas/screen-filuma.jpg", false), phone_screen_b: screenTex("/assets/nicholas/screen-meds.jpg", false), print: screenTex("/assets/nicholas/river.jpg", false) };
   const lit = { shade: null, bulb: null, globe: null, flame: null, wax: null, screens: [] };
 
-  loader.load("/assets/nicholas/desk.glb?v=20261118", (gltf) => {
+  loader.load("/assets/nicholas/desk.glb?v=20261119", (gltf) => {
     model = gltf.scene;
     model.traverse((o) => {
       if (!o.isMesh) return;
@@ -131,7 +131,7 @@ function build() {
     // where the lights sit, from the model
     const bulb = find("lamp_bulb"), globe = find("globe_glass");
     if (bulb) { const p = bulb.getWorldPosition(new THREE.Vector3()); lampSpot.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); lampSpot.target.position.copy(p).add(new THREE.Vector3(-0.1, -1, 0.12)); lampGlow.position.copy(p).add(new THREE.Vector3(0, 0.1, 0.02)); lampHalo.position.copy(p).add(new THREE.Vector3(0, 0.02, 0)); }
-    if (globe) { const p = globe.getWorldPosition(new THREE.Vector3()); globeGlow.position.copy(p).add(new THREE.Vector3(0.05, 0.14, 0.12)); globe.geometry.computeBoundingSphere(); globeHalo.position.copy(globe.geometry.boundingSphere.center).applyMatrix4(globe.matrixWorld); }
+    if (globe) { const p = globe.getWorldPosition(new THREE.Vector3()); globeGlow.position.copy(p).add(new THREE.Vector3(0.05, 0.14, 0.12)); globe.geometry.computeBoundingSphere(); globeHalo.position.copy(globe.geometry.boundingSphere.center).applyMatrix4(globe.matrixWorld).add(new THREE.Vector3(0, 0.025, 0)); }
     // the plane flies; the stand it would sit on doesn't exist, so it starts in the air
     if (H.aloft) { H.aloft.node.position.set(0.36, 1.12, -0.04); H.aloft.node.scale.setScalar(0.62); H.aloft.node.traverse((o) => { o.castShadow = false; }); }
     shadowsFor = 3;
@@ -165,16 +165,18 @@ function build() {
   contact(0.3755, 0.1645, DESK, 0.23, 0.23, 0, 0.45);        // the lamp
   contact(0, 0.262, DESK, 1.07, 0.09, 0, 0.35, edge);        // where the desk meets the wall
   contact(-0.73, 0.13, DRESSER, 0.3, 0.3, 0, 0.5);           // the globe
-  contact(-0.655, -0.155, DRESSER, 0.12, 0.12, 0, 0.45);     // the candle
-  contact(-0.89, -0.05, DRESSER, 0.26, 0.3, 28, 0.4);        // the cap
+  contact(0.66, -0.16, 0.865, 0.12, 0.12, 0, 0.45);          // the candle, on the sill
+  contact(-0.7, -0.1, DRESSER, 0.26, 0.3, 48, 0.4);          // the cap
   contact(-0.9375, 0.267, DRESSER, 0.765, 0.085, 0, 0.35, edge);
   // soft glows round the lit globe and the lamp shade (they used to come from a bloom pass)
   const glowSprite = (color, size) => { const g = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 })); g.scale.setScalar(size); scene.add(g); return g; };
-  const globeHalo = glowSprite(0xffa04a, 0.66), lampHalo = glowSprite(0xffaa58, 0.62);
+  const globeHalo = glowSprite(0xffa04a, 0.5), lampHalo = glowSprite(0xffaa58, 0.62);
+  // the globe's glow is a lens effect, not something in the room, so the dresser in front of it mustn't cut it off
+  globeHalo.material.depthTest = false; globeHalo.renderOrder = 2;
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: pool, color: 0xffa850, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
-  halo.position.set(-0.655, DRESSER + 0.068, 0.155); halo.scale.setScalar(0.07); scene.add(halo);
+  halo.position.set(0.66, 0.865 + 0.068, 0.16); halo.scale.setScalar(0.07); scene.add(halo);
   const candlePool = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), new THREE.MeshBasicMaterial({ color: 0xff9a40, alphaMap: pool, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }));
-  candlePool.rotation.x = -Math.PI / 2; candlePool.position.set(-0.655, DRESSER + 0.0008, 0.155); scene.add(candlePool);
+  candlePool.rotation.x = -Math.PI / 2; candlePool.position.set(0.66, 0.865 + 0.0008, 0.16); scene.add(candlePool);
   contact(0.705, 0.17, 0.865, 0.13, 0.13, 0, 0.45);          // the plant, on the sill
 
   // ---------- dust in the sunlight ----------
@@ -217,7 +219,7 @@ function build() {
 
   // ---------- shots ----------
   const SH = {
-    desk: { p: [0.2, 1.42, 2.1], t: [-0.06, 1.2, -0.16], fov: 37 },
+    desk: { p: [0.34, 1.4, 1.95], t: [0.08, 1.16, -0.16], fov: 35 },
     site: { p: [-0.2475, 1.07, 0.47], t: [-0.2475, 0.885, -0.1], fov: 33 },
     river: { p: [-0.17, 1.38, 0.86], t: [-0.19, 1.43, -0.31], fov: 40 },
     hello: { p: [0.47, 1.01, 0.62], t: [0.3, 0.83, 0.14], fov: 30 },
@@ -389,7 +391,7 @@ function build() {
     if (lit.shade) lit.shade.emissiveIntensity = lampSpot.intensity / 2.4 * 0.9;
     if (lit.bulb) lit.bulb.emissiveIntensity = lampSpot.intensity / 2.4 * 6;
     if (lit.globe) lit.globe.emissiveIntensity = gk * 2.6;
-    globeHalo.material.opacity = gk * 0.5;
+    globeHalo.material.opacity = gk * 0.42;
     lampHalo.material.opacity = (lampSpot.intensity / 2.4) * mixv(0.42, 0.12, day);
     // the candle is lit unless someone blows it out
     if (lit.flame) {
